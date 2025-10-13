@@ -1,35 +1,45 @@
 import React, { useState } from 'react';
 import logo from '../assets/logo.png';
-import eyeIcon from '../assets/Eye.png';
+import X from '../assets/X.png';
+import { Link } from 'react-router-dom';
+
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState(false);
 
-  const validateEmail = (value) => {
-    return /\S+@\S+\.\S+/.test(value);
-  };
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+
+  const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
+
+  const validatePassword = (value) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value);
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
-    setEmailError(!validateEmail(value));
+    setEmailError(value !== '' && !validateEmail(value));
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    setPasswordError(value !== '' && !validatePassword(value));
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
-     style={{
-    background: 'linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)'
-  }}
+    <div
+      className="min-h-screen flex items-center justify-center px-4 font-poppins"
+      style={{
+        background: 'linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)',
+      }}
     >
       <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md relative">
-        
         <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl">
           &times;
         </button>
 
-        {/* Use local logo image */}
         <div className="flex justify-center mb-4">
           <img src={logo} alt="Logo" className="h-8" />
         </div>
@@ -45,7 +55,8 @@ const Login = () => {
         </p>
 
         <form>
-          <div className="mb-4">
+          {/* Email */}
+          <div className="mb-4 relative">
             <label className="block text-sm font-semibold text-gray-900 mb-1">
               Email:
             </label>
@@ -54,7 +65,7 @@ const Login = () => {
               value={email}
               onChange={handleEmailChange}
               placeholder="Enter your email"
-              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
                 emailError
                   ? 'border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:ring-purple-600'
@@ -62,27 +73,46 @@ const Login = () => {
               required
             />
             {emailError && (
-              <p className="text-red-600 text-xs mt-1">Invalid credential</p>
+              <img
+                src={X}
+                alt="Invalid email"
+                className="absolute right-3 top-9 h-5 w-5"
+              />
+            )}
+            {emailError && (
+              <p className="text-red-600 text-xs mt-1">Invalid email format</p>
             )}
           </div>
 
+          {/* Password */}
           <div className="mb-4 relative">
             <label className="block text-sm font-semibold text-gray-900 mb-1">
               Password:
             </label>
             <input
-              type={showPassword ? 'text' : 'password'}
+              type="password"
+              value={password}
+              onChange={handlePasswordChange}
               placeholder="Enter your password"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
+                passwordError
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-purple-600'
+              }`}
               required
             />
-            {/* Use eye icon from assets */}
-            <img
-                src={eyeIcon}
-              alt={showPassword ? 'Hide password' : 'Show password'}
-              className="absolute right-3 top-9 h-5 w-5 cursor-pointer select-none"
-              onClick={() => setShowPassword(!showPassword)}
-            />
+            {passwordError && (
+              <img
+                src={X}
+                alt="Invalid password"
+                className="absolute right-3 top-9 h-5 w-5"
+              />
+            )}
+            {passwordError && (
+              <p className="text-red-600 text-xs mt-1">
+                Password must be 8+ chars, include uppercase, lowercase & number
+              </p>
+            )}
           </div>
 
           <div className="flex items-center justify-between text-sm mb-6">
@@ -90,9 +120,10 @@ const Login = () => {
               <input type="checkbox" className="form-checkbox h-4 w-4" />
               <span className="text-gray-900">Remember me</span>
             </label>
-            <a href="#" className="text-purple-700 hover:underline text-sm">
-              forgot password
-            </a>
+               <Link to="/forgot-password" className="text-purple-700 hover:underline text-sm">
+                   forgot password
+              </Link>
+
           </div>
 
           <button
