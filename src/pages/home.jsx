@@ -10,8 +10,8 @@ const Home = () => {
 
       <section className="bg-white py-16 px-6 md:px-20 flex flex-col md:flex-row items-center justify-between">
         <div className="md:w-1/2 space-y-6">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Your Office, Reimagined <span className="text-purple-600">– Virtually.</span>
+          <h1 className="text-4xl font-bold text-000000">
+            Your Office, Reimagined <span className="text-5C0EA4">– Virtually.</span>
           </h1>
           <p className="text-gray-600">
             Meet, collaborate, and create in a virtual space. Vow connects distributed teams through real-time video, chat, and interactive workspaces – all in one place.
