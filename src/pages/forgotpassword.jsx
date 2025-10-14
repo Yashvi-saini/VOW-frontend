@@ -21,17 +21,17 @@ const ForgotPassword = () => {
       }}
     >
       <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md relative">
-        {/* Logo */}
+       
         <div className="flex justify-center mb-4">
           <img src={logo} alt="Logo" className="h-8" />
         </div>
 
-        {/* Heading */}
+        
         <h2 className="text-center text-[28px] font-medium text-gray-900 mb-1">
           Forgot Password
         </h2>
 
-        {/* Instruction text */}
+        
         <p
           className="text-center text-sm mb-6"
           style={{ color: '#707070' }}
@@ -39,7 +39,7 @@ const ForgotPassword = () => {
           Please enter your registered email to receive a verification code.
         </p>
 
-        {/* Form */}
+        
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-1">
@@ -59,13 +59,14 @@ const ForgotPassword = () => {
             type="submit"
             className="w-full bg-[#450B7B] text-white py-3 rounded-md font-semibold hover:bg-[#3a0863] transition"
           >
-            Send OTP
+            Send 
           </button>
         </form>
 
-        {/* Back to login */}
+        
         <p className="mt-4 text-center text-sm" style={{ color: '#707070' }}>
-          <Link to="/login" className="font-medium hover:underline text-purple-700">
+          <Link to="/login" className="font-medium hover:underline text-purple-700"
+          style={{color:'#707070'}}>
             Back to Login
           </Link>
         </p>
@@ -75,4 +76,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-

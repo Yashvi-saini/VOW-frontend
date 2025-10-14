@@ -17,7 +17,9 @@ const Home = () => {
             Meet, collaborate, and create in a virtual space. Vow connects distributed teams through real-time video, chat, and interactive workspaces – all in one place.
           </p>
           <div className="space-x-4">
-            <button className="bg-purple-600 text-white px-6 py-2 rounded-md font-semibold">Get Started</button>
+            <button className="bg-purple-600 text-white px-6 py-2 rounded-md font-semibold"
+            style={{ backgroundColor: '#5E9BFF' }}
+            >Get Started</button>
             <button className="border-2 border-purple-600 text-purple-600 px-6 py-2 rounded-md font-semibold">Watch Demo</button>
           </div>
         </div>
