@@ -42,29 +42,29 @@ const VerifyOtp = () => {
         background: 'linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)',
       }}
     >
-      <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md relative">
+      <div className="bg-white p-20 pt-17 pb-13 rounded-xl shadow-xl w-full max-w-[570px] relative">
         {/* Close button */}
-        <button className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl">
+        <button className="absolute top-14 right-11 text-gray-900 hover:text-gray-900 text-3xl">
           &times;
         </button>
 
         {/* Logo */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center pt-5.5">
           <img src={logo} alt="Logo" className="h-8" />
         </div>
 
         {/* Heading */}
-        <h2 className="text-center text-[24px] font-semibold text-gray-900 mb-1">
+        <h2 className="text-center text-[32px] font-semibold text-gray-900 ">
           Verify Your Email
         </h2>
 
-        <p className="text-center text-sm text-[#707070] mb-6">
+        <p className="text-center text-[16px] text-[#707070] mb-11.5">
           Please enter the code sent to your email
         </p>
 
         {/* OTP Inputs */}
         <form onSubmit={handleVerify}>
-          <div className="flex justify-center gap-3 mb-6">
+          <div className="flex justify-center gap-3 mb-11.5 pb-8">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -75,7 +75,7 @@ const VerifyOtp = () => {
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 ref={(el) => (inputRefs.current[index] = el)}
-                className="w-12 h-12 text-center border border-gray-300 rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-14 h-14 text-center border border-gray-300 rounded-md text-xl focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
             ))}
           </div>
@@ -83,16 +83,16 @@ const VerifyOtp = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#450B7B] text-white py-3 rounded-md font-semibold hover:bg-[#3a0863] transition mb-3"
+            className="w-full text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition mb-2"
           >
             Verify
           </button>
 
           {/* Resend OTP */}
-          <p className="text-center text-sm text-[#707070]">
+          <p className="text-center text-[16px] text-[#707070]">
             <button
               type="button"
-              className="text-purple-700 font-medium hover:underline"
+              className="text-purple-700 font-normal hover:underline"
               style={{color:'#707070'}}
               onClick={() => alert('OTP Resent')}
             >
