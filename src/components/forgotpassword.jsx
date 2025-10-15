@@ -12,7 +12,7 @@ const ForgotPassword = () => {
     setSubmitted(true);
     setTouched(true);
 
-    if (!email || !isEmailValid) return; // don’t submit if invalid
+    if (!email || !isEmailValid) return; // don’t submit if invalid or not
 
     console.log('Sending OTP to:', email);
     // TODO: send OTP API call
