@@ -1,5 +1,5 @@
 import React from "react";
-import checkIcon from "../assets/bigtick.png"; // <-- update path if needed
+import checkIcon from "../assets/bigtick.png"; 
 
 const ResetSuccess = () => {
   return (
@@ -13,7 +13,7 @@ const ResetSuccess = () => {
         }}
       >
         {/* Close (X) button */}
-        <button className="absolute top-[20px] right-[20px] text-gray-500 text-lg hover:text-gray-700 ">
+        <button className="absolute top-[18px] right-[47px] text-gray-500 text-3xl hover:text-gray-700 ">
           ×
         </button>
 
@@ -38,8 +38,9 @@ const ResetSuccess = () => {
           lineHeight: 'normal'}}>
             Password Changed
           </h2>
-          <p className="text-gray-500 text-[14px]">
-            You have successfully changed your password.
+          <p className="text-[#707070] text-[16px]"
+          style={{fontFamily: 'poppins'}}>
+            You have successfully changed your password
           </p>
         </div>
 
