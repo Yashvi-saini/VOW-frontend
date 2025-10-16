@@ -7,19 +7,20 @@ const ForgotPassword = () => {
    const navigate = useNavigate();
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTouched(true);
-   if (!email || !isEmailValid) return ;
-    navigate('/verify-otp');
+ const handleSubmit = (e) => {
+  e.preventDefault();
+  setSubmitted(true);
+  setTouched(true);
 
+  if (!email || !isEmailValid) {
+    // Email invalid → warning shows automatically via state
+    return;
+  }
 
-    if (!email || !isEmailValid) return; // don’t submit if invalid or not
+  console.log('Sending OTP to:', email); // optional
+  navigate('/verify-otp');
+};
 
-    console.log('Sending OTP to:', email);
-    // TODO: send OTP API call
-  };
 
   return (
     <div
