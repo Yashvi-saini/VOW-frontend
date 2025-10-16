@@ -6,29 +6,55 @@ import EyeOff from '../assets/Eyeoff.png';
 import { Link } from 'react-router-dom';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState(false);
+  const [identifier, setIdentifier] = useState('');
+  const [identifierError, setIdentifierError] = useState(false);
 
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
 
+  // ✅ Validation functions
   const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
-
   const validatePassword = (value) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value);
 
-  const handleEmailChange = (e) => {
+  const isEmail = (value) => value.includes('@');
+
+  // ✅ Form Validity
+  const isFormValid =
+    identifier !== '' && !identifierError &&
+    password !== '' && !passwordError;
+
+  // ✅ Event Handlers
+  const handleIdentifierChange = (e) => {
     const value = e.target.value;
-    setEmail(value);
-    setEmailError(value !== '' && !validateEmail(value));
+    setIdentifier(value);
+
+    if (value === '') {
+      setIdentifierError(false);
+      return;
+    }
+
+    if (isEmail(value)) {
+      setIdentifierError(!validateEmail(value));
+    } else {
+      setIdentifierError(value.trim() === '');
+    }
   };
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
     setPasswordError(value !== '' && !validatePassword(value));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!isFormValid) return;
+
+    // ✅ Add your actual login logic here
+    alert('Login successful!');
   };
 
   return (
@@ -60,85 +86,74 @@ const Login = () => {
           </a>
         </p>
 
-        <form>
-          {/* Email Field */}
+        <form onSubmit={handleSubmit}>
+          {/* Identifier Field */}
           <div className="mb-4 relative">
             <label className="block text-sm font-semibold text-gray-900 mb-1">
               Username or Email:
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
-              placeholder="Enter your email"
+              type="text"
+              value={identifier}
+              onChange={handleIdentifierChange}
+              placeholder="Enter your username or email"
               className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
-                emailError
+                identifierError
                   ? 'border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:ring-purple-600'
               }`}
               required
             />
-            {emailError && (
+            {identifierError && (
               <img
                 src={X}
-                alt="Invalid email"
+                alt="Invalid identifier"
                 className="absolute right-3 top-9 h-5 w-5"
               />
             )}
-            {emailError && (
+            {identifierError && (
               <p className="text-red-600 text-xs mt-1">
-                No account found with this name or email.
+                Invalid email or username.
               </p>
             )}
           </div>
 
-        {/* Password Field */}
-<div className="mb-4 relative">
-  <label className="block text-sm font-semibold text-gray-900 mb-1">
-    Password:
-  </label>
-  <input
-    type={showPassword ? 'text' : 'password'}
-    value={password}
-    onChange={handlePasswordChange}
-    placeholder="Enter your password"
-    className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
-      passwordError
-        ? 'border-red-500 focus:ring-red-500'
-        : 'border-gray-300 focus:ring-purple-600'
-    }`}
-    required
-  />
+          {/* Password Field */}
+          <div className="mb-4 relative">
+            <label className="block text-sm font-semibold text-gray-900 mb-1">
+              Password:
+            </label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={handlePasswordChange}
+              placeholder="Enter your password"
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
+                passwordError
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:ring-purple-600'
+              }`}
+              required
+            />
 
-  {/* Toggle and Error Icons */}
-  {!passwordError && (
-    <button
-      type="button"
-      onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-3 top-9"
-    >
-      <img
-        src={showPassword ? EyeOff : Eye}
-        alt="Toggle visibility"
-        className="h-5 w-5 opacity-80 hover:opacity-100 transition"
-      />
-    </button>
-  )}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-9"
+            >
+              <img
+                src={showPassword ? EyeOff : Eye}
+                alt="Toggle visibility"
+                className="h-5 w-5 opacity-80 hover:opacity-100 transition"
+              />
+            </button>
 
-  {passwordError && (
-    <img
-      src={X}
-      alt="Invalid password"
-      className="absolute right-3 top-9 h-5 w-5"
-    />
-  )}
-
-  {passwordError && (
-    <p className="text-red-600 text-xs mt-1">
-      Invalid password. Must include uppercase, lowercase & number.
-    </p>
-  )}
-</div>        
+            {passwordError && (
+              <p className="text-red-600 text-xs mt-1">
+                Password must be at least 8 characters, including uppercase, lowercase, and a number.
+              </p>
+            )}
+          </div>
 
           {/* Remember Me + Forgot Password */}
           <div className="flex items-center justify-between text-sm mb-6">
@@ -157,7 +172,12 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-[#450B7B] text-white py-3 rounded-md font-semibold hover:bg-[#3a0863] transition"
+            disabled={!isFormValid}
+            className={`w-full py-3 rounded-md font-semibold transition ${
+              isFormValid
+                ? 'bg-[#450B7B] text-white hover:bg-[#3a0863]'
+                : 'bg-gray-400 text-gray-700 cursor-not-allowed'
+            }`}
           >
             Login
           </button>
@@ -168,5 +188,7 @@ const Login = () => {
 };
 
 export default Login;
+
+
 
 
