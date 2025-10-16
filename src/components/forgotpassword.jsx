@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false); // track blur (focus loss)
   const [submitted, setSubmitted] = useState(false);
-
+   const navigate = useNavigate();
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
     setTouched(true);
+   if (!email || !isEmailValid) return ;
+    navigate('/verify-otp');
+
 
     if (!email || !isEmailValid) return; // don’t submit if invalid or not
 
@@ -96,7 +99,7 @@ const ForgotPassword = () => {
 
               {/* Validation warning */}
               <p className="text-[#5C0EA4] text-sm mt-1 min-h-[20px]">
-                {(touched || submitted) && email && !isEmailValid
+                {(touched || submitted) && (!email || !isEmailValid)
                   ? 'Enter a valid email (e.g., abc@domain.com)'
                   : ''}
               </p>
@@ -114,7 +117,7 @@ const ForgotPassword = () => {
 
           {/* Back to login */}
           <p className=" text-center text-[17px] text-[#707070]">
-            <a href="#" className="font-normal underline">
+            <a href="/login" className="font-normal underline">
               Back to Login
             </a>
           </p>
