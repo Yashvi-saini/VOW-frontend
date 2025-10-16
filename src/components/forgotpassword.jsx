@@ -15,11 +15,15 @@ const ForgotPassword = () => {
     navigate('/verify-otp');
 
 
-    if (!email || !isEmailValid) return; // don’t submit if invalid or not
+  if (!email || !isEmailValid) {
+    // Email invalid → warning shows automatically via state
+    return;
+  }
 
-    console.log('Sending OTP to:', email);
-    // TODO: send OTP API call
-  };
+  console.log('Sending OTP to:', email); // optional
+  navigate('/verify-otp');
+};
+
 
   return (
     <div
