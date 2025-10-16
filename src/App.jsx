@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/home";
 import Login from "./pages/login";
 import ForgotPassword from './components/forgotpassword';
-import ForgotPassword from './components/forgotpassword';
 import VerifyOtp from './pages/verifyotp';
 import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
@@ -22,6 +21,6 @@ const App = () => {
       </Routes>
     </Router>
   );
-};
+};  
 
 export default App;
