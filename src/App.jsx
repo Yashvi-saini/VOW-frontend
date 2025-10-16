@@ -2,18 +2,20 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/home";
 import Login from "./pages/login";
-import ForgotPassword from './pages/forgotpassword';
+import ForgotPassword from './components/forgotpassword';
+import ForgotPassword from './components/forgotpassword';
 import VerifyOtp from './pages/verifyotp';
 import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
-
+import Signup from "./components/signup";
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-               <Route path="/forgot-password" element={<ForgotPassword />} />
+         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/Signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reset-success" element={<ResetSuccess />} />
