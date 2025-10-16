@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { Link } from "react-router-dom";
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
@@ -62,9 +62,9 @@ export default function Signup() {
 
           <p className="text-[#707070] text-[16px] mb-8 font-normal">
             Already have an account?{" "}
-            <a href="#" className="text-[#5C0EA4] text-[16px] underline">
-              log in
-            </a>
+            <Link to="/login" className="text-[#5C0EA4] text-[16px] underline">
+  log in
+</Link>
           </p>
 
           <form noValidate onSubmit={handleSubmit} className="space-y-4 text-left mt-8 m-3 mb-0">
