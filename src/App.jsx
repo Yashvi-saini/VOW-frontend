@@ -18,9 +18,9 @@ const App = () => {
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reset-success" element={<ResetSuccess />} />
-      </Routes>
+      </Routes> 
     </Router>
   );
-};
+};  
 
 export default App;

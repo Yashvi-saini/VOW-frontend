@@ -1,5 +1,7 @@
 import React from "react";
 import checkIcon from "../assets/bigtick.png"; 
+import { Link } from "react-router-dom";
+
 
 const ResetSuccess = () => {
   return (
@@ -45,12 +47,12 @@ const ResetSuccess = () => {
         </div>
 
         {/* Button */}
-        <a
-          href="/login"
-          className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-[10px] rounded-md font-medium hover:bg-[#4B0FB0] transition text-center"
+       <Link
+          to="/login"
+        className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-[10px] rounded-md font-medium hover:bg-[#4B0FB0] transition text-center"
         >
-          Back to login
-        </a>
+        Back to login
+       </Link>
       </div>
     </div>
   );
