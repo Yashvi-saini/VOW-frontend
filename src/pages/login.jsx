@@ -14,19 +14,20 @@ const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  // ✅ Validation functions
+  // Validation functions
   const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
-  const validatePassword = (value) =>
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value);
+const validatePassword = (value) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
+
 
   const isEmail = (value) => value.includes('@');
 
-  // ✅ Form Validity
+  // Form Validity
   const isFormValid =
     identifier !== '' && !identifierError &&
     password !== '' && !passwordError;
 
-  // ✅ Event Handlers
+ 
   const handleIdentifierChange = (e) => {
     const value = e.target.value;
     setIdentifier(value);
@@ -53,7 +54,7 @@ const Login = () => {
     e.preventDefault();
     if (!isFormValid) return;
 
-    // ✅ Add your actual login logic here
+    
     alert('Login successful!');
   };
 
@@ -64,6 +65,22 @@ const Login = () => {
         background: 'linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)',
       }}
     >
+      {/*hiding default password toggle*/ }
+      <style>
+        {`
+          input[type="password"]::-ms-reveal,
+          input[type="password"]::-ms-clear {
+            display: none;
+          }
+          input[type="password"]::-webkit-textfield-decoration-container,
+          input[type="password"]::-webkit-inner-spin-button,
+          input[type="password"]::-webkit-credentials-auto-fill-button {
+            display: none !important;
+            visibility: hidden;
+          }
+        `}
+      </style>
+
       <div className="bg-white p-20 pt-10 rounded-xl shadow-xl w-full max-w-[570px] relative">
         {/* Close Button */}
         <button className="absolute top-5 right-10 text-gray-900 text-2xl">
@@ -81,7 +98,7 @@ const Login = () => {
         </h2>
         <p className="text-center text-[16px] text-gray-600 mb-6">
           Do not have an account?{' '}
-         <Link to="/signup" className="text-purple-700 font-medium hover:underline">
+         <Link to="/signup" className="text-purple-700 font-small hover:underline">
           Sign up
         </Link>
         </p>
@@ -124,7 +141,7 @@ const Login = () => {
               Password:
             </label>
             <input
-              type={showPassword ? 'text' : 'password'}
+             type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={handlePasswordChange}
               placeholder="Enter your password"
@@ -150,8 +167,9 @@ const Login = () => {
 
             {passwordError && (
               <p className="text-red-600 text-xs mt-1">
-                Password must be at least 8 characters, including uppercase, lowercase, and a number.
+              Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.
               </p>
+
             )}
           </div>
 
