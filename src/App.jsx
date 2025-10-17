@@ -7,11 +7,13 @@ import VerifyOtp from './pages/verifyotp';
 import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
 import Signup from "./components/signup";
+import ApiTester from "./pages/apitester";
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/apitester" element={<ApiTester />} />
         <Route path="/login" element={<Login />} />
          <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/Signup" element={<Signup />} />

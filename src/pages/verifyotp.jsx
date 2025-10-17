@@ -1,60 +1,106 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import React, { useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import logo from "../assets/logo.png";
+import arrow from "../assets/arrow.svg"
 
 const VerifyOtp = () => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const inputRefs = useRef([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const email = location.state?.email; // ✅ email passed from signup
 
   const handleChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return; 
+    if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
-    if (value && index < 5) {
-      inputRefs.current[index + 1].focus();
-    }
+    if (value && index < 5) inputRefs.current[index + 1].focus();
   };
 
   const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
-  const handleVerify = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
-    const code = otp.join('');
+    const code = otp.join("");
     if (code.length !== 6) {
-      alert('Please enter the 6-digit code');
+      alert("Please enter the 6-digit code");
       return;
     }
 
-    navigate('/reset-password');
+    if (!email) {
+      alert("No email found. Please register again.");
+      navigate("/signup");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const res = await fetch("https://vow-org.me/auth/verifyemail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+      console.log("📡 Verify Response:", data);
+
+      if (res.ok && data.success) {
+        setMessage("✅ Email verified successfully!");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        setMessage(`❌ ${data.msg || "Verification failed"}`);
+      }
+    } catch (err) {
+      console.error("❌ Error verifying:", err);
+      setMessage("⚠️ Network or server error.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email) return;
+    try {
+      const res = await fetch("https://vow-org.me/auth/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      setMessage(data.msg || "OTP resent!");
+    } catch (err) {
+      console.error("❌ Resend error:", err);
+      setMessage("⚠️ Could not resend OTP.");
+    }
   };
 
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{
-        background: 'linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)',
+        background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)",
       }}
     >
-      <div className="bg-white p-20 pt-17 pb-13 rounded-xl shadow-xl w-full max-w-[570px] relative">
-        {/* Close button */}
-        <button className="absolute top-14 right-11 text-gray-900 hover:text-gray-900 text-3xl">
-          &times;
+      <div className="bg-white p-10 rounded-xl shadow-xl w-full max-w-[570px] relative">
+        <button className="absolute top-9 left-5 text-gray-900 text-3xl">
+          <img src={arrow} alt="Logo" className="h-8" />
         </button>
 
-        {/* Logo */}
         <div className="flex justify-center pt-5.5">
           <img src={logo} alt="Logo" className="h-8" />
         </div>
 
-        {/* Heading */}
-        <h2 className="text-center text-[32px] font-semibold text-gray-900 ">
+        <h2 className="text-center text-[32px] font-semibold text-gray-900">
           Verify Your Email
         </h2>
 
@@ -62,9 +108,8 @@ const VerifyOtp = () => {
           Please enter the code sent to your email
         </p>
 
-        {/* OTP Inputs */}
-        <form onSubmit={handleVerify}>
-          <div className="flex justify-center gap-3 mb-11.5 pb-8">
+        <form onSubmit={handleVerify} className="mr-10 ml-10">
+          <div className="flex justify-center gap-3  mb-8 box-border">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -80,25 +125,31 @@ const VerifyOtp = () => {
             ))}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition mb-2"
+            disabled={loading}
+            className="w-full text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition"
           >
-            Verify
+            {loading ? "Verifying..." : "Verify"}
           </button>
 
-          {/* Resend OTP */}
-          <p className="text-center text-[16px] text-[#707070]">
+          <p className="text-center text-[16px] text-[#707070] mt-4">
+            Didn’t receive the code?{" "}
             <button
               type="button"
+              onClick={handleResend}
               className="text-purple-700 font-normal hover:underline"
-              style={{color:'#707070'}}
-              onClick={() => alert('OTP Resent')}
+              style={{ color: "#707070" }}
             >
-              Resend otp
+              Resend OTP
             </button>
           </p>
+
+          {message && (
+            <p className="text-center mt-4" style={{ color: message.startsWith("✅") ? "green" : "red" }}>
+              {message}
+            </p>
+          )}
         </form>
       </div>
     </div>
@@ -106,4 +157,3 @@ const VerifyOtp = () => {
 };
 
 export default VerifyOtp;
-
