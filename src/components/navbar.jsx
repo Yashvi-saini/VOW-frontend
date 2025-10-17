@@ -9,10 +9,10 @@ const Navbar = () => {
         <img src={logo} alt="Logo" className="h-8 w-auto" />
          <span className="text-5C0EA4">vow</span>
       </div>
-
+{/* I corrected the git conflict */}
       <ul className="hidden md:flex space-x-8 font-medium text-gray-700"
       style={{ color: '#969696' }}>
-        <li>Home</li>
+        <li>Home</li>  
         <li>Features</li>
         <li>About</li>
         <li>Contact</li>
