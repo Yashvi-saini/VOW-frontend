@@ -1,5 +1,7 @@
 import React from "react";
 import checkIcon from "../assets/bigtick.png"; 
+import { Link } from "react-router-dom";
+
 
 const ResetSuccess = () => {
   return (
