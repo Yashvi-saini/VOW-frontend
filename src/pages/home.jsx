@@ -3,8 +3,6 @@ import Navbar from '../components/navbar';
 import FeatureCards from '../components/featurecard';
 
 const Home = () => {
-  
-
   return (
     <>
       <Navbar />
