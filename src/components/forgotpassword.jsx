@@ -24,17 +24,17 @@ const ForgotPassword = () => {
       const data = res.data;
 
       if (data.success) {
-        setServerMsg("✅ OTP sent successfully!");
-        setTimeout(() => navigate("/verify-otp", { state: { email } }), 1200);
+        setServerMsg(" OTP sent successfully!");
+       setTimeout(() => navigate("/verify-otp", { state: { email, mode: "forgot" } }), 1200);
       } else {
-        setServerMsg(`❌ ${data.msg || "Failed to send OTP"}`);
+        setServerMsg(` ${data.msg || "Failed to send OTP"}`);
       }
     } catch (err) {
       console.error("Forgot Password Error:", err);
       if (err.response && err.response.data) {
-        setServerMsg(`❌ ${err.response.data.msg || "Server error"}`);
+        setServerMsg(` ${err.response.data.msg || "Server error"}`);
       } else {
-        setServerMsg("⚠️ Network or server error.");
+        setServerMsg(" Network or server error.");
       }
     } finally {
       setLoading(false);
@@ -75,12 +75,13 @@ const ForgotPassword = () => {
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
     >
-      <div className="bg-white pt-5 p-10 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 text-center box-border">
+      <div className="bg-white pt-5 p-2 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 text-center sm:px-10 box-border">
         {/* Close Button */}
         <div className="flex justify-start">
           <button
             className="text-gray-800 font-bold text-3xl mt-1 mr-2 pr-1 text-center"
             aria-label="Close"
+            onClick={() => navigate(-1)}
           >
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>
@@ -126,7 +127,7 @@ const ForgotPassword = () => {
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
                 {(touched || serverMsg) && (!email || !isEmailValid)
                   ? "Enter a valid email (e.g., abc@domain.com)"
-                  : ""}
+                  : serverMsg}
               </p>
             </div>
 
@@ -139,9 +140,7 @@ const ForgotPassword = () => {
               {loading ? "Sending..." : "Send"}
             </button>
 
-            {serverMsg && (
-              <p className="text-center mt-3 text-red-500">{serverMsg}</p>
-            )}
+            
           </form>
 
           {/* Back to login */}

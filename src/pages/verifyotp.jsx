@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
 import arrow from "../assets/arrow.svg";
-import { verifyEmail, resendOtp, forgotPassword } from '../api/authApi';
+import { verifyEmail, resendOtp, forgotPassword, verifyresetotp } from '../api/authApi';
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -47,90 +47,111 @@ const VerifyOtp = () => {
   };
 
   const handleVerify = async (e) => {
-    e.preventDefault();
-    const code = otp.join("");
-    if (code.length !== 6) {
-      alert("Please enter the 6-digit code");
-      return;
-    }
-    if (!email) {
-      alert("No email found. Please try again.");
-      navigate(mode === "signup" ? "/signup" : "/forgot-password");
-      return;
-    }
+  e.preventDefault();
+  const code = otp.join("");
+  if (code.length !== 6) {
+    alert("Please enter the 6-digit code");
+    return;
+  }
+  if (!email) {
+    alert("No email found. Please try again.");
+    navigate(mode === "signup" ? "/signup" : "/forgot-password");
+    return;
+  }
 
-    setLoading(true);
-    setMessage("");
-    setOtpError(false);
+  setLoading(true);
+  setMessage("");
+  setOtpError(false);
 
-    try {
-      let res, data;
-      if (mode === "signup") {
-        res = await verifyEmail({ email, code });
-        data = res.data;
-      } else if (mode === "forgot") {
-        // Assuming forgot password uses verifyEmail endpoint too
-        res = await verifyEmail({ email, code });
-        data = res.data;
-      }
+  try {
+    let res, data;
+
+    if (mode === "signup") {
+      const payload = { email, code };
+      console.log("📤 Signup verifyEmail payload:", payload); // Log payload
+      res = await verifyEmail(payload);
+      data = res.data;
+      console.log("📥 Signup verifyEmail response:", data); // Log response
 
       if (res.status === 200 && data.success) {
         setMessage("✅ OTP verified successfully!");
-        setOtpError(false);
-        setTimeout(() => navigate(mode === "signup" ? "/login" : "/reset-password", { state: { email } }), 1500);
+        setTimeout(() => navigate("/login"), 1500);
       } else {
         setOtpError(true);
         setMessage(data.msg || "Invalid OTP");
       }
-    } catch (err) {
-      console.error("Error verifying OTP:", err);
-      setOtpError(true);
-      setMessage("Network or server error.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleResend = async () => {
-    if (!email || timer > 0) return;
-    setTimer(30);
-    setResendLoading(true);
-    setMessage("");
+    } else {
+      const payload = { email, otp: code };
+      console.log("📤 Forgot verifyresetotp payload:", payload); // Log payload
+      res = await verifyresetotp(payload);
+      data = res.data;
+      console.log("📥 Forgot verifyresetotp response:", data); // Log response
 
-    try {
-      let res, data;
-      if (mode === "signup") {
-        res = await resendOtp({ email });
-        data = res.data;
-      } else if (mode === "forgot") {
-        res = await forgotPassword({ email });
-        data = res.data;
+      if (res.status === 200 && data.success) {
+        setMessage("✅ OTP verified! Proceed to reset password.");
+        setTimeout(() => navigate("/reset-password", { state: { email, otp: code } }), 1000);
+      } else {
+        setOtpError(true);
+        setMessage(data.msg || "Invalid OTP");
       }
-      setMessage(data.msg || "OTP resent!");
-    } catch (err) {
-      console.error("Error resending OTP:", err);
-      setMessage("Could not resend OTP.");
-    } finally {
-      setResendLoading(false);
     }
-  };
+  } catch (err) {
+    console.error("Error verifying OTP:", err);
+    setOtpError(true);
+    setMessage("Network or server error.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleResend = async () => {
+  if (!email || timer > 0) return;
+  setTimer(30);
+  setResendLoading(true);
+  setMessage("");
+
+  try {
+    let res, data;
+
+    if (mode === "signup") {
+      const payload = { email };
+      console.log("📤 Signup resendOtp payload:", payload); // Log payload
+      res = await resendOtp(payload);
+      data = res.data;
+      console.log("📥 Signup resendOtp response:", data); // Log response
+    } else {
+      const payload = { email };
+      console.log("📤 Forgot forgotPassword payload:", payload); // Log payload
+      res = await forgotPassword(payload);
+      data = res.data;
+      console.log("📥 Forgot forgotPassword response:", data); // Log response
+    }
+
+    setMessage(data.msg || "OTP resent!");
+  } catch (err) {
+    console.error("Error resending OTP:", err);
+    setMessage("Could not resend OTP.");
+  } finally {
+    setResendLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
     >
-      <div className="bg-white p-6 sm:p-10 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
-        {/* Back Arrow */}
-        <button className="absolute top-6 left-5 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
+      <div className="bg-white p-6 sm:p-10 rounded-xl shadow-xl w-full max-w-[570px] mx-4 sm:mx-20">
+
+        <button className="absolute top-6 left-5" onClick={() => navigate(-1)}>
           <img src={arrow} alt="Back" className="h-6 sm:h-8" />
         </button>
 
-        {/* Logo */}
         <div className="flex justify-center pt-4">
           <img src={logo} alt="Logo" className="h-8 sm:h-10" />
         </div>
 
-        {/* Heading */}
         <h2 className="text-center text-[24px] sm:text-[32px] font-semibold text-gray-900 mt-4">
           {mode === "signup" ? "Verify Your Email" : "Reset Password OTP"}
         </h2>
@@ -140,7 +161,6 @@ const VerifyOtp = () => {
             : "Enter the OTP sent to your email to reset your password."}
         </p>
 
-        {/* OTP Inputs */}
         <form onSubmit={handleVerify} className="w-full">
           <div className="flex justify-between mb-8">
             {otp.map((digit, index) => (
@@ -163,17 +183,14 @@ const VerifyOtp = () => {
             ))}
           </div>
 
-          {/* Message */}
           <p className={`text-center mb-4 ${otpError ? "text-[#E63946]" : "text-green-600"}`} style={{ minHeight: "1em" }}>
             {message || " "}
           </p>
 
-          {/* Verify Button */}
           <button type="submit" disabled={loading} className="w-full text-[18px] sm:text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition">
             {loading ? "Verifying..." : "Verify OTP"}
           </button>
 
-          {/* Resend OTP Button */}
           <div className="flex justify-center mt-4 text-[#450B7B]">
             <button
               type="button"

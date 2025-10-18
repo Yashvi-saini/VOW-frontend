@@ -63,7 +63,7 @@ const Login = () => {
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
     >
-      <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 pr-20 pl-20 relative">
+      <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 pr-9 pl-9 sm:px-20 relative">
         
         <button className="absolute top-3 left-6 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
                   <img src={arrow} alt="Back" className="h-6 sm:h-8" />

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import arrow from "../assets/arrow.svg"
+
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [usernameFocused, setUsernameFocused] = useState(false);
@@ -137,13 +137,13 @@ export default function Signup() {
       className="min-h-screen flex items-center justify-center"
       style={{ background: "linear-gradient(55deg, #BFA2E1 26%,#EFE7F6 70%)" }}
     >
-      <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3 mt-1 mb-1 max-w-[570px] text-center box-border overflow-hidden">
-        <div className="flex justify-start">
+      <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden">
+        <div className="flex justify-end">
           <button
-            className="text-gray-800 font-bold text-3xl mt-4 ml-3 "
+            className="text-gray-800 font-bold text-3xl mt-2 mr-4 pr-4"
             aria-label="Close"
           >
-              <img src={arrow} alt="Back" className="h-6 sm:h-8" />
+            ×
           </button>
         </div>
 
@@ -203,9 +203,10 @@ export default function Signup() {
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
                 {usernameExists
-                  ? "Username already exist"
+                  ? "Username already taken"
                   : username && !isUsernameValid
-                  ? (<span className="text-[#558CE6]">Username must be at least 3 characters</span>)                  : ""}
+                  ? "Username must be at least 3 characters"
+                  : ""}
               </p>
             </div>
 
@@ -239,16 +240,13 @@ export default function Signup() {
                 />
                 {renderIcon(emailExists, isEmailValid && !emailExists)}
               </div>
-              <p className="text-sm mt-1 min-h-[20px]">
-  {emailExists ? (
-    <span className="text-red-500">Account with this email already exists</span>
-  ) : email && !isEmailValid ? (
-    <span className="text-[#558CE6]">Enter a valid email (e.g., abc@domain.com)</span>
-  ) : (
-    ""
-  )}
-</p>
-
+              <p className="text-sm mt-1 min-h-[20px] text-red-500">
+                {emailExists
+                  ? "Email already exists"
+                  : email && !isEmailValid
+                  ? "Enter a valid email"
+                  : ""}
+              </p>
             </div>
 
             {/* Password */}
@@ -352,5 +350,3 @@ export default function Signup() {
     </div>
   );
 }
-
-

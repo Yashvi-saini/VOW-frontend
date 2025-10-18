@@ -62,7 +62,7 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const res = await resetPassword({ email, password });
+      const res = await resetPassword({ password });
       if (res.status === 200 && res.data.success) {
         navigate("/reset-success"); // go to success page
       } else {
