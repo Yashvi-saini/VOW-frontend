@@ -24,7 +24,7 @@ const ForgotPassword = () => {
       const data = res.data;
 
       if (data.success) {
-        setServerMsg(" OTP sent successfully!");
+        setServerMsg("");
         setTimeout(
           () => navigate("/verify-otp", { state: { email, mode: "forgot" } }),
           1200
