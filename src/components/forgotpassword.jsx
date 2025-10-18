@@ -75,9 +75,9 @@ const ForgotPassword = () => {
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
     >
-      <div className="bg-white pt-5 p-10 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 text-center box-border">
+      <div className="bg-white pt-5 px-1 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 sm:px-10 text-center box-border">
         {/* Close Button */}
-        <div className="flex justify-start">
+        <div className="flex justify-start mt-5">
           <button
             className="text-gray-800 font-bold text-3xl mt-1 mr-2 pr-1 text-center"
             aria-label="Close"
@@ -126,7 +126,7 @@ const ForgotPassword = () => {
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
                 {(touched || serverMsg) && (!email || !isEmailValid)
                   ? "Enter a valid email (e.g., abc@domain.com)"
-                  : ""}
+                  : serverMsg}
               </p>
             </div>
 
@@ -139,13 +139,11 @@ const ForgotPassword = () => {
               {loading ? "Sending..." : "Send"}
             </button>
 
-            {serverMsg && (
-              <p className="text-center mt-3 text-red-500">{serverMsg}</p>
-            )}
+            
           </form>
 
           {/* Back to login */}
-          <p className="text-center text-[17px] text-[#707070] mt-6">
+          <p className="text-center text-[17px] text-[#707070] mt-1">
             <a href="/login" className="font-normal underline">
               Back to Login
             </a>
