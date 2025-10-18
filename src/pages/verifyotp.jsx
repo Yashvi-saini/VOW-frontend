@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
 import arrow from "../assets/arrow.svg";
-import { verifyEmail, resendOtp, forgotPassword, verifyresetotp } from '../api/authApi';
+import { verifyEmail, resendOtp, forgotPassword, verifyResetOtp } from '../api/authApi';
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -26,6 +26,7 @@ const VerifyOtp = () => {
     }
   }, [timer]);
 
+  // Handle OTP input change
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
@@ -46,63 +47,85 @@ const VerifyOtp = () => {
     }
   };
 
+  // Verify OTP
   const handleVerify = async (e) => {
-  e.preventDefault();
-  const code = otp.join("");
-  if (code.length !== 6) {
-    alert("Please enter the 6-digit code");
-    return;
-  }
-  if (!email) {
-    alert("No email found. Please try again.");
-    navigate(mode === "signup" ? "/signup" : "/forgot-password");
-    return;
-  }
+    e.preventDefault();
+    const code = otp.join("");
+    if (code.length !== 6) {
+      setOtpError(true);
+      setMessage("Please enter the 6-digit OTP.");
+      return;
+    }
+    if (!email) {
+      alert("No email found. Please try again.");
+      navigate(mode === "signup" ? "/signup" : "/forgot-password");
+      return;
+    }
 
   setLoading(true);
   setMessage("");
   setOtpError(false);
 
-  try {
-    let res, data;
+    try {
+      let res, data;
 
-    if (mode === "signup") {
-      const payload = { email, code };
-      console.log("📤 Signup verifyEmail payload:", payload); // Log payload
-      res = await verifyEmail(payload);
+      if (mode === "signup") {
+        console.log("Sending signup verifyEmail payload:", { email, code });
+        res = await verifyEmail({ email, code });
+      } else if (mode === "forgot") {
+        console.log("Sending forgot verifyResetOtp payload:", { email, otp: code });
+        res = await verifyResetOtp({ email, otp: code });
+      }
       data = res.data;
-      console.log("📥 Signup verifyEmail response:", data); // Log response
 
       if (res.status === 200 && data.success) {
-        setMessage("✅ OTP verified successfully!");
-        setTimeout(() => navigate("/login"), 1500);
+        setOtpError(false);
+        setMessage(" OTP verified successfully!");
+        setTimeout(() => {
+          if (mode === "signup") {
+            navigate("/login");
+          } else {
+            navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
+          }
+        }, 1500);
       } else {
         setOtpError(true);
-        setMessage(data.msg || "Invalid OTP");
+        setMessage(data.msg || "Invalid OTP. Please try again.");
       }
-
-    } else {
-      const payload = { email, otp: code };
-      console.log("📤 Forgot verifyresetotp payload:", payload); // Log payload
-      res = await verifyresetotp(payload);
-      data = res.data;
-      console.log("📥 Forgot verifyresetotp response:", data); // Log response
-
-      if (res.status === 200 && data.success) {
-        setMessage("✅ OTP verified! Proceed to reset password.");
-        setTimeout(() => navigate("/reset-password", { state: { email, otp: code } }), 1000);
-      } else {
-        setOtpError(true);
-        setMessage(data.msg || "Invalid OTP");
-      }
+    } catch (err) {
+      console.error("Error verifying OTP:", err);
+      setOtpError(true);
+      setMessage(err.response?.data?.msg || "Network or server error.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Error verifying OTP:", err);
-    setOtpError(true);
-    setMessage("Network or server error.");
-  } finally {
-    setLoading(false);
+  };
+
+  // Resend OTP
+  const handleResend = async () => {
+    if (!email || timer > 0) return;
+    setTimer(30);
+    setResendLoading(true);
+    setMessage("");
+
+    try {
+      let res, data;
+      if (mode === "signup") {
+        res = await resendOtp({ email });
+        
+      } else if (mode === "forgot") {
+        res = await forgotPassword({ email });
+      }
+      data = res.data;
+      setMessage(data.msg || "OTP sent successfully!");
+    } catch (err) {
+      console.error("Error resending OTP:", err);
+      setMessage(err.response?.data?.msg || "Could not resend OTP.");
+    } finally {
+      setResendLoading(false);
+    }
   }
+   
 };
 
 const handleResend = async () => {
@@ -205,6 +228,6 @@ const handleResend = async () => {
       </div>
     </div>
   );
-};
+
 
 export default VerifyOtp;
