@@ -1,18 +1,25 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/Eyeoff.png";
 import logo from "../assets/logo.png";
-import { useEffect } from "react";
-
+import { resetPassword } from "../api/authApi";
+import arrow from "../assets/arrow.svg";
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email;
+
+  if (!email) {
+    navigate("/forgot-password"); // redirect if email not found
+  }
 
   // Password rules
   const passwordRules = [
@@ -25,27 +32,23 @@ const ResetPassword = () => {
 
   const firstUnmetRule = passwordRules.find(rule => !rule.test(password));
   const isPasswordValid = passwordRules.every(rule => rule.test(password));
-useEffect(() => {
-  if (isPasswordValid && error === "Please meet all password requirements before continuing.") {
-    setError("");
-  }
-}, [isPasswordValid, error]);
 
-useEffect(() => {
-  if (
-    password === confirm &&
-    error === "Passwords do not match"
-  ) {
-    setError("");
-  }
-}, [password, confirm, error]);
+  useEffect(() => {
+    if (isPasswordValid && error === "Please meet all password requirements before continuing.") {
+      setError("");
+    }
+  }, [isPasswordValid, error]);
 
+  useEffect(() => {
+    if (password === confirm && error === "Passwords do not match") {
+      setError("");
+    }
+  }, [password, confirm, error]);
 
-  const handleReset = (e) => {
+  const handleReset = async (e) => {
     e.preventDefault();
     setError("");
-   
-    
+
     if (!isPasswordValid) {
       setError("Please meet all password requirements before continuing.");
       return;
@@ -56,21 +59,34 @@ useEffect(() => {
       return;
     }
 
-    navigate("/reset-success");
+    setLoading(true);
+
+    try {
+      const res = await resetPassword({ password });
+      if (res.status === 200 && res.data.success) {
+        navigate("/reset-success"); // go to success page
+      } else {
+        setError(res.data.msg || "Failed to reset password");
+      }
+    } catch (err) {
+      console.error("Reset password error:", err);
+      setError("Network or server error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EADCFB] to-[#D3C3F7]">
-      <div
-        className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative flex flex-col px-20 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
+      <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative  mx-2 flex-col px-10 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
         style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.08)" }}
       >
         {/* Close Icon */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 right-10 text-gray-400 hover:text-gray-600 text-xl"
+          className="absolute top-4 left-10 text-gray-400 hover:text-gray-600 text-xl"
         >
-          ✕
+          <img src={arrow} alt="Back" className="h-6 sm:h-8" />
         </button>
 
         {/* Logo */}
@@ -78,30 +94,17 @@ useEffect(() => {
           <img src={logo} alt="Logo" className="h-8" />
         </div>
 
-        {/* Title */}
-        <h2
-          style={{
-            color: "#1F2937",
-            textAlign: "center",
-            fontFamily: "Poppins",
-            fontSize: "32px",
-            fontStyle: "normal",
-            fontWeight: 500,
-            lineHeight: "normal",
-          }}
-        >
+        <h2 className="text-center text-[32px] font-medium text-[#1F2937] mt-4">
           Reset Password
         </h2>
-        <p className="flex justify-center text-[#707070] text-[16px] mb-8 font-normal">
+        <p className="text-center text-[#707070] text-[16px] mb-8 font-normal">
           Enter your new password below
         </p>
 
         <form onSubmit={handleReset} className="flex flex-col space-y-5">
           {/* New Password */}
           <div className="flex flex-col mb-0">
-            <label className="text-[14px] font-medium text-gray-700 mb-1 mt-0">
-              New Password:
-            </label>
+            <label className="text-[14px] font-medium text-gray-700 mb-1 mt-0">New Password:</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -119,7 +122,6 @@ useEffect(() => {
                 }`}
                 required
               />
-              
               <img
                 src={password.length > 0 ? (showPassword ? EyeOff : Eye) : Eye}
                 alt="Toggle visibility"
@@ -127,22 +129,14 @@ useEffect(() => {
                 onClick={() => setShowPassword(!showPassword)}
               />
             </div>
-
-            {/* Warning / requirement space */}
-            <p
-  className={`text-sm mt-1 mb-3 min-h-[20px] ${
-    password.length > 0 && firstUnmetRule ? "text-[#558CE6]" : "text-transparent"
-  }`}
->
-  {password&&firstUnmetRule?.message || " "} {/* put a space to preserve line height */}
-</p>
+            <p className={`text-sm mt-1 mb-3 min-h-[20px] ${password.length > 0 && firstUnmetRule ? "text-[#558CE6]" : "text-transparent"}`}>
+              {password && firstUnmetRule?.message || " "}
+            </p>
           </div>
 
           {/* Confirm Password */}
           <div className="flex flex-col mb-0">
-            <label className="text-[14px] font-medium text-gray-700 mb-1">
-              Confirm Password:
-            </label>
+            <label className="text-[14px] font-medium text-gray-700 mb-1">Confirm Password:</label>
             <div className="relative">
               <input
                 type={showConfirm ? "text" : "password"}
@@ -165,29 +159,20 @@ useEffect(() => {
                 onClick={() => setShowConfirm(!showConfirm)}
               />
             </div>
-
-            {/* Fixed space for confirm password errors */}
             <p className="text-sm min-h-[20px] text-transparent"></p>
           </div>
 
           {/* Error Message */}
-          { (
-            <p
-  className={`text-sm text-center -mt-1 mb-1 min-h-[20px] transition-all ${
-    error ? "text-[#558CE6]" : "text-transparent"
-  }`}
->
-  {error || " "} {/* keeps the height stable */}
-</p>
-          )}
-
-          
+          <p className={`text-sm text-center -mt-1 mb-1 min-h-[20px] transition-all ${error ? "text-[#558CE6]" : "text-transparent"}`}>
+            {error || " "}
+          </p>
 
           <button
             type="submit"
-            className="w-full bg-[#4B0076] text-white py-2 rounded-md font-medium hover:bg-[#3a0060] transition-colors "
+            disabled={loading}
+            className="w-full bg-[#4B0076] text-white py-2 rounded-md font-medium hover:bg-[#3a0060] transition-colors"
           >
-            Send
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
       </div>
