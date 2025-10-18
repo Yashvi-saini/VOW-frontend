@@ -8,6 +8,7 @@ import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
 import Signup from "./components/signup";
 import ApiTester from "./pages/apitester";
+import Dashboard from "./pages/dashboard";
 const App = () => {
   return (
     <Router>
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reset-success" element={<ResetSuccess />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes> 
     </Router>
   );
