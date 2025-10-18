@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import arrow from "../assets/arrow.svg";
 
+import { registerUser } from "../api/authApi";
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [usernameFocused, setUsernameFocused] = useState(false);
@@ -48,7 +50,7 @@ export default function Signup() {
     password && passwordRules.every((rule) => rule.test(password));
   const isFormValid =
     isUsernameValid && isEmailValid && isPasswordValid && termsAccepted;
-
+/******** */
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,15 +64,11 @@ export default function Signup() {
     const payload = { username, email, password };
 
     try {
-      const res = await fetch("https://vow-org.me/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
+      const res = await registerUser(payload);
+    const data = res.data;
 
-      if (res.ok && data.success) {
-        setServerMsg("✅ Registered successfully! Verification email sent.");
+      if ( data.success) {
+        setServerMsg(" ");
         navigate("/verify-otp", { state: { email } });
       } else {
         const msg = data.msg?.toLowerCase() || "";
@@ -81,11 +79,11 @@ export default function Signup() {
           setEmailExists(true);
         }
         if (!msg.includes("username") && !msg.includes("user already exist")) {
-          setServerMsg(`❌ ${data.msg || "Registration failed"}`);
+          setServerMsg(` ${data.msg || "Registration failed"}`);
         }
       }
     } catch (err) {
-      setServerMsg("⚠️ Network or server error. Please try again later.");
+      setServerMsg(" Network or server error. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -138,12 +136,12 @@ export default function Signup() {
       style={{ background: "linear-gradient(55deg, #BFA2E1 26%,#EFE7F6 70%)" }}
     >
       <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden">
-        <div className="flex justify-end">
+        <div className="flex justify-start">
           <button
-            className="text-gray-800 font-bold text-3xl mt-2 mr-4 pr-4"
+            className="text-gray-800 font-bold text-3xl mt-2 ml-4 "
             aria-label="Close"
           >
-            ×
+            <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>
         </div>
 

@@ -52,14 +52,14 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-poppins" style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}>
-      <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 pr-20 pl-20 relative">
+      <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 pr-10 pl-10 sm:px-20 relative">
         {/* Back Button */}
-        <button className="absolute top-3 left-6 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
+        <button className="absolute top-3 left-6 text-gray-900 text-3xl " onClick={() => navigate("/")}>
           <img src={arrow} alt="Back" className="h-6 sm:h-8" />
         </button>
 
         {/* Logo */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 ">
           <img src={logo} alt="Logo" className="h-8" />
         </div>
         

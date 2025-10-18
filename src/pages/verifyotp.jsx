@@ -80,7 +80,7 @@ const VerifyOtp = () => {
 
       if (res.status === 200 && data.success) {
         setOtpError(false);
-        setMessage(" OTP verified successfully!");
+        setMessage("");
         setTimeout(() => {
           if (mode === "signup") {
             navigate("/login");
@@ -117,7 +117,7 @@ const VerifyOtp = () => {
         res = await forgotPassword({ email });
       }
       data = res.data;
-      setMessage(data.msg || "OTP sent successfully!");
+      setMessage(data.msg || "");
     } catch (err) {
       console.error("Error resending OTP:", err);
       setMessage(err.response?.data?.msg || "Could not resend OTP.");
