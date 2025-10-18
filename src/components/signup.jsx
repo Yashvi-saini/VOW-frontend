@@ -70,7 +70,7 @@ export default function Signup() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setServerMsg("✅ Registered successfully! Verification email sent.");
+        setServerMsg(" Registered successfully! Verification email sent.");
         navigate("/verify-otp", { state: { email } });
       } else {
         const msg = data.msg?.toLowerCase() || "";
@@ -81,11 +81,11 @@ export default function Signup() {
           setEmailExists(true);
         }
         if (!msg.includes("username") && !msg.includes("user already exist")) {
-          setServerMsg(`❌ ${data.msg || "Registration failed"}`);
+          setServerMsg(` ${data.msg || "Registration failed"}`);
         }
       }
     } catch (err) {
-      setServerMsg("⚠️ Network or server error. Please try again later.");
+      setServerMsg(" Network or server error. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -142,6 +142,7 @@ export default function Signup() {
           <button
             className="text-gray-800 font-bold text-3xl mt-4 ml-3 "
             aria-label="Close"
+            onClick={() => navigate("/")}
           >
               <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>

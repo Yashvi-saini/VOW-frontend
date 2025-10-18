@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../api/authApi";
-import arrow from "../assets/arrow.svg"
+import arrow from "../assets/arrow.svg";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
@@ -24,17 +24,20 @@ const ForgotPassword = () => {
       const data = res.data;
 
       if (data.success) {
-        setServerMsg("✅ OTP sent successfully!");
-        setTimeout(() => navigate("/verify-otp", { state: { email,mode:"forgot" } }), 1200);
+        setServerMsg(" OTP sent successfully!");
+        setTimeout(
+          () => navigate("/verify-otp", { state: { email, mode: "forgot" } }),
+          1200
+        );
       } else {
-        setServerMsg(`❌ ${data.msg || "Failed to send OTP"}`);
+        setServerMsg(` ${data.msg || "Failed to send OTP"}`);
       }
     } catch (err) {
       console.error("Forgot Password Error:", err);
       if (err.response && err.response.data) {
-        setServerMsg(`❌ ${err.response.data.msg || "Server error"}`);
+        setServerMsg(` ${err.response.data.msg || "Server error"}`);
       } else {
-        setServerMsg("⚠️ Network or server error.");
+        setServerMsg(" Network or server error.");
       }
     } finally {
       setLoading(false);
@@ -53,34 +56,47 @@ const ForgotPassword = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            d="M5 13l4 4L19 7"
+          />
         </svg>
       );
-    else
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 absolute inset-y-0 right-2 m-auto text-red-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      );
+    // else
+    //   return (
+    //     <svg
+    //       xmlns="http://www.w3.org/2000/svg"
+    //       className="w-5 h-5 absolute inset-y-0 right-2 m-auto text-red-500"
+    //       fill="none"
+    //       viewBox="0 0 24 24"
+    //       stroke="currentColor"
+    //     >
+    //       <path
+    //         strokeLinecap="round"
+    //         strokeLinejoin="round"
+    //         strokeWidth={3}
+    //         d="M6 18L18 6M6 6l12 12"
+    //       />
+    //     </svg>
+    //   );
   };
 
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
-      style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
+      style={{
+        background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)",
+      }}
     >
-      <div className="bg-white pt-5 px-1 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 sm:px-10 text-center box-border">
+      <div className="bg-white pt-5 px-3 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 sm:px-10 text-center box-border">
         {/* Close Button */}
         <div className="flex justify-start mt-5">
           <button
             className="text-gray-800 font-bold text-3xl mt-1 mr-2 pr-1 text-center"
             aria-label="Close"
+            onClick={() => navigate(-1)}
           >
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>
@@ -105,29 +121,36 @@ const ForgotPassword = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="text-left relative">
             <div className="mb-4">
-              <label className="block text-1xl font-bold text-gray-900 mb-1">Email:</label>
+              <label className="block text-1xl font-bold text-gray-900 mb-1">
+                Email:
+              </label>
               <div className="relative">
                 <input
                   type="text"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setServerMsg(""); // <-- clear server message on change
+                  }}
                   onBlur={() => setTouched(true)}
                   placeholder="Enter your email"
                   className={`w-full border rounded-lg px-2 py-2 text-[17px] focus:outline-none focus:ring-2 transition ${
                     email
                       ? isEmailValid
-                        ?"border-green-500 focus:ring-green-500"
-                    : ""
+                        ? "border-green-500 focus:ring-green-500"
+                        : "border-gray-400 focus:ring-[#5C0EA4]"
                       : "border-gray-400 focus:ring-[#5C0EA4]"
                   }`}
                 />
                 {renderIcon()}
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
-                {(touched || serverMsg) && (!email || !isEmailValid)
-                  ? "Enter a valid email (e.g., abc@domain.com)"
-                  : serverMsg}
-              </p>
+  {touched && !email
+    ? "Please enter your email"
+    : touched && email && !isEmailValid
+    ? "Enter a valid email (e.g., abc@domain.com)"
+    : serverMsg}
+</p>
             </div>
 
             <button
@@ -138,8 +161,6 @@ const ForgotPassword = () => {
             >
               {loading ? "Sending..." : "Send"}
             </button>
-
-            
           </form>
 
           {/* Back to login */}

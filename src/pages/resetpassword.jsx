@@ -4,7 +4,7 @@ import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/Eyeoff.png";
 import logo from "../assets/logo.png";
 import { resetPassword } from "../api/authApi";
-
+import arrow from "../assets/arrow.svg";
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -78,15 +78,15 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EADCFB] to-[#D3C3F7]">
-      <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative flex flex-col px-20 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
+      <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative  mx-2 flex-col px-10 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
         style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.08)" }}
       >
         {/* Close Icon */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 right-10 text-gray-400 hover:text-gray-600 text-xl"
+          className="absolute top-4 left-10 text-gray-400 hover:text-gray-600 text-xl"
         >
-          ✕
+          <img src={arrow} alt="Back" className="h-6 sm:h-8" />
         </button>
 
         {/* Logo */}
