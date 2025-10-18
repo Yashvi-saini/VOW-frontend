@@ -2,16 +2,18 @@ import React, { useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
 import arrow from "../assets/arrow.svg"
+import { verifyEmail,resendOtp } from '../api/authApi';
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+   const [resendLoading, setResendLoading] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const email = location.state?.email; // ✅ email passed from signup
+  const email = location.state?.email; //  email passed from signup
 
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
@@ -44,25 +46,27 @@ const VerifyOtp = () => {
     setLoading(true);
     setMessage("");
 
+     console.log(" Verify OTP Response:", email,code);
+
     try {
-      const res = await fetch("https://vow-org.me/auth/verifyemail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code }),
-      });
+      const res = await verifyEmail({ email, code }); //  API call for verify
+      const data = res.data;
+      console.log(" Verify OTP Response:", data);
 
-      const data = await res.json();
-      console.log("📡 Verify Response:", data);
-
-      if (res.ok && data.success) {
-        setMessage("✅ Email verified successfully!");
+      if (res.status === 200 && data.success) {
+        setMessage(" Email verified successfully!");
         setTimeout(() => navigate("/login"), 1500);
       } else {
-        setMessage(`❌ ${data.msg || "Verification failed"}`);
+        setMessage(` ${data.msg || "Verification failed"}`);
       }
     } catch (err) {
-      console.error("❌ Error verifying:", err);
-      setMessage("⚠️ Network or server error.");
+      console.error(" Error verifying:", err);
+      if (err.response?.data?.msg) {
+      setMessage(` ${err.response.data.msg}`); // Show backend message
+    } else {
+      setMessage(" Network or server error.");
+    }
+      
     } finally {
       setLoading(false);
     }
@@ -70,17 +74,17 @@ const VerifyOtp = () => {
 
   const handleResend = async () => {
     if (!email) return;
-    try {
-      const res = await fetch("https://vow-org.me/auth/resend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
+           setResendLoading(true); // start loading
+          setMessage(""); 
+       try {
+      const res = await resendOtp({ email }); // API call for resend
+      const data = res.data;
       setMessage(data.msg || "OTP resent!");
     } catch (err) {
-      console.error("❌ Resend error:", err);
-      setMessage("⚠️ Could not resend OTP.");
+      console.error(" Resend error:", err);
+      setMessage(" Could not resend OTP as email already verified.");
+    } finally {
+      setResendLoading(false);
     }
   };
 

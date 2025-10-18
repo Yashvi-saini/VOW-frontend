@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { forgotPassword } from "../api/authApi";
+
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false); // track blur (focus loss)
@@ -7,21 +10,39 @@ const ForgotPassword = () => {
    const navigate = useNavigate();
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTouched(true);
-   if (!email || !isEmailValid) return ;
-    navigate('/verify-otp');
+const [serverMsg, setServerMsg] = useState("");
+const [loading, setLoading] = useState(false);
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitted(true);
+  setTouched(true);
 
-  if (!email || !isEmailValid) {
-    // Email invalid → warning shows automatically via state
-    return;
+  if (!email || !isEmailValid) return;
+
+  setLoading(true);
+  setServerMsg("");
+
+  try {
+    // Calling API
+    const res = await forgotPassword({ email }); 
+    const data = res.data;
+
+    console.log(" Forgot Password Response:", data);
+
+    if (res.status === 200 && data.success) {
+      setServerMsg(" OTP sent successfully!");
+      // Navigate to verify OTP page and pass email
+      setTimeout(() => navigate('/verify-otp', { state: { email } }), 1200);
+    } else {
+      setServerMsg(` ${data.msg || "Failed to send OTP"}`);
+    }
+  } catch (err) {
+    console.error(" Error sending OTP:", err);
+    setServerMsg(" Server or network error.");
+  } finally {
+    setLoading(false);
   }
-
-  console.log('Sending OTP to:', email); // optional
-  navigate('/verify-otp');
 };
 
 

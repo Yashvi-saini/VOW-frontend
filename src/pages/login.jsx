@@ -3,7 +3,10 @@ import logo from '../assets/logo.png';
 import X from '../assets/X.png';
 import Eye from '../assets/Eye.png';
 import EyeOff from '../assets/Eyeoff.png';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
+import { loginUser } from "../api/authApi";
+
+
 
 const Login = () => {
   const [identifier, setIdentifier] = useState('');
@@ -52,12 +55,36 @@ const Login = () => {
     setPasswordError(value !== '' && !validatePassword(value));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!isFormValid) return;
+  const navigate = useNavigate();
+const [serverMsg, setServerMsg] = useState("");
+const [loading, setLoading] = useState(false);
+//api calling 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!isFormValid) return;
 
-    alert('Login successful!');
-  };
+  setLoading(true);
+  setServerMsg("");
+  
+  try {
+    const res = await loginUser({  identifier, password });
+    const data = res.data;
+    console.log(" Login Response:", data);
+
+    if (res.status === 200 && data.success) {
+      setServerMsg(" Login successful!");
+      setTimeout(() => navigate("/dashboard"), 1200);
+    } else {
+      setServerMsg(` ${data.msg || "Login failed"}`);
+    }
+  } catch (err) {
+    console.error(" Error during login:", err);
+    setServerMsg(" Server or network error.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div
@@ -121,7 +148,7 @@ const Login = () => {
               className={`w-full border rounded-md px-3 py-2 pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 ${
                 identifierError
                   ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-purple-600'
+                  : 'border-gray-300 focus:ring-[#558CE6]'
               }`}
               required
             />
@@ -152,7 +179,7 @@ const Login = () => {
               className={`w-full border rounded-md px-3 py-2 pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 ${
                 passwordError
                   ? 'border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:ring-purple-600'
+                  : 'border-gray-300 focus:ring-[#558CE6]'
               }`}
               required
             />
@@ -172,8 +199,7 @@ const Login = () => {
 
             {passwordError && (
               <p className="text-red-600 text-xs mt-1">
-                Password must be at least 8 characters long and include
-                uppercase, lowercase, a number, and a special character.
+               Invalid password.
               </p>
             )}
           </div>
