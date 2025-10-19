@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
 import X from "../assets/X.png";
 import Eye from "../assets/Eye.png";
@@ -13,7 +13,17 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [identifierError, setIdentifierError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+
+  // Prefill saved identifier
+  useEffect(() => {
+    const savedIdentifier = localStorage.getItem("rememberedIdentifier");
+    if (savedIdentifier) {
+      setIdentifier(savedIdentifier);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,11 +38,17 @@ const Login = () => {
     }
 
     try {
-      const res = await loginUser({ identifier, password });
+      const res = await loginUser({ identifier, password }); // backend sets cookies
 
       if (res.status === 200 && res.data.success) {
-        navigate("/dashboard"); 
-      } else {    
+        // Handle "Remember Me"
+        if (rememberMe) {
+          localStorage.setItem("rememberedIdentifier", identifier);
+        } else {
+          localStorage.removeItem("rememberedIdentifier");
+        }
+        navigate("/dashboard");
+      } else {
         setPasswordError("Invalid password");
       }
     } catch (err) {
@@ -112,7 +128,10 @@ const Login = () => {
               type={showPassword ? "text" : "password"}
               value={password}
               autoComplete="current-password"
-              onChange={(e) => { setPassword(e.target.value); setPasswordError(""); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError("");
+              }}
               placeholder="Enter your password"
               className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 appearance-none ${
                 passwordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-[#558CE6]"
@@ -131,7 +150,12 @@ const Login = () => {
           {/* Remember Me + Forgot Password */}
           <div className="flex justify-between items-center text-sm mb-8">
             <label className="flex items-center space-x-2 text-gray-900">
-              <input type="checkbox" className="h-4 w-4" />
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               <span>Remember me</span>
             </label>
             <Link to="/forgot-password" className="text-[#707070] hover:underline text-[14px] font-medium">
