@@ -10,6 +10,8 @@ import Signup from "./components/signup";
 import ApiTester from "./pages/apitester";
 import Dashboard from "./pages/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
+import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
+
 const App = () => {
   return (
     <Router>
@@ -24,6 +26,7 @@ const App = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/reset-success" element={<ResetSuccess />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes> 
     </Router>
   );
