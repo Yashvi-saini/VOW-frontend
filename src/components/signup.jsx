@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import arrow from "../assets/arrow.svg";
+import Eye from "../assets/Eye.svg";
+import EyeOff from "../assets/Eye off.svg";
+import BlueEye from "../assets/blue eye.svg";
+import BlueEyeOff from "../assets/blue eye off.png";
 
 import { registerUser } from "../api/authApi";
+
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [usernameFocused, setUsernameFocused] = useState(false);
@@ -15,13 +20,37 @@ export default function Signup() {
   const [serverMsg, setServerMsg] = useState("");
   const navigate = useNavigate();
   const [termsAccepted, setTermsAccepted] = useState(false);
-
+  const [userexists, setuserexists] = useState(false);
   const [usernameExists, setUsernameExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
+  const [usernameTouched, setUsernameTouched] = useState(false);
+
+  // Trimmed username
+const trimmedUsername = username.trim();
+
+// Username validations
+const isUsernameNotEmpty = trimmedUsername.length > 0;
+const isUsernameMinLength = trimmedUsername.length >= 3;
+const isUsernameMaxLength = trimmedUsername.length <= 20;
+const isUsernameValidChars = /^[a-zA-Z0-9._]+$/.test(trimmedUsername);
+const noConsecutiveSpecials = !/[\._]{2,}/.test(trimmedUsername);
+const validStartEnd = /^[a-zA-Z0-9].*[a-zA-Z0-9]$/.test(trimmedUsername);
+
+// Final combined username validity
+const isUsernameValid =
+  isUsernameNotEmpty &&
+  isUsernameMinLength &&
+  isUsernameMaxLength &&
+  isUsernameValidChars &&
+  noConsecutiveSpecials &&
+  validStartEnd;
+
 
   // Validation
-  const isUsernameValid = username.trim().length >= 3;
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  
+ const trimmedEmail = email.trim(); // removes leading & trailing spaces
+const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
+
 
   const passwordRules = [
     {
@@ -50,7 +79,7 @@ export default function Signup() {
     password && passwordRules.every((rule) => rule.test(password));
   const isFormValid =
     isUsernameValid && isEmailValid && isPasswordValid && termsAccepted;
-/******** */
+  /******** */
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,85 +90,60 @@ export default function Signup() {
     setUsernameExists(false);
     setEmailExists(false);
 
-    const payload = { username, email, password };
+    const payload = { 
+  username: trimmedUsername, // use trimmed version
+  email: email.trim(), 
+  password 
+};
+
 
     try {
       const res = await registerUser(payload);
-    const data = res.data;
+      const data = res.data;
 
-      if ( data.success) {
-        setServerMsg(" ");
+      if (data.success) {
+        setServerMsg("");
         navigate("/verify-otp", { state: { email } });
-      } else {
-        const msg = data.msg?.toLowerCase() || "";
-        if (msg.includes("username")) {
-          setUsernameExists(true);
-        }
-        if (msg.includes("user already exist")) {
-          setEmailExists(true);
-        }
-        if (!msg.includes("username") && !msg.includes("user already exist")) {
-          setServerMsg(` ${data.msg || "Registration failed"}`);
-        }
       }
     } catch (err) {
-      setServerMsg(" Network or server error. Please try again later.");
+      // ✅ If server responded (e.g., 400, 409, etc.)
+      if (err.response) {
+        const msg = err.response.data?.msg?.toLowerCase() || "";
+
+        if (msg.includes("username already taken")) {
+          setUsernameExists(true);
+        }
+        if (msg.includes("user already exists")) {
+          setuserexists(true);
+        }
+
+        // ✅ Show backend message instead of generic server error
+        setServerMsg(err.response.data.msg || "Registration failed");
+      } else {
+        // ✅ Real network error (no response from server)
+        setServerMsg("Network or server error. Please try again later.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   // Helper to render validation/check icon
-  const renderIcon = (exists, valid) => {
-    if (exists) {
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 absolute inset-y-0 right-2 m-auto text-red-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={3}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      );
-    } else if (valid) {
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 absolute inset-y-0 right-2 m-auto text-green-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={3}
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-      );
-    } else {
-      return null;
-    }
-  };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
       style={{ background: "linear-gradient(55deg, #BFA2E1 26%,#EFE7F6 70%)" }}
+
     >
-      <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden">
+
+      
+      <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden z-10">
         <div className="flex justify-start">
           <button
             className="text-gray-800 font-bold text-3xl mt-2 ml-4 "
             aria-label="Close"
+            onClick={() => navigate("/")}
           >
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>
@@ -179,8 +183,10 @@ export default function Signup() {
                   type="text"
                   placeholder="Enter your username"
                   value={username}
+                  
                   onChange={(e) => {
                     setUsername(e.target.value);
+                    if (!usernameTouched) setUsernameTouched(true);
                     if (usernameExists) setUsernameExists(false);
                   }}
                   onFocus={() => setUsernameFocused(true)}
@@ -188,24 +194,30 @@ export default function Signup() {
                   className={`w-full px-2.5 py-2.5 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
                     usernameExists
                       ? "border-red-500 focus:ring-red-500"
-                      : username
-                      ? isUsernameValid
-                        ? "border-green-500 focus:ring-green-500"
-                        : "border-[#558CE6] focus:ring-[#558CE6]"
-                      : usernameFocused
+                      : username && !usernameFocused // ✅ not empty AND not touched
+                      ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
+                      : usernameFocused || username // when focused or typing
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
                 />
-                {renderIcon(usernameExists, isUsernameValid && !usernameExists)}
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
-                {usernameExists
-                  ? "Username already taken"
-                  : username && !isUsernameValid
-                  ? "Username must be at least 3 characters"
-                  : ""}
-              </p>
+  {usernameExists
+    ? "Username already taken"
+    : usernameTouched && !isUsernameMinLength
+    ? "Username must be at least 3 characters"
+    : usernameTouched && !isUsernameMaxLength
+    ? "Username cannot exceed 20 characters"
+    : usernameTouched && !isUsernameValidChars
+    ? "Username can only contain letters, numbers, _ or ."
+    : usernameTouched && !noConsecutiveSpecials
+    ? "Username cannot have consecutive _ or ."
+    : usernameTouched && !validStartEnd
+    ? "Username cannot start or end with _ or ."
+    : ""}
+</p>
+
             </div>
 
             {/* Email */}
@@ -227,16 +239,13 @@ export default function Signup() {
                   className={`w-full px-2.5 py-2.5 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
                     emailExists
                       ? "border-red-500 focus:ring-red-500"
-                      : email
-                      ? isEmailValid
-                        ? "border-green-500 focus:ring-green-500"
-                        : "border-[#558CE6] focus:ring-[#558CE6]"
-                      : emailFocused
+                      : email && !emailFocused // ✅ not empty AND not touched
+                      ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
+                      : emailFocused || email // when focused or typing
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
                 />
-                {renderIcon(emailExists, isEmailValid && !emailExists)}
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
                 {emailExists
@@ -263,9 +272,9 @@ export default function Signup() {
                   onFocus={() => setInputFocused(true)}
                   onBlur={() => setInputFocused(false)}
                   className={`w-full px-2.5 py-2.5 pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
-                    isPasswordValid
-                      ? "border-green-500 focus:ring-green-500"
-                      : inputFocused
+                    password && !inputFocused // ✅ not empty AND not touched
+                      ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
+                      : inputFocused || password // when focused or typing
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
@@ -276,34 +285,27 @@ export default function Signup() {
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   className="absolute inset-y-0 right-2 flex items-center z-10"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5 transition-colors"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke={
-                      isPasswordValid
-                        ? "green"
-                        : inputFocused
-                        ? "#558CE6"
-                        : "gray"
+                  <img
+                    src={
+                      !password && !inputFocused
+                        ? showPassword
+                          ? EyeOff 
+                          : Eye 
+                        : showPassword 
+                        ? BlueEyeOff
+                        : BlueEye
                     }
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d={
-                        showPassword
-                          ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 012.021-3.429m4.112-2.668A9.966 9.966 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.957 9.957 0 01-4.173 5.093M15 12a3 3 0 00-3-3m0 0a3 3 0 00-3 3m6 0a3 3 0 01-3 3m-3.707 3.707L20.293 3.707"
-                          : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      }
-                    />
-                  </svg>
+                    alt="toggle password"
+                    className="h-5 w-5"
+                  />
                 </button>
               </div>
               <p className="text-[#558CE6] text-sm mt-1 min-h-[20px]">
-                {password && firstUnmetRule ? firstUnmetRule.message : ""}
+                {password && firstUnmetRule
+                  ? firstUnmetRule.message
+                  : userexists
+                  ? "User already exists"
+                  : ""}
               </p>
             </div>
 
@@ -321,7 +323,7 @@ export default function Signup() {
                 className="text-[16px] leading-relaxed text-[#000]"
               >
                 I have read and agree with the{" "}
-                <a href="#" className="text-[#213659] underline">
+                <a href="/TermsAndConditions" className="text-[#213659] underline">
                   terms and conditions
                 </a>
               </label>
@@ -330,18 +332,11 @@ export default function Signup() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={!isFormValid || loading}
-              className={`w-full py-2 rounded-lg font-normal h-[44px] text-[20px] transition ${
-                !isFormValid || loading
-                  ? "bg-gray-400 text-white cursor-not-allowed"
-                  : "bg-[#450B7B] text-white hover:bg-[#5d11a3]"
-              }`}
+              
+             className="w-full py-2 rounded-lg font-normal h-[44px] text-[20px] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
             >
               {loading ? "Signing up..." : "Sign up"}
             </button>
-            {serverMsg && (
-              <p className="text-center mt-3 text-red-500">{serverMsg}</p>
-            )}
           </form>
         </div>
       </div>

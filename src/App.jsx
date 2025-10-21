@@ -9,11 +9,13 @@ import ResetSuccess from './pages/resetsuccess';
 import Signup from "./components/signup";
 import ApiTester from "./pages/apitester";
 import Dashboard from "./pages/dashboard";
+import TermsAndConditions from "./components/terms and conditions";
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
         <Route path="/apitester" element={<ApiTester />} />
         <Route path="/login" element={<Login />} />
          <Route path="/forgot-password" element={<ForgotPassword />} />
