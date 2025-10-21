@@ -15,9 +15,6 @@ const ResetSuccess = () => {
         }}
       >
         {/* Close (X) button */}
-        <button className="absolute top-[18px] right-[47px] text-gray-500 text-3xl hover:text-gray-700 ">
-          ×
-        </button>
 
         {/* Check Image */}
         <div className="flex items-center justify-center mt-12">
@@ -49,7 +46,7 @@ const ResetSuccess = () => {
         {/* Button */}
        <Link
           to="/login"
-        className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-[10px] rounded-md font-medium hover:bg-[#4B0FB0] transition text-center"
+        className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-[10px] rounded-md font-medium  transition text-center"
         >
         Back to login
        </Link>

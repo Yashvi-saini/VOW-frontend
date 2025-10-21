@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
 import X from "../assets/X.png";
 import Eye from "../assets/Eye.png";
-import EyeOff from "../assets/Eyeoff.png";
+import EyeOff from "../assets/blue eye off.png";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import arrow from "../assets/arrow.svg";

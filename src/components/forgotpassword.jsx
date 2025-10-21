@@ -43,7 +43,6 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
-
   // Render tick/cross icon
   const renderIcon = () => {
     if (!email) return null;
@@ -64,25 +63,7 @@ const ForgotPassword = () => {
           />
         </svg>
       );
-    // else
-    //   return (
-    //     <svg
-    //       xmlns="http://www.w3.org/2000/svg"
-    //       className="w-5 h-5 absolute inset-y-0 right-2 m-auto text-red-500"
-    //       fill="none"
-    //       viewBox="0 0 24 24"
-    //       stroke="currentColor"
-    //     >
-    //       <path
-    //         strokeLinecap="round"
-    //         strokeLinejoin="round"
-    //         strokeWidth={3}
-    //         d="M6 18L18 6M6 6l12 12"
-    //       />
-    //     </svg>
-    //   );
   };
-
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
@@ -145,12 +126,12 @@ const ForgotPassword = () => {
                 {renderIcon()}
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
-  {touched && !email
-    ? "Please enter your email"
-    : touched && email && !isEmailValid
-    ? "Enter a valid email (e.g., abc@domain.com)"
-    : serverMsg}
-</p>
+             {touched && !email
+             ? "Please enter your email"
+             : touched && email && !isEmailValid
+              ? "Enter a valid email (e.g., abc@domain.com)"
+              : serverMsg}
+              </p>
             </div>
 
             <button

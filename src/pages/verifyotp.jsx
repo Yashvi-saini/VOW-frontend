@@ -52,8 +52,8 @@ const VerifyOtp = () => {
     e.preventDefault();
     const code = otp.join("");
     if (code.length !== 6) {
-      setOtpError(true);
-      setMessage("Please enter the 6-digit OTP.");
+      
+      window.alert("please enter 6 digit otp")
       return;
     }
     if (!email) {
@@ -83,7 +83,7 @@ const VerifyOtp = () => {
         setMessage("");
         setTimeout(() => {
           if (mode === "signup") {
-            navigate("/login");
+            navigate("/");
           } else {
             navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
           }
@@ -130,7 +130,7 @@ const VerifyOtp = () => {
     <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
     >
-      <div className="bg-white p-6 sm:p-10 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
+      <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
         {/* Back Arrow */}
         <button className="absolute top-6 left-5 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
           <img src={arrow} alt="Back" className="h-6 sm:h-8" />
@@ -143,7 +143,7 @@ const VerifyOtp = () => {
 
         {/* Heading */}
         <h2 className="text-center text-[24px] sm:text-[32px] font-semibold text-gray-900 mt-4">
-          {mode === "signup" ? "Verify Your Email" : "Reset Password OTP"}
+          {mode === "signup" ? "Verify With OTP" : "Verify Your Email"}
         </h2>
         <p className="text-center text-[14px] sm:text-[16px] text-[#707070] mb-8 sm:mb-10">
           {mode === "signup"
@@ -153,7 +153,7 @@ const VerifyOtp = () => {
 
         {/* OTP Inputs */}
         <form onSubmit={handleVerify} className="w-full">
-          <div className="flex justify-between mb-8">
+          <div className="flex justify-between mb-0">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -175,8 +175,8 @@ const VerifyOtp = () => {
           </div>
 
           {/* Message */}
-          <p className={`text-center mb-4 ${otpError ? "text-[#E63946]" : "text-green-600"}`} style={{ minHeight: "1em" }}>
-            {message || " "}
+          <p className={` mb-8 ${otpError ? "text-[#E63946]" : "text-green-600"}`} style={{ minHeight: "1em" }}>
+            { otpError?message:" "}
           </p>
 
           {/* Verify Button */}
@@ -185,7 +185,7 @@ const VerifyOtp = () => {
           </button>
 
           {/* Resend OTP Button */}
-          <div className="flex justify-center mt-4 text-[#450B7B]">
+          <div className=" mt-4 text-[#450B7B]">
             <button
               type="button"
               onClick={handleResend}
@@ -194,6 +194,8 @@ const VerifyOtp = () => {
             >
               {timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP"}
             </button>
+
+            <a href ={mode === "signup" ? "/signup" : "/login"} className="flex justify-center underline mt-1 text-[#707070]">{mode === "signup" ? "Back to signup" : "Back to login"}</a>
           </div>
         </form>
       </div>

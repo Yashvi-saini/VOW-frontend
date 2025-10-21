@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Eye from "../assets/Eye.png";
-import EyeOff from "../assets/Eyeoff.png";
+import EyeOff from "../assets/blue eye off.png";
 import logo from "../assets/logo.png";
 import { resetPassword } from "../api/authApi";
 import arrow from "../assets/arrow.svg";
@@ -44,6 +44,14 @@ const ResetPassword = () => {
       setError("");
     }
   }, [password, confirm, error]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      alert("Your session has expired");
+      navigate("/forgot-password");
+    }, 5 * 60 * 1000);
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   const handleReset = async (e) => {
     e.preventDefault();
@@ -146,7 +154,7 @@ const ResetPassword = () => {
                 className={`w-full border rounded-md px-3 py-2 text-sm transition-all focus:outline-none ${
                   confirm.length > 0
                     ? password === confirm && isPasswordValid
-                      ? "border-2 border-green-500 ring-1 ring-green-300"
+                      ? "border-2 border-green-500  ring-green-300"
                       : "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
                     : "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
                 }`}
