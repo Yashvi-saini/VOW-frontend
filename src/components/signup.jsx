@@ -5,7 +5,7 @@ import Eye from "../assets/Eye.svg";
 import EyeOff from "../assets/Eye off.svg";
 import BlueEye from "../assets/blue eye.svg";
 import BlueEyeOff from "../assets/blue eye off.png";
-import CrossIcon from "../assets/x.png";
+import CrossIcon from "../assets/X.png";
 
 import { registerUser } from "../api/authApi";
 
