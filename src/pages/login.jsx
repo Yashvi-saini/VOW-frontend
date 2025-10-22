@@ -14,6 +14,9 @@ const Login = () => {
   const [identifierError, setIdentifierError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+//loading state
+  const [loading, setLoading] = useState(false); // NEW
+
   const navigate = useNavigate();
 
   // Prefill saved identifier
@@ -36,6 +39,7 @@ const Login = () => {
       if (!password) setPasswordError("Please enter your password.");
       return;
     }
+    setLoading(true); // START loading
 
     try {
       const res = await loginUser({ identifier, password }); // backend sets cookies
@@ -47,7 +51,7 @@ const Login = () => {
         } else {
           localStorage.removeItem("rememberedIdentifier");
         }
-        navigate("/dashboard");
+        navigate("/profile");
       } else {
         setPasswordError("Invalid password");
       }
@@ -63,6 +67,9 @@ const Login = () => {
         
         setPasswordError(msg);
       }
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -164,9 +171,14 @@ const Login = () => {
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="w-full py-3 rounded-md font-semibold text-sm bg-[#450B7B] text-white hover:bg-[#3a0863] transition">
-            Login
-          </button>
+          <button
+  type="submit"
+  disabled={!identifier || !password || loading} // disabled if fields are empty or loading
+  className="w-full py-3 rounded-md font-semibold text-sm bg-[#450B7B] text-white hover:bg-[#3a0863] transition"
+>
+  {loading ? "Logging in..." : "Login"}
+</button>
+
         </form>
       </div>
     </div>
