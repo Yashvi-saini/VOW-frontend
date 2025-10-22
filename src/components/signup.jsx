@@ -5,6 +5,7 @@ import Eye from "../assets/Eye.svg";
 import EyeOff from "../assets/Eye off.svg";
 import BlueEye from "../assets/blue eye.svg";
 import BlueEyeOff from "../assets/blue eye off.png";
+import CrossIcon from "../assets/x.png";
 
 import { registerUser } from "../api/authApi";
 
@@ -138,7 +139,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     >
 
       
-      <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden z-10">
+      <div className="bg-white shadow-xl rounded-2xl pb-10  w-full m-3 max-w-[570px] text-center box-border overflow-hidden ">
         <div className="flex justify-start">
           <button
             className="text-gray-800 font-bold text-3xl mt-2 ml-4 "
@@ -193,7 +194,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                   onBlur={() => setUsernameFocused(false)}
                   className={`w-full px-2.5 py-2.5 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
                     usernameExists
-                      ? "border-red-500 focus:ring-red-500"
+                      ? "border-red-500 focus:ring-red-500 "
                       : username && !usernameFocused // ✅ not empty AND not touched
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
                       : usernameFocused || username // when focused or typing
@@ -201,6 +202,13 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
                 />
+                {usernameExists && (
+      <img
+        src={CrossIcon}
+        alt="Error"
+        className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none"
+      />
+    )}
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
   {usernameExists
@@ -220,41 +228,57 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
             </div>
 
+            
             {/* Email */}
-            <div className="relative mb-0">
-              <label className="block text-gray-700 mb-1 h-[19px] font-bold">
-                Email:
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailExists) setEmailExists(false);
-                  }}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
-                  className={`w-full px-2.5 py-2.5 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
-                    emailExists
-                      ? "border-red-500 focus:ring-red-500"
-                      : email && !emailFocused // ✅ not empty AND not touched
-                      ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
-                      : emailFocused || email // when focused or typing
-                      ? "border-[#558CE6] focus:ring-[#558CE6]"
-                      : "border-gray-600 focus:ring-[#558CE6]"
-                  }`}
-                />
-              </div>
-              <p className="text-sm mt-1 min-h-[20px] text-red-500">
-                {emailExists
-                  ? "Email already exists"
-                  : email && !isEmailValid
-                  ? "Enter a valid email"
-                  : ""}
-              </p>
-            </div>
+<div className="relative mb-0">
+  <label className="block text-gray-700 mb-1 h-[19px] font-bold">
+    Email:
+  </label>
+  <div className="relative">
+    <input
+      type="text"
+      placeholder="Enter your email"
+      value={email}
+      onChange={(e) => {
+        setEmail(e.target.value);
+        if (emailExists || userexists) {
+          setEmailExists(false);
+          setuserexists(false);
+        }
+      }}
+      onFocus={() => setEmailFocused(true)}
+      onBlur={() => setEmailFocused(false)}
+      className={`w-full px-2.5 py-2.5 pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border transition-all duration-200 ${
+        userexists || emailExists
+          ? "border-red-500 focus:ring-red-500 bg-[#FDECEC]" // 🔴 red border & light red bg
+          : email && !emailFocused
+          ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
+          : emailFocused || email
+          ? "border-[#558CE6] focus:ring-[#558CE6]"
+          : "border-gray-600 focus:ring-[#558CE6]"
+      }`}
+    />
+
+    {/* ❌ Cross Icon (only visible when email exists) */}
+    {(userexists || emailExists) && (
+      <img
+        src={CrossIcon}
+        alt="Error"
+        className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none"
+      />
+    )}
+  </div>
+
+  {/* Error message */}
+  <p className="text-sm mt-1 min-h-[20px] text-red-500">
+    {userexists
+      ? "Email already exists"
+      : email && !isEmailValid
+      ? "Enter a valid email"
+      : ""}
+  </p>
+</div>
+
 
             {/* Password */}
             <div className="relative mb-0">
@@ -303,8 +327,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
               <p className="text-[#558CE6] text-sm mt-1 min-h-[20px]">
                 {password && firstUnmetRule
                   ? firstUnmetRule.message
-                  : userexists
-                  ? "User already exists"
                   : ""}
               </p>
             </div>

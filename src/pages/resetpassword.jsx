@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Eye from "../assets/Eye.png";
-import EyeOff from "../assets/blue eye off.png";
+import Eye from "../assets/Eye.svg";
+import blueeye from "../assets/blue eye.svg"
+import eyeoff from "../assets/Eye off.svg"
+import blueEyeOff from "../assets/blue eye off.png";
 import logo from "../assets/logo.png";
 import { resetPassword } from "../api/authApi";
 import arrow from "../assets/arrow.svg";
@@ -16,10 +18,12 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
+  const [passwordFocused, setPasswordFocused] = useState(false);
+const [confirmFocused, setConfirmFocused] = useState(false);
 
   if (!email) {
     navigate("/forgot-password"); // redirect if email not found
-  }
+  }  
 
   // Password rules
   const passwordRules = [
@@ -111,64 +115,92 @@ const ResetPassword = () => {
 
         <form onSubmit={handleReset} className="flex flex-col space-y-5">
           {/* New Password */}
-          <div className="flex flex-col mb-0">
-            <label className="text-[14px] font-medium text-gray-700 mb-1 mt-0">New Password:</label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter new password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                className={`w-full rounded-md px-3 py-2 text-sm transition-all focus:outline-none border ${
-                  isPasswordValid
-                    ? "border-green-500 focus:ring-green-500" 
-                    : inputFocused
-                    ? "border-[#558CE6] focus:ring-[#558CE6]"
-                    : "border-gray-300 focus:ring-[#558CE6]"
-                }`}
-                required
-              />
-              <img
-                src={password.length > 0 ? (showPassword ? EyeOff : Eye) : Eye}
-                alt="Toggle visibility"
-                className="absolute right-3 top-2.5 w-5 h-5 cursor-pointer opacity-70 hover:opacity-100"
-                onClick={() => setShowPassword(!showPassword)}
-              />
-            </div>
-            <p className={`text-sm mt-1 mb-3 min-h-[20px] ${password.length > 0 && firstUnmetRule ? "text-[#558CE6]" : "text-transparent"}`}>
-              {password && firstUnmetRule?.message || " "}
-            </p>
-          </div>
+        {/* New Password */}
+<div className="flex flex-col mb-0">
+  <label className="text-[14px] font-medium text-gray-700 mb-1 mt-0">New Password:</label>
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      placeholder="Enter new password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      onFocus={() => setPasswordFocused(true)}
+      onBlur={() => setPasswordFocused(false)}
+      className={`w-full rounded-md px-3 py-2 text-sm transition-all focus:outline-none border
+        ${
+          password.length === 0 && !passwordFocused
+            ? "border-gray-300 bg-white"
+            : passwordFocused
+            ? "border-[#558CE6] bg-white focus:ring-[#558CE6]"
+            : "border-purple-700 bg-[#F5F1FB]"
+        }
+      `}
+      required
+    />
+    <img
+      src={
+        password.length === 0
+          ? showPassword
+            ? eyeoff
+            : Eye
+          : showPassword
+          ? blueEyeOff
+          : blueeye
+      }
+      alt="Toggle visibility"
+      className="absolute right-3 top-2.5 w-5 h-5 cursor-pointer opacity-70 hover:opacity-100"
+      onClick={() => setShowPassword(!showPassword)}
+    />
+  </div>
+  <p className={`text-sm mt-1 mb-3 min-h-[20px] ${password.length > 0 && firstUnmetRule ? "text-[#558CE6]" : "text-transparent"}`}>
+    {password && firstUnmetRule?.message || " "}
+  </p>
+</div>
 
-          {/* Confirm Password */}
-          <div className="flex flex-col mb-0">
-            <label className="text-[14px] font-medium text-gray-700 mb-1">Confirm Password:</label>
-            <div className="relative">
-              <input
-                type={showConfirm ? "text" : "password"}
-                placeholder="Enter password again"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                className={`w-full border rounded-md px-3 py-2 text-sm transition-all focus:outline-none ${
-                  confirm.length > 0
-                    ? password === confirm && isPasswordValid
-                      ? "border-2 border-green-500  ring-green-300"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
-                    : "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
-                }`}
-                required
-              />
-              <img
-                src={confirm.length > 0 ? (showConfirm ? EyeOff : Eye) : Eye}
-                alt="Toggle visibility"
-                className="absolute right-3 top-2.5 w-5 h-5 cursor-pointer opacity-70 hover:opacity-100"
-                onClick={() => setShowConfirm(!showConfirm)}
-              />
-            </div>
-            <p className="text-sm min-h-[20px] text-transparent"></p>
-          </div>
+{/* Confirm Password */}
+<div className="flex flex-col mb-0">
+  <label className="text-[14px] font-medium text-gray-700 mb-1">Confirm Password:</label>
+  <div className="relative">
+    <input
+      type={showConfirm ? "text" : "password"}
+      placeholder="Enter password again"
+      value={confirm}
+      onChange={(e) => setConfirm(e.target.value)}
+      onFocus={() => setConfirmFocused(true)}
+      onBlur={() => setConfirmFocused(false)}
+      className={`w-full border rounded-md px-3 py-2 text-sm transition-all focus:outline-none
+        ${
+          confirm.length === 0 && !confirmFocused
+            ? "border-gray-300 bg-white"
+            : confirmFocused
+            ? "border-[#558CE6] bg-white focus:ring-[#558CE6]"
+            : confirm === password && password.length > 0
+            ? "border-purple-700 bg-[#F5F1FB]"
+            : "border-red-500 bg-[#FDEDEC]"
+        }
+      `}
+      required
+    />
+    <img
+      src={
+        confirm.length === 0
+          ? showConfirm
+            ? eyeoff
+            : Eye
+          : showConfirm
+          ? blueEyeOff
+          : blueeye
+      }
+      alt="Toggle visibility"
+      className="absolute right-3 top-2.5 w-5 h-5 cursor-pointer opacity-70 hover:opacity-100"
+      onClick={() => setShowConfirm(!showConfirm)}
+    />
+  </div>
+  <p className={`text-sm mt-1 mb-3 min-h-[20px] ${confirm && confirm !== password ? "text-red-500" : "text-transparent"}`}>
+    {confirm && confirm !== password ? "Passwords do not match" : " "}
+  </p>
+</div>
+
 
           {/* Error Message */}
           <p className={`text-sm text-center -mt-1 mb-1 min-h-[20px] transition-all ${error ? "text-[#558CE6]" : "text-transparent"}`}>

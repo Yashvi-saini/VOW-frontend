@@ -7,63 +7,46 @@ const ForgotPassword = () => {
   const [touched, setTouched] = useState(false);
   const [serverMsg, setServerMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailFocused,setEmailFocused]=useState(false);
   const navigate = useNavigate();
+ const trimmedEmail = email.trim();
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setTouched(true);
+  if (!email || !isEmailValid) return;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setTouched(true);
-    if (!email || !isEmailValid) return;
+  setLoading(true);
+  setServerMsg("");
 
-    setLoading(true);
-    setServerMsg("");
+  try {
+    const trimmedEmail = email.trim(); // ensure clean email
+    const res = await forgotPassword({ email: trimmedEmail });
+    const data = res.data;
 
-    try {
-      const res = await forgotPassword({ email });
-      const data = res.data;
-
-      if (data.success) {
-        setServerMsg("");
-        setTimeout(
-          () => navigate("/verify-otp", { state: { email, mode: "forgot" } }),
-          1200
-        );
-      } else {
-        setServerMsg(` ${data.msg || "Failed to send OTP"}`);
-      }
-    } catch (err) {
-      console.error("Forgot Password Error:", err);
-      if (err.response && err.response.data) {
-        setServerMsg(` ${err.response.data.msg || "Server error"}`);
-      } else {
-        setServerMsg(" Network or server error.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-  // Render tick/cross icon
-  const renderIcon = () => {
-    if (!email) return null;
-    if (isEmailValid)
-      return (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 absolute inset-y-0 right-2 m-auto text-green-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={3}
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
+    if (data.success) {
+      setServerMsg("");
+      setTimeout(
+        () => navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } }),
+        1200
       );
-  };
+    } else {
+      setServerMsg(` ${data.msg || "Failed to send OTP"}`);
+    }
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    if (err.response && err.response.data) {
+      setServerMsg(` ${err.response.data.msg || "Server error"}`);
+    } else {
+      setServerMsg(" Network or server error.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+   
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
@@ -110,20 +93,21 @@ const ForgotPassword = () => {
                   type="text"
                   value={email}
                   onChange={(e) => {
-                    setEmail(e.target.value);
+                    setEmail(e.target.value.trimStart());
                     setServerMsg(""); // <-- clear server message on change
                   }}
+                  onClick={()=>(setEmailFocused(true))}
                   onBlur={() => setTouched(true)}
                   placeholder="Enter your email"
-                  className={`w-full border rounded-lg px-2 py-2 text-[17px] focus:outline-none focus:ring-2 transition ${
-                    email
-                      ? isEmailValid
-                        ? "border-green-500 focus:ring-green-500"
-                        : "border-gray-400 focus:ring-[#5C0EA4]"
-                      : "border-gray-400 focus:ring-[#5C0EA4]"
+                  className={`w-full border rounded-lg px-2 py-2 text-[17px]  border-gray-400 focus:ring-[#5C0EA4] focus:outline-none focus:ring-2 transition ${
+                      email && emailFocused // ✅ not empty AND not touched
+                      ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
+                      : emailFocused || email // when focused or typing
+                      ? "border-[#558CE6] focus:ring-[#558CE6]"
+                      : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
                 />
-                {renderIcon()}
+                
               </div>
               <p className="text-sm mt-1 min-h-[20px] text-red-500">
              {touched && !email
@@ -155,5 +139,4 @@ const ForgotPassword = () => {
     </div>
   );
 };
-
 export default ForgotPassword;

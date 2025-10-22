@@ -14,6 +14,7 @@ const VerifyOtp = () => {
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const location = useLocation();
+const [anyInputFocused, setAnyInputFocused] = useState(false);
 
   const email = location.state?.email;
   const mode = location.state?.mode || "signup"; // 'signup' or 'forgot'
@@ -126,6 +127,20 @@ const VerifyOtp = () => {
     }
   };
 
+  // Handle paste of full OTP
+const handlePaste = (e) => {
+  e.preventDefault();
+  const pasteData = e.clipboardData.getData("text").trim();
+  if (/^\d{6}$/.test(pasteData)) {
+    const newOtp = pasteData.split("");
+    setOtp(newOtp);
+    setOtpError(false);
+    setMessage("");
+    // Move focus to last input
+    inputRefs.current[5]?.focus();
+  }
+};
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
       style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
@@ -155,23 +170,36 @@ const VerifyOtp = () => {
         <form onSubmit={handleVerify} className="w-full">
           <div className="flex justify-between mb-0">
             {otp.map((digit, index) => (
-              <input
-                key={index}
-                type="text"
-                inputMode="numeric"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                ref={el => inputRefs.current[index] = el}
-                className={`text-center border rounded-sm focus:outline-none transition-all duration-200 ${
-                  otpError
-                    ? "border-[#E63946] bg-[#FDEDEC]"
-                    : "border-[#D9D9D9] bg-[#F9F6FC]"
-                }`}
-                style={{ width: "clamp(35px, 9vw, 56px)", height: "clamp(35px, 9vw, 56px)", fontSize: "clamp(14px, 4vw, 20px)" }}
-              />
-            ))}
+  <input
+    key={index}
+    type="text"
+    inputMode="numeric"
+    maxLength="1"
+    value={digit}
+    onChange={(e) => handleChange(index, e.target.value)}
+    onKeyDown={(e) => handleKeyDown(e, index)}
+    onPaste={handlePaste}
+    ref={(el) => (inputRefs.current[index] = el)}
+    onFocus={() => setAnyInputFocused(true)}
+    onBlur={() => setAnyInputFocused(false)}
+    className={`text-center border rounded-sm transition-all duration-200 outline-none
+      ${
+        otpError
+          ? "border-[#E63946] bg-[#FDEDEC]"
+          : anyInputFocused
+          ? "border-purple-700 bg-[#E7DBF1]"
+          : "border-[#D9D9D9] bg-[#F9F6FC]"
+      }
+    `}
+    style={{
+      width: "clamp(35px, 9vw, 56px)",
+      height: "clamp(35px, 9vw, 56px)",
+      fontSize: "clamp(14px, 4vw, 20px)",
+    }}
+  />
+))}
+
+
           </div>
 
           {/* Message */}
