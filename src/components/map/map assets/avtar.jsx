@@ -1,5 +1,5 @@
 import React from "react";
-import avtar from "../assets/avatar1.jpg"
+import avtar from "../map assets/avatar1.jpg";
 const Avatar = React.memo(({ image, size = 48, name, style }) => {
   return (
     <div

@@ -1,8 +1,8 @@
 // Map.jsx
 import React, { useState, useEffect, useRef } from "react";
-import TableStructure from "./map/map objects/TableStructure";
-import Avatar from "./map assets/avtar";
-import playerImg from "../assets/avatar1.jpg";
+import TableStructure from "../map/map objects/TableStructure";
+import Avatar from "../map/map assets/avtar";
+import playerImg from "../map/map assets/avatar1.jpg";
 
 const Map = () => {
   const [position, setPosition] = useState({ x: 60, y: 60 });
