@@ -4,7 +4,6 @@ import seat from "../map assets/seat.svg";
 import OuterRectangle from "../map assets/OuterRectangle";
 import InnerRectangle from "../map assets/InnerRectangle";
 
-
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });
 const TABLE_SIZE_PX = 400;
 
