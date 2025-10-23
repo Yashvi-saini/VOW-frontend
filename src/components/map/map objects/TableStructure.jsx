@@ -1,8 +1,8 @@
 // TableStructure.jsx
 import React, { useEffect, useRef } from "react";
 import seat from "../map assets/seat.svg";
-import OuterRectangle from "../map assets/OuterRectangle";
-import InnerRectangle from "../map assets/InnerRectangle";
+import OuterRectangle from "../map assets/OuterRectangle.jsx";
+import InnerRectangle from "../map assets/InnerRectangle.jsx";
 
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });
 const TABLE_SIZE_PX = 400;
