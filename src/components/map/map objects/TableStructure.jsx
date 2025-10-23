@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import seat from "../assets/seat.svg";
 import OuterRectangle from "../map assets/OuterRectangle";
-import InnerRectangle from "../map assets/InnerRectangle";
+import InnerRectangle from "../map/map assets/innerRectangle";
 
 // Stable default to avoid new object identity on each render
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });

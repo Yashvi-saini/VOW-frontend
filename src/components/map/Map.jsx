@@ -1,7 +1,7 @@
 // Map.jsx
 import React, { useState, useEffect, useRef } from "react";
 import TableStructure from "./map/map objects/TableStructure";
-import Avatar from "./avtar";
+import Avatar from "./map assets/avtar";
 import playerImg from "../assets/avatar1.jpg";
 
 const Map = () => {
