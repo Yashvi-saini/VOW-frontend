@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import seat from "../map assets/seat.svg";
 import OuterRectangle from "../map assets/outerRect";
-import InnerRectangle from "../map assets/InnerRectangle";
+import InnerRectangle from "../map assets/innerRect";
 
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });
 const TABLE_SIZE_PX = 400;
