@@ -10,6 +10,5 @@ const OuterRectangle = ({ className, style }) => (
   >
     <rect x="0.5" y="0.5" width="159" height="319" rx="5.5" stroke="#0E1219"/>
   </svg>
-); 
-
+); //OuterRectangle
 export default OuterRectangle;

@@ -4,18 +4,17 @@ import seat from "../map assets/seat.svg";
 import OuterRectangle from "../map assets/OuterRectangle";
 import InnerRectangle from "../map assets/InnerRectangle";
 
-// Stable default to avoid new object identity on each render
+
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });
 const TABLE_SIZE_PX = 400;
 
 const TableStructure = ({id="table", onObstaclesReady, position, containerRef }) => {
   const tableRef = useRef(null);
   const tablePosition = position ?? DEFAULT_TABLE_POSITION;
-  // Alias to avoid any accidental shadowing and keep a stable symbol name
+
   const notifyObstacles = onObstaclesReady;
 
-  // Define relative geometry from the SVGs (in table %)
-  // These coordinates are centered within the table (50,50)
+
   const tableObstacles = [
     {
       id: `${id}-outerRect`,
@@ -33,14 +32,14 @@ const TableStructure = ({id="table", onObstaclesReady, position, containerRef })
     },
   ];
 
-  // Compute table obstacles in map percentages and send to parent (with id)
+
   useEffect(() => {
     let ro;
 
     const setup = () => {
       const container = containerRef?.current;
       if (!container) {
-        // Try again on next frame until container is ready
+      
         requestAnimationFrame(setup);
         return;
       }
@@ -49,23 +48,19 @@ const TableStructure = ({id="table", onObstaclesReady, position, containerRef })
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
 
-        // If container hasn't measured yet, send empty to avoid false collisions
+  
         if (!containerWidth || !containerHeight) {
           notifyObstacles?.(id, []);
           return;
         }
 
-        // Convert table-relative % to map-relative % (global positioning)
         const obstacles = tableObstacles.map((obs) => {
-          // Convert table center from % to px within map container
           const tableXInPx = (tablePosition.x / 100) * containerWidth;
           const tableYInPx = (tablePosition.y / 100) * containerHeight;
-
-          // Position of obstacle center within the map (obs is relative to table center)
           const obsXInPx = tableXInPx + ((obs.x - 50) / 100) * TABLE_SIZE_PX;
           const obsYInPx = tableYInPx + ((obs.y - 50) / 100) * TABLE_SIZE_PX;
 
-          // Convert to map-relative %
+
           const xPercent = (obsXInPx / containerWidth) * 100;
           const yPercent = (obsYInPx / containerHeight) * 100;
           const widthPercent = ((obs.width / 100) * TABLE_SIZE_PX / containerWidth) * 100;
@@ -74,7 +69,6 @@ const TableStructure = ({id="table", onObstaclesReady, position, containerRef })
           return { ...obs, x: xPercent, y: yPercent, width: widthPercent, height: heightPercent };
         });
 
-          // Filter out any invalid sizes
           const valid = obstacles.filter(
             (o) => Number.isFinite(o.x) && Number.isFinite(o.y) && Number.isFinite(o.width) && Number.isFinite(o.height) && o.width > 0 && o.height > 0
           );
@@ -128,8 +122,6 @@ const TableStructure = ({id="table", onObstaclesReady, position, containerRef })
                   <img src={seat} alt="Seat" className="absolute" style={{ bottom: "260px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
       <img src={seat} alt="Seat" className="absolute" style={{ bottom: "160px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
       <img src={seat} alt="Seat" className="absolute" style={{ bottom: "110px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
-
-      {/* 🔴 Debug obstacle overlay (optional) */}
       
     </div>
   );
