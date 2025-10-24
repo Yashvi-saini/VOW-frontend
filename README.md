@@ -1,16 +1,75 @@
-# React + Vite
+#  VOW – Virtual Organized World
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+VOW allows distributed teams to **meet, collaborate, and communicate** through interactive virtual offices and real-time engagement features.  
+It’s designed to enhance **remote work culture**, **boost productivity**, and **bring teams closer together**, no matter where they are.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+##  User Roles
 
-## React Compiler
+###  Manager
+- Head of the organization.
+- Create and manage virtual office spaces.
+- Add, remove, or assign user roles.
+- Customize layouts, rooms, and workspace themes.
+- Assign team-wide tasks.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+###  Supervisor
+- Acts as a team lead.
+- Monitor workspace analytics (attendance, engagement, activity).
+- Give instructions and assign individual tasks to team members.
 
-## Expanding the ESLint configuration
+###  Team Member
+- Join virtual workspaces and meetings.
+- Communicate via video, voice, and text chat.
+- Move between rooms and collaborate freely.
+- Share screens, co-edit documents, and provide session feedback.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+##  Key Features
+
+###  Authentication
+- Secure login and signup using email.
+- Password reset functionality.
+- Token-based authentication for secure sessions and access control.
+
+### Virtual Office & Collaboration
+- **Custom Workspaces** – Build personalized digital offices with meeting rooms and social areas.
+- **Presence Indicators** – See who’s online, in a meeting, or available for chat.
+- **Real-time Video/Audio** – Spatial audio and proximity-based communication.
+- **Screen Sharing** – Present documents or slides in real-time.
+- **Room Navigation** – Move seamlessly between rooms or teams.
+
+### Meetings & Scheduling
+- Schedule meetings within the workspace or integrate with **Google Calendar** / **Outlook**.
+- Smart reminders before meetings start.
+- One-click meeting join via shared links or workspace rooms.
+
+### Messaging System
+- In-app chat for individuals, teams, and groups.
+- File-sharing support within chat threads.
+
+---
+
+
+## Future Enhancements
+
+- AI Meeting Assistants for task extraction and automatic follow-ups.
+- Hybrid mode to integrate physical and virtual meeting spaces.
+- Workspace monetization for community-driven paid sessions.
+- Merit & Recognition system for active participants.
+
+---
+
+## Tech Stack
+
+**Frontend:**  
+- React.js – Responsive and interactive web interface.
+
+**Backend:**  
+- Node.js with Express – Real-time API handling and socket communication.  
+- WebRTC – Live video and audio streaming.  
+- MongoDB – Scalable and flexible data storage.
+
+---
