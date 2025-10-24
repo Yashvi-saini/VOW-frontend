@@ -1,44 +1,49 @@
-
 import React, { useState } from "react";
-import AvatarSelector from "./avatarselector"; 
+import { createProfile } from "../../api/profileapi"; // your API call to create profile
 
 const ProfileForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     gender: "",
-    organization: "",
+    organisation: "",
     dob: "",
-    avatar: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAvatarSelect = (selectedAvatar) => {
-    setFormData((prev) => ({ ...prev, avatar: selectedAvatar }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.fullName ||
-      !formData.gender ||
-      !formData.organization ||
-      !formData.dob
-    ) {
+    if (!formData.fullName || !formData.gender || !formData.organisation || !formData.dob) {
       alert("Please fill in all fields!");
       return;
     }
 
-    if (!formData.avatar) {
-      alert("Please select an avatar!");
-      return;
+    try {
+      setLoading(true);
+       const payload = {
+        fullName: formData.fullName,
+        organisation: formData.organisation,
+        gender: formData.gender.toLowerCase(),
+        dob: formData.dob,
+      };
+      const response = await createProfile(payload); 
+      if (response.success) {
+        onSubmit(response.data);
+      } else {
+        alert("Failed to save profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating profile:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    if (onSubmit) onSubmit(formData);
   };
 
   return (
@@ -48,7 +53,6 @@ const ProfileForm = ({ onSubmit }) => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-      
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Full Name
@@ -63,7 +67,6 @@ const ProfileForm = ({ onSubmit }) => {
           />
         </div>
 
-        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Gender
@@ -85,35 +88,20 @@ const ProfileForm = ({ onSubmit }) => {
           </div>
         </div>
 
-       
-        {formData.gender && (
-          <div className="mt-4 transition-all duration-300">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">
-              Choose Your Avatar
-            </h3>
-            <AvatarSelector
-              gender={formData.gender}
-              onSelect={handleAvatarSelect}
-            />
-          </div>
-        )}
-
-       
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Organization
+            Organisation
           </label>
           <input
             type="text"
-            name="organization"
-            value={formData.organization}
+            name="organisation"
+            value={formData.organisation}
             onChange={handleChange}
-            placeholder="Enter your organization name"
+            placeholder="Enter your organisation name"
             className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
           />
         </div>
 
-       
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Date of Birth
@@ -127,12 +115,14 @@ const ProfileForm = ({ onSubmit }) => {
           />
         </div>
 
-        
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition"
+          disabled={loading}
+          className={`w-full text-white font-medium py-2.5 rounded-lg transition ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
         >
-          Save Profile
+          {loading ? "Saving..." : "Save Profile"}
         </button>
       </form>
     </div>

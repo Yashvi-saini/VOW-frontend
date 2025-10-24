@@ -1,20 +1,20 @@
 import api from "./axiosConfig";
 // signup
-export const registerUser = (data) => api.post("/register", data);
+export const registerUser = (data) => api.post("auth/register", data);
 
 // Login
-export const loginUser = (data) => api.post("/login", data);
+export const loginUser = (data) => api.post("auth/login", data);
 
 // Verify email (OTP)
-export const verifyEmail = (data) => api.post("/verifyemail", data);
+export const verifyEmail = (data) => api.post("auth/verifyemail", data);
 
 // Resend verification OTP
-export const resendOtp = (data) => api.post("/resend", data);
+export const resendOtp = (data) => api.post("auth/resend", data);
 
 // Forgot password
-export const forgotPassword = (data) => api.post("/forgetpassword", data);
+export const forgotPassword = (data) => api.post("auth/forgetpassword", data);
 
 // Reset password
-export const resetPassword = (newPassword) => api.post("/updatepassword", {newPassword});
+export const resetPassword = (newPassword) => api.post("auth/updatepassword", {newPassword});
 
-export const verifyResetOtp = (data) => api.post("/verifyresetotp", data);
+export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
