@@ -51,7 +51,7 @@ const Login = () => {
         } else {
           localStorage.removeItem("rememberedIdentifier");
         }
-        navigate("/map");
+        navigate("/profile");
       } else {
         setPasswordError("Invalid password");
       }

@@ -6,7 +6,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token"); // remove token if you're storing it
-    navigate("/login");
+    navigate("/map");
   };
 
   return (
@@ -28,7 +28,7 @@ const Dashboard = () => {
           onClick={handleLogout}
           className="bg-[#450B7B] text-white py-2 px-6 rounded-md hover:bg-[#5c0ea4] transition"
         >
-          Logout
+          proceed to map
         </button>
       </div>
     </div>
