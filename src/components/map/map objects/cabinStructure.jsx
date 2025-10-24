@@ -39,7 +39,7 @@ const CabinStructure = ({ id = "cabin", onObstaclesReady, position, containerRef
       centerYpx,
     };
   });
-
+const COLLISION_Y_OFFSET_FRAC = 0.2;
   useEffect(() => {
     let ro;
     const setup = () => {
@@ -65,13 +65,14 @@ const CabinStructure = ({ id = "cabin", onObstaclesReady, position, containerRef
 
         const obstacles = desks.map((d) => {
           const obsCenterX = cabinLeftInContainer + d.centerXpx;
-          const obsCenterY = cabinTopInContainer + d.centerYpx;
+          const yOffsetPx = d.heightPx * COLLISION_Y_OFFSET_FRAC;
+          const obsCenterY = cabinTopInContainer + d.centerYpx - yOffsetPx;
           return {
             id: d.id,
             x: (obsCenterX / containerWidth) * 100,
             y: (obsCenterY / containerHeight) * 100,
             width: (d.widthPx / containerWidth) * 100,
-            height: (d.heightPx / containerHeight) * 100,
+            height: ((d.heightPx / 2) / containerHeight) * 100+0.3,
           };
         });
 
