@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
+import CabinStructure from "../map/map objects/cabinStructure";
 
 const Map = () => {
   const [position, setPosition] = useState({ x: 60, y: 60 });
@@ -222,8 +223,12 @@ const userPanningRef = useRef(false);
         containerRef={containerRef}
         position={{ x: 15, y: 80 }} 
       />
-    
-     
+    <CabinStructure
+  id="cabin"
+  onObstaclesReady={handleObstaclesFromChild}
+  containerRef={containerRef}
+  position={{ x: 60, y: 40 }}
+/>     
       <Avatar
         image={playerImg}
         size={avatarSize}
