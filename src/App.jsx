@@ -15,22 +15,7 @@ import Map from "./components/map/Map";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/apitester" element={<ApiTester />} />
-        <Route path="/login" element={<Login />} />
-         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/Signup" element={<Signup />} />
-        <Route path="/verify-otp" element={<VerifyOtp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/reset-success" element={<ResetSuccess />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/map" element={<Map />} />
-      </Routes> 
-    </Router>
+    <Map/>
   );
 };  
 
