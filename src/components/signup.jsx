@@ -6,7 +6,7 @@ import EyeOff from "../assets/Eye off.svg";
 import BlueEye from "../assets/blue eye.svg";
 import BlueEyeOff from "../assets/blue eye off.png";
 import CrossIcon from "../assets/X.png";
-
+import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
 
 export default function Signup() {
@@ -132,18 +132,17 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   // Helper to render validation/check icon
 
   return (
-    <div
+  <><Background />
+      <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: "linear-gradient(55deg, #BFA2E1 26%,#EFE7F6 70%)" }}
-
     >
-
       
       <div className="bg-white shadow-xl rounded-2xl pb-10  w-full m-3 max-w-[570px] text-center box-border overflow-hidden ">
+       
         <div className="flex justify-start">
           <button
             className="text-gray-800 font-bold text-3xl mt-2 ml-4 "
-            aria-label="Close"
+              aria-label="Close"
             onClick={() => navigate("/")}
           >
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
@@ -210,7 +209,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       />
     )}
               </div>
-              <p className="text-sm mt-1 min-h-[20px] text-red-500">
+              <p className="text-sm mt-1 min-h-5 text-red-500">
   {usernameExists
     ? "Username already taken"
     : usernameTouched && !isUsernameMinLength
@@ -224,13 +223,13 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     : usernameTouched && !validStartEnd
     ? "Username cannot start or end with _ or ."
     : ""}
-</p>
+ </p>
 
             </div>
 
             
             {/* Email */}
-<div className="relative mb-0">
+ <div className="relative mb-0">
   <label className="block text-gray-700 mb-1 h-[19px] font-bold">
     Email:
   </label>
@@ -270,14 +269,14 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   </div>
 
   {/* Error message */}
-  <p className="text-sm mt-1 min-h-[20px] text-red-500">
+  <p className="text-sm mt-1 min-h-5 text-red-500">
     {userexists
       ? "Email already exists"
       : email && !isEmailValid
       ? "Enter a valid email"
       : ""}
-  </p>
-</div>
+   </p>
+  </div>
 
 
             {/* Password */}
@@ -324,7 +323,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                   />
                 </button>
               </div>
-              <p className="text-[#558CE6] text-sm mt-1 min-h-[20px]">
+              <p className="text-[#558CE6] text-sm mt-1 min-h-5">
                 {password && firstUnmetRule
                   ? firstUnmetRule.message
                   : ""}
@@ -342,7 +341,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
               />
               <label
                 htmlFor="terms"
-                className="text-[16px] leading-relaxed text-[#000]"
+                className="text-[16px] leading-relaxed text-black"
               >
                 I have read and agree with the{" "}
                 <a href="/TermsAndConditions" className="text-[#213659] underline">
@@ -355,13 +354,14 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
             <button
               type="submit"
               
-             className="w-full py-2 rounded-lg font-normal h-[44px] text-[20px] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
+             className="w-full py-2 rounded-lg font-normal h-11 text-[20px] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
             >
               {loading ? "Signing up..." : "Sign up"}
             </button>
           </form>
         </div>
       </div>
-    </div>
+      
+    </div></>
   );
 }
