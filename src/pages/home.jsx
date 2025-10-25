@@ -51,7 +51,7 @@ const Home = () => {
       </section>
 
       <section className="bg-gray-50 py-16 px-6 md:px-20 text-center">
-        <h2 className="text-2xl font-bold mb-10">All Your Work-In One Virtual Place</h2>
+        <h2 className="text-[48px] font-semibold mb-[96px] w-[1160px] h-[58px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] text-center mx-auto ">All Your Work - In One Virtual Space</h2>
         <FeatureCards />
       </section>
 
