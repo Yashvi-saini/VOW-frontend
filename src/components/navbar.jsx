@@ -4,11 +4,11 @@ import logo from '../assets/logo.png';
 
 const Navbar = () => {
   return (
-    <div className=" w-full fixed top-0 flex justify-center py-[10px] px-[60px] bg-white z-50 ">
-      <div className="w-[1160px] border border-[#DDDFE1] rounded-[16px] bg-white ">
-        <nav className="flex justify-between items-center h-[64px] w-full px-[16px]">
+    <div className=" w-full fixed top-0 flex justify-center py-2.5 px-[60px] bg-transparent z-50">
+      <div className="w-[1660px] border border-[#DDDFE1] rounded-[16px] bg-white z-10 ">
+        <nav className="flex justify-between items-center h-[64px] w-full px-[16px] z-20">
         
-          <div className="flex items-center gap-[10px]">
+          <div className="flex items-center gap-1">
             <img src={logo} alt="Logo" className="h-8 w-auto" />
             <span className="text-[#5C0EA4] text-xl font-bold">VOW</span>
           </div>
