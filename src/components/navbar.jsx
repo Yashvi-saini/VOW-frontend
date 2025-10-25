@@ -4,39 +4,52 @@ import logo from '../assets/logo.png';
 
 const Navbar = () => {
   return (
-    <nav className="flex justify-between items-center py-4 px-6 md:px-20 shadow-md bg-white">
-      <div className="text-purple-600 font-bold text-xl flex">
-        <img src={logo} alt="Logo" className="h-8 w-auto" />
-         <span className="text-5C0EA4">vow</span>
-      </div>
-{/* I corrected the git conflict */}
-      <ul className="hidden md:flex space-x-8 font-medium text-gray-700"
-      style={{ color: '#969696' }}>
-        <li>Home</li>  
-        <li>Features</li>
-        <li>About</li>
-        <li>Contact</li>
-      </ul>
-
-      <div className="space-x-4">
+    <div className=" w-full fixed top-0 flex justify-center py-[10px] px-[60px] bg-white ">
+      <div className="w-[1160px] border border-[#DDDFE1] rounded-[16px] bg-white ">
+        <nav className="flex justify-between items-center h-[64px] w-full px-[16px]">
         
-        <Link
-          to="/login"
-          className="border-2 border-purple-600 text-5C0EA4 px-4 py-1 rounded-md font-semibold hover:bg-purple-100 transition"
-        >
-          Log in
-        </Link>
+          <div className="flex items-center gap-[10px]">
+            <img src={logo} alt="Logo" className="h-8 w-auto" />
+            <span className="text-[#5C0EA4] text-xl font-bold">VOW</span>
+          </div>
 
-        <Link
-          to="/signup"
-          className=" text-white px-4 py-1 rounded-md font-semibold hover:bg-purple-700 transition"
-          style={{ backgroundColor: '#450B7B' }}
-        >
-          Sign up
-        </Link>
+
+          <ul className="flex items-center gap-[90px]">
+            <li className=" text-[#969696] font-inter text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer">
+              Home
+            </li>
+            <li className=" text-[#969696] font-inter text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer">
+              Features
+            </li>
+            <li className=" text-[#969696] font-inter text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer">
+              About
+            </li>
+            <li className=" text-[#969696] font-inter text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer">
+              Contact
+            </li>
+          </ul>
+
+         
+          <div className="flex items-center gap-[10px]">
+            <Link
+              to="/login"
+              className="w-[160px] h-[44px] flex items-center justify-center rounded-[8px] border border-[#5C0EA4] text-[#5C0EA4] text-[20px] font-normal"
+            >
+              Log in
+            </Link>
+
+            <Link
+              to="/signup"
+              className="w-[160px] h-[44px] flex items-center justify-center rounded-[8px] bg-[#450B7B] text-white text-[20px] font-normal"
+            >
+              Sign up
+            </Link>
+          </div>
+        </nav>
       </div>
-    </nav>
+    </div>
   );
 };
 
 export default Navbar;
+
