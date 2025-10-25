@@ -109,7 +109,7 @@ const ForgotPassword = () => {
                 />
                 
               </div>
-              <p className="text-sm mt-1 min-h-[20px] text-red-500">
+              <p className="text-sm mt-1 min-h-5 text-red-500">
              {touched && !email
              ? "Please enter your email"
              : touched && email && !isEmailValid
