@@ -4,6 +4,9 @@ import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
 import CabinStructure from "../map/map objects/cabinStructure";
 
+import ManagerCabin from "./map objects/Manager";
+import SupervisorCabin from "./map objects/Supervisor";
+
 const Map = () => {
   //  Multiple players instead of one position
   const [players, setPlayers] = useState([
@@ -454,8 +457,8 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
       onPointerLeave={handlePointerLeave}
       className="relative w-full h-screen bg-white overflow-hidden shadow-md border border-gray-200"
       style={{
-        width: 3000,
-        height: 2700,
+        width: 2720,
+        height: 2080,
         cursor: cursorBlocked ? "not-allowed" : "pointer",
       }}
       >
@@ -478,6 +481,10 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           containerRef={containerRef}
           position={{ x: 60, y: 40 }}
         />
+        <ManagerCabin
+        x={2239} y={240} width={323} height={240} />
+        <SupervisorCabin
+        x={802} y={1682} width={323} height={240} />
 
         {/*  Render all avatars */}
         {players.map((player) => {
