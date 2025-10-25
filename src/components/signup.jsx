@@ -137,7 +137,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
         // ✅ Show backend message instead of generic server error
         setServerMsg(err.response.data.msg || "Registration failed");
       } else {
-        // ✅ Real network error (no response from server)
+  
         setServerMsg("Network or server error. Please try again later.");
       }
     } finally {
@@ -145,7 +145,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     }
   };
 
-  // Helper to render validation/check icon
 
   return (
   <><Background />
@@ -213,9 +212,9 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                   className={`w-full px-2.5 py-[clamp(9px,1.8vh,12px)] rounded-lg focus:outline-none focus:ring-2 box-border text-[clamp(14px,2vh,16px)] border ${
                     usernameExists
                       ? "border-red-500 focus:ring-red-500 "
-                      : username && !usernameFocused // ✅ not empty AND not touched
+                      : username && !usernameFocused 
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
-                      : usernameFocused || username // when focused or typing
+                      : usernameFocused || username 
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
@@ -273,7 +272,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       onBlur={() => setEmailFocused(false)}
       className={`w-full px-2.5 py-[clamp(9px,1.8vh,12px)] pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[clamp(14px,2vh,16px)] border transition-all duration-200 ${
         userexists || emailExists
-          ? "border-red-500 focus:ring-red-500 bg-[#FDECEC]" // 🔴 red border & light red bg
+          ? "border-red-500 focus:ring-red-500 bg-[#FDECEC]" 
           : email && !emailFocused
           ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
           : emailFocused || email
@@ -282,7 +281,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       }`}
     />
 
-    {/* ❌ Cross Icon (only visible when email exists) */}
+    
     {(userexists || emailExists) && (
       <img
         src={CrossIcon}
