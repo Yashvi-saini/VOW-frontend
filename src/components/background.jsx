@@ -1,9 +1,9 @@
 import React from "react";
 import bgimage from "../assets/bg.svg";
 
-const Background = ({ children, color = "#450B7B", className = "", style = {} }) => {
+const Background = ({ children, className = "", style = {} }) => {
   const bgStyle = {
-    backgroundColor: color,
+
     backgroundImage: `url(${bgimage})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
