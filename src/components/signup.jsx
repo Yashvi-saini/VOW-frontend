@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import arrow from "../assets/arrow.svg";
 import Eye from "../assets/Eye.svg";
 import EyeOff from "../assets/Eye off.svg";
@@ -10,6 +10,13 @@ import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
 
 export default function Signup() {
+  const [enter, setEnter] = useState(false);
+  useEffect(() => {
+    // Trigger mount animation for the card
+    const r = requestAnimationFrame(() => setEnter(true));
+    return () => cancelAnimationFrame(r);
+  }, []);
+  const location = useLocation();
   const [username, setUsername] = useState("");
   const [usernameFocused, setUsernameFocused] = useState(false);
   const [email, setEmail] = useState("");
@@ -25,6 +32,21 @@ export default function Signup() {
   const [usernameExists, setUsernameExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   const [usernameTouched, setUsernameTouched] = useState(false);
+  // Entry overlay (from Home transition)
+  const initialEntryOverlay = location.state?.entryOverlay === true;
+  const [routeOverlay, setRouteOverlay] = useState(initialEntryOverlay);
+  const [routeOverlayOpaque, setRouteOverlayOpaque] = useState(initialEntryOverlay);
+  // Fade out the entry overlay once on mount if coming from Home
+  useEffect(() => {
+    if (initialEntryOverlay) {
+      const id = requestAnimationFrame(() => setRouteOverlayOpaque(false));
+      const to = setTimeout(() => setRouteOverlay(false), 600);
+      return () => {
+        cancelAnimationFrame(id);
+        clearTimeout(to);
+      };
+    }
+  }, [initialEntryOverlay]);
   // Required field error flags, set on submit and cleared on change
   const [requiredErrs, setRequiredErrs] = useState({
     username: false,
@@ -147,12 +169,18 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
 
   return (
-  <><Background />
+  <><Background className={`transition-opacity duration-700 ease-out ${enter ? 'opacity-100' : 'opacity-0'}`} />
+      {routeOverlay && (
+        <div
+          aria-hidden
+          className={`fixed inset-0 z-60 bg-[#450B7B] transition-opacity duration-500 ${routeOverlayOpaque ? 'opacity-100' : 'opacity-0'}`}
+        />
+      )}
       <div
   className="h-dvh flex items-center justify-center relative overflow-hidden"
     >
       
-  <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3  max-w-[570px] text-center box-border overflow-hidden">
+  <div className={`bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden transform-gpu transition duration-700 ease-out ${enter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
        
         <div className="flex justify-start">
           <button
