@@ -146,13 +146,13 @@ const Footer = () => {
           <div className="flex flex-nowrap items-center">
             <Link
               to="/signup"
-              className="px-[36px] py-[10px] rounded-[8px] w-[183px] h-[39px] mr-[8px] text-center font-normal bg-[#5E9BFF] text-[#FEFEFE] border border-[#EFEFEF]"
+              className="px-9 py-[10px] rounded-[8px] w-[183px] h-[39px] mr-[8px] text-center font-normal bg-[#5E9BFF] text-[#FEFEFE] border border-[#EFEFEF]"
             >
               Get Started
             </Link>
             <a
               href="#watch-demo"
-              className="px-[36px] py-[10px] rounded-[8px] w-[183px] h-[39px] font-normal border border-[#EFEFEF] text-[#EDEBFF]"
+              className="px-9 py-[10px] rounded-[8px] w-[183px] h-[39px] font-normal border border-[#EFEFEF] text-[#EDEBFF]"
             >
               Watch Demo
             </a>
