@@ -14,6 +14,8 @@ dist-ssr
 #vite extension
 .vite/
 
+# vite dependencies
+.vite/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
