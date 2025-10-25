@@ -1,39 +1,55 @@
-import React from 'react';
+import React from "react";
 
 const features = [
   {
-    title: 'Custom Virtual Offices',
-    description: 'Create rooms, meeting halls, and unique experiences designed for your team\'s workflow.',
+    title: "Custom Workspaces",
+    description:
+      "Create rooms, meeting halls, and collaboration zones designed for your team's workflow.",
   },
   {
-    title: 'Real-Time Communication',
-    description: 'Video, voice, and chat — all integrated perfectly in one digital workspace.',
+    title: "Room Navigation",
+    description:
+      "Move freely between rooms just like in a physical office — stay connected and engaged.",
   },
   {
-    title: 'Smart Navigation',
-    description: 'Move freely between rooms and offices, like you would in a real workspace.',
+    title: "Real-Time Communication",
+    description: "Connect via video, voice, and chat in one seamless experience.",
   },
   {
-    title: 'Analytics & Insights',
-    description: 'Track attendance, engagement, resource activity — all in one dashboard.',
+    title: "Analytics and Insights",
+    description: "View engagement and activity metrices to guide smarter decisions.",
   },
 ];
 
 const FeatureCards = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-      {features.map((feature, index) => (
-        <div
-          key={index}
-          className="bg-purple-50 rounded-lg p-4 shadow-md text-left"
-        >
-          <div className="bg-purple-200 h-24 w-full rounded-md mb-4" />
-          <h3 className="font-semibold text-gray-800 mb-2">{feature.title}</h3>
-          <p className="text-sm text-gray-600">{feature.description}</p>
+    <div className="w-full overflow-hidden">
+      <div className="w-[1160px] mx-auto">
+        {/* Horizontal scroll container */}
+        <div className="flex gap-6 overflow-x-auto no-scrollbar py-4"
+        style={{
+          msOverflowStyle: "none",
+          scrollbarWidth: "none",
+        }}>
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="flex-none w-[472px] h-[424px] bg-[#EBE2F6] p-[8px] mr-[65px]"
+            >
+              <div className="w-full h-[288px] mb-4 bg-[#D9D9D9] " />
+              <h3 className="text-[32px] font-medium mb-[16px] text-black text-left w-[456px] h-[38px] ">
+                {feature.title}
+              </h3>
+              <div className="w-[456px] h-[48px] text-[20px] text-[#000] text-left font-normal">
+                {feature.description}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 };
 
 export default FeatureCards;
+
