@@ -6,7 +6,7 @@ import EyeOff from "../assets/Eye off.svg";
 import BlueEye from "../assets/blue eye.svg";
 import BlueEyeOff from "../assets/blue eye off.png";
 import CrossIcon from "../assets/X.png";
-
+import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
 
 export default function Signup() {
@@ -25,6 +25,12 @@ export default function Signup() {
   const [usernameExists, setUsernameExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   const [usernameTouched, setUsernameTouched] = useState(false);
+  // Required field error flags, set on submit and cleared on change
+  const [requiredErrs, setRequiredErrs] = useState({
+    username: false,
+    email: false,
+    password: false,
+  });
 
   // Trimmed username
 const trimmedUsername = username.trim();
@@ -84,6 +90,16 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Show required errors for empty fields and stop early
+    const emptyFlags = {
+      username: trimmedUsername === "",
+      email: trimmedEmail === "",
+      password: (password || "").trim() === "",
+    };
+    setRequiredErrs(emptyFlags);
+    if (emptyFlags.username || emptyFlags.email || emptyFlags.password) return;
+
     if (!isFormValid) return;
 
     setLoading(true);
@@ -121,7 +137,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
         // ✅ Show backend message instead of generic server error
         setServerMsg(err.response.data.msg || "Registration failed");
       } else {
-        // ✅ Real network error (no response from server)
+  
         setServerMsg("Network or server error. Please try again later.");
       }
     } finally {
@@ -129,21 +145,19 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     }
   };
 
-  // Helper to render validation/check icon
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: "linear-gradient(55deg, #BFA2E1 26%,#EFE7F6 70%)" }}
-
+  <><Background />
+      <div
+  className="h-dvh flex items-center justify-center relative overflow-hidden"
     >
-
       
-      <div className="bg-white shadow-xl rounded-2xl pb-10  w-full m-3 max-w-[570px] text-center box-border overflow-hidden ">
+  <div className="bg-white shadow-xl rounded-2xl pb-10 w-full m-3  max-w-[570px] text-center box-border overflow-hidden">
+       
         <div className="flex justify-start">
           <button
             className="text-gray-800 font-bold text-3xl mt-2 ml-4 "
-            aria-label="Close"
+              aria-label="Close"
             onClick={() => navigate("/")}
           >
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
@@ -152,19 +166,19 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
         <div className="px-6 sm:px-15">
           <div className="flex justify-center mb-4">
-            <img src="/logo.svg" alt="Logo" className="h-[35px] w-[51px]" />
+            <img src="/logo.svg" alt="Logo" className="h-[30px] w-11" />
           </div>
 
           <h2
-            className="mb-2 text-gray-800 font-medium text-[32px]"
+            className="mb-2 text-gray-800 font-medium text-[clamp(22px,3.6vh,32px)]"
             style={{ fontFamily: "Poppins, sans-serif" }}
           >
             Create an account
           </h2>
 
-          <p className="text-[#707070] text-[16px] mb-8 font-normal">
+          <p className="text-[#707070] text-[clamp(13px,2.2vh,16px)] mb-[clamp(12px,2vh,24px)] font-normal">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#5C0EA4] text-[16px] underline">
+            <Link to="/login" className="text-[#5C0EA4] text-[clamp(13px,2.2vh,16px)] underline">
               log in
             </Link>
           </p>
@@ -172,7 +186,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
           <form
             noValidate
             onSubmit={handleSubmit}
-            className="space-y-4 text-left mt-8 m-3 mb-0"
+            className="space-y-[clamp(10px,1.6vh,16px)] text-left mt-[clamp(12px,2vh,24px)] m-3 mb-0"
           >
             {/* Username */}
             <div className="relative mb-0">
@@ -189,15 +203,18 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                     setUsername(e.target.value);
                     if (!usernameTouched) setUsernameTouched(true);
                     if (usernameExists) setUsernameExists(false);
+                    if (requiredErrs.username && e.target.value.trim() !== "") {
+                      setRequiredErrs((prev) => ({ ...prev, username: false }));
+                    }
                   }}
                   onFocus={() => setUsernameFocused(true)}
                   onBlur={() => setUsernameFocused(false)}
-                  className={`w-full px-2.5 py-2.5 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
+                  className={`w-full px-2.5 py-[clamp(9px,1.8vh,12px)] rounded-lg focus:outline-none focus:ring-2 box-border text-[clamp(14px,2vh,16px)] border ${
                     usernameExists
                       ? "border-red-500 focus:ring-red-500 "
-                      : username && !usernameFocused // ✅ not empty AND not touched
+                      : username && !usernameFocused 
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
-                      : usernameFocused || username // when focused or typing
+                      : usernameFocused || username 
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
@@ -210,27 +227,29 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       />
     )}
               </div>
-              <p className="text-sm mt-1 min-h-[20px] text-red-500">
-  {usernameExists
-    ? "Username already taken"
-    : usernameTouched && !isUsernameMinLength
-    ? "Username must be at least 3 characters"
-    : usernameTouched && !isUsernameMaxLength
-    ? "Username cannot exceed 20 characters"
-    : usernameTouched && !isUsernameValidChars
-    ? "Username can only contain letters, numbers, _ or ."
-    : usernameTouched && !noConsecutiveSpecials
-    ? "Username cannot have consecutive _ or ."
-    : usernameTouched && !validStartEnd
-    ? "Username cannot start or end with _ or ."
-    : ""}
-</p>
+              <p className="text-sm mt-1 min-h-5 text-red-500">
+                {requiredErrs.username
+                  ? "Kindly fill the username"
+                  : usernameExists
+                  ? "Username already taken"
+                  : usernameTouched && !isUsernameMinLength
+                  ? "Username must be at least 3 characters"
+                  : usernameTouched && !isUsernameMaxLength
+                  ? "Username cannot exceed 20 characters"
+                  : usernameTouched && !isUsernameValidChars
+                  ? "Username can only contain letters, numbers, _ or ."
+                  : usernameTouched && !noConsecutiveSpecials
+                  ? "Username cannot have consecutive _ or ."
+                  : usernameTouched && !validStartEnd
+                  ? "Username cannot start or end with _ or ."
+                  : ""}
+              </p>
 
             </div>
 
             
             {/* Email */}
-<div className="relative mb-0">
+ <div className="relative mb-0">
   <label className="block text-gray-700 mb-1 h-[19px] font-bold">
     Email:
   </label>
@@ -245,12 +264,15 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
           setEmailExists(false);
           setuserexists(false);
         }
+        if (requiredErrs.email && e.target.value.trim() !== "") {
+          setRequiredErrs((prev) => ({ ...prev, email: false }));
+        }
       }}
       onFocus={() => setEmailFocused(true)}
       onBlur={() => setEmailFocused(false)}
-      className={`w-full px-2.5 py-2.5 pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border transition-all duration-200 ${
+      className={`w-full px-2.5 py-[clamp(9px,1.8vh,12px)] pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[clamp(14px,2vh,16px)] border transition-all duration-200 ${
         userexists || emailExists
-          ? "border-red-500 focus:ring-red-500 bg-[#FDECEC]" // 🔴 red border & light red bg
+          ? "border-red-500 focus:ring-red-500 bg-[#FDECEC]" 
           : email && !emailFocused
           ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
           : emailFocused || email
@@ -259,7 +281,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       }`}
     />
 
-    {/* ❌ Cross Icon (only visible when email exists) */}
+    
     {(userexists || emailExists) && (
       <img
         src={CrossIcon}
@@ -270,14 +292,16 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   </div>
 
   {/* Error message */}
-  <p className="text-sm mt-1 min-h-[20px] text-red-500">
-    {userexists
+  <p className="text-sm mt-1 min-h-5 text-red-500">
+    {requiredErrs.email
+      ? "Kindly fill the email"
+      : userexists
       ? "Email already exists"
       : email && !isEmailValid
       ? "Enter a valid email"
       : ""}
-  </p>
-</div>
+   </p>
+  </div>
 
 
             {/* Password */}
@@ -292,10 +316,15 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                     showPassword ? "••••••••" : "Enter your password"
                   }
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (requiredErrs.password && e.target.value.trim() !== "") {
+                      setRequiredErrs((prev) => ({ ...prev, password: false }));
+                    }
+                  }}
                   onFocus={() => setInputFocused(true)}
                   onBlur={() => setInputFocused(false)}
-                  className={`w-full px-2.5 py-2.5 pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[16px] border ${
+                  className={`w-full px-2.5 py-[clamp(9px,1.8vh,12px)] pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[clamp(14px,2vh,16px)] border ${
                     password && !inputFocused // ✅ not empty AND not touched
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
                       : inputFocused || password // when focused or typing
@@ -324,15 +353,16 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                   />
                 </button>
               </div>
-              <p className="text-[#558CE6] text-sm mt-1 min-h-[20px]">
-                {password && firstUnmetRule
-                  ? firstUnmetRule.message
-                  : ""}
-              </p>
+              
+              { (
+                <p className="text-[#558CE6] text-sm mt-1 min-h-5 mb-4">
+                  {password && firstUnmetRule ? firstUnmetRule.message :requiredErrs.password ? <span style={{color:"red"}}>Kindly fill the password </span> : " "}
+                </p>
+              )}
             </div>
 
             {/* Terms */}
-            <div className="flex items-start gap-2 mb-8">
+            <div className="flex items-start gap-2 mb-[clamp(12px,2vh,24px)]">
               <input
                 type="checkbox"
                 id="terms"
@@ -342,7 +372,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
               />
               <label
                 htmlFor="terms"
-                className="text-[16px] leading-relaxed text-[#000]"
+                className="text-[clamp(13px,2.1vh,16px)] leading-relaxed text-black"
               >
                 I have read and agree with the{" "}
                 <a href="/TermsAndConditions" className="text-[#213659] underline">
@@ -354,14 +384,14 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
             {/* Submit */}
             <button
               type="submit"
-              
-             className="w-full py-2 rounded-lg font-normal h-[44px] text-[20px] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
+             className="w-full rounded-lg font-normal h-[clamp(44px,6vh,48px)] text-[clamp(16px,2.2vh,20px)] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
             >
               {loading ? "Signing up..." : "Sign up"}
             </button>
           </form>
         </div>
       </div>
-    </div>
+      
+    </div></>
   );
 }

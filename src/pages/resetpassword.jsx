@@ -7,6 +7,7 @@ import blueEyeOff from "../assets/blue eye off.png";
 import logo from "../assets/logo.png";
 import { resetPassword } from "../api/authApi";
 import arrow from "../assets/arrow.svg";
+import Background from "../components/background.jsx";
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -89,7 +90,9 @@ const [confirmFocused, setConfirmFocused] = useState(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#EADCFB] to-[#D3C3F7]">
+    <>
+    <Background/>
+    <div className="min-h-screen flex items-center justify-center ">
       <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative  mx-2 flex-col px-10 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
         style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.08)" }}
       >
@@ -152,7 +155,7 @@ const [confirmFocused, setConfirmFocused] = useState(false);
       onClick={() => setShowPassword(!showPassword)}
     />
   </div>
-  <p className={`text-sm mt-1 mb-3 min-h-[20px] ${password.length > 0 && firstUnmetRule ? "text-[#558CE6]" : "text-transparent"}`}>
+  <p className={`text-sm mt-1 mb-3 min-h-5 ${password.length > 0 && firstUnmetRule ? "text-[#558CE6]" : "text-transparent"}`}>
     {password && firstUnmetRule?.message || " "}
   </p>
 </div>
@@ -196,14 +199,14 @@ const [confirmFocused, setConfirmFocused] = useState(false);
       onClick={() => setShowConfirm(!showConfirm)}
     />
   </div>
-  <p className={`text-sm mt-1 mb-3 min-h-[20px] ${confirm && confirm !== password ? "text-red-500" : "text-transparent"}`}>
+  <p className={`text-sm mt-1 mb-3 min-h-5 ${confirm && confirm !== password ? "text-red-500" : "text-transparent"}`}>
     {confirm && confirm !== password ? "Passwords do not match" : " "}
   </p>
 </div>
 
 
           {/* Error Message */}
-          <p className={`text-sm text-center -mt-1 mb-1 min-h-[20px] transition-all ${error ? "text-[#558CE6]" : "text-transparent"}`}>
+          <p className={`text-sm text-center -mt-1 mb-1 min-h-5 transition-all ${error ? "text-[#558CE6]" : "text-transparent"}`}>
             {error || " "}
           </p>
 
@@ -217,7 +220,7 @@ const [confirmFocused, setConfirmFocused] = useState(false);
         </form>
       </div>
     </div>
-  );
+  </>);
 };
 
 export default ResetPassword;
