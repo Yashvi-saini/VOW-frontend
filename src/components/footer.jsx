@@ -1,26 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import logo from "../assets/logo.png";
-import { Link } from 'react-router-dom'; 
+import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
   return (
     <footer
       role="contentinfo"
-      className="text-[#EFEFEF] bg-gradient-to-b from-[#1B0837] to-[#240A44] px-[60px] py-[60px]"
+      className="relative text-[#EFEFEF] bg-gradient-to-b from-[#1B0837] to-[#240A44] px-[60px] py-[60px] overflow-hidden"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Container */}
-      <div className="max-w-[1160px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-[164px]">
+      {/* Hover Grid Overlay */}
+      <div
+        className="absolute inset-0 flex justify-center items-center pointer-events-none transition-opacity duration-300"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          maskImage: `radial-gradient(circle 150px at ${mousePosition.x}px ${mousePosition.y}px, white 30%, transparent 80%)`,
+          WebkitMaskImage: `radial-gradient(circle 150px at ${mousePosition.x}px ${mousePosition.y}px, white 30%, transparent 80%)`,
+        }}
+      >
+        <div
+          className="grid w-full h-full"
+          style={{
+            flexShrink: 0,
+            gridTemplateRows: "repeat(11, minmax(0, 1fr))",
+            gridTemplateColumns: "repeat(26, minmax(0, 1fr))",
+          }}
+        >
+          {Array.from({ length: 11 * 26 }).map((_, index) => (
+            <div
+              key={index}
+              className="border border-[#FFFFFF]/10"
+              style={{ borderColor: "#FFFFFF", opacity: "0.15" }}
+            ></div>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-[1160px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-[164px] relative z-10">
         {/* Brand / Intro */}
         <section className="w-full max-w-[375px] space-y-4">
           <div className="flex items-center gap-3 mb-[59px]">
             <img
               src={logo}
               alt="VOW logo"
-              className="h-[55.574px] w-[68.122px] object-contain select-none "
+              className="h-[55.574px] w-[68.122px] object-contain select-none"
             />
             <div className="leading-none ml-[38px]">
-              <h3 className="text-[32px] font-bold text-[#FEFEFE] pb-[3px]">VOW</h3>
-              <p className="text-[24px] font-normal text-[#FEFEFE] ">Virtual Organised World</p>
+              <h3 className="text-[32px] font-bold text-[#FEFEFE] pb-[3px]">
+                VOW
+              </h3>
+              <p className="text-[24px] font-normal text-[#FEFEFE]">
+                Virtual Organised World
+              </p>
             </div>
           </div>
 
@@ -28,10 +73,10 @@ const Footer = () => {
             Experience the most natural way to collaborate remotely.
           </p>
 
-          <div className="flex flex-nowrap items-center ">
+          <div className="flex flex-nowrap items-center">
             <Link
               to="/signup"
-              className="px-[36px] py-[10px] rounded-[8px] w-[183px] h-[39px] mr-[8px] text-center font-normal bg-[#5E9BFF] text-[#FEFEFE] border border-[#EFEFEF] "
+              className="px-[36px] py-[10px] rounded-[8px] w-[183px] h-[39px] mr-[8px] text-center font-normal bg-[#5E9BFF] text-[#FEFEFE] border border-[#EFEFEF]"
             >
               Get Started
             </Link>
@@ -53,46 +98,18 @@ const Footer = () => {
             Quick Links
           </h4>
           <ul className="grid gap-[16px] list-none p-0 m-0">
-            <li>
-              <a
-                className="text-white text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
-                href="#home"
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <a
-                className="text-white text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
-                href="#about"
-              >
-                About
-              </a>
-            </li>
-            <li>
-              <a
-                className="text-white text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
-                href="#features"
-              >
-                Features
-              </a>
-            </li>
-            <li>
-              <a
-                className="text-white text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
-                href="#demo"
-              >
-                Demo video
-              </a>
-            </li>
-            <li>
-              <a
-                className="text-white text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
-                href="#roles"
-              >
-                User roles
-              </a>
-            </li>
+            {["Home", "About", "Features", "Demo video", "User roles"].map(
+              (link, idx) => (
+                <li key={idx}>
+                  <a
+                    className="text-white text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
+                    href={`#${link.toLowerCase().replace(" ", "-")}`}
+                  >
+                    {link}
+                  </a>
+                </li>
+              )
+            )}
           </ul>
         </nav>
 
@@ -124,7 +141,7 @@ const Footer = () => {
       </div>
 
       {/* Copyright */}
-      <div className="max-w-[1160px] mx-auto mt-[48px] pt-[60px]   text-center text-[#969696] text-[16px] leading-[1.2]">
+      <div className="max-w-[1160px] mx-auto mt-[48px] pt-[60px] text-center text-[#969696] text-[16px] leading-[1.2] relative z-10">
         <p>© 2025 VOW. All rights reserved.</p>
         <p>Virtual Organised World - Where Remote Teams Connect.</p>
       </div>
