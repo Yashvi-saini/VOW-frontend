@@ -42,7 +42,7 @@ const Login = () => {
     setLoading(true); // START loading
 
     try {
-      const res = await loginUser({ identifier, password }); // backend sets cookies
+      const res = await loginUser({ identifier, password }); 
 
       if (res.status === 200 && res.data.success) {
         // Handle "Remember Me"
@@ -173,7 +173,7 @@ const Login = () => {
           {/* Submit Button */}
           <button
   type="submit"
-  disabled={!identifier || !password || loading} // disabled if fields are empty or loading
+  disabled={loading} 
   className="w-full py-3 rounded-md font-semibold text-sm bg-[#450B7B] text-white hover:bg-[#3a0863] transition"
 >
   {loading ? "Logging in..." : "Login"}

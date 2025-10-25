@@ -11,6 +11,7 @@ import ApiTester from "./pages/apitester";
 import Dashboard from "./pages/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
 import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
+import Map from "./components/map/Map";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/reset-success" element={<ResetSuccess />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/map" element={<Map />} />
       </Routes> 
     </Router>
   );
