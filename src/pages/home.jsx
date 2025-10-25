@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Navbar from '../components/navbar';
 import FeatureCards from '../components/featurecard';
+import Footer from '../components/footer';
 
 const Home = () => {
   return (
@@ -41,6 +42,8 @@ const Home = () => {
       <section className="py-16 px-6 md:px-20 text-center">
         <h2 className="text-2xl font-bold">Designed for Every Role</h2>
       </section>
+      <Footer />
+     
     </>
   );
 };
