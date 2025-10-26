@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import logo from "../assets/logo.png";
 import { Link } from "react-router-dom";
 
@@ -6,32 +6,23 @@ const Footer = () => {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [hovered, setHovered] = useState(false);
   const [glowPos, setGlowPos] = useState({ x: 0, y: 0 });
+  const animationFrameRef = useRef(null);
+  const lastMouseMoveRef = useRef(0);
 
-  // Smooth trailing effect
-  useEffect(() => {
-    let animationFrame;
-    const lerp = (start, end, amt) => start + (end - start) * amt;
+  // Throttled mouse move handler
+  const handleMouseMove = useCallback((e) => {
+    const now = Date.now();
+    if (now - lastMouseMoveRef.current < 16) return; // ~60fps throttle
+    lastMouseMoveRef.current = now;
 
-    const animate = () => {
-      setGlowPos((prev) => ({
-        x: lerp(prev.x, mouse.x, 0.1),
-        y: lerp(prev.y, mouse.y, 0.1),
-      }));
-      animationFrame = requestAnimationFrame(animate);
-    };
-    animate();
-    return () => cancelAnimationFrame(animationFrame);
-  }, [mouse]);
-
-  const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMouse({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     });
-  };
+  }, []);
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = useCallback((e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const touch = e.touches[0];
     setMouse({
@@ -39,7 +30,40 @@ const Footer = () => {
       y: touch.clientY - rect.top,
     });
     setHovered(true);
-  };
+  }, []);
+
+  // Optimized animation loop
+  useEffect(() => {
+    if (!hovered) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      return;
+    }
+
+    const lerp = (start, end, amt) => start + (end - start) * amt;
+
+    const animate = () => {
+      setGlowPos((prev) => ({
+        x: lerp(prev.x, mouse.x, 0.1),
+        y: lerp(prev.y, mouse.y, 0.1),
+      }));
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [hovered, mouse]);
+
+  // Generate grid cells once (memoized)
+  const gridCells = useRef(
+    Array.from({ length: 500 }, (_, i) => ({ id: i }))
+  ).current;
 
   return (
     <footer
@@ -51,86 +75,39 @@ const Footer = () => {
       onTouchStart={() => setHovered(true)}
       onTouchEnd={() => setHovered(false)}
     >
-      {/* Hover Glow + Grid - Uniform on all screens */}
-      <div
-        className="absolute inset-[-5%] pointer-events-none"
-        style={{
-          opacity: hovered ? 1 : 0,
-          transition: "opacity 0.3s ease",
-          maskImage: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, white 30%, transparent 90%)`,
-          WebkitMaskImage: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, white 30%, transparent 90%)`,
-        }}
-      >
-        {/* Soft Glow Orb */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="150"
-          height="84"
-          viewBox="0 0 150 84"
-          fill="none"
-          className="absolute"
-          style={{
-            left: glowPos.x - 185,
-            top: glowPos.y - 185,
-            opacity: 0.18,
-            transition: "all 0.15s ease-out",
-          }}
-        >
-          <g filter="url(#filter0_f_1103_3018)">
-            <circle
-              cx="25"
-              cy="25"
-              r="25"
-              transform="matrix(1 0 0 -1 90 70)"
-              fill="white"
-            />
-          </g>
-          <defs>
-            <filter
-              id="filter0_f_1103_3018"
-              x="-70"
-              y="-140"
-              width="370"
-              height="370"
-              filterUnits="userSpaceOnUse"
-              colorInterpolationFilters="sRGB"
-            >
-              <feFlood floodOpacity="0" result="BackgroundImageFix" />
-              <feBlend
-                mode="normal"
-                in="SourceGraphic"
-                in2="BackgroundImageFix"
-                result="shape"
-              />
-              <feGaussianBlur
-                stdDeviation="100"
-                result="effect1_foregroundBlur_1103_3018"
-              />
-            </filter>
-          </defs>
-        </svg>
-
-        {/* Soft Grid Lines - Fixed pixel spacing for uniform appearance */}
+      {/* Grid Effect */}
+      {hovered && (
         <div
-          className="grid w-full h-full"
+          className="absolute inset-0 pointer-events-none transition-opacity duration-300"
           style={{
-            gridTemplateRows: "repeat(auto-fill, 50px)",
-            gridTemplateColumns: "repeat(auto-fill, 50px)",
+            opacity: 1,
+            maskImage: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, white 30%, transparent 90%)`,
+            WebkitMaskImage: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, white 30%, transparent 90%)`,
           }}
         >
-          {Array.from({ length: 500 }).map((_, i) => (
-            <div
-              key={i}
-              className="border border-white"
-              style={{
-                opacity: 0.06,
-                transition: "opacity 0.3s ease",
-                filter: "blur(0.5px)",
-              }}
-            ></div>
-          ))}
+          {/* Optimized Grid */}
+          <div
+            className="absolute inset-0 grid pointer-events-none"
+            style={{
+              gridTemplateColumns: 'repeat(25, 50px)',
+              gridTemplateRows: 'repeat(20, 50px)',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            {gridCells.map((cell) => (
+              <div
+                key={cell.id}
+                className="border-[0.5px] border-white/[0.06]"
+                style={{
+                  filter: 'blur(0.5px)',
+                  transform: 'translate3d(0, 0, 0)',
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Footer Content */}
       <div className="max-w-[1160px] mx-auto flex flex-col items-center lg:flex-row lg:justify-center lg:items-start gap-8 sm:gap-10 md:gap-12 lg:gap-[164px] relative z-10">
