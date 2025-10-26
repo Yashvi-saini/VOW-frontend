@@ -45,7 +45,7 @@ const Home = () => {
 
       <section className="py-16 px-6 md:px-20 mb-24 ">
         <h2 className="text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">Build For Every Team Member</h2>
-        <div className='flex justify-between mt-20 '>
+        <div className='flex justify-between mt-20 flex-wrap-reverse '>
           <div className='w-full max-w-2xl'>
           <h3 className='text-3xl font-medium mb-3'> Managers-Lead with visibility</h3>
           <p className='text-xl font-normal mb-6'>Create and manage digital offices, assign roles, and customize rooms to fit your organization’s structure.<br/>Monitor performance, schedule meetings, and track every project — all from one dashboard.</p>
@@ -53,16 +53,16 @@ const Home = () => {
              Join as Manager<img src={arrow} alt="arrow" className='pl-3'  />
            </button>
            </div>
-          <div className="relative w-full max-w-[6rem] overflow-hidden pt-5">
+          <div className="relative w-full max-w-[6rem] h-35 overflow-hidden pt-5">
             <img src={one} alt="Illustration 01" className="block w-full h-auto" />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(253,253,253,0)_0.25%,#FDFDFD_43.41%)]" />
+            <div className="pointer-events-none absolute inline  inset-0 bg-[linear-gradient(180deg,rgba(253,253,253,0)_0.25%,#FDFDFD_43.41%)]" />
          
          </div>
         </div>
         <hr className=" border-[#EBE2F6] border-b-4 border-t-0 mt-16" />
 
 
-        <div className='flex justify-between  mt-16'>
+        <div className='flex justify-between  mt-16 flex-wrap-reverse'>
           <div className='w-full max-w-2xl'>
           <h3 className='text-3xl font-medium mb-3'> Supervisor — Guide with Insight</h3>
           <p className='text-xl font-normal mb-6'>Stay on top of your team’s activity and progress with real-time insights.<br/>Assign individual tasks, monitor workspace attendance, and give feedback instantly — all while keeping communication open.</p>
@@ -70,14 +70,14 @@ const Home = () => {
              Join as Supervisor <img src={arrow} alt="arrow" className='pl-3'  />
            </button>
            </div>
-          <div className="relative w-full max-w-[6rem] overflow-hidden pt-5">
+          <div className="relative w-full max-w-[6rem] h-35 overflow-hidden pt-5">
             <img src={two} alt="Illustration 01" className="block w-full h-auto" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(253,253,253,0)_0.25%,#FDFDFD_40.41%)]" />
          
          </div>
         </div>
         <hr className=" border-[#EBE2F6] border-b-4 border-t-0 mt-16" />
-         <div className='flex justify-between  mt-16'>
+         <div className='flex justify-between  mt-16 flex-wrap-reverse'>
           <div className='w-full max-w-2xl'>
           <h3 className='text-3xl font-medium mb-3'> Team Member — Collaborate with Freedom</h3>
           <p className='text-xl font-normal mb-6'>Join your virtual office from anywhere and connect with your team through real-time chat, video calls, or collaborative rooms.<br/>Share ideas, track progress, and contribute without missing the energy of a real workspace.</p>
@@ -85,7 +85,7 @@ const Home = () => {
              Join as Team Member<img src={arrow} alt="arrow" className='pl-3'  />
            </button>
            </div>
-          <div className="relative w-full max-w-[6rem] overflow-hidden pt-5">
+          <div className="relative w-full max-w-[6rem] h-35 overflow-hidden pt-5">
             <img src={three} alt="Illustration 01" className="block w-full h-auto" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(253,253,253,0)_0.25%,#FDFDFD_37.41%)]" />
          
