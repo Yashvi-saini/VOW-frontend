@@ -35,20 +35,22 @@ const Login = () => {
     setIdentifierError("");
     setPasswordError("");
 
-    if (!identifier || !password) {
-      if (!identifier) setIdentifierError("Please enter your username or email.");
+     const trimmedIdentifier = identifier.trim();
+
+    if (!trimmedIdentifier || !password) {
+      if (!trimmedIdentifier) setIdentifierError("Please enter your username or email.");
       if (!password) setPasswordError("Please enter your password.");
       return;
     }
     setLoading(true); // START loading
 
     try {
-      const res = await loginUser({ identifier, password }); 
+      const res = await loginUser({ identifier: trimmedIdentifier, password }); 
 
       if (res.status === 200 && res.data.success) {
         // Handle "Remember Me"
         if (rememberMe) {
-          localStorage.setItem("rememberedIdentifier", identifier);
+          localStorage.setItem("rememberedIdentifier", trimmedIdentifier);
         } else {
           localStorage.removeItem("rememberedIdentifier");
         }
