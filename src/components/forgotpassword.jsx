@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../api/authApi";
 import arrow from "../assets/arrow.svg";
+import Background from "../components/background.jsx";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
@@ -48,11 +49,11 @@ const ForgotPassword = () => {
 
    
   return (
+    <>
+    <Background/>
     <div
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
-      style={{
-        background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)",
-      }}
+      
     >
       <div className="bg-white pt-5 px-3 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 sm:px-10 text-center box-border">
         {/* Close Button */}
@@ -137,6 +138,6 @@ const ForgotPassword = () => {
         </div>
       </div>
     </div>
-  );
+  </>);
 };
 export default ForgotPassword;

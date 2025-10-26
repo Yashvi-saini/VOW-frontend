@@ -13,11 +13,11 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center p-6">
       {!profile ? (
-        <div className="flex flex-col w-full max-w-4xl justify-center items-start">
+       
           <ProfileForm onSubmit={handleFormSubmit} />
-        </div>
+        
       ) : (
         <ProfileCard profile={profile} />
       )}

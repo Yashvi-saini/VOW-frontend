@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
 import arrow from "../assets/arrow.svg";
 import { verifyEmail, resendOtp, forgotPassword, verifyResetOtp } from '../api/authApi';
-
+import Background from "../components/background.jsx";
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -142,8 +142,10 @@ const handlePaste = (e) => {
 };
 
   return (
+    <>
+    <Background/>
     <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
-      style={{ background: "linear-gradient(235deg, #EFE7F6 36%, #BFA2E1 70%)" }}
+     
     >
       <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
         {/* Back Arrow */}
@@ -228,7 +230,7 @@ const handlePaste = (e) => {
         </form>
       </div>
     </div>
-  );
+  </>);
 };
 
 export default VerifyOtp;

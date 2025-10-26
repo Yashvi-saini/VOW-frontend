@@ -1,13 +1,15 @@
 import React from "react";
 import checkIcon from "../assets/bigtick.png"; 
 import { Link } from "react-router-dom";
-
+import Background from "../components/background.jsx";
 
 const ResetSuccess = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-purple-200 px-4">
+    <>
+    <Background/>
+    <div className="min-h-screen flex items-center justify-center  px-4">
       <div
-        className="relative flex flex-col justify-between items-center rounded-[12px] bg-[#FAFAFA] shadow-lg"
+        className="relative flex flex-col justify-between items-center rounded-xl bg-[#FAFAFA] shadow-lg"
         style={{
           width: "570px",
           height: "513px",
@@ -46,13 +48,13 @@ const ResetSuccess = () => {
         {/* Button */}
        <Link
           to="/login"
-        className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-[10px] rounded-md font-medium  transition text-center"
+        className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-2.5 rounded-md font-medium  transition text-center"
         >
         Back to login
        </Link>
       </div>
     </div>
-  );
+ </> );
 };
 
 export default ResetSuccess;
