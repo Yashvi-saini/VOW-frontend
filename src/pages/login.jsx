@@ -121,15 +121,28 @@ const Login = () => {
             <input
               type="text"
               value={identifier}
+              maxLength={50}
               onChange={(e) => { setIdentifier(e.target.value); setIdentifierError(""); }}
               placeholder="Enter your username or email"
               className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 ${
                 identifierError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-[#558CE6]"
               }`}
             />
-            {identifierError && <img src={X} alt="Invalid" className="absolute right-3 top-9 h-4 w-4" />}
+            {identifierError && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier("");
+                  setIdentifierError("");
+                }}
+                className="absolute right-3 top-9"
+              >
+                <img src={X} alt="Clear" className="h-4 w-4 cursor-pointer hover:opacity-70 transition" />
+              </button>
+            )}
             <p className="text-red-600 mt-1 h-5 text-[14px] font-inter font-medium">{identifierError || " "}</p>
           </div>
+
 
           {/* Password Field */}
           <div className="mb-3 relative">
@@ -137,6 +150,7 @@ const Login = () => {
             <input
               type={showPassword ? "text" : "password"}
               value={password}
+              maxLength={20}
               autoComplete="current-password"
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -163,7 +177,17 @@ const Login = () => {
               </button>
             )}
             {passwordError && (
-              <img src={X} alt="Invalid" className="absolute right-3 top-9 h-4 w-4" />
+              <button
+                type="button"
+                onClick={() => {
+                  setPassword("");
+                  setPasswordError("");
+                  setShowPassword(false);
+                }}
+                className="absolute right-3 top-9"
+              >
+                <img src={X} alt="Clear" className="h-4 w-4 cursor-pointer hover:opacity-70 transition" />
+              </button>
             )}
             <p className="text-red-600 mt-1 h-5 text-[14px] font-inter font-medium">{passwordError || " "}</p>
           </div>
