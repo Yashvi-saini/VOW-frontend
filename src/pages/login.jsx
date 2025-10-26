@@ -147,12 +147,23 @@ const Login = () => {
                 passwordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-[#558CE6]"
               }`}
             />
-            {passwordError ? (
-              <img src={X} alt="Invalid" className="absolute right-3 top-9 h-4 w-4" />
-            ) : (
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-9">
-                <img src={showPassword ? EyeOff : Eye} alt="Toggle visibility" className="h-4 w-4 opacity-80 hover:opacity-100 transition" />
+           {/* Show eye icon only when: no error OR (error exists but password has text) */}
+           {(!passwordError || password) && (
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className={`absolute top-9 ${passwordError && password ? 'right-9' : 'right-3'}`}
+              >
+                <img 
+                  src={showPassword ? EyeOff : Eye} 
+                  alt="Toggle visibility" 
+                  className="h-4 w-4 opacity-80 hover:opacity-100 transition"
+                  style={passwordError && password ? { filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' } : {}}
+                />
               </button>
+            )}
+            {passwordError && (
+              <img src={X} alt="Invalid" className="absolute right-3 top-9 h-4 w-4" />
             )}
             <p className="text-red-600 mt-1 h-5 text-[14px] font-inter font-medium">{passwordError || " "}</p>
           </div>
