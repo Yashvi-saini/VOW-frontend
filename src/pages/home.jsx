@@ -12,11 +12,8 @@ import orangeImg from "../assets/orange.svg";
 import greenImg from "../assets/green.svg";
 import pinkImg from "../assets/pink.svg";
 import { useNavigate } from 'react-router-dom';
-import vector from "../assets/vector 1.svg";
-import yellow from "../assets/yellow.svg";
-import orange from "../assets/orange.svg";
-import green from "../assets/green.svg";
-import pink from "../assets/pink.svg";
+import vector from "../assets/vector.svg";
+
 // Animated "Collaborate" heading with sequenced image highlights
 const CollaborateAnimation = ({ className = "" }) => {
   const [step, setStep] = useState(0); // 0: tilt only, 1-4: images, 5: final text
