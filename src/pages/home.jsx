@@ -66,8 +66,8 @@ const Home = () => {
     <>
       <Navbar />
 
+      {/* HERO SECTION  */}
       <section className="relative bg-green-50 md:bg-white overflow-hidden py-12 sm:py-16 lg:py-24 px-4 sm:px-6 md:px-20">
-        {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
             <h1 className='pb-2.5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
@@ -84,23 +84,20 @@ const Home = () => {
           </div>
         </div>
 
-
-
         <img src={notes} alt="" aria-hidden className="hidden md:block pointer-events-none select-none absolute right-6 top-40 w-10 opacity-30" />
         <img src={notes} alt="" aria-hidden className="hidden md:block pointer-events-none select-none absolute left-6 top-4 w-10 opacity-30 -scale-x-100" />
         <img src={notes} alt="" aria-hidden className="hidden md:block pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 opacity-20" />
       </section>
 
+      {/*FEATURE CARDS */}
       <section className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto max-w-4xl">
-            All Your Work – In One Virtual Space
-          </h2>
-          <div className="mt-8 sm:mt-10">
-            <FeatureCards />
-          </div>
-        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-[96px] max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
+          All Your Work — In One Virtual Space
+        </h2>
+        <FeatureCards />
       </section>
+
+     
 
       <section className="py-16 px-6 md:px-20 mb-24 ">
         <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">Build For Every Team Member</h2>
