@@ -13,6 +13,7 @@ import greenImg from "../assets/green.svg";
 import pinkImg from "../assets/pink.svg";
 import { useNavigate } from 'react-router-dom';
 import vector from "../assets/vector.svg";
+import img  from "../assets/Rectangle 9.svg";
 
 // Animated "Collaborate" heading with sequenced image highlights
 const CollaborateAnimation = ({ className = "" }) => {
@@ -27,16 +28,16 @@ const CollaborateAnimation = ({ className = "" }) => {
       <style>{`@keyframes vibrate{0%{transform:translate(0,0) rotate(0)}20%{transform:translate(1px,-1px) rotate(-0.5deg)}40%{transform:translate(-1px,1px) rotate(0.5deg)}60%{transform:translate(1px,1px) rotate(0)}80%{transform:translate(-1px,-1px) rotate(0.5deg)}100%{transform:translate(0,0) rotate(0)}}`}</style>
 
       {/* Image highlights (one at a time, vibrate when visible) */}
-      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-40 sm:w-60 md:w-56 opacity-0 transition-opacity duration-500 ${step === 1 ? 'opacity-90' : ''}`}>
+      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 1 ? 'opacity-90' : ''}`}>
         <img src={yellowImg} alt="" className="w-full h-auto" style={{ animation: step === 1 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
       </div>
-      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-40 sm:w-60 md:w-56 opacity-0 transition-opacity duration-500 ${step === 2 ? 'opacity-90' : ''}`}>
+      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 2 ? 'opacity-90' : ''}`}>
         <img src={orangeImg} alt="" className="w-full h-auto" style={{ animation: step === 2 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
       </div>
-      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-40 sm:w-60 md:w-56 opacity-0 transition-opacity duration-500 ${step === 3 ? 'opacity-90' : ''}`}>
+      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 3 ? 'opacity-90' : ''}`}>
         <img src={greenImg} alt="" className="w-full h-auto" style={{ animation: step === 3 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
       </div>
-      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-40 sm:w-60 md:w-56 opacity-0 transition-opacity duration-500 ${step === 4 ? 'opacity-90' : ''}`}>
+      <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 4 ? 'opacity-90' : ''}`}>
         <img src={pinkImg} alt="" className="w-full h-auto" style={{ animation: step === 4 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
       </div>
 
@@ -64,12 +65,12 @@ const Home = () => {
       <Navbar />
 
       {/* HERO SECTION  */}
-      <section className="relative bg-green-50 md:bg-white overflow-hidden py-12 sm:py-16 lg:py-24 px-4 sm:px-6 md:px-20">
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center gap-6">
+  <section className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
+        <div className="relative z-10 max-w-7xl my-55 w-full flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
-            <h1 className='pb-2.5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
-            <CollaborateAnimation className='pb-2.5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl' />
-            <h1 className='pb-2.5 text-4xl sm:text-5xl md:text-6xl lg:text-7xl'>Create</h1>
+            <h1 className=' text-[40px] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
+            <CollaborateAnimation className=' h-13 md:h-20 text-[40px] sm:text-5xl md:text-6xl lg:text-7xl' />
+            <h1 className=' text-[40px] h-13  sm:text-5xl md:text-6xl lg:text-7xl'>Create</h1>
           </div>
           <div className='flex flex-col sm:flex-row gap-3 sm:gap-4'>
             <button onClick={goToSignupWithOverlay} className="bg-[#5E9BFF] text-white px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:brightness-105 transition">
@@ -81,14 +82,17 @@ const Home = () => {
           </div>
         </div>
 
-        <img src={notes} alt="" aria-hidden className="hidden md:block pointer-events-none select-none absolute right-6 top-40 w-10 opacity-30" />
-        <img src={notes} alt="" aria-hidden className="hidden md:block pointer-events-none select-none absolute left-6 top-4 w-10 opacity-30 -scale-x-100" />
-        <img src={notes} alt="" aria-hidden className="hidden md:block pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 opacity-20" />
+        <img src={notes} alt="" aria-hidden className=" md:block pointer-events-none select-none absolute right-0 top-25 w-35 md:top-50 sm:w-30 md:w-50 " />
+        <img src={notes} alt="" aria-hidden className="md:block pointer-events-none select-none absolute left-0 top-10 w-35 sm:w-30 md:w-50 -scale-x-100" />
+        <img src={notes} alt="" aria-hidden className=" md:block pointer-events-none select-none absolute left-1/2 top-148 -translate-x-1/2 -translate-y-1/2 w-35 md:left-[25vw] sm:w-30 md:w-50 " />
+        <img  src={img} className="md:block pointer-events-none select-none absolute left-15 top-130 -translate-x-1/2 -translate-y-1/2 sm:top-120 md:left-[70vw] md:top-[8em] w-20 sm:w-10 md:w-35 "/>
+        <img  src={img} className="md:block pointer-events-none select-none absolute left-12 top-70 -translate-x-1/2 -translate-y-1/2 w-20 md:top-90 md:left-[6vw] sm:w-10 md:w-25 "/>
+        <img  src={img} className="md:block pointer-events-none select-none absolute -right-5 top-90 -translate-x-1/2 -translate-y-1/2 w-20 md:left-[75vw] md:top-[33em] sm:w-10 md:w-30 "/>
       </section>
 
       {/*FEATURE CARDS */}
       <section className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-[96px] max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
           All Your Work — In One Virtual Space
         </h2>
         <FeatureCards />
