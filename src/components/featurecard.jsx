@@ -34,9 +34,9 @@ const FeatureCards = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex-none w-[472px] h-[424px] bg-[#EBE2F6] p-[8px] mr-[65px]"
+              className="flex-none w-[472px] h-[424px] bg-[#EBE2F6] p-[8px] mr-[65px] rounded-[12px] "
             >
-              <div className="w-full h-[288px] mb-4 bg-[#D9D9D9] " />
+              <div className="w-full h-[288px] mb-4 bg-[#D9D9D9] rounded-[6px]" />
               <h3 className="text-[32px] font-medium mb-[16px] text-black text-left w-[456px] h-[38px] ">
                 {feature.title}
               </h3>
