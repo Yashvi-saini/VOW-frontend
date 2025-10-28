@@ -41,7 +41,7 @@ const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesR
 
   return (
     <div
-      className="absolute bg-[#FFF] border border-[#A8C2ED] border-dashed flex items-center justify-center"
+      className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center"
       style={{
         left: `${x}px`,
         top: `${y}px`,
@@ -50,7 +50,7 @@ const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesR
       }}
     >
       <div>
-         <img src={desk2} alt="desk ml-[84px] mt-[78px] mb-[71px] mr-[79px]" />
+         <img src={desk2} alt="desk " />
       </div>
       
     </div>

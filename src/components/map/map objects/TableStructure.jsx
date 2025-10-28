@@ -89,7 +89,7 @@ const TableStructure = ({
   return (
     <div
       ref={tableRef}
-      className="absolute border border-dashed border-blue-900"
+      className="absolute  border-2 border-dashed border-[#385D99]"
       style={{
         width: "400px",
         height: "620px",

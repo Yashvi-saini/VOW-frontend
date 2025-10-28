@@ -3,9 +3,11 @@ import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
 import CabinStructure from "../map/map objects/cabinStructure";
-
+import Gaming from "./map objects/gaming";
+import PrivateRoom from "./map objects/PrivetRoom";
 import ManagerCabin from "./map objects/Manager";
 import SupervisorCabin from "./map objects/Supervisor";
+import BigTableStructure  from "./map objects/bigtablestructure";
 
 const Map = () => {
   //  Multiple players instead of one position
@@ -458,8 +460,8 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
       onPointerLeave={handlePointerLeave}
       className="relative w-full h-screen bg-white overflow-hidden shadow-md border border-gray-200"
       style={{
-        width: 2720,
-        height: 2080,
+        width: 3260,
+        height: 2380,
         cursor: cursorBlocked ? "not-allowed" : "pointer",
       }}
       >
@@ -468,34 +470,54 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           id="tableA"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 15, y: 25 }}
+          position={{ x: 12.5, y: 21.5 }}
           imageSize={450}
         />
-        <TableStructure
-          id="tableB"
+        <BigTableStructure
+          id="bigtable"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 12, y: 76 }}
-          imageSize={450}
+          position={{ x: 10.5, y: 76 }}
+          imageSize={550}
         />
         <CabinStructure
           id="cabin"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 60, y: 40 }}
+          position={{ x: 48.2, y: 33 }}
         />
         <ManagerCabin
           id="manager"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          x={2239} y={240} width={323} height={240}
+          x={2620} y={212} width={323} height={240}
+        />
+        <TableStructure
+          id="tableB"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          position={{ x: 85, y: 50 }}
+          imageSize={450}
         />
         <SupervisorCabin
           id="supervisor"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          x={802} y={1682} width={323} height={240}
+          x={2639} y={1420} width={323} height={240} 
         />
+        <Gaming
+          id="gaming"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={2639} y={1690} width={323} height={240} 
+      />
+        <PrivateRoom
+          id="privateRoom"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={820} y={1695} width={1040} height={240}
+        />
+      
 
         {/*  Render all avatars */}
         {players.map((player) => {

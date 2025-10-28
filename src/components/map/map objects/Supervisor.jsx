@@ -37,9 +37,10 @@ const ManagerCabin = ({ x, y, width, height, title, id = "supervisor", onObstacl
     }
     return () => ro?.disconnect();
   }, [x, y, width, height, id, onObstaclesReady, containerRef]);
+  
   return (
     <div
-      className="absolute bg-[#FFF] border border-[#A8C2ED] border-dashed flex items-center justify-center"
+      className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center"
       style={{
         left: `${x}px`,
         top: `${y}px`,
@@ -48,7 +49,7 @@ const ManagerCabin = ({ x, y, width, height, title, id = "supervisor", onObstacl
       }}
     >
       <div>
-               <img src={desk2} alt="desk ml-[78px] mt-[78px] mb-[71px] mr-[82px]" />
+               <img src={desk2} alt="desk" />
             </div>
     </div>
   );
