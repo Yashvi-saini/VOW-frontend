@@ -3,6 +3,8 @@ import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
 import CabinStructure from "../map/map objects/cabinStructure";
+import WelcomeZone from "./map objects/WelcomeZone";
+import TeleportButton from "./map objects/Teleport";
 import Gaming from "./map objects/gaming";
 import PrivateRoom from "./map objects/PrivetRoom";
 import ManagerCabin from "./map objects/Manager";
@@ -491,7 +493,18 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
         <PrivateRoom
         x={820} y={1695} width={1040} height={240}
         />
-      
+        <WelcomeZone
+        x={820}  y={1300} width={1040} height={240}
+        />
+        <TeleportButton
+        x={2000} y={150} width={70}
+        />
+        <TeleportButton
+        x={2000} y={1600} width={70}
+        />
+        <TeleportButton
+        x={350} y={850} width={70}
+        />
 
         {/*  Render all avatars */}
         {players.map((player) => {
