@@ -35,20 +35,22 @@ const Login = () => {
     setIdentifierError("");
     setPasswordError("");
 
-    if (!identifier || !password) {
-      if (!identifier) setIdentifierError("Please enter your username or email.");
+     const trimmedIdentifier = identifier.trim();
+
+    if (!trimmedIdentifier || !password) {
+      if (!trimmedIdentifier) setIdentifierError("Please enter your username or email.");
       if (!password) setPasswordError("Please enter your password.");
       return;
     }
     setLoading(true); // START loading
 
     try {
-      const res = await loginUser({ identifier, password }); 
+      const res = await loginUser({ identifier: trimmedIdentifier, password }); 
 
       if (res.status === 200 && res.data.success) {
         // Handle "Remember Me"
         if (rememberMe) {
-          localStorage.setItem("rememberedIdentifier", identifier);
+          localStorage.setItem("rememberedIdentifier", trimmedIdentifier);
         } else {
           localStorage.removeItem("rememberedIdentifier");
         }
@@ -121,15 +123,28 @@ const Login = () => {
             <input
               type="text"
               value={identifier}
+              maxLength={50}
               onChange={(e) => { setIdentifier(e.target.value); setIdentifierError(""); }}
               placeholder="Enter your username or email"
               className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 ${
                 identifierError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-[#558CE6]"
               }`}
             />
-            {identifierError && <img src={X} alt="Invalid" className="absolute right-3 top-9 h-4 w-4" />}
+            {identifierError && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier("");
+                  setIdentifierError("");
+                }}
+                className="absolute right-3 top-9"
+              >
+                <img src={X} alt="Clear" className="h-4 w-4 cursor-pointer hover:opacity-70 transition" />
+              </button>
+            )}
             <p className="text-red-600 mt-1 h-5 text-[14px] font-inter font-medium">{identifierError || " "}</p>
           </div>
+
 
           {/* Password Field */}
           <div className="mb-3 relative">
@@ -137,6 +152,7 @@ const Login = () => {
             <input
               type={showPassword ? "text" : "password"}
               value={password}
+              maxLength={20}
               autoComplete="current-password"
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -147,11 +163,32 @@ const Login = () => {
                 passwordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-[#558CE6]"
               }`}
             />
-            {passwordError ? (
-              <img src={X} alt="Invalid" className="absolute right-3 top-9 h-4 w-4" />
-            ) : (
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-9">
-                <img src={showPassword ? EyeOff : Eye} alt="Toggle visibility" className="h-4 w-4 opacity-80 hover:opacity-100 transition" />
+           {/* Show eye icon only when: no error OR (error exists but password has text) */}
+           {(!passwordError || password) && (
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className={`absolute top-9 ${passwordError && password ? 'right-9' : 'right-3'}`}
+              >
+                <img 
+                  src={showPassword ? EyeOff : Eye} 
+                  alt="Toggle visibility" 
+                  className="h-4 w-4 opacity-80 hover:opacity-100 transition"
+                  style={passwordError && password ? { filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' } : {}}
+                />
+              </button>
+            )}
+            {passwordError && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPassword("");
+                  setPasswordError("");
+                  setShowPassword(false);
+                }}
+                className="absolute right-3 top-9"
+              >
+                <img src={X} alt="Clear" className="h-4 w-4 cursor-pointer hover:opacity-70 transition" />
               </button>
             )}
             <p className="text-red-600 mt-1 h-5 text-[14px] font-inter font-medium">{passwordError || " "}</p>
