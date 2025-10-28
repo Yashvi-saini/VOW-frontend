@@ -3,7 +3,8 @@ import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
 import CabinStructure from "../map/map objects/cabinStructure";
-
+import Gaming from "./map objects/gaming";
+import PrivateRoom from "./map objects/PrivetRoom";
 import ManagerCabin from "./map objects/Manager";
 import SupervisorCabin from "./map objects/Supervisor";
 
@@ -479,12 +480,18 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           id="cabin"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 60, y: 40 }}
+          position={{ x: 50, y: 26 }}
         />
         <ManagerCabin
-        x={2239} y={240} width={323} height={240} />
+        x={2239} y={106} width={323} height={240} />
         <SupervisorCabin
-        x={802} y={1682} width={323} height={240} />
+        x={2239} y={1135} width={323} height={240} />
+        <Gaming
+        x={2239} y={1695} width={323} height={240} />
+        <PrivateRoom
+        x={820} y={1695} width={1040} height={240}
+        />
+      
 
         {/*  Render all avatars */}
         {players.map((player) => {
