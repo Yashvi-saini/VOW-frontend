@@ -1,35 +1,22 @@
-// TableStructure.jsx
+// TableStructure.jsx (recreated to use a single image with a collision box)
 import React, { useEffect, useRef } from "react";
-import seat from "../map assets/seat.svg";
-import OuterRectangle from "../map assets/outerRect";
-import InnerRectangle from "../map assets/innerRect";
+import small_room from "../map assets/small room.svg";
 
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });
-const TABLE_SIZE_PX = 400;
-
-const TableStructure = ({id="table", onObstaclesReady, position, containerRef }) => {
+const TableStructure = ({
+  id = "table",
+  onObstaclesReady,
+  position,
+  containerRef,
+  imageSize,      // optional square size (px)
+  imageWidth,     // optional width (px)
+  imageHeight,    // optional height (px)
+}) => {
   const tableRef = useRef(null);
+  const smallRoomRef = useRef(null);
   const tablePosition = position ?? DEFAULT_TABLE_POSITION;
 
   const notifyObstacles = onObstaclesReady;
-
-
-  const tableObstacles = [
-    {
-      id: `${id}-outerRect`,
-      x: 50,
-      y: 50,
-      width: 26.25,
-      height: 55,
-    },
-    {
-      id: `${id}-innerRect`,
-      x: 50,
-      y: 50,
-      width: 25,
-      height: 52.5,
-    },
-  ];
 
 
   useEffect(() => {
@@ -53,20 +40,35 @@ const TableStructure = ({id="table", onObstaclesReady, position, containerRef })
           return;
         }
 
-        const obstacles = tableObstacles.map((obs) => {
-          const tableXInPx = (tablePosition.x / 100) * containerWidth;
-          const tableYInPx = (tablePosition.y / 100) * containerHeight;
-          const obsXInPx = tableXInPx + ((obs.x - 50) / 100) * TABLE_SIZE_PX;
-          const obsYInPx = tableYInPx + ((obs.y - 50) / 100) * TABLE_SIZE_PX;
+        // Start with no obstacles from legacy rectangles; we only use the image bounds now.
+        const obstacles = [];
 
-
-          const xPercent = (obsXInPx / containerWidth) * 100;
-          const yPercent = (obsYInPx / containerHeight) * 100;
-          const widthPercent = ((obs.width / 100) * TABLE_SIZE_PX / containerWidth) * 100;
-          const heightPercent = ((obs.height / 100) * TABLE_SIZE_PX / containerHeight) * 100;
-
-          return { ...obs, x: xPercent, y: yPercent, width: widthPercent, height: heightPercent };
-        });
+        // Also add a collision box for the small room SVG, measured from its DOM box
+        const roomEl = smallRoomRef.current;
+        if (roomEl) {
+          const containerRect = container.getBoundingClientRect();
+          const roomRect = roomEl.getBoundingClientRect();
+          if (roomRect.width > 0 && roomRect.height > 0) {
+            // Adjust for world scale: convert measured (scaled) px back to unscaled px
+            const scaleX = containerRect.width / containerWidth;
+            const scaleY = containerRect.height / containerHeight;
+            const centerXpx = (roomRect.left - containerRect.left + roomRect.width / 2) / (scaleX || 1);
+            const centerYpx = (roomRect.top - containerRect.top + roomRect.height / 2) / (scaleY || 1);
+            const widthPx = roomRect.width / (scaleX || 1);
+            const heightPx = roomRect.height / (scaleY || 1);
+            const xPercent = (centerXpx / containerWidth) * 100;
+            const yPercent = (centerYpx / containerHeight) * 100;
+            const widthPercent = (widthPx / containerWidth) * 100;
+            const heightPercent = (heightPx / containerHeight) * 100;
+            obstacles.push({
+              id: `${id}-small-room`,
+              x: xPercent,
+              y: yPercent,
+              width: widthPercent-3,
+              height: heightPercent-2,
+            });
+          }
+        }
 
           const valid = obstacles.filter(
             (o) => Number.isFinite(o.x) && Number.isFinite(o.y) && Number.isFinite(o.width) && Number.isFinite(o.height) && o.width > 0 && o.height > 0
@@ -82,46 +84,32 @@ const TableStructure = ({id="table", onObstaclesReady, position, containerRef })
 
     setup();
     return () => ro?.disconnect();
-  }, [id, containerRef, tablePosition.x, tablePosition.y]);
+  }, [id, containerRef, tablePosition.x, tablePosition.y, imageSize, imageWidth, imageHeight]);
 
   return (
     <div
       ref={tableRef}
-      className="absolute"
+      className="absolute border border-dashed border-blue-900"
       style={{
         width: "400px",
-        height: "400px",
+        height: "620px",
         top: `${tablePosition.y}%`,
         left: `${tablePosition.x}%`,
         transform: "translate(-50%, -50%)",
       }}
     >
-      {/* Outer Rectangle SVG */}
-      <OuterRectangle 
-        className="absolute top-1/2 left-1/2"
-        style={{ width: "105px", height: "220px", transform: "translate(-50%, -50%)" }}
+      {/* Single image representing the structure; its bounds are used as the collision box */}
+      <img
+        ref={smallRoomRef}
+        src={small_room}
+        alt=""
+        className="absolute pointer-events-none select-none top-1/2 left-1/2"
+        style={{
+          width: (typeof imageWidth === 'number') ? imageWidth : (typeof imageSize === 'number' ? imageSize : 220),
+          height: (typeof imageHeight === 'number') ? imageHeight : (typeof imageSize === 'number' ? imageSize : 120),
+          transform: "translate(-50%, -50%)",
+        }}
       />
-
-      {/* Inner Rectangle SVG */}
-      <InnerRectangle 
-        className="absolute top-1/2 left-1/2"
-        style={{ width: "100px", height: "210px", transform: "translate(-50%, -50%)" }}
-      />
-
-      {/* Seats */}
-      <img src={seat} alt="Seat" className="absolute left-1/2" style={{ top: "50px", width: "25px", transform: "translateX(-40px) rotate(90deg)" }} />
-      <img src={seat} alt="Seat" className="absolute left-1/2" style={{ top: "50px", width: "25px", transform: "translateX(20px) rotate(90deg)" }} />
-      <img src={seat} alt="Seat" className="absolute left-1/2" style={{ bottom: "50px", width: "25px", transform: "translateX(-40px) rotate(270deg)" }} />
-      <img src={seat} alt="Seat" className="absolute left-1/2" style={{ bottom: "50px", width: "25px", transform: "translateX(20px) rotate(270deg)" }} />
-      <img src={seat} alt="Seat" className="absolute" style={{ top: "110px", left: "105px", width: "25px" }} />
-      <img src={seat} alt="Seat" className="absolute" style={{ top: "160px", left: "105px", width: "25px" }} />
-            <img src={seat} alt="Seat" className="absolute" style={{ top: "210px", left: "105px", width: "25px" }} />
-                  <img src={seat} alt="Seat" className="absolute" style={{ top: "260px", left: "105px", width: "25px" }} />
-                  <img src={seat} alt="Seat" className="absolute" style={{ bottom: "210px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
-                  <img src={seat} alt="Seat" className="absolute" style={{ bottom: "260px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
-      <img src={seat} alt="Seat" className="absolute" style={{ bottom: "160px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
-      <img src={seat} alt="Seat" className="absolute" style={{ bottom: "110px", right: "105px", width: "25px", transform: "rotate(180deg)" }} />
-      
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
@@ -46,16 +46,17 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   const friction = 0.12;
   const COLLISION_EPS = 0.0; 
 
-  //  Receive obstacles from child components
-  const handleObstaclesFromChild = (id, newObstacles) => {
+  //  Receive obstacles from child components (memoized to avoid re-creating each render)
+  const handleObstaclesFromChild = useCallback((id, newObstacles) => {
     obstaclesByIdRef.current = {
       ...obstaclesByIdRef.current,
       [id]: newObstacles,
     };
     const merged = Object.values(obstaclesByIdRef.current).flat();
     obstaclesRef.current = merged;
-    setObstacles(merged);
-  };
+    // Only update state if changed length or content reference differs
+    setObstacles((prev) => (prev === merged ? prev : merged));
+  }, []);
 
   //  Collision detection
   const isColliding = (newX, newY, eps = COLLISION_EPS) => {
@@ -468,12 +469,14 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
           position={{ x: 15, y: 25 }}
+          imageSize={450}
         />
         <TableStructure
           id="tableB"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 15, y: 80 }}
+          position={{ x: 12, y: 76 }}
+          imageSize={450}
         />
         <CabinStructure
           id="cabin"
@@ -482,9 +485,17 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           position={{ x: 60, y: 40 }}
         />
         <ManagerCabin
-        x={2239} y={240} width={323} height={240} />
+          id="manager"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={2239} y={240} width={323} height={240}
+        />
         <SupervisorCabin
-        x={802} y={1682} width={323} height={240} />
+          id="supervisor"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={802} y={1682} width={323} height={240}
+        />
 
         {/*  Render all avatars */}
         {players.map((player) => {
