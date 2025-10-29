@@ -10,8 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-
-# vite cache
+*.local
+#vite extension
 .vite/
 
 # vite dependencies
