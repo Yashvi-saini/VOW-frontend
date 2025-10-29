@@ -1,7 +1,7 @@
 // BigTableStructure.jsx (single image with a collision box)
 import React, { useEffect, useRef } from "react";
 import bigtable from "../map assets/big table.svg";
-
+import ZoneButton from "../map-components/button.jsx"
 const DEFAULT_TABLE_POSITION = Object.freeze({ x: 25, y: 25 });
 const BigTableStructure = ({
   id = "bigtable",
@@ -89,7 +89,7 @@ const BigTableStructure = ({
   return (
     <div
       ref={tableRef}
-      className="absolute border-2 border-dashed border-[#385D99]"
+      className="absolute border-2 border-dashed border-[#385D99] rounded-lg"
       style={{
         width: "400px",
         height: "620px",
@@ -110,6 +110,11 @@ const BigTableStructure = ({
           transform: "translate(-50%, -50%)",
         }}
       />
+      <ZoneButton 
+       label="Conference Hall" 
+       numberOfUsers={16} 
+       locked={true} 
+     />
     </div>
   );
 };

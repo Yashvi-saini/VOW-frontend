@@ -1,6 +1,7 @@
 // src/components/map/map objects/ManagerCabin.jsx
 import React, { useEffect } from "react";
 import desk2 from "../map assets/desk2.svg";
+import ZoneButton from "../map-components/button.jsx"
 /**
  * ManagerCabin: renders a rectangle and reports a collision box to the parent map.
  * Props:
@@ -41,7 +42,7 @@ const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesR
 
   return (
     <div
-      className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center"
+      className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center rounded-lg"
       style={{
         left: `${x}px`,
         top: `${y}px`,
@@ -52,7 +53,11 @@ const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesR
       <div>
          <img src={desk2} alt="desk " />
       </div>
-      
+        <ZoneButton 
+         label="Manager Cabin" 
+         numberOfUsers={1} 
+         locked={true} 
+       />
     </div>
   );
 };

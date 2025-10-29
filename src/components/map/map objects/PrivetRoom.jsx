@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import privateroomdesk from "../map assets/privateroomdesk.svg";
+import ZoneButton from "../map-components/button.jsx"
 /**
  * PrivateRoom: renders a cabin with multiple desk images and reports a collision box for each image.
  * Props:
@@ -61,7 +62,7 @@ const PrivateRoom = ({ x, y, width, height, title, id = "privateRoom", onObstacl
   return (
     <div
       ref={wrapperRef}
-  className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center"
+  className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center rounded-lg"
       style={{
         left: `${x}px`,
         top: `${y}px`,
@@ -75,6 +76,11 @@ const PrivateRoom = ({ x, y, width, height, title, id = "privateRoom", onObstacl
         <img ref={(el) => (imgRefs.current[2] = el)} src={privateroomdesk} alt="desk" />
         <img ref={(el) => (imgRefs.current[3] = el)} src={privateroomdesk} alt="desk" />
      </div>
+       <ZoneButton 
+        label="Private Rooms" 
+        numberOfUsers={8} 
+        locked={true} 
+      />
     </div>
   );
 };

@@ -417,6 +417,11 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   //  Map & avatars rendering
   // Handle clicks on the map: convert client coords to percent (0-100)
   const handleMapClick = (e) => {
+    // Ignore clicks originating from UI controls that should not move the avatar
+    if (e.target && typeof e.target.closest === 'function') {
+      const uiEl = e.target.closest('[data-map-no-move]');
+      if (uiEl) return;
+    }
     if (e.button && e.button !== 0) return;
     const world = containerRef.current;
     if (!world) return;
@@ -517,19 +522,19 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           id="privateRoom"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          x={820} y={1895} width={1040} height={240}
+          x={920} y={1895} width={1040} height={240}
         />
         <WelcomeZone
-        x={820}  y={1300} width={1040} height={240}
+        x={920}  y={1550} width={1040} height={240}
         />
         <TeleportButton
-        x={2000} y={150} width={70}
+        x={2300} y={290} width={70}
         />
         <TeleportButton
-        x={2000} y={1600} width={70}
+        x={2100} y={1650} width={70}
         />
         <TeleportButton
-        x={350} y={850} width={70}
+        x={350} y={1090} width={70}
         />
 
         {/*  Render all avatars */}

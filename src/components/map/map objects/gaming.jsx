@@ -1,6 +1,7 @@
 import React,{useEffect} from "react";
 import joystickleft from "../map assets/joystickleft.svg";
 import table from "../map assets/table.svg";
+import ZoneButton from "../map-components/button.jsx"
 const Gaming = ({ x, y, width, height, title, id = "supervisor", onObstaclesReady, containerRef }) => {
 
 
@@ -59,6 +60,11 @@ const Gaming = ({ x, y, width, height, title, id = "supervisor", onObstaclesRead
           />
         </div>
       </div>
+        <ZoneButton 
+         label="Gaming Section" 
+         numberOfUsers={2} 
+         locked={true} 
+       />
     </div>
   );
 };

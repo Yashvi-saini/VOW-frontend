@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import DeskUnit from "../map assets/DeskUnit";
+import ZoneButton from "../map-components/button.jsx"
 const DEFAULT_CABIN_POSITION = Object.freeze({ x: 50, y: 50 });
 
 const CABIN_W = 1288;
@@ -148,8 +149,13 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
               <DeskUnit style={{ width: "100%", height: "100%", display: "block" }} />
             </div>
           ))}
-        </div>
+        </div><ZoneButton 
+         label="Cabins" 
+         numberOfUsers={15} 
+         locked={true} 
+       />
       </div>
+        
     </div>
   );
 };
