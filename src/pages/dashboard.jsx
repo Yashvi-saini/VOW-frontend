@@ -1,8 +1,10 @@
 import React from "react";
 import logo from "../assets/logo.png"; 
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-[#EFE7F6] flex flex-col items-center">
       {/* Navbar */}
@@ -55,7 +57,9 @@ const Dashboard = () => {
           <button className="w-[350px] h-[44px] bg-[#5E9BFF] text-white text-[20px] font-normal leading-[24px] rounded-[8px] border border-[#1F2937] hover:bg-[#4A8CE0] transition">
             Create New Workspace
           </button>
-          <button className="w-[350px] h-[44px] bg-white text-[#450B7B] text-[20px] font-normal leading-[24px] rounded-[8px] border border-[#450B7B] hover:bg-[#F5F5F5] transition">
+          <button 
+          onClick={() => navigate("/map")}
+          className="w-[350px] h-[44px] bg-white text-[#450B7B] text-[20px] font-normal leading-[24px] rounded-[8px] border border-[#450B7B] hover:bg-[#F5F5F5] transition">
             Join Existing Workspace
           </button>
         </div>
