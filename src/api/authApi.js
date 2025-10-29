@@ -18,3 +18,13 @@ export const forgotPassword = (data) => api.post("auth/forgetpassword", data);
 export const resetPassword = (newPassword) => api.post("auth/updatepassword", {newPassword});
 
 export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
+
+export const createWorkspace = (data) => {
+  const token = localStorage.getItem("accessToken");
+   console.log("Sending token:", token);
+  return api.post("workspaces/create", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
