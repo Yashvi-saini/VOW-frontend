@@ -46,11 +46,11 @@ const Dashboard = () => {
         <p className="text-[#1F2937] font-normal text-[24px] leading-[28.8px]">
           Your space to create, connect, and grow on VOW.
         </p>
-        <div className="w-[414px] flex items-center mt-[40px]">
+        <div className="w-[414px] flex items-center mt-10">
           <input
             type="text"
             placeholder="Search for people, workspace or files"
-            className="w-full h-[44px] px-[10px] rounded-[10px] border border-[#707070] text-[#707070] text-[16px] leading-[19px] bg-white"
+            className="w-full h-[44px] px-2.5 rounded-[10px] border border-[#707070] text-[#707070] text-[16px] leading-[19px] bg-white"
           />
         </div>
         <div className="flex gap-[24px] mt-[64px]">
