@@ -1,0 +1,62 @@
+// server.js
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*", credentials: true },
+});
+
+io.on("connection", (socket) => {
+  console.log("A new user has connected", socket.id);
+
+  socket.on("message", (message) => {
+    io.emit("message", message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(socket.id, "disconnected");
+  });
+});
+
+server.listen(8001, () => {
+  console.log("Server is running on port 8001");
+});
+
+// import express from "express";
+// import http from "http";
+// import { Server } from "socket.io";
+
+// const app = express();
+// const server = http.createServer(app);
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: "https://localhost:5173",
+//     methods: ["GET", "POST"],
+//   },
+// });
+
+// io.on("connection", (socket) => {
+//   console.log("User connected:", socket.id);
+
+//   socket.on("join_room", (roomId) => {
+//     socket.join(roomId);
+//     console.log(`User ${socket.id} joined room ${roomId}`);
+//   });
+
+//   socket.on("send_message", (data) => {
+//     console.log("Message received:", data);
+//     io.to(data.roomId).emit("receive_message", data);
+//   });
+
+//   socket.on("disconnect", () => {
+//     console.log("User disconnected:", socket.id);
+//   });
+// });
+
+// server.listen(8001, () => {
+//   console.log("✅ Server running on http://localhost:8000");
+// });

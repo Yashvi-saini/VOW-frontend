@@ -1,91 +1,81 @@
-import React, { useState, useEffect } from "react";
-import socket from "../chat/socket.jsx"; 
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
-export default function ChatApp({ username = "You", roomId = "room1" }) {
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [chat, setChat] = useState([]);
+function Chat() {
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState("");
 
   useEffect(() => {
-    socket.emit("join_room", roomId);
-    socket.on("receive_message", (data) => {
-      setChat((prev) => [...prev, data]);
+    const socket = io("http://localhost:8001", {
+      transports: ["websocket", "polling"]
+    });
+
+    socket.on("connect", () => {
+      console.log("connected", socket.id);
+    });
+
+    socket.on("message", (message) => {
+      setMessages(prev => [...prev, message]);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("disconnected", reason);
     });
 
     return () => {
-      socket.off("receive_message");
+      socket.off("message");
+      socket.disconnect();
     };
-  }, [roomId]);
+  }, []);
 
   const sendMessage = () => {
-    if (!message.trim()) return;
+    if (messageInput.trim() === "") return;
+    const message = { text: messageInput, timestamp: new Date().toISOString() };
+    const emitSocket = io("http://localhost:8001", { transports: ["websocket", "polling"] });
+    emitSocket.emit("message", message);
+    emitSocket.disconnect();
 
-    const msgData = {
-      roomId,
-      sender: username,
-      text: message,
-      timestamp: new Date().toISOString(),
-    };
-
-    socket.emit("send_message", msgData);
-    setChat((prev) => [...prev, msgData]);
-    setMessage("");
+    setMessages(prev => [...prev, message]);
+    setMessageInput("");
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <button
-        onClick={() => setOpen(!open)}
-        className="px-4 py-2 bg-blue-600 text-white rounded shadow"
-      >
-        {open ? "Close Chat" : "Start Chat"}
-      </button>
-
-      <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+    <div className="flex justify-center items-center w-full h-screen bg-gradient-to-b from-blue-300 to-blue-200">
+      <div className="bg-white rounded-lg w-96 h-96 p-4 shadow-md">
         <div className="flex flex-col h-full">
-
-          <div className="p-4 bg-blue-600 text-white font-bold">
-            Conversation
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {chat.map((msg, i) => (
-              <div
-                key={i}
-                className={`p-2 rounded max-w-[75%] ${
-                  msg.sender === username
-                    ? "bg-blue-100 self-end text-right ml-auto"
-                    : "bg-gray-200 self-start"
-                }`}
-              >
-                <span className="font-semibold">{msg.sender}: </span>
-                {msg.text}
+          <div className="flex-1 p-2 overflow-y-auto bg-gray-100 rounded-md">
+            {messages.map((msg, index) => (
+              <div key={index} className="flex flex-col items-start mb-2">
+                <div className="bg-blue-500 text-white p-2 rounded-md">
+                  {msg.text}
+                </div>
+                <span className="text-gray-500 text-xs">
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </span>
               </div>
             ))}
           </div>
-
-          <div className="p-4 border-t flex">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="flex-1 border rounded px-2 py-1 mr-2"
-              placeholder="Type a message..."
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <button
-              onClick={sendMessage}
-              className="px-4 py-1 bg-blue-600 text-white rounded"
-            >
-              Send
-            </button>
+          <div className="p-2 border-t border-gray-300">
+            <div className="flex">
+              <input
+                type="text"
+                className="w-full px-2 py-1 border rounded-l-md outline-none"
+                placeholder="Type your message..."
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+              />
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600"
+                onClick={sendMessage}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+export default Chat;

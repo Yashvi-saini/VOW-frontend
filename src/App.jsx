@@ -17,7 +17,8 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<ChatApp  />} />
+        <Route path="/" element={<ChatApp username="UserA" roomId="room1" />} />
+        <Route path="/chat" element={ <ChatApp username="UserB" roomId="room1" />} />
       </Routes> 
     </Router>
   );
