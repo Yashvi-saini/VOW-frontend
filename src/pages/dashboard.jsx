@@ -1,6 +1,6 @@
 import React from "react";
 import logo from "../assets/logo.png"; 
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
