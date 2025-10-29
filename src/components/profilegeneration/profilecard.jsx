@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 const defaultAvatars = {
   male: "/avatars/default-male.png",
   female: "/avatars/default-female.png",
@@ -7,6 +7,7 @@ const defaultAvatars = {
 };
 
 const ProfileCard = ({ profile }) => {
+  const navigate = useNavigate();
   if (!profile) return null;
 
   const genderKey = profile.gender?.toLowerCase() || "other";
@@ -39,7 +40,14 @@ const ProfileCard = ({ profile }) => {
           <span className="font-medium text-gray-700">DOB:</span> {profile.dob}
         </p>
       </div>
-    </div>
+   
+    <button
+        onClick={() => navigate("/dashboard")}
+        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition"
+      >
+        Go to Dashboard
+      </button>
+       </div>
   );
 };
 

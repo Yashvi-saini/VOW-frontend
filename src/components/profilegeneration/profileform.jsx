@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { createProfile } from "../../api/profileapi";
 
+
 const ProfileForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -33,18 +34,24 @@ const ProfileForm = ({ onSubmit }) => {
         dob: formData.dob,
       };
       const response = await createProfile(payload); 
-      if (response.success) {
-        onSubmit(response.data);
-      } else {
-        alert("Failed to save profile. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error creating profile:", error);
-      alert("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+      if (response.data?.success) {
+      onSubmit?.(response.data.data); // passing profile data to ProfileCard
+      alert(response.data.msg || "Profile updated successfully!");
+      
+    } else {
+      console.error("Profile creation failed:", response.data);
+      alert(response.data?.msg || "Failed to save profile. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error(
+      "Error creating profile:",
+      error.response ? error.response.data : error
+    );
+    alert(error.response?.data?.message || "An error occurred. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
