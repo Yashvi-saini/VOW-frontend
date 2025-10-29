@@ -1,8 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
 import CabinStructure from "../map/map objects/cabinStructure";
+import WelcomeZone from "./map objects/WelcomeZone";
+import TeleportButton from "./map objects/Teleport";
+import Gaming from "./map objects/gaming";
+import PrivateRoom from "./map objects/PrivetRoom";
+import ManagerCabin from "./map objects/Manager";
+import SupervisorCabin from "./map objects/Supervisor";
+import BigTableStructure  from "./map objects/bigtablestructure";
 
 const Map = () => {
   //  Multiple players instead of one position
@@ -43,16 +50,17 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   const friction = 0.12;
   const COLLISION_EPS = 0.0; 
 
-  //  Receive obstacles from child components
-  const handleObstaclesFromChild = (id, newObstacles) => {
+  //  Receive obstacles from child components (memoized to avoid re-creating each render)
+  const handleObstaclesFromChild = useCallback((id, newObstacles) => {
     obstaclesByIdRef.current = {
       ...obstaclesByIdRef.current,
       [id]: newObstacles,
     };
     const merged = Object.values(obstaclesByIdRef.current).flat();
     obstaclesRef.current = merged;
-    setObstacles(merged);
-  };
+    // Only update state if changed length or content reference differs
+    setObstacles((prev) => (prev === merged ? prev : merged));
+  }, []);
 
   //  Collision detection
   const isColliding = (newX, newY, eps = COLLISION_EPS) => {
@@ -409,6 +417,11 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   //  Map & avatars rendering
   // Handle clicks on the map: convert client coords to percent (0-100)
   const handleMapClick = (e) => {
+    // Ignore clicks originating from UI controls that should not move the avatar
+    if (e.target && typeof e.target.closest === 'function') {
+      const uiEl = e.target.closest('[data-map-no-move]');
+      if (uiEl) return;
+    }
     if (e.button && e.button !== 0) return;
     const world = containerRef.current;
     if (!world) return;
@@ -454,8 +467,8 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
       onPointerLeave={handlePointerLeave}
       className="relative w-full h-screen bg-white overflow-hidden shadow-md border border-gray-200"
       style={{
-        width: 3000,
-        height: 2700,
+        width: 3260,
+        height: 2380,
         cursor: cursorBlocked ? "not-allowed" : "pointer",
       }}
       >
@@ -464,19 +477,64 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           id="tableA"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 15, y: 25 }}
+          position={{ x: 12.5, y: 21.5 }}
+          imageSize={450}
         />
-        <TableStructure
-          id="tableB"
+        <BigTableStructure
+          id="bigtable"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 15, y: 80 }}
+          position={{ x: 10.5, y: 76 }}
+          imageSize={550}
         />
         <CabinStructure
           id="cabin"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          position={{ x: 60, y: 40 }}
+          position={{ x: 48.2, y: 33 }}
+        />
+        <ManagerCabin
+          id="manager"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={2620} y={212} width={323} height={240}
+        />
+        <TableStructure
+          id="tableB"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          position={{ x: 85, y: 50 }}
+          imageSize={450}
+        />
+        <SupervisorCabin
+          id="supervisor"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={2639} y={1620} width={323} height={240} 
+        />
+        <Gaming
+          id="gaming"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={2639} y={1890} width={323} height={240} 
+      />
+        <PrivateRoom
+          id="privateRoom"
+          onObstaclesReady={handleObstaclesFromChild}
+          containerRef={containerRef}
+          x={920} y={1895} width={1040} height={240}
+        />
+        <WelcomeZone
+        x={920}  y={1550} width={1040} height={240}
+        />
+        <TeleportButton
+        x={2300} y={290} width={70}
+        />
+        <TeleportButton
+        x={2100} y={1650} width={70}
+        />
+        <TeleportButton
+        x={350} y={1090} width={70}
         />
 
         {/*  Render all avatars */}
