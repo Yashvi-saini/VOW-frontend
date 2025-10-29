@@ -3,6 +3,7 @@ import logo from "/logo.svg";
 import Footer from "../footer";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./dash-components/sidebar.jsx";
+import UpcomingEvents from "../dashboard/dash-components/upcomingevents.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -81,26 +82,7 @@ const Dashboard = () => {
         {/* Events and Chats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Upcoming Events */}
-          <div className="bg-white shadow-md rounded-lg p-6 border border-[#BCBCBC]">
-            <h2 className="text-xl font-semibold mb-4">Upcoming Events</h2>
-            <div className="flex items-center justify-between mb-4">
-              <button className="text-[#450B7B]">Previous</button>
-              <span>November 2025</span>
-              <button className="text-[#450B7B]">Next</button>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-[#EDE7F6] p-4 rounded-md border border-[#BCBCBC]">
-                <p className="text-sm text-[#450B7B]">Non-urgent</p>
-                <h3 className="text-lg font-semibold">Event Title</h3>
-                <p className="text-gray-600">09:00-09:45 AM IST</p>
-              </div>
-              <div className="bg-[#FAD4D4] p-4 rounded-md border border-[#BCBCBC]">
-                <p className="text-sm text-[#D32F2F]">Urgent</p>
-                <h3 className="text-lg font-semibold">Event Title</h3>
-                <p className="text-gray-600">09:00-09:45 AM IST</p>
-              </div>
-            </div>
-          </div>
+          <UpcomingEvents/>
           {/* Recent Chats */}
           <div className="bg-white shadow-md rounded-lg p-6 border border-[#BCBCBC]">
             <h2 className="text-xl font-semibold mb-4">Recent Chats</h2>
