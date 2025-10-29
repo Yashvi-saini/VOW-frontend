@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createProfile } from "../../api/profileapi"; // your API call to create profile
+import { createProfile } from "../../api/profileapi";
 
 const ProfileForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ const ProfileForm = ({ onSubmit }) => {
   return (
     <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
       <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-        Complete Your Profile
+        Create your VOW Profile
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-5">

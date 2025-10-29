@@ -1,59 +1,29 @@
 import React, { useState } from "react";
-import { createProfile } from "../../api/profileapi"; 
+import ProfileForm from "../../components/profilegeneration/profileform";
+import ProfileCard from "../../components/profilegeneration/profilecard";
+import Background from "../../components/background";
 
-const ProfileForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    gender: "",
-    organisation: "",
-    dob: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.fullName || !formData.gender || !formData.organisation || !formData.dob) {
-      alert("Please fill in all fields!");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await createProfile(formData); 
-      if (response.success) {
-        onSubmit(response.data);
-      } else {
-        alert("Failed to save profile. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error creating profile:", error);
-      alert("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+const ProfilePage = () => {
+  const [profile, setProfile] = useState(null);
+  const handleProfileSubmit = (data) => {
+    setProfile(data);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center p-6">
+      <Background className=" absolute inset-0 z-0" />
+      <div className="relative z-10 w-[80%] max-w-lg">
       {!profile ? (
-       
-          <ProfileForm onSubmit={handleFormSubmit} />
-        
+        <ProfileForm onSubmit={handleProfileSubmit} />
       ) : (
         <ProfileCard profile={profile} />
       )}
+      </div>
     </div>
   );
 };
 
-export default ProfileForm;
+export default ProfilePage;
 
 
 
