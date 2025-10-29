@@ -2,15 +2,15 @@ import React, { useEffect, useRef } from "react";
 import DeskUnit from "../map assets/DeskUnit";
 const DEFAULT_CABIN_POSITION = Object.freeze({ x: 50, y: 50 });
 
-const CABIN_W = 1040;
-const CABIN_H = 880;
+const CABIN_W = 1288;
+const CABIN_H = 1150;
 const PADDING = 80; 
 const INNER_W = CABIN_W - 2 * PADDING; 
 const INNER_H = CABIN_H - 2 * PADDING; 
 const ROWS = 5;
 const COLS = 4;
-const ROW_GAP = 80;
-const COL_GAP = 80;
+const ROW_GAP = 135;
+const COL_GAP = 165;
 
 const CabinStructure = ({ id = "cabin", onObstaclesReady, position, containerRef }) => {
   const cabinRef = useRef(null);
@@ -107,9 +107,9 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
   className="
     absolute
     top-1/2 left-1/2
-    w-[1040px] h-[880px]
+    w-[1288px] h-[1150px]
     -translate-x-1/2 -translate-y-1/2
-    border-2 border-dashed border-[#5E9BFF]
+    border-2 border-dashed border-[#385D99]
     rounded-lg
     z-0
   "

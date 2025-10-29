@@ -1,10 +1,39 @@
-import React from "react";
+import React,{useEffect} from "react";
 import joystickleft from "../map assets/joystickleft.svg";
 import table from "../map assets/table.svg";
-const Gaming = ({ x, y, width, height, title }) => {
+const Gaming = ({ x, y, width, height, title, id = "supervisor", onObstaclesReady, containerRef }) => {
+
+
+  useEffect(() => {
+      let ro;
+      const send = () => {
+        const container = containerRef?.current;
+        if (!container) return;
+        const cw = container.clientWidth;
+        const ch = container.clientHeight;
+        if (!cw || !ch) return;
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const obs = [{
+          id: `${id}-rect`,
+          x: (centerX / cw) * 100,
+          y: (centerY / ch) * 100,
+          width: (width / cw) * 100,
+          height: (height / ch) * 100,
+        }];
+        onObstaclesReady?.(id, obs);
+      };
+      send();
+      const container = containerRef?.current;
+      if (container && 'ResizeObserver' in window) {
+        ro = new ResizeObserver(send);
+        ro.observe(container);
+      }
+      return () => ro?.disconnect();
+    }, [x, y, width, height, id, onObstaclesReady, containerRef]);
   return (
     <div
-      className="absolute bg-[#FFF] border-1 border-[#A8C2ED] border-dashed flex items-center justify-center rounded-lg "
+      className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center rounded-lg "
       style={{
         left: `${x}px`,
         top: `${y}px`,
