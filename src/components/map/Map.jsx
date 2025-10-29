@@ -503,19 +503,19 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
           id="supervisor"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          x={2639} y={1420} width={323} height={240} 
+          x={2639} y={1620} width={323} height={240} 
         />
         <Gaming
           id="gaming"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          x={2639} y={1690} width={323} height={240} 
+          x={2639} y={1890} width={323} height={240} 
       />
         <PrivateRoom
           id="privateRoom"
           onObstaclesReady={handleObstaclesFromChild}
           containerRef={containerRef}
-          x={820} y={1695} width={1040} height={240}
+          x={820} y={1895} width={1040} height={240}
         />
       
 
