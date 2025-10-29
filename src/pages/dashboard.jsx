@@ -107,7 +107,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           {/* Recent Chats */}
           <div className="bg-white shadow-md rounded-lg p-6 border border-[#BCBCBC]">
             <h2 className="text-xl font-semibold mb-4">Recent Chats</h2>
