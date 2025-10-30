@@ -1,59 +1,76 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-function Chat() {
+function Chat({ username, roomId }) {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io("http://localhost:8001", {
+    socketRef.current = io("http://localhost:8001", {
       transports: ["websocket", "polling"]
     });
 
-    socket.on("connect", () => {
-      console.log("connected", socket.id);
+    // Join the specified room
+    socketRef.current.emit("joinRoom", roomId);
+
+    socketRef.current.on("connect", () => {
+      console.log("connected", socketRef.current.id);
     });
 
-    socket.on("message", (message) => {
-      setMessages(prev => [...prev, message]);
-    });
+   socketRef.current.on("message", (data) => {
+  const message = data.message; // extract the nested message
+  setMessages(prev => [...prev, message]);
+});
 
-    socket.on("disconnect", (reason) => {
+    socketRef.current.on("disconnect", (reason) => {
       console.log("disconnected", reason);
     });
 
     return () => {
-      socket.off("message");
-      socket.disconnect();
+      socketRef.current.off("message");
+      socketRef.current.disconnect();
     };
-  }, []);
+  }, [roomId]);
 
   const sendMessage = () => {
     if (messageInput.trim() === "") return;
-    const message = { text: messageInput, timestamp: new Date().toISOString() };
-    const emitSocket = io("http://localhost:8001", { transports: ["websocket", "polling"] });
-    emitSocket.emit("message", message);
-    emitSocket.disconnect();
-
-    setMessages(prev => [...prev, message]);
+    const message = {
+      text: messageInput,
+      sender: username,
+      timestamp: new Date().toISOString()
+    };
+    socketRef.current.emit("message", { roomId, message });
     setMessageInput("");
   };
 
   return (
-    <div className="flex justify-center items-center w-full h-screen bg-gradient-to-b from-blue-300 to-blue-200">
+    <div className="flex justify-center items-center w-full h-screen bg-gray-600">
       <div className="bg-white rounded-lg w-96 h-96 p-4 shadow-md">
         <div className="flex flex-col h-full">
-          <div className="flex-1 p-2 overflow-y-auto bg-gray-100 rounded-md">
-            {messages.map((msg, index) => (
-              <div key={index} className="flex flex-col items-start mb-2">
-                <div className="bg-blue-500 text-white p-2 rounded-md">
-                  {msg.text}
-                </div>
-                <span className="text-gray-500 text-xs">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </span>
-              </div>
-            ))}
+          <div className="flex-1 p-2 overflow-y-auto bg-gray-200 rounded-md">
+            {messages.map((msg, index) => {
+  const isSentByUser = msg.sender === username;
+  return (
+    <div
+      key={index}
+      className={`flex flex-col mb-2 ${
+        isSentByUser ? "items-end" : "items-start"
+      }`}
+    >
+      <div
+        className={`p-2 rounded-md max-w-[80%] ${
+          isSentByUser ? "bg-green-500 text-white" : "bg-blue-500 text-gray-200"
+        }`}
+      >
+        <strong>{msg.sender}:</strong> {msg.text}
+      </div>
+      <span className="text-gray-800 text-xs">
+        {new Date(msg.timestamp).toLocaleTimeString()}
+      </span>
+    </div>
+  );
+})}
           </div>
           <div className="p-2 border-t border-gray-300">
             <div className="flex">
