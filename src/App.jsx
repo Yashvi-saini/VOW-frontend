@@ -12,6 +12,7 @@ import Dashboard from "./components/dashboard/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
 import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
 import Map from "./components/map/Map";
+import Join from "./components/dashboard/join.jsx";
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/map" element={<Map />} />
+        <Route path="/join" element={<Join />} />
       </Routes> 
     </Router>
   );

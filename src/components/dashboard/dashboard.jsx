@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./dash-components/sidebar.jsx";
 import UpcomingEvents from "../dashboard/dash-components/upcomingevents.jsx";
 import { createWorkspace } from "../../api/authApi.js";
-
+import JoinedWorkspaces from "../dashboard/userdetails.jsx" ;
+import MembersList from "../dashboard/members.jsx";
 const Dashboard = () => {
   const navigate = useNavigate();
 
@@ -13,7 +14,7 @@ const Dashboard = () => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [emails, setEmails] = useState("");
 
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
   const emailArray = emails
     .split(",")
     .map((email) => email.trim())
@@ -27,6 +28,18 @@ const Dashboard = () => {
   try {
     const response = await createWorkspace(payload);
     console.log("Workspace created:", response.data);
+
+    // Extract important fields
+ const { workspace, workspaceToken } = response.data;
+const workspaceId = workspace._id || workspace.id;
+const inviteCode = workspace.inviteCode;
+
+
+    // Store in localStorage (or state, depending on your use case)
+    localStorage.setItem("workspaceId", workspaceId);
+    localStorage.setItem("inviteCode", inviteCode);
+    localStorage.setItem("workspaceToken", workspaceToken);
+
     alert("Workspace created successfully!");
 
     // Reset form
@@ -34,20 +47,24 @@ const Dashboard = () => {
     setWorkspaceName("");
     setEmails("");
   } catch (error) {
-  if (error.response) {
-    // Server responded with a status outside 2xx
-    console.error("Error creating workspace:", error.response.data);
-    alert(`Error: ${error.response.data.message || "Workspace creation failed."}`);
-  } else if (error.request) {
-    // Request was made but no response received
-    console.error("No response received:", error.request);
-    alert("No response from server. Please check your connection.");
-  } else {
-    // Something else happened
-    console.error("Unexpected error:", error.message);
-    alert("Unexpected error occurred.");
+    if (error.response) {
+      // Server responded with a status outside 2xx
+      console.error("Error creating workspace:", error.response.data);
+      alert(
+        `Error: ${
+          error.response.data.message || "Workspace creation failed."
+        }`
+      );
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("No response received:", error.request);
+      alert("No response from server. Please check your connection.");
+    } else {
+      // Something else happened
+      console.error("Unexpected error:", error.message);
+      alert("Unexpected error occurred.");
+    }
   }
-}
 };
 
 
@@ -103,13 +120,15 @@ const Dashboard = () => {
             Create New Workspace
           </button>
           <button
-            onClick={() => navigate("/map")}
-            className="w-full sm:w-auto px-6 h-11 bg-white text-[#450B7B] text-lg font-normal rounded-lg border border-[#450B7B] hover:bg-[#F5F5F5] transition"
-          >
-            Join Existing Workspace
-          </button>
+  onClick={() => navigate("/join")}
+  className="w-full sm:w-auto px-6 h-11 bg-white text-[#450B7B] text-lg font-normal rounded-lg border border-[#450B7B] hover:bg-[#F5F5F5] transition"
+>
+  Join Existing Workspace
+</button>
+        <JoinedWorkspaces/>
+        <MembersList/>
         </div>
-
+      
         {showWorkspaceForm && (
           <div className="w-full max-w-3xl mt-6 bg-white p-6 rounded-lg shadow-md border border-[#BCBCBC]">
             <h3 className="text-lg font-semibold mb-4 text-[#450B7B]">Create Workspace</h3>
