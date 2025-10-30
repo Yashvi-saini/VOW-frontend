@@ -7,7 +7,7 @@ import VerifyOtp from './pages/verifyotp';
 import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
 import Signup from "./components/signup";
-import ApiTester from "./pages/apitester";
+import FileTester from "./pages/fileapitester";
 import Dashboard from "./pages/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
 import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
@@ -19,7 +19,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/apitester" element={<ApiTester />} />
+        <Route path="/filetester" element={<FileTester />} />
         <Route path="/login" element={<Login />} />
          <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/Signup" element={<Signup />} />
