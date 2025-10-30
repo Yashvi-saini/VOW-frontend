@@ -1,26 +1,24 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../components/profilegeneration/profileform";
 import ProfileCard from "../../components/profilegeneration/profilecard";
+import Background from "../../components/background";
 
 const ProfilePage = () => {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
-
-  const handleFormSubmit = (data) => {
+  const handleProfileSubmit = (data) => {
     setProfile(data);
-    navigate("/dashboard");
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center p-6">
+      <Background className=" absolute inset-0 z-0" />
+      <div className="relative z-10 w-[80%] max-w-lg">
       {!profile ? (
-       
-          <ProfileForm onSubmit={handleFormSubmit} />
-        
+        <ProfileForm onSubmit={handleProfileSubmit} />
       ) : (
         <ProfileCard profile={profile} />
       )}
+      </div>
     </div>
   );
 };
