@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import FlowProtectedRoute from "./FlowProtectedRoute";
 
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Login from "./pages/Login";
 import Signup from "./components/signup";
 import ForgotPassword from "./components/forgotpassword";
