@@ -84,8 +84,12 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
         setMessage("");
         setTimeout(() => {
           if (mode === "signup") {
+            localStorage.setItem("otpVerified", "true");
+            localStorage.removeItem("signupDone");
             navigate("/");
           } else {
+            localStorage.setItem("forgotOtpVerified", "true");
+            localStorage.removeItem("forgotRequested");
             navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
           }
         }, 1500);

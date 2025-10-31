@@ -142,6 +142,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
       if (data.success) {
         setServerMsg("");
+        localStorage.setItem("signupDone", "true");
         navigate("/verify-otp", { state: { email } });
       }
     } catch (err) {
