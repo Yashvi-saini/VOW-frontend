@@ -8,7 +8,7 @@ import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
 import Signup from "./components/signup";
 import FileTester from "./pages/fileapitester";
-import Dashboard from "./pages/dashboard";
+import Dashboard from "./components/Dashboard/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
 import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
 import Map from "./components/map/Map";
