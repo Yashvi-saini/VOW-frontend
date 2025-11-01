@@ -17,7 +17,7 @@ import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
 import TermsAndConditions from "./components/terms and conditions";
-import ApiTester from "./pages/ApiTester";
+import ApiTester from "./pages/apitester";
 
 const App = () => {
 
