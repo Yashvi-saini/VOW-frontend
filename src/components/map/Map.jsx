@@ -32,6 +32,12 @@ const Map = () => {
 const userPanningRef = useRef(false);
 const cameraPosRef = useRef({ left: 0, top: 0 });
   const cameraTargetRef = useRef({ left: 0, top: 0 });
+  // clear allowMap once map mounts so direct visits afterwards are blocked
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem("allowMap");
+    } catch (e) {}
+  }, []);
   // When a user clicks the map we store a target here (percent coords)
   const moveToTargetRef = useRef(null);
   const DEADZONE_RATIO = 0.30;   // 30% margin per side

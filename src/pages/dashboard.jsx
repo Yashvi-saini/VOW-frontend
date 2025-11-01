@@ -5,7 +5,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // remove token if you're storing it
+    localStorage.removeItem("token"); 
+    try {
+      sessionStorage.setItem("allowMap", "true");
+    } catch (e) {}
     navigate("/map");
   };
 

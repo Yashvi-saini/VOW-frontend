@@ -19,6 +19,39 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
   const email = location.state?.email;
   const mode = location.state?.mode || "signup"; // 'signup' or 'forgot'
 
+  // Block access when authorized, and enforce flow preconditions
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    // session fallbacks set by signup/forgot flows
+    const fallbackEmail = sessionStorage.getItem("pendingEmail");
+    const fallbackMode = sessionStorage.getItem("pendingMode"); // "signup" or "forgot"
+    const effectiveEmail = email || fallbackEmail;
+    const effectiveMode = mode || fallbackMode || "signup";
+
+    const hasFlowFlag =
+      effectiveMode === "signup"
+        ? !!localStorage.getItem("signupDone") || fallbackMode === "signup"
+        : !!localStorage.getItem("forgotRequested") || fallbackMode === "forgot";
+
+    // If no email or no flow flag, redirect to start of flow.
+    if (!effectiveEmail || !hasFlowFlag) {
+      // If user is logged in, prefer going back to previous page rather than sending them to home.
+      if (isLoggedIn) {
+        if (window.history.length > 1) {
+          navigate(-1);
+        } else {
+          navigate(effectiveMode === "signup" ? "/signup" : "/forgot-password", { replace: true });
+        }
+        return;
+      }
+
+      navigate(effectiveMode === "signup" ? "/signup" : "/forgot-password", {
+        replace: true,
+      });
+    }
+  }, [email, mode, navigate]);
+
   // Timer countdown
   useEffect(() => {
     if (timer > 0) {
@@ -86,7 +119,7 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
           if (mode === "signup") {
             localStorage.setItem("otpVerified", "true");
             localStorage.removeItem("signupDone");
-            navigate("/");
+            navigate("/profile");
           } else {
             localStorage.setItem("forgotOtpVerified", "true");
             localStorage.removeItem("forgotRequested");

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
 import FlowProtectedRoute from "./FlowProtectedRoute";
+import RouteWatcher from "./RouteWatcher";
 
 import Home from "./pages/home";
 import Login from "./pages/Login";
@@ -19,8 +20,23 @@ import TermsAndConditions from "./components/terms and conditions";
 import ApiTester from "./pages/ApiTester";
 
 const App = () => {
+
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const signupDoneRaw = !!localStorage.getItem("signupDone");
+  const forgotRequested = !!localStorage.getItem("forgotRequested");
+
+  const signupDone = isLoggedIn && !forgotRequested ? false : signupDoneRaw;
+
+  const verifyCondition = !isLoggedIn || (signupDone || forgotRequested);
+  const verifyRedirectTo = isLoggedIn 
+    ? "/"
+    : signupDone
+    ? "/signup"
+    : "/forgot-password";
+
   return (
     <Router>
+      <RouteWatcher />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -31,10 +47,8 @@ const App = () => {
           path="/verify-otp"
           element={
             <FlowProtectedRoute
-              condition={!!localStorage.getItem("signupDone") || !!localStorage.getItem("forgotRequested")}
-              redirectTo={
-                !!localStorage.getItem("signupDone") ? "/signup" : "/forgot-password"
-              }
+              condition={verifyCondition}
+              redirectTo={verifyRedirectTo}
             >
               <VerifyOtp />
             </FlowProtectedRoute>
@@ -83,16 +97,20 @@ const App = () => {
           path="/map"
           element={
             <ProtectedRoute>
-              <Map />
+                <FlowProtectedRoute
+                  // allow when session flag set by dashboard button
+                  condition={sessionStorage.getItem("allowMap") === "true"}
+                  redirectTo="/dashboard"
+                >
+                  <Map />
+                </FlowProtectedRoute>
             </ProtectedRoute>
           }
         />
         <Route
           path="/chat"
           element={
-            <ProtectedRoute>
               <ChatApp username="UserB" roomId="room1" />
-            </ProtectedRoute>
           }
         />
         <Route

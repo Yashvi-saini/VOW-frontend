@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 import user from "../../assets/icon.svg";
 import msg from "../../assets/msg.svg";
@@ -21,14 +21,18 @@ import pin from "../../assets/pin.svg";
 import search from "../../assets/search.svg";
 import cross from "../../assets/cross.svg";
 import MessageList from "../chat/message.jsx"; 
-import EmojiPicker from 'emoji-picker-react';
+import EmojiSelector from "../chat/emojipicker.jsx";
 
 const Chat = ({ username, roomId }) => {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const socketRef = useRef(null);
   const textareaRef = useRef(null);
-  const [showPicker, setShowPicker] = useState(false);
+  const mainRef = useRef(null);
+  const handleEmojiSelect = useCallback(
+    (selectedEmoji) => setMessageInput((prev) => prev + selectedEmoji),
+    []
+  );
 
 
 useEffect(() => {
@@ -204,7 +208,7 @@ useEffect(() => {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col">
+  <main ref={mainRef} className="flex-1 flex flex-col relative">
         {/* Header */}
         <header className="bg-[#200539] border-b border-[#BCBCBC] p-4 flex justify-between items-center">
           <h3 className="text-2xl font-semibold text-white">Workspace Name</h3>
@@ -233,7 +237,7 @@ useEffect(() => {
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div className=" relative flex-1 overflow-y-auto space-y-4">
           <div className=" sticky top-0 flex bg-gray-200 justify-between p-3 z-1">
             <div className="flex items-center">
               <p className=" text-[26px] mr-2 ">#</p>
@@ -258,11 +262,11 @@ useEffect(() => {
 
         {/* Input */}
        <footer className="border-[#BCBCBC] p-4">
-  <div className="flex items-end border-2 rounded-2xl mx-12 px-4 py-2">
+  <div className="flex items-end border-2 rounded-2xl mx-12 pr-4 py-2">
     {/* Left section: Textarea + icons */}
     <div className="flex flex-col w-full">
       <textarea
-  className="w-full px-3 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40"
+  className="w-full px-2.5 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40"
   placeholder="Write a message..."
   ref={textareaRef}
   value={messageInput}
@@ -276,25 +280,14 @@ useEffect(() => {
   rows={1}
 />
       {/* Icons below textarea */}
-      <div className="flex space-x-3 ml-2 pt-1 ">
-        <img src={emoji} alt="emoji" className="cursor-pointer" onClick={() => setShowPicker((prev) => !prev)}/>
-         {showPicker && (
-        <div className="absolute bottom-25 left-80 z-10 ">
-          <EmojiPicker
-            onEmojiClick={(emojiData) =>
-              setMessageInput((prev) => prev + emojiData.emoji)
-             
-            }
-            previewConfig={{ showPreview: false }}
-            width={350}
-            height={300}
-            emojiStyle="native"
-            style={{
-              
-            }}
-          />
-        </div>
-      )}
+      <div className=" flex space-x-3 ml-2 pt-1 pl-1 ">
+        <div className=" flex space-x-3 ml-2 pt-1 pl-1">
+  <EmojiSelector
+    icon={emoji}
+    boundaryRef={mainRef}
+    onSelect={handleEmojiSelect}
+  />
+</div>
         <img src={battherate} alt="mention" className="cursor-pointer" />
         <img src={share} alt="share" className="cursor-pointer" />
         <img src={image} alt="image" className="cursor-pointer" />
