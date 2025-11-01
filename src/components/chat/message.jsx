@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import down from "../../assets/down.svg";
-import pdfIcon from "../../assets/space.svg";
 import MessageReactions from "./rection.jsx";
+
 
 const MessageList = ({ messages, username }) => {
   const bottomRef = useRef(null);
-
   const [messageReactions, setMessageReactions] = useState({});
 
   useEffect(() => {
@@ -70,37 +68,16 @@ const MessageList = ({ messages, username }) => {
                   </span>
                 </div>
 
-                {/* MessageReactions component wraps the content */}
                 <MessageReactions
                   msgIndex={index}
                   reactions={reactions}
                   onAddReaction={addReaction}
                   onRemoveReaction={handleReactionClick}
                 >
-                  {/* Message Content */}
                   {msg.text && (
                     <p className="text-sm text-[#333] leading-relaxed whitespace-pre-wrap">
                       {msg.text}
                     </p>
-                  )}
-
-                  {msg.file && (
-                    <div className="mt-3 border border-[#E0E0E0] rounded-lg flex items-center justify-between p-2">
-                      <div className="flex items-center space-x-2">
-                        <img src={pdfIcon} alt="file" className="w-6 h-6" />
-                        <div>
-                          <p className="text-sm font-medium text-[#0E1219]">
-                            {msg.file}
-                          </p>
-                          <p className="text-xs text-gray-500">10.5 MB</p>
-                        </div>
-                      </div>
-                      <img
-                        src={down}
-                        alt="download"
-                        className="w-5 h-5 cursor-pointer"
-                      />
-                    </div>
                   )}
                 </MessageReactions>
               </div>

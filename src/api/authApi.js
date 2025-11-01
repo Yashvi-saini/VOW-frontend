@@ -18,3 +18,4 @@ export const forgotPassword = (data) => api.post("/forgetpassword", data);
 export const resetPassword = (newPassword) => api.post("/updatepassword", {newPassword});
 
 export const verifyResetOtp = (data) => api.post("/verifyresetotp", data);
+export const channels = (data) => api.post("/channels", data);

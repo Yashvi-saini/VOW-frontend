@@ -22,6 +22,8 @@ import search from "../../assets/search.svg";
 import cross from "../../assets/cross.svg";
 import MessageList from "../chat/message.jsx"; 
 import EmojiSelector from "../chat/emojipicker.jsx";
+import Sidebar from "../chat/sidebar.jsx";
+
 
 const Chat = ({ username, roomId }) => {
   const [messages, setMessages] = useState([]);
@@ -82,130 +84,7 @@ useEffect(() => {
 
   return (
     <div className="flex h-screen bg-[#F3F3F6] text-[#0E1219]">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#200539] border-r border-[#BCBCBC] p-4 pr-5">
-        <h2 className="text-xl font-bold text-white mb-6">VOW</h2>
-        <nav className="space-y-4 text-xl font-normal ">
-          <div className=" text-white flex gap-1 ">
-            <img src={person} alt="" />
-            Dashboard
-          </div>
-          <div className="text-white flex gap-2">
-            <img src={space} alt="" />
-            Virtual Space
-          </div>
-          <div className="text-white flex gap-1">
-            <img src={attherate} alt="" />
-            Mentions
-          </div>
-          <div className="text-white flex gap-1">
-            <img src={today} alt="" />
-            Events
-          </div>
-          <div className="text-white flex gap-1">
-            <img src={group} alt="" />
-            Teams
-          </div>
-        </nav>
-        <div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  py-2">
-            <div className="flex items-center gap-2">
-              <img src={down} alt="down arrow " className="mt-2.5 w-6" />
-              <h3 className="text-xl">Team</h3>
-            </div>
-            <img src={add} alt="add icon" />
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539] ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-        </div>
-        <div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  py-2">
-            <div className="flex items-center gap-2">
-              <img src={down} alt="down arrow " className="mt-2.5 w-6" />
-              <h3 className="text-xl">Team</h3>
-            </div>
-            <img src={add} alt="add icon" />
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539] ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-          <div className="flex items-center justify-between text-white bg-[#200539]  ">
-            <div className="flex items-center gap-2 pl-6">
-              <p className="text-[26px] text-[#BCBCBC]">#</p>
-              <h3 className="text-[#BCBCBC] text-xl">Team1</h3>
-            </div>
-            <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-              {" "}
-              3
-            </div>
-          </div>
-        </div>
-      </aside>
+      <Sidebar />
 
       {/* Main Chat Area */}
   <main ref={mainRef} className="flex-1 flex flex-col relative">
