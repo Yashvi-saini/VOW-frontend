@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import user from "../../assets/icon.svg";
 import msg from "../../assets/msg.svg";
 import call from "../../assets/call.svg";
-import video from "../../assets/video.svg";
+import video from "../../assets/Video.svg";
 import person from "../../assets/account_circle.svg";
 import attherate from "../../assets/At sign.svg";
 import group from "../../assets/groups.svg";
