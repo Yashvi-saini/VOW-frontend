@@ -6,13 +6,13 @@ import FlowProtectedRoute from "./FlowProtectedRoute";
 import RouteWatcher from "./RouteWatcher";
 
 import Home from "./pages/home";
-import Login from "./pages/Login";
+import Login from "./pages/login";
 import Signup from "./components/signup";
 import ForgotPassword from "./components/forgotpassword";
 import VerifyOtp from "./pages/verifyotp";
 import ResetPassword from "./pages/resetpassword";
-import ResetSuccess from "./pages/ResetSuccess";
-import Dashboard from "./pages/Dashboard";
+import ResetSuccess from "./pages/resetsuccess";
+import Dashboard from "./pages/dashboard";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
