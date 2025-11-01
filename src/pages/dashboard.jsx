@@ -5,6 +5,15 @@ import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); 
+    try {
+      sessionStorage.setItem("allowMap", "true");
+    } catch (e) {}
+    navigate("/map");
+  };
+
   return (
     <div className="min-h-screen bg-[#EFE7F6] flex flex-col items-center">
       {/* Navbar */}
