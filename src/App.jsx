@@ -10,7 +10,7 @@ import Signup from "./components/signup";
 import FileTester from "./pages/fileapitester";
 import Dashboard from "./components/Dashboard/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
-import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
+import ProfilePage from "./pages/profile/ProfilePage"; 
 import Map from "./components/map/Map";
 
 const App = () => {

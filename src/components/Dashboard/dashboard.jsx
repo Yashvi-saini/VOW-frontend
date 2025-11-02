@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import TopBar from "./Topbar";
-import DashboardMain from "./DashboardMain";
+import DashboardContainer from "./DashboardContainer";
 import CreateWorkspace from "./CreateWorkspace";
 import SearchSection from "./SearchSection";
 import NotificationSection from "./NotificationSection";
-import EventsSection from "./EventSection";
+import MeetingSection from "./MeetingSection";
 import EnterWorkspaceSection from "./EnterWorkspaceSection";
+import dashboardBg from "../../assets/dashboardbg.svg";
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -14,7 +15,7 @@ const Dashboard = () => {
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":
-        return <DashboardMain />;
+        return <DashboardContainer />;
       case "createWorkspace":
         return <CreateWorkspace />;
       case "search":
@@ -22,11 +23,11 @@ const Dashboard = () => {
       case "notification":
         return <NotificationSection />;
       case "events":
-        return <EventsSection />;
+        return <MeetingSection role="manager" />;
       case "enterWorkspace":
         return <EnterWorkspaceSection />;
       default:
-        return <DashboardMain />;
+        return <DashboardContainer />;
     }
   };
 
@@ -37,6 +38,10 @@ const Dashboard = () => {
         <TopBar />
         <main className="flex-1 p-8 overflow-y-auto relative bg-[#F8F6FC]">
           {renderSection()}
+          <div
+              className="absolute bottom-0 left-10 right-0 h-[532px] w-[1280px] bg-no-repeat bg-center bg-cover opacity-0.8"
+              style={{ backgroundImage: `url(${dashboardBg})` }}
+            ></div>
         </main>
       </div>
     </div>

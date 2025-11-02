@@ -5,12 +5,6 @@ import keyIcon from "../../assets/Key.svg";
 
 const DashboardMain = () => (
   <div>
-     <div 
-            className="absolute bottom-0 left-10 right-0 h-[532px] w-[1280px] bg-no-repeat bg-center bg-cover opacity-0.8"
-            style={{ backgroundImage: `url(${dashboardBg})` }}
-          ></div>
-
-
     <div className="relative z-10">
       <div className="grid grid-cols-3 gap-6 mb-8">
         <div className="bg-[#EFE7F6] rounded-xl p-6 border border-[#8F7AA9] flex flex-col items-center justify-center text-center gap-4 min-h-[185px]">
