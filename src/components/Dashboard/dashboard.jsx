@@ -34,14 +34,14 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-[#F8F6FC] font-poppins">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-[820px]">
         <TopBar />
-        <main className="flex-1 p-8 overflow-y-auto relative bg-[#F8F6FC]">
+        <main className="flex-1 p-8 overflow-y-auto relative bg-[#FEFEFE]">
           {renderSection()}
           <div
-              className="absolute bottom-0 left-10 right-0 h-[532px] w-[1280px] bg-no-repeat bg-center bg-cover opacity-0.8"
+              className="absolute inset-0 w-full h-full bg-no-repeat bg-bottom bg-contain opacity-80 pointer-events-none"
               style={{ backgroundImage: `url(${dashboardBg})` }}
-            ></div>
+            />
         </main>
       </div>
     </div>
