@@ -46,9 +46,18 @@ const Login = () => {
 
     try {
       const res = await loginUser({ identifier: trimmedIdentifier, password }); 
-
+  console.log("Login response:", res);
       if (res.status === 200 && res.data.success) {
         // Handle "Remember Me"
+        const { accessToken, refreshToken, user } = res.data;
+
+  // Store tokens
+  localStorage.setItem("accessToken", accessToken);
+  localStorage.setItem("refreshToken", refreshToken);
+
+  // Optionally store user info
+  localStorage.setItem("user", JSON.stringify(user));
+
         if (rememberMe) {
           localStorage.setItem("rememberedIdentifier", trimmedIdentifier);
         } else {

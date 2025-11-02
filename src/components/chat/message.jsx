@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import MessageReactions from "./rection.jsx";
 
-
 const MessageList = ({ messages, username }) => {
   const bottomRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
@@ -28,9 +27,7 @@ const MessageList = ({ messages, username }) => {
     setMessageReactions((prev) => {
       const reactions = prev[msgIndex] || [];
       const updated = reactions
-        .map((r) =>
-          r.emoji === emoji ? { ...r, count: r.count - 1 } : r
-        )
+        .map((r) => (r.emoji === emoji ? { ...r, count: r.count - 1 } : r))
         .filter((r) => r.count > 0);
       return { ...prev, [msgIndex]: updated };
     });
@@ -43,46 +40,60 @@ const MessageList = ({ messages, username }) => {
         const reactions = messageReactions[index] || [];
 
         return (
-          <div key={index} className="flex w-full group">
-            <div
-              className={`flex items-start space-x-3 w-full ${
-                isSentByUser ? "flex-row space-x-reverse" : ""
-              }`}
-            >
-              {/* Avatar */}
-              <div className="relative w-10 h-10 shrink-0">
-                <div className="w-10 h-10 rounded-full bg-[#5E9BFF]" />
-              </div>
+         <div key={msg._id || index} className="flex w-full group">
+  <div
+    className={`flex items-start space-x-3 w-full ${
+      isSentByUser ? "flex-row space-x-reverse" : ""
+    }`}
+  >
+    {/* Avatar */}
+    <div className="relative w-10 h-10 shrink-0">
+      <img
+  src={msg.sender?.avatar || "https://api.dicebear.com/9.x/adventurer/svg?seed=Default"}
+  alt="avatar"
+  className="w-10 h-10 rounded-full object-cover"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = "https://api.dicebear.com/9.x/adventurer/svg?seed=Default";
+  }}
+/>
+    </div>
 
-              {/* Message Bubble + Reactions */}
-              <div className="flex flex-col space-y-2 w-full relative">
-                <div className="flex items-center space-x-2">
-                  <p className="text-sm font-semibold text-[#0E1219]">
-                    {msg.sender || "Fullname"}
-                  </p>
-                  <span className="text-xs text-gray-500">
-                    {new Date(msg.timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
+    {/* Message Bubble + Reactions */}
+    <div className="flex flex-col space-y-2 w-full relative">
+      <div className="flex items-center space-x-2">
+        <p className="text-sm font-semibold text-[#0E1219]">
+          {typeof msg.sender === "string"
+            ? msg.sender
+            : msg.sender?.username || "Fullname"}
+        </p>
+        <span className="text-xs text-gray-500">
+          {msg.createdAt
+            ? new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "Invalid Date"}
+        </span>
+      </div>
 
-                <MessageReactions
-                  msgIndex={index}
-                  reactions={reactions}
-                  onAddReaction={addReaction}
-                  onRemoveReaction={handleReactionClick}
-                >
-                  {msg.text && (
-                    <p className="text-sm text-[#333] leading-relaxed whitespace-pre-wrap">
-                      {msg.text}
-                    </p>
-                  )}
-                </MessageReactions>
-              </div>
-            </div>
+      <MessageReactions
+        msgIndex={index}
+        reactions={reactions}
+        onAddReaction={addReaction}
+        onRemoveReaction={handleReactionClick}
+      >
+        {msg.content && (
+          <div>
+            <p className="text-sm text-[#333] leading-relaxed whitespace-pre-wrap">
+              {msg.content}
+            </p>
           </div>
+        )}
+      </MessageReactions>
+    </div>
+  </div>
+</div>
         );
       })}
 

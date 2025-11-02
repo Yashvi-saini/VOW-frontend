@@ -5,8 +5,8 @@ import group from "../../assets/groups.svg";
 import space from "../../assets/space.svg";
 import today from "../../assets/today.svg";
 import TeamSection from "../chat/TeamSection.jsx";
-
-const Sidebar = () => {
+import MembersList from "../dashboard/members.jsx";
+const Sidebar = ({ onChannelSelect }) => {
   return (
     <aside className="w-64 bg-[#200539] border-r border-[#BCBCBC] p-4 pr-5">
       <h2 className="text-xl font-bold text-white mb-6">VOW</h2>
@@ -33,11 +33,12 @@ const Sidebar = () => {
           <img src={group} alt="" />
           Teams
         </div>
+        
       </nav>
 
       {/* Team Sections */}
-      <TeamSection title="Team" teams={[1, 2, 3, 4]} />
-      <TeamSection title="Another Team" teams={[1, 2, 3, 4]} />
+  <TeamSection title="Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
+  <TeamSection title="Another Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
     </aside>
   );
 };

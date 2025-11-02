@@ -4,13 +4,6 @@ import user from "../../assets/icon.svg";
 import msg from "../../assets/msg.svg";
 import call from "../../assets/call.svg";
 import video from "../../assets/Video.svg";
-import person from "../../assets/account_circle.svg";
-import attherate from "../../assets/At sign.svg";
-import group from "../../assets/groups.svg";
-import space from "../../assets/space.svg";
-import today from "../../assets/today.svg";
-import down from "../../assets/down.svg";
-import add from "../../assets/add.svg";
 import emoji from "../../assets/emoji.svg";
 import share from "../../assets/share.svg";
 import battherate from "../../assets/battherate.svg";
@@ -23,9 +16,12 @@ import cross from "../../assets/cross.svg";
 import MessageList from "../chat/message.jsx"; 
 import EmojiSelector from "../chat/emojipicker.jsx";
 import Sidebar from "../chat/sidebar.jsx";
-
-
+import { sendMessageToChannel } from "../../api/authApi.js"; // or wherever you defined it
+import { fetchChannelMessages } from "../../api/authApi.js"; 
 const Chat = ({ username, roomId }) => {
+  // keep an internal roomId state so parentless actions (like creating a channel)
+  // can set the active channel for this Chat instance
+  const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const socketRef = useRef(null);
@@ -36,7 +32,11 @@ const Chat = ({ username, roomId }) => {
     []
   );
 
-
+useEffect(() => {
+  if (roomId !== activeRoomId) {
+    setActiveRoomId(roomId);
+  }
+}, [roomId]);
 useEffect(() => {
   if (textareaRef.current) {
     textareaRef.current.style.height = "auto"; // reset height
@@ -44,12 +44,33 @@ useEffect(() => {
   }
 }, [messageInput]);
 
+useEffect(() => {
+  const fetchMessages = async () => {
+    try {
+      console.log("Fetching for room:", activeRoomId);
+      const response = await fetchChannelMessages(activeRoomId);
+      console.log("Fetched messages:", response.data.messages);
+      setMessages(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
+    }
+  };
+  if (activeRoomId) {
+    fetchMessages();
+  } else {
+    setMessages([]);
+  }
+}, [activeRoomId]);
+
+
   useEffect(() => {
     socketRef.current = io("http://localhost:8001", {
       transports: ["websocket", "polling"],
     });
 
-    socketRef.current.emit("joinRoom", roomId);
+    if (activeRoomId) {
+      socketRef.current.emit("joinRoom", activeRoomId);
+    }
 
     socketRef.current.on("connect", () => {
       console.log("connected", socketRef.current.id);
@@ -65,26 +86,52 @@ useEffect(() => {
     });
 
     return () => {
+      if (activeRoomId) {
+        socketRef.current.emit("leaveRoom", activeRoomId);
+      }
       socketRef.current.off("message");
       socketRef.current.disconnect();
     };
-  }, [roomId]);
+  }, [activeRoomId]);
 
-  const sendMessage = () => {
-    if (messageInput.trim() === "") return;
-    const message = {
-      text: messageInput,
-      sender: username,
-      timestamp: new Date().toISOString(),
-    };
-    socketRef.current.emit("message", { roomId, message });
-    setMessageInput("");
+
+
+  const sendMessage = async () => {
+  if (messageInput.trim() === "") return;
+
+  const message = {
+    channelId: activeRoomId,
+    content: messageInput,
+    attachments: [],
+    sender: {
+      _id: user._id,
+      username: user.name,
+      avatar: user.avatar,
+    },
+    createdAt: new Date().toISOString(),
   };
-  
+
+
+  try {
+    // Emit via WebSocket for live delivery
+    socketRef.current.emit("message", message);
+
+    // Persist via REST API (only if we have an active channel)
+    if (activeRoomId) {
+      await sendMessageToChannel(activeRoomId, message.content, message.attachments);
+    } else {
+      console.warn("No active channel selected. Message will not be saved to server.");
+    }
+  } catch (err) {
+    console.error("Failed to send message:", err);
+  }
+
+  setMessageInput("");
+};
 
   return (
     <div className="flex h-screen bg-[#F3F3F6] text-[#0E1219]">
-      <Sidebar />
+  <Sidebar onChannelSelect={setActiveRoomId} />
 
       {/* Main Chat Area */}
   <main ref={mainRef} className="flex-1 flex flex-col relative">
