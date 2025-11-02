@@ -28,6 +28,7 @@ const ForgotPassword = () => {
 
     if (data.success) {
       setServerMsg("");
+      localStorage.setItem("forgotRequested", "true");
       setTimeout(
         () => navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } }),
         1200

@@ -20,11 +20,15 @@ const ResetPassword = () => {
   const location = useLocation();
   const email = location.state?.email;
   const [passwordFocused, setPasswordFocused] = useState(false);
-const [confirmFocused, setConfirmFocused] = useState(false);
+  const [confirmFocused, setConfirmFocused] = useState(false);
 
-  if (!email) {
-    navigate("/forgot-password"); // redirect if email not found
-  }  
+  // Guard: only allow access if we came from verified OTP flow
+  useEffect(() => {
+    const verified = !!localStorage.getItem("forgotOtpVerified");
+    if (!email || !verified) {
+      navigate("/forgot-password", { replace: true });
+    }
+  }, [email, navigate]);
 
   // Password rules
   const passwordRules = [
@@ -77,7 +81,9 @@ const [confirmFocused, setConfirmFocused] = useState(false);
     try {
       const res = await resetPassword(password);
       if (res.status === 200 && res.data.success) {
-        navigate("/reset-success"); // go to success page
+        localStorage.setItem("resetDone", "true");
+        localStorage.removeItem("forgotOtpVerified");
+        navigate("/reset-success");
       } else {
         setError(res.data.msg || "Failed to reset password");
       }

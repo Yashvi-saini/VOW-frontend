@@ -1,2 +1,25 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+/* Add this in your global CSS file (e.g., index.css or App.css) */
+.epr-category-nav {
+  display: flex !important;
+  overflow-x: auto !important;
+  scrollbar-width: thin; /* Firefox */
+}
+
+.epr-category-nav::-webkit-scrollbar {
+  height: 6px; /* small scrollbar */
+}
+
+.epr-category-nav::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
