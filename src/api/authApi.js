@@ -90,3 +90,8 @@ export const fetchChannelMessages = (channelId) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+export const getChannels = async (workspaceId) => {
+  return api.get(`/channels/workspace/${workspaceId}`);
+};
+

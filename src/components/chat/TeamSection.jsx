@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import down from "../../assets/down.svg";
 import add from "../../assets/add.svg";
-import { createChannel } from "../../api/authApi"; // rename from `channels` to `createChannel` for clarity
 import { useMembers } from "../../components/useMembers"; // adjust path as needed
+import { getChannels, createChannel } from "../../api/authApi";
 
  
 
@@ -65,6 +65,20 @@ const TeamSection = ({ title = "Team", onChannelSelect }) => {
     setLoading(false);
   }
 };
+useEffect(() => {
+  const fetchChannels = async () => {
+    if (!workspaceId) return;
+    try {
+      const response = await getChannels(workspaceId);
+      const channelList = response?.data || [];
+      setTeams(channelList);
+    } catch (err) {
+      console.error("Failed to fetch channels", err);
+    }
+  };
+
+  fetchChannels();
+}, [workspaceId]);
 
   return (
     <div className="mt-4">
