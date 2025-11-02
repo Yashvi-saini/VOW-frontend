@@ -23,7 +23,7 @@ const Dashboard = () => {
       case "notification":
         return <NotificationSection />;
       case "events":
-        return <MeetingSection role="manager" />;
+        return <MeetingSection role="supervisor" />;
       case "enterWorkspace":
         return <EnterWorkspaceSection />;
       default:
