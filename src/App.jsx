@@ -12,19 +12,15 @@ import ForgotPassword from "./components/forgotpassword";
 import VerifyOtp from "./pages/verifyotp";
 import ResetPassword from "./pages/resetpassword";
 import ResetSuccess from "./pages/resetsuccess";
-import Dashboard from "./pages/dashboard";
+import Dashboard from "./components/Dashboard/dashboard"; 
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
 import FileTester from "./pages/fileapitester";
-import Dashboard from "./components/Dashboard/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
-import ProfilePage from "./pages/profile/ProfilePage"; 
-import Map from "./components/map/Map";
-import ApiTester from "./pages/apitester";
+
 
 const App = () => {
-
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const signupDoneRaw = !!localStorage.getItem("signupDone");
   const forgotRequested = !!localStorage.getItem("forgotRequested");
@@ -32,7 +28,7 @@ const App = () => {
   const signupDone = isLoggedIn && !forgotRequested ? false : signupDoneRaw;
 
   const verifyCondition = !isLoggedIn || (signupDone || forgotRequested);
-  const verifyRedirectTo = isLoggedIn 
+  const verifyRedirectTo = isLoggedIn
     ? "/"
     : signupDone
     ? "/signup"
@@ -42,11 +38,13 @@ const App = () => {
     <Router>
       <RouteWatcher />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/fileteter" element={<FileTesterTester />} />
+        <Route path="/filetester" element={<FileTester />} />
+
         <Route
           path="/verify-otp"
           element={
@@ -67,6 +65,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/reset-password"
           element={
@@ -78,6 +77,7 @@ const App = () => {
             </FlowProtectedRoute>
           }
         />
+
         <Route
           path="/reset-success"
           element={
@@ -89,6 +89,7 @@ const App = () => {
             </FlowProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -97,45 +98,23 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/map"
           element={
             <ProtectedRoute>
-                <FlowProtectedRoute
-                  // allow when session flag set by dashboard button
-                  condition={sessionStorage.getItem("allowMap") === "true"}
-                  redirectTo="/dashboard"
-                >
-                  <Map />
-                </FlowProtectedRoute>
+              <FlowProtectedRoute
+                condition={sessionStorage.getItem("allowMap") === "true"}
+                redirectTo="/dashboard"
+              >
+                <Map />
+              </FlowProtectedRoute>
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/chat"
-          element={
-              <ChatApp username="UserB" roomId="room1" />
-          }
-        />
-        <Route
-          path="/"
-          element={
-            
-              <Home />
-          }
-        />
+
+        <Route path="/chat" element={<ChatApp username="UserB" roomId="room1" />} />
       </Routes>
-        <Route path="/filetester" element={<FileTester />} />
-        <Route path="/login" element={<Login />} />
-         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/Signup" element={<Signup />} />
-        <Route path="/verify-otp" element={<VerifyOtp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/reset-success" element={<ResetSuccess />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/map" element={<Map />} />
-      </Routes> 
     </Router>
   );
 };
