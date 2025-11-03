@@ -7,10 +7,10 @@ import VerifyOtp from './pages/verifyotp';
 import ResetPassword from './pages/resetpassword';
 import ResetSuccess from './pages/resetsuccess';
 import Signup from "./components/signup";
-import ApiTester from "./pages/apitester";
-import Dashboard from "./components/dashboard/dashboard";
+import FileTester from "./pages/fileapitester";
+import Dashboard from "./components/Dashboard/dashboard";
 import TermsAndConditions from "./components/terms and conditions";
-import ProfilePage from "./pages/profile/ProfilePage"; // adjust the path if needed
+import ProfilePage from "./pages/profile/ProfilePage"; 
 import Map from "./components/map/Map";
 import Join from "./components/dashboard/join.jsx";
 
@@ -20,9 +20,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/apitester" element={<ApiTester />} />
+        <Route path="/filetester" element={<FileTester />} />
         <Route path="/login" element={<Login />} />
-         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/Signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
