@@ -1,6 +1,5 @@
 import api from "./axiosConfig";
 
-
 export const registerUser = (data) => api.post("auth/register", data);
 export const loginUser = (data) => api.post("auth/login", data);
 export const verifyEmail = (data) => api.post("auth/verifyemail", data);
@@ -8,7 +7,6 @@ export const resendOtp = (data) => api.post("auth/resend", data);
 export const forgotPassword = (data) => api.post("auth/forgetpassword", data);
 export const resetPassword = (newPassword) => api.post("auth/updatepassword", { newPassword });
 export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
-
 
 export const createWorkspace = (data) => {
   const token = localStorage.getItem("accessToken");
@@ -32,22 +30,32 @@ export const getJoinedWorkspaces = () => {
 };
 
 export const rejoinWorkspace = (workspaceId) => {
+  // Prefer workspace-scoped token; fall back to user access token if not present
   const workspaceToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
-  if (!workspaceToken) {
-    throw new Error("Missing workspace token. Please join the workspace again.");
+  const accessToken = localStorage.getItem("accessToken");
+  const authToken = workspaceToken || accessToken;
+
+  if (!authToken) {
+    throw new Error("Missing tokens. Please join the workspace again.");
   }
+
   return api.get(`/workspaces/${workspaceId}/rejoin`, {
-    headers: { Authorization: `Bearer ${workspaceToken}` },
+    headers: { Authorization: `Bearer ${authToken}` },
   });
 };
 
 export const deleteWorkspace = (workspaceId) => {
+  // Prefer workspace-scoped token, but fall back to user access token if needed
   const workspaceToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
-  if (!workspaceToken) {
-    throw new Error("No token found for this workspace");
+  const accessToken = localStorage.getItem("accessToken");
+  const authToken = workspaceToken || accessToken;
+
+  if (!authToken) {
+    throw new Error("No token found for this workspace or user");
   }
+
   return api.delete(`/workspaces/${workspaceId}`, {
-    headers: { Authorization: `Bearer ${workspaceToken}` },
+    headers: { Authorization: `Bearer ${authToken}` },
   });
 };
 

@@ -17,7 +17,6 @@ import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
 import TermsAndConditions from "./components/terms and conditions";
-import ApiTester from "./pages/apitester";
 import Join from "../src/components/dashboard/join.jsx"
 
 const App = () => {
@@ -43,7 +42,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/apitester" element={<ApiTester />} />
+       
         <Route path="/join" element={<Join />} />
         <Route
           path="/verify-otp"

@@ -64,7 +64,13 @@ const Login = () => {
           localStorage.removeItem("rememberedIdentifier");
         }
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/profile");
+if (user?.fullName) {
+  localStorage.setItem("fullName", user.fullName);
+}
+if (user?.email) {
+  localStorage.setItem("email", user.email);
+}
+      navigate("/dashboard");
       } else {
         setPasswordError("Invalid password");
       }

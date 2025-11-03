@@ -74,8 +74,12 @@ const ProfileForm = ({ onSubmit }) => {
       const response = await createProfile(payload);
 
       if (response.data?.success) {
-        onSubmit?.(response.data.data);
-      } else {
+  const { avatar, fullName } = response.data.data;
+
+  localStorage.setItem("avatar", avatar);      
+
+  onSubmit?.(response.data.data);               
+} else {
         setApiError(response.data?.msg || "Failed to save profile.");
       }
     } catch (error) {
