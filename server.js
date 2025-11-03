@@ -18,20 +18,20 @@ io.on("connection", (socket) => {
   });
 
   // Send message to a room
-socket.on("message", (message) => {
+ socket.on("message", (message) => {
   io.to(message.channelId).emit("message", message);
-});
+ });
 
   socket.on("disconnect", () => {
     console.log(socket.id, "disconnected");
   });
+  socket.on("leaveRoom", (roomId) => {
+  socket.leave(roomId);
+  console.log(`User ${socket.id} left room ${roomId}`);
+});
 });
 
 server.listen(8001, () => {
   console.log("Server is running on port 8001");
 });
 
-socket.on("leaveRoom", (roomId) => {
-  socket.leave(roomId);
-  console.log(`User ${socket.id} left room ${roomId}`);
-});

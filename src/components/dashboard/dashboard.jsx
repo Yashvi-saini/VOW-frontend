@@ -45,7 +45,6 @@ const Dashboard = () => {
       return;
     }
 
-    // Try multiple common shapes the backend might return
     const workspace = data.workspace || data.data?.workspace || (Array.isArray(data.workspaces) ? data.workspaces[0] : null) || null;
     const workspaceId = workspace?._id || workspace?.id || data.workspaceId || data.id || null;
     const inviteCode = workspace?.inviteCode || data.inviteCode || null;

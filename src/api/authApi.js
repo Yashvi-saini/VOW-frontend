@@ -1,6 +1,6 @@
 import api from "./axiosConfig";
 
-// 🔐 Auth APIs
+
 export const registerUser = (data) => api.post("auth/register", data);
 export const loginUser = (data) => api.post("auth/login", data);
 export const verifyEmail = (data) => api.post("auth/verifyemail", data);
@@ -9,7 +9,7 @@ export const forgotPassword = (data) => api.post("auth/forgetpassword", data);
 export const resetPassword = (newPassword) => api.post("auth/updatepassword", { newPassword });
 export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
 
-// 🏢 Workspace APIs
+
 export const createWorkspace = (data) => {
   const token = localStorage.getItem("accessToken");
   return api.post("workspaces/create", data, {
@@ -61,7 +61,6 @@ export const getMembers = (workspaceId) => {
   });
 };
 
-// 📺 Channel APIs
 export const createChannel = (data) => {
   const workspaceToken = localStorage.getItem(`workspaceToken_${data.workspaceId}`);
   if (!workspaceToken) {
@@ -72,7 +71,7 @@ export const createChannel = (data) => {
   });
 };
 
-// 💬 Message APIs
+
 export const sendMessageToChannel = (channelId, content, attachments = []) => {
   const token = localStorage.getItem("accessToken");
   return api.post(`/messages`, {

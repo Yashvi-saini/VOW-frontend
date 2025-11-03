@@ -1,4 +1,3 @@
-// src/components/chat/emojipicker.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import emoji from "../../assets/emoji.svg";
@@ -40,12 +39,11 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
     };
   };
 
-  // Keep latest onSelect without forcing re-render
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
 
-  // Helper: apply current transform imperatively
+
   const applyTransform = () => {
     if (pickerRef.current) {
       const { x, y } = posRef.current;
@@ -53,24 +51,21 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
     }
   };
 
-  // Place the picker near the trigger when opening
   useEffect(() => {
     if (!showPicker || !triggerRef.current) return;
     const boundary = getBoundaryEl();
     const boundaryRect = boundary.getBoundingClientRect();
     const triggerRect = triggerRef.current.getBoundingClientRect();
 
-    // Try to open above the trigger; fallback below if not enough space
     let targetX = triggerRect.left - boundaryRect.left;
     let targetY = triggerRect.top - boundaryRect.top - pickerHeight - 8;
 
     const clamped = clampToBounds(targetX, targetY);
     posRef.current = clamped;
-    // defer to next frame to ensure element is mounted
     requestAnimationFrame(applyTransform);
   }, [showPicker]);
 
-  // Keep the picker inside bounds on resize
+
   useEffect(() => {
     const onResize = () => {
       posRef.current = clampToBounds(posRef.current.x, posRef.current.y);
@@ -78,7 +73,7 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
   useEffect(() => {
   if (!showPicker) return;
@@ -139,7 +134,6 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
 
   return (
     <div className="select-none inline-flex items-center gap-2">
-      {/* Emoji icon (trigger) */}
       <img
         ref={triggerRef}
         src={icon}
@@ -147,8 +141,6 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
         className="cursor-pointer"
         onClick={() => setShowPicker((prev) => !prev)}
       />
-
-      {/* Picker panel */}
       {showPicker && (
         <div
           ref={pickerRef}
@@ -158,7 +150,7 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
             top: 0,
             width: `${pickerWidth}px`,
             height: `${pickerHeight}px`,
-            // transform is applied imperatively for smooth dragging
+
             transition: dragging ? "none" : "transform 120ms ease-out",
           }}
         >
@@ -190,6 +182,5 @@ const EmojiSelector = ({ onSelect, icon = emoji, boundaryRef = null }) => {
 };
 
 export default React.memo(EmojiSelector, (prev, next) => {
-  // Ignore onSelect identity; compare other props for shallow equality
   return prev.icon === next.icon && prev.boundaryRef === next.boundaryRef;
 });
