@@ -8,6 +8,8 @@ import { fetchChannelMessages } from "../../api/authApi.js";
 import InputBox from "../chat/input.jsx";
 import Header from "../chat/header.jsx";
 import InfoBar from "../chat/infobar.jsx";
+import TeamBuilder from "../chat/teambuilder.jsx";
+
 const Chat = ({ username, roomId }) => {
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
@@ -19,6 +21,11 @@ const Chat = ({ username, roomId }) => {
     (selectedEmoji) => setMessageInput((prev) => prev + selectedEmoji),
     []
   );
+const [showTeamBuilder, setShowTeamBuilder] = useState(false);
+
+  const handleCreateTeamClick = () => {
+    setShowTeamBuilder(true);
+  };
 
   useEffect(() => {
     if (roomId !== activeRoomId) {
@@ -121,21 +128,31 @@ const Chat = ({ username, roomId }) => {
 
   return (
     <div className="flex h-screen bg-[#F3F3F6] text-[#0E1219]">
-      <Sidebar onChannelSelect={setActiveRoomId} />
+      <Sidebar
+  onChannelSelect={setActiveRoomId}
+  onCreateTeam={() => setShowTeamBuilder(true)}
+/>
       <main ref={mainRef} className="flex-1 flex flex-col relative">
         <Header title="Workspace Name" />
-        <div className=" relative flex-1 overflow-y-auto space-y-4">
-          <InfoBar />
-          <MessageList messages={messages} username={username} />
-        </div>
-        <InputBox
-          messageInput={messageInput}
-          setMessageInput={setMessageInput}
-          sendMessage={sendMessage}
-          mainRef={mainRef}
-          textareaRef={textareaRef}
-          handleEmojiSelect={handleEmojiSelect}
-        />
+        {showTeamBuilder ? (
+    <TeamBuilder />
+  ) : (
+    <>
+      <div className="relative flex-1 overflow-y-auto space-y-4">
+        <InfoBar />
+        <MessageList messages={messages} username={username} />
+      </div>
+      <InputBox
+        messageInput={messageInput}
+        setMessageInput={setMessageInput}
+        sendMessage={sendMessage}
+        mainRef={mainRef}
+        textareaRef={textareaRef}
+        handleEmojiSelect={handleEmojiSelect}
+      />
+    </>
+  )}
+
       </main>
     </div>
   );

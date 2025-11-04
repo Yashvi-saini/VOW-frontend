@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getMembers } from "../api/authApi";
 
 export const useMembers = () => {
@@ -32,5 +32,11 @@ export const useMembers = () => {
     }
   };
 
-  return { members, loading, showList, fetchMembers };
+  // ✅ Auto-fetch on mount
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+ return { members, loading, showList, fetchMembers };
+
 };

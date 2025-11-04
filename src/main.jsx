@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
   import { Provider } from "react-redux";
-import { store } from "../src/components/Dashboard/store";
-import { setUserProfile } from "../src/components/Dashboard/userslice";
+import { store } from "./components/store";
+import { setUserProfile } from "./components/userslice";
 
 // Hydrate Redux user profile from localStorage once on app start (no direct LS reads in UI)
 try {

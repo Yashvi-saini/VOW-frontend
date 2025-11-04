@@ -7,6 +7,8 @@ const userSlice = createSlice({
     fullName: null,
     email: null,
     avatar: null,
+    workspaceId: null,
+    workspaceToken: null,
   },
   reducers: {
     setUsername: (state, action) => {
@@ -19,14 +21,36 @@ const userSlice = createSlice({
       if (email !== undefined) state.email = email;
       if (avatar !== undefined) state.avatar = avatar;
     },
+    setUserAvatar: (state, action) => {
+      state.avatar = action.payload;
+    },
+    setWorkspaceContext: (state, action) => {
+      const { workspaceId, workspaceToken } = action.payload || {};
+      state.workspaceId = workspaceId || null;
+      state.workspaceToken = workspaceToken || null;
+    },
+    clearWorkspaceContext: (state) => {
+      state.workspaceId = null;
+      state.workspaceToken = null;
+    },
     clearUser: (state) => {
       state.username = null;
       state.fullName = null;
       state.email = null;
       state.avatar = null;
-    }
+      state.workspaceId = null;
+      state.workspaceToken = null;
+    },
   },
 });
 
-export const { setUsername, setUserProfile, clearUser } = userSlice.actions;
+export const {
+  setUsername,
+  setUserProfile,
+  setUserAvatar,
+  setWorkspaceContext,
+  clearWorkspaceContext,
+  clearUser,
+} = userSlice.actions;
+
 export default userSlice.reducer;

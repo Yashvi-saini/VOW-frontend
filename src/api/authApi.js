@@ -9,9 +9,9 @@ export const resetPassword = (newPassword) => api.post("auth/updatepassword", { 
 export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
 
 export const createWorkspace = (data) => {
-  const token = localStorage.getItem("accessToken");
+
   return api.post("workspaces/create", data, {
-    headers: { Authorization: `Bearer ${token}` },
+
   });
 };
 
@@ -102,3 +102,6 @@ export const getChannels = async (workspaceId) => {
   return api.get(`/channels/workspace/${workspaceId}`);
 };
 
+export const createTeam = (workspaceId, payload) => {
+  return api.post(`/manager/team/create/${workspaceId}`, payload);
+};

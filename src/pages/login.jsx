@@ -5,12 +5,12 @@ import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/blue eye off.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setUserProfile } from "../components/Dashboard/userslice";
+import { setUserProfile } from "../components/userslice";
 import { loginUser } from "../api/authApi";
 import { getProfileInfo } from "../api/profileapi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background";
-import { setUserProfile as hydrateUser } from "../components/Dashboard/userslice";
+import { setUserProfile as hydrateUser } from "../components/userslice";
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -57,6 +57,7 @@ const Login = () => {
 
   // Store tokens
   localStorage.setItem("accessToken", accessToken);
+  console.log("Access Token:", accessToken);
   localStorage.setItem("refreshToken", refreshToken);
 
   // Optionally store user info for non-sensitive usage (avoid directly storing fullName/email as separate keys)

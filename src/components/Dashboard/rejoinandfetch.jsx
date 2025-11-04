@@ -1,39 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { getJoinedWorkspaces, rejoinWorkspace,deleteWorkspace } from "../../api/authApi";
+import React, { useEffect, useState, useRef } from "react";
+import { getJoinedWorkspaces, rejoinWorkspace, deleteWorkspace } from "../../api/authApi";
 import CreateAndJoin from "./createandjoin";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setWorkspaceContext } from "../userslice";
+
 const RejoinAndFetch = () => {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
-const [clickCounts, setClickCounts] = useState({});
+  const clickCounts = useRef({});
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-const handleTripleClick = async (workspaceId) => {
-  setClickCounts((prev) => {
-    const count = (prev[workspaceId] || 0) + 1;
-
-    if (count === 3) {
-      const confirmed = window.confirm("Are you sure you want to delete this workspace?");
-      if (confirmed) {
-        // ✅ Move deletion logic outside setClickCounts
-        (async () => {
-          try {
-            await deleteWorkspace(workspaceId);
-            alert("Workspace deleted successfully.");
-            setWorkspaces((prevWs) => prevWs.filter((ws) => ws._id !== workspaceId));
-          } catch (err) {
-            alert(err.message || "Failed to delete workspace.");
-          }
-        })();
-      }
-      return { ...prev, [workspaceId]: 0 };
-    }
-
-    setTimeout(() => {
-      setClickCounts((prevReset) => ({ ...prevReset, [workspaceId]: 0 }));
-    }, 1000);
-
-    return { ...prev, [workspaceId]: count };
-  });
-};
   useEffect(() => {
     const fetchWorkspaces = async () => {
       setLoading(true);
@@ -55,20 +33,51 @@ const handleTripleClick = async (workspaceId) => {
     fetchWorkspaces();
   }, []);
 
+  const handleTripleClick = (workspaceId) => {
+    const count = (clickCounts.current[workspaceId] || 0) + 1;
+    clickCounts.current[workspaceId] = count;
+
+    if (count === 3) {
+      const confirmed = window.confirm("Are you sure you want to delete this workspace?");
+      if (confirmed) {
+        deleteWorkspace(workspaceId)
+          .then(() => {
+            alert("Workspace deleted successfully.");
+            setWorkspaces((prev) => prev.filter((ws) => ws._id !== workspaceId));
+          })
+          .catch((err) => {
+            alert(err.message || "Failed to delete workspace.");
+          });
+      }
+      clickCounts.current[workspaceId] = 0;
+    } else {
+      setTimeout(() => {
+        clickCounts.current[workspaceId] = 0;
+      }, 1000);
+    }
+  };
+
   const handleRejoin = async (workspaceId) => {
     try {
       const existingToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
       console.log("Rejoin requested for:", workspaceId, "existing token:", !!existingToken);
+
       const response = await rejoinWorkspace(workspaceId);
-      // If backend returns a fresh workspace token, persist it
       const newToken = response?.data?.workspaceToken;
-      if (newToken) {
+
+     {
         localStorage.setItem(`workspaceToken_${workspaceId}`, newToken);
+    console.log("Dispatching workspace context:", { workspaceId, workspaceToken: newToken });
+        dispatch(setWorkspaceContext({ workspaceId, workspaceToken: newToken }));
         console.log("Stored refreshed workspace token for", workspaceId);
       }
+
       if (response.data?.success) {
         alert(`Rejoined workspace: ${response.data.workspaceName || workspaceId}`);
-        // Optionally redirect or refresh
+        setTimeout(() => {
+    navigate(`/workspace/${workspaceId}/chat`);
+  }, 0);
+
       } else {
         alert(response.data?.message || "Failed to rejoin workspace");
       }
@@ -91,16 +100,19 @@ const handleTripleClick = async (workspaceId) => {
       <div className="flex gap-4">
         {workspaces.map((ws) => (
           <div
-  key={ws._id}
-  onClick={() => handleTripleClick(ws._id)}
-  className="min-w-[250px] bg-white border border-[#BCBCBC]  rounded-lg p-4 shadow-md flex flex-col justify-between cursor-pointer"
->
+            key={ws._id}
+            onClick={() => handleTripleClick(ws._id)}
+            className="min-w-[250px] bg-white border border-[#BCBCBC] rounded-lg p-4 shadow-md flex flex-col justify-between cursor-pointer"
+          >
             <h3 className="text-lg font-semibold text-[#0E1219] mb-2">{ws.workspaceName}</h3>
             <p className="text-sm text-[#6B7280] mb-4">
               Last active: {ws.lastActive || "Unknown"}
             </p>
             <button
-              onClick={(e) => { e.stopPropagation(); handleRejoin(ws._id); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRejoin(ws._id);
+              }}
               className="bg-[#5E9BFF] text-white px-4 py-2 rounded-md hover:bg-[#4A8CE0] transition"
             >
               Rejoin

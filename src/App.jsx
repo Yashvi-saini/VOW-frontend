@@ -108,12 +108,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/chat"
-          element={
-              <ChatApp username="UserB"  />
-          }
-        />
+        <Route path="/workspace/:workspaceId/chat" element={<ChatApp/>} />
         <Route
           path="/"
           element={

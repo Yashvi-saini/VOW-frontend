@@ -3,7 +3,7 @@ import { createProfile } from "../../api/profileapi";
 import backarrow from "../../assets/back.png";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setUserProfile } from "../Dashboard/userslice";
+import { setUserProfile } from "../userslice";
 
 
 const ProfileForm = ({ onSubmit }) => {

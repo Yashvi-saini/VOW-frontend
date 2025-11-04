@@ -8,7 +8,7 @@ import NotificationSection from "../Dashboard/NotificationSection";
 import MeetingSection from "../Dashboard/MeetingSection";
 import EnterWorkspaceSection from "../Dashboard/EnterWorkspaceSection";
 import dashboardBg from "../../assets/dashboardbg.svg";
-
+import TeamBuilder from "../chat/teambuilder.jsx";
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
 
@@ -27,6 +27,7 @@ const Dashboard = () => {
       case "enterWorkspace":
         return <EnterWorkspaceSection />;
       case "create team":
+        return <TeamBuilder />;
       default:
         return <DashboardContainer />;
     }

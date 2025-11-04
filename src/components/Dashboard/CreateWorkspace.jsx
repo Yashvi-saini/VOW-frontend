@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { createWorkspace } from "../../api/authApi"; // adjust path as needed
-
+import { useDispatch } from "react-redux";
+import { setWorkspaceContext } from "../../../src/components/userslice"; // adjust path as needed
 const CreateWorkspace = () => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [emails, setEmails] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch();
   const handleCreate = async () => {
     const inviteEmails = emails
       .split(",")
@@ -18,13 +19,15 @@ const CreateWorkspace = () => {
       const { workspace, workspaceToken } = response.data;
       const workspaceId = workspace._id || workspace.id;
       const inviteCode = workspace.inviteCode;
-
+console.log("Checking token for:", workspaceId);
       localStorage.setItem("workspaceId", workspaceId);
       localStorage.setItem("inviteCode", inviteCode);
       localStorage.setItem(`workspaceToken_${workspaceId}`, workspaceToken); 
-console.log("Checking token for:", workspaceId);
+
 console.log("Token found:", localStorage.getItem(`workspaceToken_${workspaceId}`));
 console.log("token is",workspaceToken);
+ console.log("Dispatching workspace context:", { workspaceId, workspaceToken});
+dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
       alert("Workspace created successfully!");
       setWorkspaceName("");
       setEmails("");
