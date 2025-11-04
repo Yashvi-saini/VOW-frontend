@@ -16,11 +16,10 @@ import Dashboard from "../src/components/dashboard/dashboard.jsx";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
+import FileTester from "./pages/fileapitester";
 import TermsAndConditions from "./components/terms and conditions";
-import Join from "./components/dashboard/join.jsx"
 
 const App = () => {
-
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const signupDone = !!localStorage.getItem("signupDone");
   const forgotRequested = !!localStorage.getItem("forgotRequested");
@@ -28,7 +27,7 @@ const App = () => {
   
 
   const verifyCondition = !isLoggedIn || (signupDone || forgotRequested);
-  const verifyRedirectTo = isLoggedIn 
+  const verifyRedirectTo = isLoggedIn
     ? "/"
     : signupDone
     ? "/signup"
@@ -38,12 +37,13 @@ const App = () => {
     <Router>
       <RouteWatcher />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-       
-        <Route path="/join" element={<Join />} />
+        <Route path="/filetester" element={<FileTester />} />
+
         <Route
           path="/verify-otp"
           element={
@@ -64,6 +64,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/reset-password"
           element={
@@ -75,6 +76,7 @@ const App = () => {
             </FlowProtectedRoute>
           }
         />
+
         <Route
           path="/reset-success"
           element={
@@ -86,6 +88,7 @@ const App = () => {
             </FlowProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -94,17 +97,17 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/map"
           element={
             <ProtectedRoute>
-                <FlowProtectedRoute
-                  // allow when session flag set by dashboard button
-                  condition={sessionStorage.getItem("allowMap") === "true"}
-                  redirectTo="/dashboard"
-                >
-                  <Map />
-                </FlowProtectedRoute>
+              <FlowProtectedRoute
+                condition={sessionStorage.getItem("allowMap") === "true"}
+                redirectTo="/dashboard"
+              >
+                <Map />
+              </FlowProtectedRoute>
             </ProtectedRoute>
           }
         />
