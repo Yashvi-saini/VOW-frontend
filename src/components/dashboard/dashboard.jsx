@@ -26,6 +26,7 @@ const Dashboard = () => {
         return <MeetingSection role="supervisor" />;
       case "enterWorkspace":
         return <EnterWorkspaceSection />;
+      case "create team":
       default:
         return <DashboardContainer />;
     }

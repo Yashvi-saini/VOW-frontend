@@ -4,10 +4,13 @@ import X from "../assets/X.png";
 import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/blue eye off.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserProfile } from "../components/Dashboard/userslice";
 import { loginUser } from "../api/authApi";
+import { getProfileInfo } from "../api/profileapi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background";
-
+import { setUserProfile as hydrateUser } from "../components/Dashboard/userslice";
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -15,10 +18,11 @@ const Login = () => {
   const [identifierError, setIdentifierError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-//loading state
   const [loading, setLoading] = useState(false); // NEW
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+
 
   // Prefill saved identifier
   useEffect(() => {
@@ -55,7 +59,7 @@ const Login = () => {
   localStorage.setItem("accessToken", accessToken);
   localStorage.setItem("refreshToken", refreshToken);
 
-  // Optionally store user info
+  // Optionally store user info for non-sensitive usage (avoid directly storing fullName/email as separate keys)
   localStorage.setItem("user", JSON.stringify(user));
 
         if (rememberMe) {
@@ -64,12 +68,29 @@ const Login = () => {
           localStorage.removeItem("rememberedIdentifier");
         }
         localStorage.setItem("isLoggedIn", "true");
-if (user?.fullName) {
-  localStorage.setItem("fullName", user.fullName);
+        try {
+  const res = await getProfileInfo(); // uses token to identify user
+  const profile = res.data.data;
+
+  dispatch(setUserProfile({
+    username: profile.username,
+    fullName: profile.fullName,
+    email: profile.email,
+    avatar: profile.avatar,
+  }));
+
+  localStorage.setItem("user", JSON.stringify(profile));
+} catch (err) {
+  console.error("Failed to fetch profile info:", err);
 }
-if (user?.email) {
-  localStorage.setItem("email", user.email);
-}
+// Update Redux user profile for UI components (Topbar/Sidebar)
+console.log("Dispatching profile:", {
+  username: user?.username,
+  fullName: user?.fullName,
+  email: user?.email,
+  avatar: user?.avatar,
+});
+
       navigate("/dashboard");
       } else {
         setPasswordError("Invalid password");

@@ -1,6 +1,5 @@
 import React from "react";
-import dashboardBg from "../../assets/dashboardbg.svg";
-import keyIcon from "../../assets/Key.svg";
+
 import RejoinAndFetch from "../../components/dashboard/rejoinandfetch"; // adjust path as needed
 
 const DashboardMain = () => (

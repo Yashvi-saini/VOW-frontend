@@ -1,15 +1,13 @@
 import React from "react";
 import searchIcon from "../../assets/dashsearch.svg";
-
+import { useSelector } from "react-redux";
 
 const TopBar = () => {
-  const fullName = localStorage.getItem("fullName");
-
+  const { fullName, username } = useSelector((state) => state.user);
+  console.log("TopBar Redux state:", { fullName, username });
   return (
     <header className="bg-[#240A44] text-white px-4 py-4 flex justify-between items-center">
-      <span className="text-[24px] font-medium">
-        Welcome back, {fullName || "Guest"}
-      </span>
+      <span className="text-[24px] font-medium">Welcome back, {fullName || username || "Guest"}</span>
       <div className="flex items-center">
         <div className="relative">
           <input

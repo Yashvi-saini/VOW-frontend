@@ -8,6 +8,7 @@ import createIcon from "../../assets/dashcreate.svg";
 import helpIcon from "../../assets/dashhelp.svg";
 import contactIcon from "../../assets/dashphone.svg";
 import userIcon from "../../assets/dashuser.svg";
+import { useSelector } from "react-redux";
 
 const Sidebar = ({ activeSection, setActiveSection }) => {
   const menuItems = [
@@ -17,10 +18,9 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     { id: "events", label: "Meeting", icon: eventsIcon },
     { id: "enterWorkspace", label: "Enter Workspace", icon: workspaceIcon },
     { id: "createWorkspace", label: "Create Workspace", icon: createIcon },
+    {id: "create team", label: "Create Team", icon: createIcon}
   ];
- const fullName = localStorage.getItem("fullName");
- const email = localStorage.getItem("email");
- const avatar = localStorage.getItem("avatar");
+ const { fullName, email, avatar } = useSelector((state) => state.user);
   return (
     <aside className="w-[320px] h-[820px] bg-[#240A44] text-white flex flex-col p-6">
       <div className="flex-1">
