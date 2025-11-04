@@ -12,20 +12,20 @@ import ForgotPassword from "./components/forgotpassword";
 import VerifyOtp from "./pages/verifyotp";
 import ResetPassword from "./pages/resetpassword";
 import ResetSuccess from "./pages/resetsuccess";
-import Dashboard from "./pages/dashboard";
+import Dashboard from "../src/components/dashboard/dashboard.jsx";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
 import TermsAndConditions from "./components/terms and conditions";
-import ApiTester from "./pages/apitester";
+import Join from "./components/dashboard/join.jsx"
 
 const App = () => {
 
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const signupDoneRaw = !!localStorage.getItem("signupDone");
+  const signupDone = !!localStorage.getItem("signupDone");
   const forgotRequested = !!localStorage.getItem("forgotRequested");
 
-  const signupDone = isLoggedIn && !forgotRequested ? false : signupDoneRaw;
+  
 
   const verifyCondition = !isLoggedIn || (signupDone || forgotRequested);
   const verifyRedirectTo = isLoggedIn 
@@ -42,7 +42,8 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/apitester" element={<ApiTester />} />
+       
+        <Route path="/join" element={<Join />} />
         <Route
           path="/verify-otp"
           element={
@@ -107,12 +108,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/chat"
-          element={
-              <ChatApp username="UserB" roomId="room1" />
-          }
-        />
+        <Route path="/workspace/:workspaceId/chat" element={<ChatApp/>} />
         <Route
           path="/"
           element={

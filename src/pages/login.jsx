@@ -4,10 +4,13 @@ import X from "../assets/X.png";
 import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/blue eye off.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserProfile } from "../components/userslice";
 import { loginUser } from "../api/authApi";
+import { getProfileInfo } from "../api/profileapi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background";
-
+import { setUserProfile as hydrateUser } from "../components/userslice";
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -15,10 +18,11 @@ const Login = () => {
   const [identifierError, setIdentifierError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-//loading state
   const [loading, setLoading] = useState(false); // NEW
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+
 
   // Prefill saved identifier
   useEffect(() => {
@@ -46,16 +50,49 @@ const Login = () => {
 
     try {
       const res = await loginUser({ identifier: trimmedIdentifier, password }); 
-
+  console.log("Login response:", res);
       if (res.status === 200 && res.data.success) {
         // Handle "Remember Me"
+        const { accessToken, refreshToken, user } = res.data;
+
+  // Store tokens
+  localStorage.setItem("accessToken", accessToken);
+  console.log("Access Token:", accessToken);
+  localStorage.setItem("refreshToken", refreshToken);
+
+  // Optionally store user info for non-sensitive usage (avoid directly storing fullName/email as separate keys)
+  localStorage.setItem("user", JSON.stringify(user));
+
         if (rememberMe) {
           localStorage.setItem("rememberedIdentifier", trimmedIdentifier);
         } else {
           localStorage.removeItem("rememberedIdentifier");
         }
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/profile");
+        try {
+  const res = await getProfileInfo(); // uses token to identify user
+  const profile = res.data.data;
+
+  dispatch(setUserProfile({
+    username: profile.username,
+    fullName: profile.fullName,
+    email: profile.email,
+    avatar: profile.avatar,
+  }));
+
+  localStorage.setItem("user", JSON.stringify(profile));
+} catch (err) {
+  console.error("Failed to fetch profile info:", err);
+}
+// Update Redux user profile for UI components (Topbar/Sidebar)
+console.log("Dispatching profile:", {
+  username: user?.username,
+  fullName: user?.fullName,
+  email: user?.email,
+  avatar: user?.avatar,
+});
+
+      navigate("/dashboard");
       } else {
         setPasswordError("Invalid password");
       }
