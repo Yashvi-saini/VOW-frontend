@@ -1,6 +1,6 @@
 import React from "react";
 
-import RejoinAndFetch from "../../components/dashboard/rejoinandfetch"; // adjust path as needed
+import RejoinAndFetch from "../Dashboard/rejoinandfetch.jsx";
 
 const DashboardMain = () => (
   <div>
