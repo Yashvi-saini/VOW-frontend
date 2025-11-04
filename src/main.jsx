@@ -4,7 +4,7 @@ import App from "./App";
 import "./index.css";
   import { Provider } from "react-redux";
 import { store } from "./components/store";
-import { setUserProfile } from "./components/userslice";
+import { setUserProfile, setWorkspaceContext } from "./components/userslice";
 
 // Hydrate Redux user profile from localStorage once on app start (no direct LS reads in UI)
 try {
@@ -20,6 +20,13 @@ const avatar = savedUser?.avatar || null;
         avatar,
       })
     );
+  }
+  // Hydrate workspace context if available
+  const workspaceId = localStorage.getItem("workspaceId");
+  if (workspaceId) {
+    const tokenKey = `workspaceToken_${workspaceId}`;
+    const workspaceToken = localStorage.getItem(tokenKey) || null;
+    store.dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
   }
 } catch (e) {
   // ignore hydration errors

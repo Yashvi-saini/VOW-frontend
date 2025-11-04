@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createWorkspace } from "../../api/authApi"; // adjust path as needed
 import { useDispatch } from "react-redux";
-import { setWorkspaceContext } from "../../../src/components/userslice"; // adjust path as needed
+import { setWorkspaceContext } from "../userslice"; // normalized path
 const CreateWorkspace = () => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [emails, setEmails] = useState("");

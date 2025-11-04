@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import Sidebar from "../Dashboard/Sidebar";
-import TopBar from "../Dashboard/Topbar";
-import DashboardContainer from "../Dashboard/DashboardContainer";
-import CreateWorkspace from "../Dashboard/CreateWorkspace";
-import SearchSection from "../Dashboard/SearchSection";
-import NotificationSection from "../Dashboard/NotificationSection";
-import MeetingSection from "../Dashboard/MeetingSection";
-import EnterWorkspaceSection from "../Dashboard/EnterWorkspaceSection";
+import Sidebar from "./Sidebar.jsx";
+import TopBar from "./Topbar.jsx";
+import DashboardContainer from "./DashboardContainer.jsx";
+import CreateWorkspace from "./CreateWorkspace.jsx";
+import SearchSection from "./SearchSection.jsx";
+import NotificationSection from "./NotificationSection.jsx";
+import MeetingSection from "./MeetingSection.jsx";
+import EnterWorkspaceSection from "./EnterWorkspaceSection.jsx";
 import dashboardBg from "../../assets/dashboardbg.svg";
 import TeamBuilder from "../chat/teambuilder.jsx";
 const Dashboard = () => {
@@ -47,6 +47,7 @@ const Dashboard = () => {
         </main>
       </div>
     </div>
+    
   );
 };
 

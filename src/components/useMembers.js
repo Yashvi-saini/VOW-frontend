@@ -1,42 +1,37 @@
 import { useEffect, useState } from "react";
 import { getMembers } from "../api/authApi";
 
-export const useMembers = () => {
+// Fetch members for a given workspace using the scoped workspace token
+export const useMembers = (workspaceId) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showList, setShowList] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchMembers = async () => {
-    const workspaceId = localStorage.getItem("workspaceId");
-    const workspaceToken = localStorage.getItem("workspaceToken");
-
-    if (!workspaceId || !workspaceToken) {
-      alert("Missing workspace credentials");
-      return;
-    }
-
-    setLoading(true);
     try {
-      const response = await getMembers(workspaceId, workspaceToken);
-      if (response.data.success) {
-        setMembers(response.data.members);
-        setShowList(true);
-      } else {
-        alert("Failed to fetch members");
+      setLoading(true);
+      setError(null);
+      if (!workspaceId) {
+        throw new Error("Missing workspaceId");
       }
-    } catch (error) {
-      console.error("Error fetching members:", error);
-      alert("Something went wrong");
+      const response = await getMembers(workspaceId);
+      if (response.data?.success) {
+        setMembers(response.data.members || []);
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch members");
+      }
+    } catch (err) {
+      console.error("Error fetching members:", err);
+      setError(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Auto-fetch on mount
   useEffect(() => {
-    fetchMembers();
-  }, []);
+    // refetch when workspaceId changes
+    if (workspaceId) fetchMembers();
+  }, [workspaceId]);
 
- return { members, loading, showList, fetchMembers };
-
+  return { members, loading, error, refetch: fetchMembers };
 };

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { joinWorkspace } from "../../api/authApi.js";
+import { setWorkspaceContext } from "../userslice";
 
 const Join = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [inviteCode, setInviteCode] = useState("");
   const [workspaceDetails, setWorkspaceDetails] = useState(null);
@@ -37,8 +40,11 @@ const Join = () => {
     localStorage.setItem("inviteCode", inviteCode);
     localStorage.setItem(`workspaceToken_${_id}`, workspaceToken); // scoped token
 
+    // Update Redux workspace context for components like TeamBuilder
+    dispatch(setWorkspaceContext({ workspaceId: _id, workspaceToken }));
+
     alert(`Joined workspace: ${workspaceName}`);
-    navigate("/chat");
+    navigate(`/workspace/${_id}/chat`);
   };
 
   return (
