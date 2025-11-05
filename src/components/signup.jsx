@@ -8,7 +8,8 @@ import BlueEyeOff from "../assets/blue eye off.png";
 import CrossIcon from "../assets/X.png";
 import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
-
+import { useDispatch } from "react-redux";
+import { setProfileNeeded } from "../components/userslice";
 export default function Signup() {
   const [enter, setEnter] = useState(false);
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function Signup() {
     email: false,
     password: false,
   });
-
+const dispatch = useDispatch();
   // Trimmed username
 const trimmedUsername = username.trim();
 
@@ -143,7 +144,8 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       if (data.success) {
         setServerMsg("");
         localStorage.setItem("signupDone", "true");
-        navigate("/verify-otp", { state: { email } });
+        dispatch(setProfileNeeded(true));
+         navigate("/verify-otp", { state: { email } });
       }
     } catch (err) {
       // ✅ If server responded (e.g., 400, 409, etc.)

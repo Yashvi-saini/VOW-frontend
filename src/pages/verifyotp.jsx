@@ -119,7 +119,10 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
           if (mode === "signup") {
             localStorage.setItem("otpVerified", "true");
             localStorage.removeItem("signupDone");
-            navigate("/profile");
+            
+            setInterval(() => {
+              navigate("/login");
+            }, 100);
           } else {
             localStorage.setItem("forgotOtpVerified", "true");
             localStorage.removeItem("forgotRequested");

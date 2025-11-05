@@ -81,7 +81,10 @@ const ProfileForm = ({ onSubmit }) => {
         // Persist avatar for refresh (optional); do not persist fullName to LS
         if (avatar) localStorage.setItem("avatar", avatar);
         // Update Redux so UI reflects new profile immediately
-        dispatch(setUserProfile({ fullName, avatar }));
+      dispatch(setUserProfile(profileData));
+      dispatch(setProfileNeeded(false)); // ✅ mark profile complete
+      navigate("/dashboard");
+
         onSubmit?.(response.data.data);
       } else {
         setApiError(response.data?.msg || "Failed to save profile.");

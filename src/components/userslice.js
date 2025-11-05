@@ -1,15 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const initialState = {
+  username: null,
+  email: null,
+  avatar: null,
+  fullName: null,
+  workspaceId: null,
+  workspaceToken: null,
+  isProfileNeeded: false,   // new user must fill profile
+};
+
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    username: null,
-    fullName: null,
-    email: null,
-    avatar: null,
-    workspaceId: null,
-    workspaceToken: null,
-  },
+  initialState,
   reducers: {
     setUsername: (state, action) => {
       state.username = action.payload;
@@ -41,6 +44,9 @@ const userSlice = createSlice({
       state.workspaceId = null;
       state.workspaceToken = null;
     },
+    setProfileNeeded: (state, action) => {
+  state.isProfileNeeded = action.payload; // true/false
+},
   },
 });
 
@@ -51,6 +57,7 @@ export const {
   setWorkspaceContext,
   clearWorkspaceContext,
   clearUser,
+  setProfileNeeded,
 } = userSlice.actions;
 
 export default userSlice.reducer;

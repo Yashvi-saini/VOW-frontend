@@ -4,13 +4,13 @@ import X from "../assets/X.png";
 import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/blue eye off.png";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setUserProfile } from "../components/userslice";
+import { useDispatch ,useSelector} from "react-redux";
+import { setUserProfile, clearWorkspaceContext } from "../components/userslice";
 import { loginUser } from "../api/authApi";
 import { getProfileInfo } from "../api/profileapi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background";
-import { setUserProfile as hydrateUser } from "../components/userslice";
+
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -60,8 +60,7 @@ const Login = () => {
   console.log("Access Token:", accessToken);
   localStorage.setItem("refreshToken", refreshToken);
 
-  // Optionally store user info for non-sensitive usage (avoid directly storing fullName/email as separate keys)
-  localStorage.setItem("user", JSON.stringify(user));
+  dispatch(clearWorkspaceContext()); // ✅ reset workspaceId and token
 
         if (rememberMe) {
           localStorage.setItem("rememberedIdentifier", trimmedIdentifier);
@@ -69,21 +68,7 @@ const Login = () => {
           localStorage.removeItem("rememberedIdentifier");
         }
         localStorage.setItem("isLoggedIn", "true");
-        try {
-  const res = await getProfileInfo(); // uses token to identify user
-  const profile = res.data.data;
-
-  dispatch(setUserProfile({
-    username: profile.username,
-    fullName: profile.fullName,
-    email: profile.email,
-    avatar: profile.avatar,
-  }));
-
-  localStorage.setItem("user", JSON.stringify(profile));
-} catch (err) {
-  console.error("Failed to fetch profile info:", err);
-}
+       
 // Update Redux user profile for UI components (Topbar/Sidebar)
 console.log("Dispatching profile:", {
   username: user?.username,
@@ -92,7 +77,14 @@ console.log("Dispatching profile:", {
   avatar: user?.avatar,
 });
 
-      navigate("/dashboard");
+    const { isProfileNeeded } = useSelector((state) => state.user);
+
+if (isProfileNeeded) {
+  navigate("/profile");
+} else {
+  navigate("/dashboard");
+}
+
       } else {
         setPasswordError("Invalid password");
       }
