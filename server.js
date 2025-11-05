@@ -18,14 +18,17 @@ io.on("connection", (socket) => {
   });
 
   // Send message to a room
-  socket.on("message", ({ roomId, message }) => {
-    io.to(roomId).emit("message", message);
-  });
-
+ socket.on("message", (message) => {
+  io.to(message.channelId).emit("message", message);
+ });
 
   socket.on("disconnect", () => {
     console.log(socket.id, "disconnected");
   });
+  socket.on("leaveRoom", (roomId) => {
+  socket.leave(roomId);
+  console.log(`User ${socket.id} left room ${roomId}`);
+});
 });
 
 server.listen(8001, () => {

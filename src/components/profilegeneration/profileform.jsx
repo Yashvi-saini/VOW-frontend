@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { createProfile } from "../../api/profileapi";
 import backarrow from "../../assets/back.png";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserProfile } from "../userslice";
 
 
 const ProfileForm = ({ onSubmit }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -74,6 +77,11 @@ const ProfileForm = ({ onSubmit }) => {
       const response = await createProfile(payload);
 
       if (response.data?.success) {
+        const { avatar, fullName } = response.data.data;
+        // Persist avatar for refresh (optional); do not persist fullName to LS
+        if (avatar) localStorage.setItem("avatar", avatar);
+        // Update Redux so UI reflects new profile immediately
+        dispatch(setUserProfile({ fullName, avatar }));
         onSubmit?.(response.data.data);
       } else {
         setApiError(response.data?.msg || "Failed to save profile.");
