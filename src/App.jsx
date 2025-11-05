@@ -42,7 +42,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/filetester" element={<FileTester />} />
+
 
         <Route
           path="/verify-otp"
