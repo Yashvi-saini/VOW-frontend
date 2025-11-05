@@ -16,6 +16,7 @@ import Dashboard from "./components/dashboard/dashboard.jsx";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
+
 import TermsAndConditions from "./components/terms and conditions";
 import Join from "./components/dashboard/join.jsx"
 

@@ -5,7 +5,6 @@ import group from "../../assets/groups.svg";
 import space from "../../assets/space.svg";
 import today from "../../assets/today.svg";
 import TeamSection from "../chat/TeamSection.jsx";
-import MembersList from "../dashboard/members.jsx";
 const Sidebar = ({ onChannelSelect, onCreateTeam }) => {
   return (
     <aside className="w-64 bg-[#200539] border-r border-[#BCBCBC] p-4 pr-5 overflow-y-scroll">

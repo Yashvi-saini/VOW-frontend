@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import Sidebar from "../Dashboard/Sidebar";
-import TopBar from "../Dashboard/Topbar";
-import DashboardContainer from "../Dashboard/DashboardContainer";
-import CreateWorkspace from "../Dashboard/CreateWorkspace";
-import SearchSection from "../Dashboard/SearchSection";
-import NotificationSection from "../Dashboard/NotificationSection";
-import MeetingSection from "../Dashboard/MeetingSection";
-import EnterWorkspaceSection from "../Dashboard/EnterWorkspaceSection";
+import Sidebar from "./Sidebar";
+import TopBar from "./Topbar";
+import DashboardContainer from "./DashboardContainer";
+import CreateWorkspace from "./CreateWorkspace";
+import SearchSection from "./SearchSection";
+import NotificationSection from "./NotificationSection";
+import MeetingSection from "./MeetingSection";
+import EnterWorkspaceSection from "./EnterWorkspaceSection";
 import dashboardBg from "../../assets/dashboardbg.svg";
 import TeamBuilder from "../chat/teambuilder.jsx";
 const Dashboard = () => {
