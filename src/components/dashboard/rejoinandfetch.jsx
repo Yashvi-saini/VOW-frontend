@@ -59,19 +59,11 @@ const RejoinAndFetch = () => {
 
   const handleRejoin = async (workspaceId) => {
     try {
-      const existingToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
-      console.log("Rejoin requested for:", workspaceId, "existing token:", !!existingToken);
-
+      console.log("Rejoin requested for:", workspaceId);
       const response = await rejoinWorkspace(workspaceId);
-      const newToken = response?.data?.workspaceToken;
-
-     {
-        localStorage.setItem(`workspaceToken_${workspaceId}`, newToken);
-    console.log("Dispatching workspace context:", { workspaceId, workspaceToken: newToken });
-        dispatch(setWorkspaceContext({ workspaceId, workspaceToken: newToken }));
-        console.log("Stored refreshed workspace token for", workspaceId);
-      }
-
+      // Server refreshes HttpOnly cookie; no need to read token in JS
+      console.log("Dispatching workspace context:", { workspaceId });
+      dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null }));
       if (response.data?.success) {
         alert(`Rejoined workspace: ${response.data.workspaceName || workspaceId}`);
         setTimeout(() => {

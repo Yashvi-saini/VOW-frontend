@@ -20,10 +20,9 @@ const Join = () => {
 
     setLoading(true);
     try {
-      const response = await joinWorkspace(inviteCode);
-      const { workspace, workspaceToken } = response.data;
-
-      setWorkspaceDetails({ ...workspace, workspaceToken });
+  const response = await joinWorkspace(inviteCode);
+  const { workspace } = response.data; // token set via HttpOnly cookie
+  setWorkspaceDetails(workspace);
     } catch (error) {
       alert(error.response?.data?.message || "Invalid invite code");
     } finally {
@@ -34,14 +33,12 @@ const Join = () => {
   const confirmJoin = () => {
     if (!workspaceDetails) return;
 
-    const { _id, inviteCode, workspaceName, workspaceToken } = workspaceDetails;
+  const { _id, inviteCode, workspaceName } = workspaceDetails;
 
     localStorage.setItem("workspaceId", _id);
     localStorage.setItem("inviteCode", inviteCode);
-    localStorage.setItem(`workspaceToken_${_id}`, workspaceToken); // scoped token
-
-    // Update Redux workspace context for components like TeamBuilder
-    dispatch(setWorkspaceContext({ workspaceId: _id, workspaceToken }));
+  // Update Redux workspace context (token is in HttpOnly cookie)
+  dispatch(setWorkspaceContext({ workspaceId: _id, workspaceToken: null }));
 
     alert(`Joined workspace: ${workspaceName}`);
     navigate(`/workspace/${_id}/chat`);
