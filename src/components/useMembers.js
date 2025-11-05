@@ -33,5 +33,5 @@ export const useMembers = (workspaceId) => {
     if (workspaceId) fetchMembers();
   }, [workspaceId]);
 
-  return { members, loading, error, refetch: fetchMembers };
+  return { members, loading, error, fetchMembers };
 };
