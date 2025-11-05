@@ -33,7 +33,7 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
         </div>
 
         
-        <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-4 py-3 mb-4">
+        <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-4 py-3 mb-8">
           <div className="flex items-center gap-3">
             <img src={avatar ? avatar : userIcon} alt="Avatar" className="w-8 h-8 rounded-full" />
             <div>

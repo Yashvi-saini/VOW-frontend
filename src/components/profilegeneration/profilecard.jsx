@@ -65,7 +65,7 @@ const ProfileCard = ({ profile }) => {
          <input
           type="file"
           accept="image/"
-          onchange={handleFilechange}
+          onChange={handleFilechange}
           className="hidden"
           disabled ={uploading}
          />
