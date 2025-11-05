@@ -26,7 +26,7 @@ const Dashboard = () => {
       case "events":
         return <MeetingSection role="supervisor" />;
       case "enterWorkspace":
-        return <EnterWorkspaceSection />;
+        return <EnterWorkspaceSection onClose={() => setActiveSection("dashboard")} />;
       case "create team":
         return <TeamBuilder />;
       case "files":
