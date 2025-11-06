@@ -7,6 +7,7 @@ import SearchSection from "./SearchSection";
 import NotificationSection from "./NotificationSection";
 import MeetingSection from "./MeetingSection";
 import EnterWorkspaceSection from "./EnterWorkspaceSection";
+import FileTransfer from "./FileTransfer";
 import dashboardBg from "../../assets/dashboardbg.svg";
 import TeamBuilder from "../chat/teambuilder.jsx";
 const Dashboard = () => {
@@ -25,9 +26,11 @@ const Dashboard = () => {
       case "events":
         return <MeetingSection role="supervisor" />;
       case "enterWorkspace":
-        return <EnterWorkspaceSection />;
+        return <EnterWorkspaceSection onClose={() => setActiveSection("dashboard")} />;
       case "create team":
         return <TeamBuilder />;
+      case "files":
+        return <FileTransfer />;
       default:
         return <DashboardContainer />;
     }
@@ -36,7 +39,7 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-[#F8F6FC] font-poppins">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      <div className="flex-1 flex flex-col h-[820px]">
+      <div className="flex-1 flex flex-col h-[900px]">
         <TopBar />
         <main className="flex-1 p-8 overflow-y-auto relative bg-[#FEFEFE]">
           {renderSection()}
@@ -47,7 +50,7 @@ const Dashboard = () => {
         </main>
       </div>
     </div>
-    //add comment
+    
   );
 };
 export default Dashboard;

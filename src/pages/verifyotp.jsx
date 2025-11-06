@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import logo from "../assets/logo.png";
 import arrow from "../assets/arrow.svg";
 import { verifyEmail, resendOtp, forgotPassword, verifyResetOtp } from '../api/authApi';
 import Background from "../components/background.jsx";
+import { clearSignupFlow, clearForgotFlow, setSignupDone } from "../components/userslice";
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -16,39 +18,27 @@ const VerifyOtp = () => {
   const location = useLocation();
 const [anyInputFocused, setAnyInputFocused] = useState(false);
 
+  const dispatch = useDispatch();
+  const { signupPending, forgotRequested: rdxForgot, pendingEmail: rdxEmail, pendingMode: rdxMode } = useSelector((s) => s.user || {});
   const email = location.state?.email;
   const mode = location.state?.mode || "signup"; // 'signup' or 'forgot'
 
-  // Block access when authorized, and enforce flow preconditions
+  // Block access and enforce flow preconditions
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-
-    // session fallbacks set by signup/forgot flows
+    // session fallback set by signup/forgot flows
     const fallbackEmail = sessionStorage.getItem("pendingEmail");
     const fallbackMode = sessionStorage.getItem("pendingMode"); // "signup" or "forgot"
-    const effectiveEmail = email || fallbackEmail;
-    const effectiveMode = mode || fallbackMode || "signup";
+    const effectiveEmail = email || rdxEmail || fallbackEmail;
+    const effectiveMode = mode || rdxMode || fallbackMode || "signup";
 
     const hasFlowFlag =
       effectiveMode === "signup"
-        ? !!localStorage.getItem("signupDone") || fallbackMode === "signup"
-        : !!localStorage.getItem("forgotRequested") || fallbackMode === "forgot";
+        ? !!signupPending
+        : !!rdxForgot || !!localStorage.getItem("forgotRequested");
 
-    // If no email or no flow flag, redirect to start of flow.
+    // If no email or no flow flag, redirect explicitly to start of flow.
     if (!effectiveEmail || !hasFlowFlag) {
-      // If user is logged in, prefer going back to previous page rather than sending them to home.
-      if (isLoggedIn) {
-        if (window.history.length > 1) {
-          navigate(-1);
-        } else {
-          navigate(effectiveMode === "signup" ? "/signup" : "/forgot-password", { replace: true });
-        }
-        return;
-      }
-
-      navigate(effectiveMode === "signup" ? "/signup" : "/forgot-password", {
-        replace: true,
-      });
+      navigate(effectiveMode === "signup" ? "/signup" : "/forgot-password", { replace: true });
     }
   }, [email, mode, navigate]);
 
@@ -75,11 +65,17 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
     }
   };
 
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
+const handleKeyDown = (e, index) => {
+  if (e.key === "Tab") {
+    // Stop default tabbing behavior
+    e.preventDefault();
+    return;
+  }
+
+  if (e.key === "Backspace" && !otp[index] && index > 0) {
+    inputRefs.current[index - 1]?.focus();
+  }
+};
 
   // Verify OTP
   const handleVerify = async (e) => {
@@ -87,11 +83,13 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
     const code = otp.join("");
     if (code.length !== 6) {
       
-      window.alert("please enter 6 digit otp")
+      setOtpError(true);
+      setMessage("Please enter the 6-digit OTP.");
       return;
     }
     if (!email) {
-      alert("No email found. Please try again.");
+      setOtpError(true);
+      setMessage("No email found. Please try again.");
       navigate(mode === "signup" ? "/signup" : "/forgot-password");
       return;
     }
@@ -118,11 +116,17 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
         setTimeout(() => {
           if (mode === "signup") {
             localStorage.setItem("otpVerified", "true");
-            localStorage.removeItem("signupDone");
-            navigate("/profile");
+            localStorage.setItem("valid", "true");
+            // Clear flow flags
+            dispatch(setSignupDone(false));
+            dispatch(clearSignupFlow());
+            sessionStorage.removeItem("pendingEmail");
+            sessionStorage.removeItem("pendingMode");
+            navigate("/login");
           } else {
             localStorage.setItem("forgotOtpVerified", "true");
             localStorage.removeItem("forgotRequested");
+            dispatch(clearForgotFlow());
             navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
           }
         }, 1500);

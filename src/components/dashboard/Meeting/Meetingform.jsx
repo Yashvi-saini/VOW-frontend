@@ -9,7 +9,7 @@ const MeetingForm = ({ role, audienceOptions }) => {
   const [calendarState, setCalendarState] = useState(null);
 
   const inputBase =
-    "w-full h-[51px] rounded-[10px] border border-[#707070] bg-[#FEF7F6] px-4 text-[#000] placeholder:text-[#707070] focus:outline-none focus:border-[#8231CC] focus:ring-1 focus:ring-[#8231CC]";
+    "w-full h-[51px] rounded-[10px] border border-[#BFA2E1] bg-[#EFE7F6] px-4 text-[#000] placeholder:text-[#707070] focus:outline-none focus:border-[#8231CC] focus:ring-1 focus:ring-[#8231CC]";
 
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -34,7 +34,7 @@ const MeetingForm = ({ role, audienceOptions }) => {
       <form onSubmit={onSubmit} className="flex flex-col gap-10 max-w-[588px]">
         {/* Title */}
         <div>
-          <label className="block font-semibold text-black mb-2">
+          <label className="block font-semibold text-black mb-2 text-[24px]">
             Meeting Title
           </label>
           <input
@@ -49,10 +49,10 @@ const MeetingForm = ({ role, audienceOptions }) => {
 
         {/* Audience */}
         <div>
-          <label className="block font-semibold text-black mb-2">
+          <label className="block font-semibold text-black mb-2 text-[24px] ">
             Select Audience
           </label>
-          <div className="flex items-center justify-between w-full h-[51px] rounded-[16px] border border-[#707070] bg-[#FEF7F6] px-2">
+          <div className="flex items-center justify-between w-full h-[51px] rounded-[16px] border border-[#BFA2E1] bg-[#EFE7F6] px-2">
             {audienceOptions.map((opt) => (
               <div key={opt.id} className="flex">
                 <input
@@ -66,7 +66,7 @@ const MeetingForm = ({ role, audienceOptions }) => {
                 />
                 <label
                   htmlFor={`aud-${opt.id}`}
-                  className="cursor-pointer h-9 px-4 inline-flex items-center rounded-full text-sm transition border border-transparent text-[#707070] hover:text-[#000] peer-checked:border-[#8231CC] peer-checked:text-[#8231CC] peer-checked:bg-white"
+                  className="cursor-pointer h-9 px-4 inline-flex items-center rounded-full text-sm transition border border-transparent text-[#585858]  peer-checked:border-[#5C0EA4] peer-checked:text-[#5C0EA4] peer-checked:bg-white"
                 >
                   {opt.label}
                 </label>
@@ -77,7 +77,7 @@ const MeetingForm = ({ role, audienceOptions }) => {
 
         {/* Date & Time */}
         <div className="relative">
-          <label className="block font-semibold text-black mb-2">
+          <label className="block font-semibold text-[#000] text-[24px] mb-2">
             Date & Time
           </label>
           <button
@@ -102,7 +102,7 @@ const MeetingForm = ({ role, audienceOptions }) => {
 
         {/* Agenda */}
         <div>
-          <label className="block font-semibold text-black mb-2">
+          <label className="block font-semibold text-black text-[24px] mb-2">
             Agenda / Description
           </label>
           <textarea

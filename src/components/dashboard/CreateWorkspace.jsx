@@ -15,19 +15,18 @@ const CreateWorkspace = () => {
 
     try {
       setLoading(true);
-      const response = await createWorkspace({ workspaceName, inviteEmails });
-      const { workspace, workspaceToken } = response.data;
+  const response = await createWorkspace({ workspaceName, inviteEmails });
+  const { workspace } = response.data; // token is set as HttpOnly cookie
       const workspaceId = workspace._id || workspace.id;
       const inviteCode = workspace.inviteCode;
 console.log("Checking token for:", workspaceId);
       localStorage.setItem("workspaceId", workspaceId);
       localStorage.setItem("inviteCode", inviteCode);
-      localStorage.setItem(`workspaceToken_${workspaceId}`, workspaceToken); 
-
-console.log("Token found:", localStorage.getItem(`workspaceToken_${workspaceId}`));
-console.log("token is",workspaceToken);
- console.log("Dispatching workspace context:", { workspaceId, workspaceToken});
-dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
+  // Workspace auth token is provided as HttpOnly cookie by the server.
+  // Do not attempt to read/store it in JS. Axios is configured with withCredentials: true,
+  // so subsequent workspace-scoped requests will include the cookie automatically.
+  console.log("Dispatching workspace context:", { workspaceId });
+  dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null }));
       alert("Workspace created successfully!");
       setWorkspaceName("");
       setEmails("");
