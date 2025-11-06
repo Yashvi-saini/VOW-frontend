@@ -47,9 +47,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam }) => {
         </div>
       </nav>
 
-      {/* Team Sections */}
-      <TeamSection title="Team" teams={[1, 2, 3, 4]} />
-      <TeamSection title="Another Team" teams={[1, 2, 3, 4]} />
+  {/* Team Sections */}
+  <TeamSection title="Team" onChannelSelect={onChannelSelect} />
+  <TeamSection title="Another Team" onChannelSelect={onChannelSelect} />
     </aside>
   );
 };
