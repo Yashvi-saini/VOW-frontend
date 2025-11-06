@@ -3,7 +3,7 @@ import { createProfile,uploadProfilePhoto } from "../../api/profileapi";
 import backarrow from "../../assets/back.png";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setUserProfile } from "../userslice";
+import { setUserProfile ,setProfileNeeded} from "../userslice";
 
 
 const ProfileForm = ({ onSubmit }) => {
@@ -80,14 +80,28 @@ const [preview,setPreview]= useState(null);
       const response = await createProfile(payload);
 
       if (response.data?.success) {
-        const { avatar, fullName } = response.data.data;
-        // Persist avatar for refresh (optional); do not persist fullName to LS
-        if (avatar) localStorage.setItem("avatar", avatar);
-        // Update Redux so UI reflects new profile immediately
-        dispatch(setUserProfile({ fullName, avatar }));
-        onSubmit?.(response.data.data);
-      } else {
-        setApiError(response.data?.msg || "Failed to save profile.");
+  const profile = response.data.data; // ✅ grab the profile object
+
+  // Persist avatar for refresh (optional)
+  if (profile.avatar) {
+    localStorage.setItem("avatar", profile.avatar);
+  }
+
+  // Update Redux so UI reflects new profile immediately
+  dispatch(setUserProfile({
+    username: profile.username,   // if backend returns it
+    fullName: profile.fullName,
+    email: profile.email,         // if backend returns it
+    avatar: profile.avatar,
+  }));
+
+  dispatch(setProfileNeeded(false)); // ✅ mark profile complete
+  
+
+  onSubmit?.(profile);
+} else {
+  setApiError(response.data?.msg || "Failed to save profile.");
+
       }
     } catch (error) {
       console.error("Error creating profile:", error);
@@ -229,7 +243,3 @@ const [preview,setPreview]= useState(null);
 };
 
 export default ProfileForm;
-
-
-
-

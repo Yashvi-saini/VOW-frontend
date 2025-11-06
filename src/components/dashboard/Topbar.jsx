@@ -3,7 +3,8 @@ import searchIcon from "../../assets/dashsearch.svg";
 import { useSelector } from "react-redux";
 
 const TopBar = () => {
-  const { fullName, username } = useSelector((state) => state.user);
+ const profile = useSelector((state) => state.user.profile);
+ const { fullName, username } = profile || {};
   console.log("TopBar Redux state:", { fullName, username });
   return (
     <header className="bg-[#240A44] text-white px-4 py-4 flex justify-between items-center">

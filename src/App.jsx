@@ -16,6 +16,7 @@ import Dashboard from "./components/dashboard/dashboard.jsx";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
+import { useSelector } from "react-redux";
 
 import TermsAndConditions from "./components/terms and conditions";
 import Join from "./components/dashboard/join.jsx"
@@ -23,17 +24,12 @@ import Join from "./components/dashboard/join.jsx"
 const App = () => {
 
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const signupDone = !!localStorage.getItem("signupDone");
-  const forgotRequested = !!localStorage.getItem("forgotRequested");
+  const { signupPending, forgotRequested: rdxForgot } = useSelector((state) => state.user || {});
+  const forgotRequested = rdxForgot || !!localStorage.getItem("forgotRequested");
 
-  
-
-  const verifyCondition = !isLoggedIn || (signupDone || forgotRequested);
-  const verifyRedirectTo = isLoggedIn 
-    ? "/"
-    : signupDone
-    ? "/signup"
-    : "/forgot-password";
+  // Allow verify-otp whenever a flow is active (signup or forgot), regardless of login
+  const verifyCondition = !!signupPending || !!forgotRequested;
+  const verifyRedirectTo = forgotRequested ? "/forgot-password" : "/signup";
 
   return (
     <Router>
@@ -102,7 +98,7 @@ const App = () => {
                 <FlowProtectedRoute
                   // allow when session flag set by dashboard button
                   condition={sessionStorage.getItem("allowMap") === "true"}
-                  redirectTo="/dashboard"
+                  redirectTo="/login"
                 >
                   <Map />
                 </FlowProtectedRoute>

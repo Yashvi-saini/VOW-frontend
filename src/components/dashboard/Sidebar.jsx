@@ -23,7 +23,11 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     dashboard: <img src={gridIcon} alt="grid" className="w-6 h-6" />,
     files: <img src={personIcon} alt="person" className="w-6 h-6" />,
   };
- const { fullName, email, avatar } = useSelector((state) => state.user);
+const profile = useSelector((state) => state.user.profile);
+
+
+localStorage.setItem("isLogged", "false");
+const { fullName, email, avatar } = profile || {};
   return (
   <aside className="w-[320px] h-[900px] bg-[#240A44] text-white flex flex-col p-6">
       <div className="flex-1 flex flex-col">
