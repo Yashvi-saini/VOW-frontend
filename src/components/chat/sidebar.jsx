@@ -45,11 +45,12 @@ const Sidebar = ({ onChannelSelect, onCreateTeam }) => {
           <img src={group} alt="" />
           Teams
         </div>
+        
       </nav>
 
       {/* Team Sections */}
-      <TeamSection title="Team" teams={[1, 2, 3, 4]} />
-      <TeamSection title="Another Team" teams={[1, 2, 3, 4]} />
+  <TeamSection title="Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
+  <TeamSection title="Another Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
     </aside>
   );
 };
