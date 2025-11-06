@@ -10,25 +10,44 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("A new user has connected", socket.id);
+
+  console.log("User connected:", socket.id);
 
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
-    console.log(`User ${socket.id} joined room ${roomId}`);
+    io.to(roomId).emit("user-joined", { userId: socket.id });
   });
 
-  // Send message to a room
- socket.on("message", (message) => {
-  io.to(message.channelId).emit("message", message);
- });
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    io.to(roomId).emit("user-left", { userId: socket.id });
+  });
+
+  socket.on("message", (message) => {
+    io.to(message.channelId).emit("message", message);
+  });
+
+  // 🔑 WebRTC signaling
+  socket.on("call-user", ({ to, offer }) => {
+    io.to(to).emit("incoming-call", { from: socket.id, offer });
+  });
+
+  socket.on("answer-call", ({ to, answer }) => {
+    io.to(to).emit("call-answered", { from: socket.id, answer });
+  });
+
+  socket.on("ice-candidate", ({ to, candidate }) => {
+    io.to(to).emit("ice-candidate", { from: socket.id, candidate });
+  });
+
+  socket.on("end-call", ({ to }) => {
+    io.to(to).emit("call-ended", { from: socket.id });
+  });
 
   socket.on("disconnect", () => {
-    console.log(socket.id, "disconnected");
+    console.log(`${socket.id} disconnected`);
+    io.emit("user-disconnected", { userId: socket.id });
   });
-  socket.on("leaveRoom", (roomId) => {
-  socket.leave(roomId);
-  console.log(`User ${socket.id} left room ${roomId}`);
-});
 });
 
 server.listen(8001, () => {

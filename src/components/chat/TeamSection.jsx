@@ -4,7 +4,8 @@ import add from "../../assets/add.svg";
 import { useMembers } from "../../components/useMembers"; // adjust path as needed
 import { getChannels, createChannel } from "../../api/authApi";
 import right from "../../assets/right arrow.svg"; 
- 
+ import { useSelector } from "react-redux";
+
 
 const TeamSection = ({ title = "Team", onChannelSelect }) => {
   const [teams, setTeams] = useState([]);
@@ -13,7 +14,6 @@ const TeamSection = ({ title = "Team", onChannelSelect }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { members, fetchMembers } = useMembers();
-  const workspaceId = localStorage.getItem("workspaceId");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const handleAddClick = () => {
     setShowForm((prev) => !prev);
@@ -22,6 +22,7 @@ const TeamSection = ({ title = "Team", onChannelSelect }) => {
 const handleToggleCollapse = () => {
   setIsCollapsed((prev) => !prev);
 };
+const { workspaceId, workspaceToken } = useSelector((state) => state.user); 
   const handleCreateChannel = async (e) => {
   e.preventDefault();
   if (!channelName.trim()) return;
@@ -29,7 +30,6 @@ const handleToggleCollapse = () => {
   setLoading(true);
   setError("");
 
-  const workspaceId = localStorage.getItem("workspaceId");
   await fetchMembers(); // fetch latest members
 
   const payload = {
@@ -40,6 +40,7 @@ const handleToggleCollapse = () => {
   };
 
   try {
+    console.log("Creating channel with payload:", payload);
     const response = await createChannel(payload);
     const newChannel = response?.data || response;
     console.debug("createChannel response:", response);
@@ -70,6 +71,7 @@ useEffect(() => {
   const fetchChannels = async () => {
     if (!workspaceId) return;
     try {
+      console.log("Fetching channels for workspace:", workspaceId);
       const response = await getChannels(workspaceId);
       const channelList = response?.data || [];
       setTeams(channelList);

@@ -9,8 +9,9 @@ import InputBox from "../chat/input.jsx";
 import Header from "../chat/header.jsx";
 import InfoBar from "../chat/infobar.jsx";
 import TeamBuilder from "../chat/teambuilder.jsx";
+import { useVoiceCall } from "../voice/useVoiceCall.js";
 
-const Chat = ({ username, roomId }) => {
+const Chat = ({ username, roomId, remoteUserId }) => {
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
@@ -22,6 +23,7 @@ const Chat = ({ username, roomId }) => {
     []
   );
 const [showTeamBuilder, setShowTeamBuilder] = useState(false);
+ const { startCall } = useVoiceCall("http://localhost:8001");
 
   const handleCreateTeamClick = () => {
     setShowTeamBuilder(true);
@@ -41,6 +43,15 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
       )}px`;
     }
   }, [messageInput]);
+
+   const handleCallClick = () => {
+    if (remoteUserId) {
+      startCall(remoteUserId);
+    } else {
+      console.warn("No remote user ID provided for call.");
+    }
+  };
+
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -133,7 +144,7 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
   onCreateTeam={() => setShowTeamBuilder(true)}
 />
       <main ref={mainRef} className="flex-1 flex flex-col relative">
-        <Header title="Workspace Name" />
+        <Header title="Workspace Name" onCallClick={handleCallClick} />
         {showTeamBuilder ? (
     <TeamBuilder />
   ) : (
@@ -159,3 +170,4 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
 };
 
 export default Chat;
+//comment
