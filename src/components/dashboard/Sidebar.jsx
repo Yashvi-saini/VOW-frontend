@@ -21,6 +21,8 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     {id: "create team", label: "Create Team", icon: createIcon}
   ];
 const profile = useSelector((state) => state.user.profile);
+
+
 localStorage.setItem("isLogged", "false");
 const { fullName, email, avatar } = profile || {};
   return (
