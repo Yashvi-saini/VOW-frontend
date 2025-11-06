@@ -8,8 +8,8 @@ import BlueEyeOff from "../assets/blue eye off.png";
 import CrossIcon from "../assets/X.png";
 import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
-import { useDispatch } from "react-redux";
-import { setProfileNeeded } from "../components/userslice";
+import { useDispatch, useSelector } from "react-redux";
+import { setProfileNeeded, setSignupDone, startSignupFlow } from "../components/userslice";
 export default function Signup() {
   const [enter, setEnter] = useState(false);
   useEffect(() => {
@@ -37,6 +37,16 @@ export default function Signup() {
   const initialEntryOverlay = location.state?.entryOverlay === true;
   const [routeOverlay, setRouteOverlay] = useState(initialEntryOverlay);
   const [routeOverlayOpaque, setRouteOverlayOpaque] = useState(initialEntryOverlay);
+// Redirect only after this submit completes (avoid persisted-flag surprises)
+const signupDone = useSelector((state) => state.user.signupDone);
+const isProfileNeeded = useSelector((state) => state.user.isProfileNeeded);
+const [afterSubmit, setAfterSubmit] = useState(false);
+useEffect(() => {
+  if (afterSubmit && signupDone && isProfileNeeded) {
+    navigate("/verify-otp", { state: { email, mode: "signup" } });
+    setAfterSubmit(false);
+  }
+}, [afterSubmit, signupDone, isProfileNeeded, email, navigate]);
   // Fade out the entry overlay once on mount if coming from Home
   useEffect(() => {
     if (initialEntryOverlay) {
@@ -143,9 +153,18 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
       if (data.success) {
         setServerMsg("");
-        localStorage.setItem("signupDone", "true");
+        // 1) flip Redux flags
+        dispatch(setSignupDone(true));
         dispatch(setProfileNeeded(true));
-         navigate("/verify-otp", { state: { email } });
+        // 2) set OTP flow so /verify-otp guard allows entry
+        dispatch(startSignupFlow(trimmedEmail));
+        // 2b) set session fallbacks to ensure OTP has email/mode even on reload
+        sessionStorage.setItem("pendingEmail", trimmedEmail);
+        sessionStorage.setItem("pendingMode", "signup");
+        // 3) defer navigation until Redux state is visible in this component
+        setAfterSubmit(true);
+        localStorage.setItem("isLoggedIn", "false");
+
       }
     } catch (err) {
       // ✅ If server responded (e.g., 400, 409, etc.)

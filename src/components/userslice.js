@@ -7,7 +7,14 @@ const initialState = {
   fullName: null,
   workspaceId: null,
   workspaceToken: null,
-  isProfileNeeded: false,   // new user must fill profile
+  // profile gating
+  isProfileNeeded: false,
+  signupDone: false,
+  // transient auth/OTP flows (can be persisted but will be cleared on success)
+  signupPending: false,
+  forgotRequested: false,
+  pendingEmail: null,
+  pendingMode: null, // "signup" | "forgot"
 };
 
 const userSlice = createSlice({
@@ -18,12 +25,8 @@ const userSlice = createSlice({
       state.username = action.payload;
     },
     setUserProfile: (state, action) => {
-      const { username, fullName, email, avatar } = action.payload || {};
-      if (username !== undefined) state.username = username;
-      if (fullName !== undefined) state.fullName = fullName;
-      if (email !== undefined) state.email = email;
-      if (avatar !== undefined) state.avatar = avatar;
-    },
+  state.profile = action.payload; // store full profile object
+},
     setUserAvatar: (state, action) => {
       state.avatar = action.payload;
     },
@@ -45,8 +48,36 @@ const userSlice = createSlice({
       state.workspaceToken = null;
     },
     setProfileNeeded: (state, action) => {
-  state.isProfileNeeded = action.payload; // true/false
+  state.isProfileNeeded = action.payload; 
 },
+    setSignupDone: (state, action) => {
+      state.signupDone = action.payload;
+    },
+    // Flow controls
+    startSignupFlow: (state, action) => {
+      state.signupPending = true;
+      state.pendingEmail = action.payload || null;
+      state.pendingMode = "signup";
+    },
+    clearSignupFlow: (state) => {
+      state.signupPending = false;
+      if (state.pendingMode === "signup") {
+        state.pendingEmail = null;
+        state.pendingMode = null;
+      }
+    },
+    startForgotFlow: (state, action) => {
+      state.forgotRequested = true;
+      state.pendingEmail = action.payload || null;
+      state.pendingMode = "forgot";
+    },
+    clearForgotFlow: (state) => {
+      state.forgotRequested = false;
+      if (state.pendingMode === "forgot") {
+        state.pendingEmail = null;
+        state.pendingMode = null;
+      }
+    },
   },
 });
 
@@ -58,6 +89,11 @@ export const {
   clearWorkspaceContext,
   clearUser,
   setProfileNeeded,
+  setSignupDone,
+  startSignupFlow,
+  clearSignupFlow,
+  startForgotFlow,
+  clearForgotFlow,
 } = userSlice.actions;
 
 export default userSlice.reducer;

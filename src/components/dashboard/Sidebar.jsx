@@ -20,7 +20,9 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
     { id: "createWorkspace", label: "Create Workspace", icon: createIcon },
     {id: "create team", label: "Create Team", icon: createIcon}
   ];
- const { fullName, email, avatar } = useSelector((state) => state.user);
+const profile = useSelector((state) => state.user.profile);
+localStorage.setItem("isLogged", "false");
+const { fullName, email, avatar } = profile || {};
   return (
     <aside className="w-[320px] h-[820px] bg-[#240A44] text-white flex flex-col p-6">
       <div className="flex-1">
