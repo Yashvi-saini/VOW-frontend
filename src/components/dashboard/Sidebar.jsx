@@ -12,7 +12,7 @@ import contactIcon from "../../assets/dashphone.svg";
 import userIcon from "../../assets/dashuser.svg";
 import { useSelector } from "react-redux";
 
-const Sidebar = ({ activeSection, setActiveSection }) => {
+const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWorkspace }) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: personIcon },
     { id: "notification", label: "Notification", icon: notificationIcon },
@@ -50,7 +50,7 @@ const { fullName, email, avatar } = profile || {};
         
         <div className="flex flex-col gap-4 mb-8">
           <button
-            onClick={() => setActiveSection("createWorkspace")}
+            onClick={onCreateWorkspace}
             className="flex w-full h-10 items-center justify-center gap-4 px-4 rounded-xl bg-[#5E9BFF] text-white hover:brightness-110 transition"
           >
            
@@ -58,7 +58,7 @@ const { fullName, email, avatar } = profile || {};
             <span className="text-[16px] leading-6 font-medium">Create Workspace</span>
           </button>
           <button
-            onClick={() => setActiveSection("enterWorkspace")}
+            onClick={onJoinWorkspace}
             className="flex w-full h-10 items-center justify-center gap-4 px-4 rounded-xl bg-[#5E9BFF] text-white hover:brightness-110 transition"
           >
             
