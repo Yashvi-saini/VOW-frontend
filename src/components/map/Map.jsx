@@ -2,20 +2,30 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import TableStructure from "../map/map objects/TableStructure";
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
-import CabinStructure from "../map/map objects/cabinStructure";
-import WelcomeZone from "./map objects/WelcomeZone";
-import TeleportButton from "./map objects/Teleport";
-import Gaming from "./map objects/gaming";
-import PrivateRoom from "./map objects/PrivetRoom";
-import ManagerCabin from "./map objects/Manager";
-import SupervisorCabin from "./map objects/Supervisor";
-import BigTableStructure  from "./map objects/bigtablestructure";
+import { socket } from "../../socket";
+import MapContainer from "./MapContainer";
+import MapObjects from "./MapObjects";
+import AvatarLayer from "./AvatarLayer";
+import ClickMarker from "./ClickMarker";
+import { usePlayerMovement } from "../map/map-components/usePlayermovement";
 
-const Map = () => {
+
+const Map = ({
+  viewportRef,
+  containerRef,
+  cursorBlocked,
+  handleMapClick,
+  handlePointerMove,
+  handlePointerLeave,
+  handleObstaclesFromChild,
+  members,
+  localPlayerId,
+  localPosition,
+  avatarSize,
+  clickMarker
+})=> {
   //  Multiple players instead of one position
-  const [players, setPlayers] = useState([
-    { id: "me", name: "You", x: 60, y: 60, image: playerImg }, 
-  ]);
+    const [members, setMembers] = useState([]);
 
   // Local player ID (the one that moves)
   const localPlayerId = "me";
@@ -108,7 +118,36 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
       );
     });
   };
+useEffect(() => {
+  socket.emit("presence:join", { workspaceId });
 
+  socket.on("presence:snapshot", (list) => {
+    setMembers(list);
+  });
+
+  socket.on("presence:join", (member) => {
+    setMembers(prev => [...prev, member]);
+  });
+
+  socket.on("presence:leave", ({ userId }) => {
+    setMembers(prev => prev.filter(m => m.userId !== userId));
+  });
+
+  socket.on("location:update", (update) => {
+    setMembers(prev =>
+      prev.map(m =>
+        m.userId === update.userId ? { ...m, ...update } : m
+      )
+    );
+  });
+
+  return () => {
+    socket.off("presence:snapshot");
+    socket.off("presence:join");
+    socket.off("presence:leave");
+    socket.off("location:update");
+  };
+}, [workspaceId]);
   // Find the nearest non-colliding point around (x,y) in percent units
   // Returns {x, y} or null if none found within search radius
   const findNearestFreePoint = (x, y) => {
@@ -242,170 +281,26 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   }, []);
 
   //  Core movement + camera follow logic
-  useEffect(() => {
-    let lastTime = performance.now();
+  usePlayerMovement({
+  players,
+  localPlayerId,
+  positionRef,
+  velocityRef,
+  setPosition,
+  moveToTargetRef,
+  setClickMarker,
+  keysPressed,
+  containerRef,
+  viewportRef,
+  cameraPosRef,
+  cameraTargetRef,
+  followCameraRef,
+  maxSpeed,
+  accel,
+  friction,
+  isColliding
+});
 
-    const step = () => {
-      const now = performance.now();
-      const dt = Math.min(32, now - lastTime);
-      lastTime = now;
-
-  const localPlayer = players.find((p) => p.id === localPlayerId);
-  if (!localPlayer) return;
-
-  // Use authoritative physics position, not players[] snapshot
-  let { x, y } = positionRef.current;
-      let { vx, vy } = velocityRef.current;
-      let arrivedNow = false;
-
-      // If the user clicked to move, steer toward the target
-      const target = moveToTargetRef.current;
-      if (target) {
-        const dx = target.x - x;
-        const dy = target.y - y;
-        const dist = Math.hypot(dx, dy);
-  const STOP_THRESHOLD = 0.2; // percent units for tighter snapping
-        if (dist < STOP_THRESHOLD) {
-          // close enough -> snap and stop
-          x = target.x;
-          y = target.y;
-          vx = 0;
-          vy = 0;
-          positionRef.current = { x, y };
-          velocityRef.current = { vx, vy };
-          setPosition({ x, y });
-          moveToTargetRef.current = null;
-          // hide marker once we arrive
-          setClickMarker(null);
-          arrivedNow = true;
-        } else {
-          // Better 'arrive' steering to prevent circling around the point
-          const dirX = dx / (dist || 1);
-          const dirY = dy / (dist || 1);
-          const SLOW_RADIUS = 6; // percent range to start slowing down
-          const MAX_ACCEL = 0.35; // max steering accel per frame
-          // Taper desired speed as we get close
-          const speedFactor = Math.min(1, dist / SLOW_RADIUS);
-          const desiredSpeed = maxSpeed * speedFactor;
-          const desiredVx = dirX * desiredSpeed;
-          const desiredVy = dirY * desiredSpeed;
-          // Steering force = desired vel - current vel (PD-like)
-          let steerX = desiredVx - vx;
-          let steerY = desiredVy - vy;
-          const steerMag = Math.hypot(steerX, steerY);
-          if (steerMag > MAX_ACCEL) {
-            steerX = (steerX / steerMag) * MAX_ACCEL;
-            steerY = (steerY / steerMag) * MAX_ACCEL;
-          }
-          vx += steerX;
-          vy += steerY;
-
-          // Kill lateral velocity near target to avoid orbiting
-          if (dist < 2.0) {
-            const dot = vx * dirX + vy * dirY; // component toward target
-            const vParallelX = dot * dirX;
-            const vParallelY = dot * dirY;
-            const vPerpX = vx - vParallelX;
-            const vPerpY = vy - vParallelY;
-            const lateralDamp = 0.5; // remove 50% of lateral per frame when very close
-            vx = vParallelX + vPerpX * (1 - lateralDamp);
-            vy = vParallelY + vPerpY * (1 - lateralDamp);
-          }
-        }
-      }
-
-      if (!arrivedNow) {
-        // Keyboard input forces (only if we didn't arrive this frame)
-        if (keysPressed.current.ArrowUp) vy -= accel;
-        if (keysPressed.current.ArrowDown) vy += accel;
-        if (keysPressed.current.ArrowLeft) vx -= accel;
-        if (keysPressed.current.ArrowRight) vx += accel;
-
-        // Clamp and friction
-        vx = Math.max(Math.min(vx, maxSpeed), -maxSpeed);
-        vy = Math.max(Math.min(vy, maxSpeed), -maxSpeed);
-        vx *= 1 - friction;
-        vy *= 1 - friction;
-
-        // Integrate and handle collisions (unless click-move is active)
-        let newX = Math.max(0, Math.min(x + vx, 100));
-        if (!moveToTargetRef.current && isColliding(newX, y)) {
-          newX = x; 
-          vx *= 0.3; 
-        }
-
-        let newY = Math.max(0, Math.min(y + vy, 100));
-        if (!moveToTargetRef.current && isColliding(newX, newY)) {
-          if (isColliding(newX, y)) {
-            newY = y;
-            vy *= 0.3;
-          } else if (isColliding(newX, newY)) {
-            newY = y;
-            vy *= 0.3;
-          }
-        }
-
-        positionRef.current = { x: newX, y: newY };
-        velocityRef.current = { vx, vy };
-        setPosition(positionRef.current);
-      }
-      const world = containerRef.current;
-      const viewport = viewportRef.current;
-       if (world && viewport) {
-        const ww = world.clientWidth;
-        const wh = world.clientHeight;
-        const vw = viewport.clientWidth;
-        const vh = viewport.clientHeight;
-
-        const ax = (positionRef.current.x / 100) * ww;
-        const ay = (positionRef.current.y / 100) * wh;
-
-        if (followCameraRef.current) {
-          // compute target with deadzone using current camera pos
-          const currentLeft = cameraPosRef.current.left;
-          const currentTop = cameraPosRef.current.top;
-
-          const horizontalThreshold = vw * DEADZONE_RATIO;
-          const verticalThreshold = vh * DEADZONE_RATIO;
-
-          let targetLeft = currentLeft;
-          let targetTop = currentTop;
-
-          if (ax < currentLeft + horizontalThreshold) {
-            targetLeft = Math.max(0, ax - horizontalThreshold);
-          } else if (ax > currentLeft + vw - horizontalThreshold) {
-            targetLeft = Math.min(ww - vw, ax - vw + horizontalThreshold);
-          }
-          if (ay < currentTop + verticalThreshold) {
-            targetTop = Math.max(0, ay - verticalThreshold);
-          } else if (ay > currentTop + vh - verticalThreshold) {
-            targetTop = Math.min(wh - vh, ay - vh + verticalThreshold);
-          }
-
-          cameraTargetRef.current = { left: targetLeft, top: targetTop };
-
-          // time-correct smoothing factor
-          const alpha = 1 - Math.pow(1 - CAMERA_SMOOTH, dt / 16.67);
-
-          // lerp camera pos toward target
-          const nextLeft = cameraPosRef.current.left + (cameraTargetRef.current.left - cameraPosRef.current.left) * alpha;
-          const nextTop = cameraPosRef.current.top + (cameraTargetRef.current.top - cameraPosRef.current.top) * alpha;
-          cameraPosRef.current = { left: nextLeft, top: nextTop };
-
-          viewport.scrollTo({ left: nextLeft, top: nextTop, behavior: "auto" });
-        } else {
-          // if user is manually panning, keep refs synced
-          cameraPosRef.current = { left: viewport.scrollLeft, top: viewport.scrollTop };
-          cameraTargetRef.current = cameraPosRef.current;
-        }
-      }
-
-      animationRef.current = requestAnimationFrame(step);
-    };
-
-    animationRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationRef.current);
-  }, [players]);
 
   useEffect(() => {
     const dummyPlayers = [
@@ -458,152 +353,20 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   };
 
   return (
-    <div
-      ref={viewportRef}
-      className="w-full h-screen overflow-auto bg-white"
-      style={{
-        touchAction: "pan-x pan-y",
-        WebkitOverflowScrolling: "touch",
-      }}
+    <MapContainer
+      viewportRef={viewportRef}
+      containerRef={containerRef}
+      cursorBlocked={cursorBlocked}
+      handleMapClick={handleMapClick}
+      handlePointerMove={handlePointerMove}
+      handlePointerLeave={handlePointerLeave}
     >
-      <div
-        ref={containerRef}
-      onClick={handleMapClick}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      className="relative w-full h-screen bg-white overflow-hidden shadow-md border border-gray-200"
-      style={{
-        width: 3260,
-        height: 2380,
-        cursor: cursorBlocked ? "not-allowed" : "pointer",
-      }}
-      >
-        {/* Map objects */}
-        <TableStructure
-          id="tableA"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 12.5, y: 21.5 }}
-          imageSize={450}
-        />
-        <BigTableStructure
-          id="bigtable"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 10.5, y: 76 }}
-          imageSize={550}
-        />
-        <CabinStructure
-          id="cabin"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 48.2, y: 33 }}
-        />
-        <ManagerCabin
-          id="manager"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={2620} y={212} width={323} height={240}
-        />
-        <TableStructure
-          id="tableB"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 85, y: 50 }}
-          imageSize={450}
-        />
-        <SupervisorCabin
-          id="supervisor"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={2639} y={1620} width={323} height={240} 
-        />
-        <Gaming
-          id="gaming"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={2639} y={1890} width={323} height={240} 
-      />
-        <PrivateRoom
-          id="privateRoom"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={920} y={1895} width={1040} height={240}
-        />
-        <WelcomeZone
-        x={920}  y={1550} width={1040} height={240}
-        />
-        <TeleportButton
-        x={2300} y={290} width={70}
-        />
-        <TeleportButton
-        x={2100} y={1650} width={70}
-        />
-        <TeleportButton
-        x={350} y={1090} width={70}
-        />
-
-        {/*  Render all avatars */}
-        {players.map((player) => {
-          const isLocal = player.id === localPlayerId;
-          const renderX = isLocal ? position.x : player.x;
-          const renderY = isLocal ? position.y : player.y;
-          return (
-            <Avatar
-              key={player.id}
-              image={player.image}
-              size={avatarSize}
-              name={player.name}
-              style={{
-                position: "absolute",
-                top: `${renderY}%`,
-                left: `${renderX}%`,
-                transform: "translate(-50%, -50%)",
-                willChange: "top, left, transform",
-              }}
-            />
-          );
-        })}
-
-        {/* Click marker should be positioned in the same world container */}
-        {clickMarker && (
-          <div
-            style={{
-              position: "absolute",
-              top: `${clickMarker.y}%`,
-              left: `${clickMarker.x}%`,
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-            }}
-          >
-            {(() => {
-              const valid = clickMarker.valid !== false;
-              const ringClass = valid
-                ? "bg-blue-400 opacity-50"
-                : "bg-red-500 opacity-60";
-              const coreClass = valid ? "bg-blue-600" : "bg-red-600";
-              return (
-                <>
-                  <span
-                    className={`absolute inline-flex h-8 w-8 rounded-full ${ringClass} animate-ping`}
-                  ></span>
-                  <span
-                    className={`relative inline-flex rounded-full h-3 w-3 ${coreClass} shadow`}
-                  ></span>
-                  {!valid && (
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-red-800">
-                      X
-                    </span>
-                  )}
-                </>
-              );
-            })()}
-          </div>
-        )}
-      </div>
-
-    </div>
+      <MapObjects containerRef={containerRef} handleObstaclesFromChild={handleObstaclesFromChild} />
+      <AvatarLayer members={members} localPlayerId={localPlayerId} localPosition={localPosition} avatarSize={avatarSize} />
+      <ClickMarker clickMarker={clickMarker} />
+    </MapContainer>
   );
+
 };
 
 export default Map;

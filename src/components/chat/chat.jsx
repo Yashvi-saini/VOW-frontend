@@ -10,7 +10,8 @@ import Header from "../chat/header.jsx";
 import InfoBar from "../chat/infobar.jsx";
 import TeamBuilder from "../chat/teambuilder.jsx";
 import { useVoiceCall } from "../voice/useVoiceCall.js";
-
+import { useSelector } from "react-redux";
+import MapView from "../map/Map.jsx"; // adjust path if needed
 const Chat = ({ username, roomId, remoteUserId }) => {
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
@@ -18,6 +19,8 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const socketRef = useRef(null);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
+  const profile = useSelector((state) => state.user.profile);
+  const [showMap, setShowMap] = useState(false);
   const handleEmojiSelect = useCallback(
     (selectedEmoji) => setMessageInput((prev) => prev + selectedEmoji),
     []
@@ -109,9 +112,9 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
       content: messageInput,
       attachments: [],
       sender: {
-        _id: user._id,
-        username: user.name,
-        avatar: user.avatar,
+        _id: profile?._id,
+        username: profile?.username,
+        avatar: profile?.avatar || "/default-avatar.png",
       },
       createdAt: new Date().toISOString(),
     };
@@ -142,11 +145,15 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
       <Sidebar
   onChannelSelect={setActiveRoomId}
   onCreateTeam={() => setShowTeamBuilder(true)}
+  onShowMap={() => setShowMap(true)}
 />
       <main ref={mainRef} className="flex-1 flex flex-col relative">
-        <Header title="Workspace Name" onCallClick={handleCallClick} />
-        {showTeamBuilder ? (
+  <Header title="Workspace Name" onCallClick={handleCallClick} />
+
+  {showTeamBuilder ? (
     <TeamBuilder />
+  ) : showMap ? (
+    <MapView />   
   ) : (
     <>
       <div className="relative flex-1 overflow-y-auto space-y-4">
@@ -163,8 +170,7 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
       />
     </>
   )}
-
-      </main>
+</main>
     </div>
   );
 };
