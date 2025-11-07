@@ -8,10 +8,16 @@ import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
 import MembersSection from "../chat/MembersSection.jsx";
 
-const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpaceClick, onChatClick }) => {
+const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpaceClick, onChatClick, onVideoConferenceClick }) => {
   const handleVirtualSpaceClick = () => {
     if (onVirtualSpaceClick) {
       onVirtualSpaceClick();
+    }
+  };
+
+  const handleVideoConferenceClick = () => {
+    if (onVideoConferenceClick) {
+      onVideoConferenceClick();
     }
   };
 
@@ -51,7 +57,10 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
             <span className="text-base">Create meeting</span>
           </button>
 
-          <button className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left">
+          <button
+            onClick={handleVideoConferenceClick}
+            className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
+          >
             <img src={videocam} alt="" className="w-5 h-5" />
             <span className="text-base">Video Conference</span>
           </button>

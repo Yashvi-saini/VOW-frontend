@@ -12,6 +12,7 @@ import InfoBar from "../chat/infobar.jsx";
 import TeamBuilder from "../chat/teambuilder.jsx";
 import Map from "../map/Map.jsx";
 import ManagerMeeting from "../dashboard/Meeting/ManagerMeeting.jsx";
+import VideoConference from "./VideoConference.jsx";
 import { useVoiceCall } from "../voice/useVoiceCall.js";
 
 const Chat = ({ username, roomId, remoteUserId }) => {
@@ -22,6 +23,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const [attachments, setAttachments] = useState([]);
   const [showMap, setShowMap] = useState(false);
   const [showMeeting, setShowMeeting] = useState(false);
+  const [showVideoConference, setShowVideoConference] = useState(false);
   const socketRef = useRef(null);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
@@ -36,16 +38,26 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
     setShowTeamBuilder(true);
     setShowMap(false);
     setShowMeeting(false);
+    setShowVideoConference(false);
   };
 
   const handleCreateMeetingClick = () => {
     setShowMeeting(true);
     setShowMap(false);
     setShowTeamBuilder(false);
+    setShowVideoConference(false);
   };
 
   const handleVirtualSpaceClick = () => {
     setShowMap(true);
+    setShowTeamBuilder(false);
+    setShowMeeting(false);
+    setShowVideoConference(false);
+  };
+
+  const handleVideoConferenceClick = () => {
+    setShowVideoConference(true);
+    setShowMap(false);
     setShowTeamBuilder(false);
     setShowMeeting(false);
   };
@@ -166,11 +178,21 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
         onCreateTeam={handleCreateTeamClick}
         onCreateMeeting={handleCreateMeetingClick}
         onVirtualSpaceClick={handleVirtualSpaceClick}
-        onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); }}
+        onVideoConferenceClick={handleVideoConferenceClick}
+        onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); setShowVideoConference(false); }}
       />
       <main ref={mainRef} className="flex-1 flex flex-col relative">
-        {/* Fixed Header - Always Shows Workspace Name */}
-        <Header title={workspaceName || "Workspace"} onCallClick={handleCallClick} />
+        {/* Dynamic Header */}
+        <Header 
+          title={
+            showVideoConference ? "Video Conference" :
+            showMap ? "Virtual Space" :
+            showMeeting ? "Meeting" :
+            showTeamBuilder ? "Team Builder" :
+            workspaceName || "Workspace"
+          } 
+          onCallClick={handleCallClick} 
+        />
         
         {/* Content Area - Changes Based on Sidebar Selection */}
         <div className="flex-1 relative overflow-hidden">
@@ -184,12 +206,17 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
               <ManagerMeeting />
             </div>
           )}
-          {showTeamBuilder && !showMap && !showMeeting && (
+          {showVideoConference && !showMap && !showMeeting && (
+            <div className="absolute inset-0">
+              <VideoConference />
+            </div>
+          )}
+          {showTeamBuilder && !showMap && !showMeeting && !showVideoConference && (
             <div className="absolute inset-0 overflow-y-auto px-4 py-2">
               <TeamBuilder />
             </div>
           )}
-          {!showMap && !showTeamBuilder && !showMeeting && (
+          {!showMap && !showTeamBuilder && !showMeeting && !showVideoConference && (
             <div className="flex flex-col h-full">
               <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide">
                 <InfoBar />
