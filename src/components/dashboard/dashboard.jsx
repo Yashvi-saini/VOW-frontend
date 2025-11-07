@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import TopBar from "./Topbar";
 import DashboardContainer from "./DashboardContainer";
-import CreateWorkspace from "./CreateWorkspace";
+import CreateWorkspace from "../dashboard/CreateWorkspace";
 import SearchSection from "./SearchSection";
 import NotificationSection from "./NotificationSection";
 import MeetingSection from "./MeetingSection";

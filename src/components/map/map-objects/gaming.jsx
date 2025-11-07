@@ -2,7 +2,7 @@ import React,{useEffect} from "react";
 import joystickleft from "../map assets/joystickleft.svg";
 import table from "../map assets/table.svg";
 import ZoneButton from "../map-components/button.jsx"
-const Gaming = ({ x, y, width, height, title, id = "supervisor", onObstaclesReady, containerRef }) => {
+const Gaming = ({ x, y, width, height, title, id = "gaming", roomId, onObstaclesReady, containerRef }) => {
 
 
   useEffect(() => {
@@ -41,22 +41,23 @@ const Gaming = ({ x, y, width, height, title, id = "supervisor", onObstaclesRead
         width: `${width}px`,
         height: `${height}px`,
       }}
+      data-room-id={roomId || (id === "gaming" ? "room-gaming" : `room-${id}`)}
     >
       
       <div className="relative ">
         <img src={table} alt="base table"  />
-        <div className="absolute w-[48px] h-[48px] right-[115px] top-[15px] bottom-[14px]">
+  <div className="absolute w-12 h-12 right-[115px] top-[15px] bottom-3.5">
           <img
             src={joystickleft}
             alt="Left Joystick"
             className="w-full h-full "
           />
         </div>
-        <div className="absolute w-[48px] h-[48px] left-[115px] top-[15px] bottom-[14px]">
+  <div className="absolute w-12 h-12 left-[115px] top-[15px] bottom-3.5">
           <img
             src={joystickleft}
             alt="Right Joystick"
-            className="w-full h-full rotate-[180deg]"
+            className="w-full h-full rotate-180"
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import userReducer from "./userslice";
-import workspaceReducer from "../components/userslice"; // consider renaming to avoid confusion
+import presenceReducer from "./map/presenceSlice";
 
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage
@@ -9,7 +9,7 @@ import { persistStore } from "redux-persist";
 // Combine your reducers
 const rootReducer = combineReducers({
   user: userReducer,
-  workspace: workspaceReducer,
+  presence: presenceReducer,
 });
 
 // Configure persistence

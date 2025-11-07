@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import DeskUnit from "../map assets/DeskUnit";
+import DeskUnit from "../map assets/DeskUnit.jsx";
 import ZoneButton from "../map-components/button.jsx"
 const DEFAULT_CABIN_POSITION = Object.freeze({ x: 50, y: 50 });
 

@@ -5,14 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
 
+import CreateWorkspace from "./CreateWorkspace.jsx";  
+
 const RejoinAndFetch = () => {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const clickCounts = useRef({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
+const [modalOpen, setModalOpen] = useState(false);
+  
     const fetchWorkspaces = async () => {
       setLoading(true);
       try {
@@ -30,8 +32,9 @@ const RejoinAndFetch = () => {
       }
     };
 
-    fetchWorkspaces();
-  }, []);
+  useEffect(() => {
+  fetchWorkspaces();
+}, []);
 
   const handleTripleClick = (workspaceId) => {
     const count = (clickCounts.current[workspaceId] || 0) + 1;
@@ -61,7 +64,7 @@ const RejoinAndFetch = () => {
     try {
       console.log("Rejoin requested for:", workspaceId);
       const response = await rejoinWorkspace(workspaceId);
-      // Server refreshes HttpOnly cookie; no need to read token in JS
+
       console.log("Dispatching workspace context:", { workspaceId });
       dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null }));
       if (response.data?.success) {
@@ -84,10 +87,12 @@ const RejoinAndFetch = () => {
   }
 
   if (workspaces.length === 0) {
-    return <CreateAndJoin />;
+    return <CreateAndJoin onCreate={() => setModalOpen(true)} />;
   }
 
   return (
+  <>
+    {/* Workspaces Grid */}
     <div className="grid grid-cols-3 overflow-x-scroll py-4 px-2">
       <div className="flex gap-4">
         {workspaces.map((ws) => (
@@ -96,10 +101,14 @@ const RejoinAndFetch = () => {
             onClick={() => handleTripleClick(ws._id)}
             className="min-w-[250px] bg-white border border-[#BCBCBC] rounded-lg p-4 shadow-md flex flex-col justify-between cursor-pointer"
           >
-            <h3 className="text-lg font-semibold text-[#0E1219] mb-2">{ws.workspaceName}</h3>
+            <h3 className="text-lg font-semibold text-[#0E1219] mb-2">
+              {ws.workspaceName}
+            </h3>
+
             <p className="text-sm text-[#6B7280] mb-4">
               Last active: {ws.lastActive || "Unknown"}
             </p>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -113,7 +122,24 @@ const RejoinAndFetch = () => {
         ))}
       </div>
     </div>
-  );
+
+    {/* Modal when creating a workspace */}
+    {modalOpen && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setModalOpen(false)}>
+        <div className="bg-white rounded-xl p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <button
+            className="absolute top-3 right-4 text-gray-500 hover:text-gray-700"
+            onClick={() => setModalOpen(false)}
+          >
+            ✕
+          </button>
+          <CreateWorkspace onCreated={() => { setModalOpen(false); fetchWorkspaces(); }} />
+        </div>
+      </div>
+    )}
+  </>
+);
+
 };
 
 export default RejoinAndFetch;

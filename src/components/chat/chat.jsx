@@ -110,7 +110,8 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
     const message = {
       channelId: activeRoomId,
       content: messageInput,
-      attachments: [],
+      attachments: [
+      ],
       sender: {
         _id: profile?._id,
         username: profile?.username,

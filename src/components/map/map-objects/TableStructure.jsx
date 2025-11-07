@@ -89,6 +89,7 @@ const TableStructure = ({
   return (
     <div
       ref={tableRef}
+      data-room-id={id === "tableA" ? "room-tableA" : id === "tableB" ? "room-tableB" : `room-${id}`}
       className="absolute  border-2 border-dashed border-[#385D99] rounded-lg"
       style={{
         width: "400px",

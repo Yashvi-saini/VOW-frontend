@@ -1,4 +1,5 @@
 import React from "react";
+import { createLayout } from "../../api/layoutApi";
 import person from "../../assets/account_circle.svg";
 import attherate from "../../assets/At sign.svg";
 import group from "../../assets/groups.svg";
@@ -24,7 +25,41 @@ const Sidebar = ({ onChannelSelect, onCreateTeam ,onShowMap}) => {
         </div>
         <div className="text-white flex gap-2">
           <img src={space} alt="" />
-          <span className="cursor-pointer" onClick={onShowMap}>
+          <span
+            className="cursor-pointer"
+            onClick={async () => {
+              try {
+                // Notify parent to show map
+                onShowMap?.();
+                // Collect roomIds from DOM (data-room-id attributes injected by map objects)
+                const roomNodes = document.querySelectorAll('[data-room-id]');
+                const rooms = Array.from(roomNodes)
+                  .map(n => n.getAttribute('data-room-id'))
+                  .filter(Boolean);
+                // Prepare payload (backend expects valid JSON + likely absolute layoutUrl)
+                const payload = {
+                  name: "Office Layout - Ground Floor",
+                  // Use an absolute URL to avoid server rejecting relative paths
+                  layoutUrl: "https://w7.pngwing.com/pngs/279/877/png-transparent-hyperlink-computer-icons-link-text-logo-number-thumbnail.png",
+                  rooms,
+                  metadata: { floor: 1, department: "Engineering" },
+                };
+                const res = await createLayout(payload);
+                console.log("Layout created", res.data);
+                // Optional UX: simple success message
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: 'Layout created' } }));
+                }
+              } catch (e) {
+                // Surface details
+                const msg = e?.response?.data || e?.message || e;
+                console.error("Failed to create layout", msg);
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Failed to create layout' } }));
+                }
+              }
+            }}
+          >
             Virtual Space
           </span>
         </div>
