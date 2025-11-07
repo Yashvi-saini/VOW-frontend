@@ -8,7 +8,7 @@ import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
 import MembersSection from "../chat/MembersSection.jsx";
 
-const Sidebar = ({ onChannelSelect, onCreateTeam, onVirtualSpaceClick, onChatClick }) => {
+const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpaceClick, onChatClick }) => {
   const handleVirtualSpaceClick = () => {
     if (onVirtualSpaceClick) {
       onVirtualSpaceClick();
@@ -16,7 +16,7 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onVirtualSpaceClick, onChatCli
   };
 
   return (
-  <aside className="w-[320px] h-[900px] bg-[#200539] border-r border-[#3D1B5F] overflow-y-scroll">
+  <aside className="w-[320px] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
       {/* Header */}
   <div className="px-6 py-4 border-b border-[#3D1B5F]">
         <div className="flex items-center gap-2">
@@ -44,7 +44,7 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onVirtualSpaceClick, onChatCli
           </button>
 
           <button
-            onClick={onCreateTeam}
+            onClick={onCreateMeeting}
             className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
           >
             <img src={dashevents} alt="" className="w-5 h-5" />

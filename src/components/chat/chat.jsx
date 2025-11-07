@@ -11,6 +11,7 @@ import Header from "../chat/header.jsx";
 import InfoBar from "../chat/infobar.jsx";
 import TeamBuilder from "../chat/teambuilder.jsx";
 import Map from "../map/Map.jsx";
+import ManagerMeeting from "../dashboard/Meeting/ManagerMeeting.jsx";
 import { useVoiceCall } from "../voice/useVoiceCall.js";
 
 const Chat = ({ username, roomId, remoteUserId }) => {
@@ -18,7 +19,9 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const [attachments, setAttachments] = useState([]);
   const [showMap, setShowMap] = useState(false);
+  const [showMeeting, setShowMeeting] = useState(false);
   const socketRef = useRef(null);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
@@ -32,11 +35,19 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
   const handleCreateTeamClick = () => {
     setShowTeamBuilder(true);
     setShowMap(false);
+    setShowMeeting(false);
+  };
+
+  const handleCreateMeetingClick = () => {
+    setShowMeeting(true);
+    setShowMap(false);
+    setShowTeamBuilder(false);
   };
 
   const handleVirtualSpaceClick = () => {
     setShowMap(true);
     setShowTeamBuilder(false);
+    setShowMeeting(false);
   };
 
   useEffect(() => {
@@ -112,12 +123,12 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
   }, [activeRoomId]);
 
   const sendMessage = async () => {
-    if (messageInput.trim() === "") return;
+    if (messageInput.trim() === "" && attachments.length === 0) return;
 
     const message = {
       channelId: activeRoomId,
       content: messageInput,
-      attachments: [],
+      attachments: attachments,
       sender: {
         _id: user._id,
         username: user.name,
@@ -145,6 +156,7 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
     }
 
     setMessageInput("");
+    setAttachments([]);
   };
 
   return (
@@ -152,26 +164,32 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
       <Sidebar
         onChannelSelect={setActiveRoomId}
         onCreateTeam={handleCreateTeamClick}
+        onCreateMeeting={handleCreateMeetingClick}
         onVirtualSpaceClick={handleVirtualSpaceClick}
-        onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); }}
+        onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); }}
       />
       <main ref={mainRef} className="flex-1 flex flex-col relative">
         {/* Fixed Header - Always Shows Workspace Name */}
         <Header title={workspaceName || "Workspace"} onCallClick={handleCallClick} />
         
         {/* Content Area - Changes Based on Sidebar Selection */}
-        <div className="flex-1 relative overflow-y-aito">
+        <div className="flex-1 relative overflow-hidden">
           {showMap && (
             <div className="absolute inset-0 overflow-auto scrollbar-hide">
               <Map />
             </div>
           )}
-          {showTeamBuilder && !showMap && (
+          {showMeeting && !showMap && (
+            <div className="absolute inset-0 overflow-y-auto px-8 py-6 bg-[#F3F3F6]">
+              <ManagerMeeting />
+            </div>
+          )}
+          {showTeamBuilder && !showMap && !showMeeting && (
             <div className="absolute inset-0 overflow-y-auto px-4 py-2">
               <TeamBuilder />
             </div>
           )}
-          {!showMap && !showTeamBuilder && (
+          {!showMap && !showTeamBuilder && !showMeeting && (
             <div className="flex flex-col h-full">
               <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide">
                 <InfoBar />
@@ -184,6 +202,8 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
                 mainRef={mainRef}
                 textareaRef={textareaRef}
                 handleEmojiSelect={handleEmojiSelect}
+                attachments={attachments}
+                setAttachments={setAttachments}
               />
             </div>
           )}

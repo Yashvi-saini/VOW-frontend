@@ -90,6 +90,50 @@ const MessageList = ({ messages, username }) => {
             </p>
           </div>
         )}
+        {Array.isArray(msg.attachments) && msg.attachments.length > 0 && (
+          <div className="mt-2 flex flex-col gap-2">
+            {msg.attachments.map((att) => {
+              const isImage = att.mimeType && att.mimeType.startsWith("image/");
+              return (
+                <div
+                  key={att.fileId || att.url}
+                  className="group border border-[#BFA2E1] rounded-md p-2 bg-[#EFE7F6] max-w-xs"
+                >
+                  {isImage && att.url ? (
+                    <img
+                      src={att.url}
+                      alt={att.name}
+                      className="rounded max-h-48 object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="w-8 h-8 flex items-center justify-center text-xs bg-[#5C0EA4] text-white rounded">
+                        {att.name?.split('.').pop()?.slice(0,4)?.toUpperCase() || 'FILE'}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-medium truncate" title={att.name}>{att.name}</p>
+                        {att.size && (
+                          <p className="text-[10px] text-[#707070]">{(att.size/1024).toFixed(1)} KB</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {att.url && (
+                    <a
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-[11px] text-[#5C0EA4] underline hover:opacity-80"
+                    >
+                      Open
+                    </a>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </MessageReactions>
     </div>
   </div>
