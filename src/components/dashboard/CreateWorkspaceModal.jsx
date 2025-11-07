@@ -39,7 +39,11 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
       localStorage.setItem("workspaceId", wsId);
       localStorage.setItem("inviteCode", wsInviteCode);
       
-      dispatch(setWorkspaceContext({ workspaceId: wsId, workspaceToken: null }));
+      dispatch(setWorkspaceContext({ 
+        workspaceId: wsId, 
+        workspaceToken: null,
+        workspaceName: workspaceName 
+      }));
       
       // Move to step 2
       setStep(2);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
+import { useSelector } from "react-redux";
 import user from "../../assets/icon.svg";
 import MessageList from "../chat/message.jsx";
 import Sidebar from "../chat/sidebar.jsx";
@@ -9,12 +10,15 @@ import InputBox from "../chat/input.jsx";
 import Header from "../chat/header.jsx";
 import InfoBar from "../chat/infobar.jsx";
 import TeamBuilder from "../chat/teambuilder.jsx";
+import Map from "../map/Map.jsx";
 import { useVoiceCall } from "../voice/useVoiceCall.js";
 
 const Chat = ({ username, roomId, remoteUserId }) => {
+  const workspaceName = useSelector((state) => state.user.workspaceName);
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const [showMap, setShowMap] = useState(false);
   const socketRef = useRef(null);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
@@ -27,6 +31,12 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
 
   const handleCreateTeamClick = () => {
     setShowTeamBuilder(true);
+    setShowMap(false);
+  };
+
+  const handleVirtualSpaceClick = () => {
+    setShowMap(true);
+    setShowTeamBuilder(false);
   };
 
   useEffect(() => {
@@ -140,30 +150,48 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
   return (
     <div className="flex h-screen bg-[#F3F3F6] text-[#0E1219]">
       <Sidebar
-  onChannelSelect={setActiveRoomId}
-  onCreateTeam={() => setShowTeamBuilder(true)}
-/>
-      <main ref={mainRef} className="flex-1 flex flex-col relative">
-        <Header title="Workspace Name" onCallClick={handleCallClick} />
-        {showTeamBuilder ? (
-    <TeamBuilder />
-  ) : (
-    <>
-      <div className="relative flex-1 overflow-y-auto space-y-4">
-        <InfoBar />
-        <MessageList messages={messages} username={username} />
-      </div>
-      <InputBox
-        messageInput={messageInput}
-        setMessageInput={setMessageInput}
-        sendMessage={sendMessage}
-        mainRef={mainRef}
-        textareaRef={textareaRef}
-        handleEmojiSelect={handleEmojiSelect}
+        onChannelSelect={setActiveRoomId}
+        onCreateTeam={handleCreateTeamClick}
+        onVirtualSpaceClick={handleVirtualSpaceClick}
+        onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); }}
       />
-    </>
-  )}
-
+      <main ref={mainRef} className="flex-1 flex flex-col relative">
+        {/* Fixed Header - Always Shows Workspace Name */}
+        <Header title={workspaceName || "Workspace"} onCallClick={handleCallClick} />
+        
+        {/* Content Area - Changes Based on Sidebar Selection */}
+        <div className="flex-1 relative overflow-y-aito">
+          {showMap && (
+            <div className="absolute inset-0 overflow-auto scrollbar-hide">
+              <Map />
+            </div>
+          )}
+          {showTeamBuilder && !showMap && (
+            <div className="absolute inset-0 overflow-y-auto px-4 py-2">
+              <TeamBuilder />
+            </div>
+          )}
+          {!showMap && !showTeamBuilder && (
+            <div className="flex flex-col h-full">
+              <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide">
+                <InfoBar />
+                <MessageList messages={messages} username={username} />
+              </div>
+              <InputBox
+                messageInput={messageInput}
+                setMessageInput={setMessageInput}
+                sendMessage={sendMessage}
+                mainRef={mainRef}
+                textareaRef={textareaRef}
+                handleEmojiSelect={handleEmojiSelect}
+              />
+            </div>
+          )}
+          <style>{`
+            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+          `}</style>
+        </div>
       </main>
     </div>
   );

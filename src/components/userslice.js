@@ -7,6 +7,7 @@ const initialState = {
   fullName: null,
   workspaceId: null,
   workspaceToken: null,
+  workspaceName: null,
   // profile gating
   isProfileNeeded: false,
   signupDone: false,
@@ -31,13 +32,15 @@ const userSlice = createSlice({
       state.avatar = action.payload;
     },
     setWorkspaceContext: (state, action) => {
-      const { workspaceId, workspaceToken } = action.payload || {};
+      const { workspaceId, workspaceToken, workspaceName } = action.payload || {};
       state.workspaceId = workspaceId || null;
       state.workspaceToken = workspaceToken || null;
+      state.workspaceName = workspaceName || null;
     },
     clearWorkspaceContext: (state) => {
       state.workspaceId = null;
       state.workspaceToken = null;
+      state.workspaceName = null;
     },
     clearUser: (state) => {
       state.username = null;

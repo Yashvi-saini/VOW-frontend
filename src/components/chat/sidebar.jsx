@@ -1,63 +1,82 @@
 import React from "react";
-import person from "../../assets/account_circle.svg";
-import attherate from "../../assets/At sign.svg";
-import group from "../../assets/groups.svg";
-import space from "../../assets/space.svg";
-import today from "../../assets/today.svg";
+import person from "../../assets/person.svg";
+import dashevents from "../../assets/dashevents.svg";
+import videocam from "../../assets/videocam.svg";
+import chat from "../../assets/chat.svg";
+import logo from "../../assets/logo.png";
+import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
-import { useNavigate } from "react-router-dom";
+import MembersSection from "../chat/MembersSection.jsx";
 
-
-const Sidebar = ({ onChannelSelect, onCreateTeam }) => {
-  const navigate = useNavigate(); 
-  sessionStorage.setItem("allowMap", "true");
+const Sidebar = ({ onChannelSelect, onCreateTeam, onVirtualSpaceClick, onChatClick }) => {
   const handleVirtualSpaceClick = () => {
-    // set session flag so FlowProtectedRoute allows access
-   
-    navigate("/map");
-    
+    if (onVirtualSpaceClick) {
+      onVirtualSpaceClick();
+    }
   };
+
   return (
-    <aside className="w-64 bg-[#200539] border-r border-[#BCBCBC] p-4 pr-5 overflow-y-scroll">
-      <h2 className="text-xl font-bold text-white mb-6">VOW</h2>
+  <aside className="w-[320px] h-[900px] bg-[#200539] border-r border-[#3D1B5F] overflow-y-scroll">
+      {/* Header */}
+  <div className="px-6 py-4 border-b border-[#3D1B5F]">
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="VOW Logo" className="w-8 h-8" />
+          <h2 className="text-xl font-bold text-white tracking-wide">VOW</h2>
+        </div>
+      </div>
 
-      {/* Main Nav */}
-      <nav className="space-y-4 text-xl font-normal">
-        <div className="text-white flex gap-1">
-          <img src={person} alt="" />
-          Dashboard
-        </div>
-        <div className="text-white flex gap-2">
-          <img src={space} alt="" />
-          <span className="cursor-pointer" onClick={handleVirtualSpaceClick}>
-            Virtual Space
-          </span>
-        </div>
-        <div className="text-white flex gap-1">
-          <img src={attherate} alt="" />
-          Mentions
-        </div>
-        <div className="text-white flex gap-1">
-          <img src={today} alt="" />
-          Events
-        </div>
-        <div className="text-white flex gap-1">
-          <img src={group} alt="" />
-          Teams
-        </div>
-         <div
-          className="text-white flex gap-1 cursor-pointer"
-          onClick={onCreateTeam}
-        >
-          <img src={group} alt="" />
-          Create Team
-        </div>
+      {/* Scrollable Content - hidden scrollbar */}
+  <div className="flex-1 overflow-y-auto px-6 py-3 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <style>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
 
-      </nav>
+        {/* Main Nav */}
+        <nav className="space-y-2 mb-5">
+          <button
+            onClick={handleVirtualSpaceClick}
+            className="w-full flex items-center gap-3 px-3 h-11 text-white rounded-lg text-left bg-[#5C0EA4]"
+          >
+            <img src={person} alt="" className="w-5 h-5" />
+            <span className="text-base">Virtual Space</span>
+          </button>
 
-      {/* Team Sections */}
-  <TeamSection title="Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
-  <TeamSection title="Another Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
+          <button
+            onClick={onCreateTeam}
+            className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
+          >
+            <img src={dashevents} alt="" className="w-5 h-5" />
+            <span className="text-base">Create meeting</span>
+          </button>
+
+          <button className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left">
+            <img src={videocam} alt="" className="w-5 h-5" />
+            <span className="text-base">Video Conference</span>
+          </button>
+
+          <button
+            onClick={onChatClick}
+            className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
+          >
+            <img src={chat} alt="" className="w-5 h-5" />
+            <span className="text-base">Chat Room</span>
+          </button>
+        </nav>
+
+        {/* Team Sections */}
+  <TeamSection title="Team" onChannelSelect={onChannelSelect} />
+  <MembersSection />
+      </div>
+
+      {/* Settings at bottom */}
+      <div className="px-6 py-4 border-t border-[#3D1B5F] mt-auto">
+        <button className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left">
+          <img src={settingsIcon} alt="settings" className="w-5 h-5" />
+          <span className="text-base">Settings</span>
+        </button>
+      </div>
     </aside>
   );
 };

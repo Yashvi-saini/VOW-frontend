@@ -27,7 +27,11 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
 
       localStorage.setItem("workspaceId", _id);
       localStorage.setItem("inviteCode", code);
-      dispatch(setWorkspaceContext({ workspaceId: _id, workspaceToken: null }));
+      dispatch(setWorkspaceContext({ 
+        workspaceId: _id, 
+        workspaceToken: null,
+        workspaceName: workspaceName 
+      }));
 
       alert(`Joined workspace: ${workspaceName}`);
       onClose();
