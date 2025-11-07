@@ -11,6 +11,11 @@ const TableStructure = ({
   imageSize,      // optional square size (px)
   imageWidth,     // optional width (px)
   imageHeight,    // optional height (px)
+  // Collision overrides (independent box even if image scales)
+  collisionWidthPx,
+  collisionHeightPx,
+  collisionWidthPercent,
+  collisionHeightPercent,
 }) => {
   const tableRef = useRef(null);
   const smallRoomRef = useRef(null);
@@ -54,18 +59,32 @@ const TableStructure = ({
             const scaleY = containerRect.height / containerHeight;
             const centerXpx = (roomRect.left - containerRect.left + roomRect.width / 2) / (scaleX || 1);
             const centerYpx = (roomRect.top - containerRect.top + roomRect.height / 2) / (scaleY || 1);
-            const widthPx = roomRect.width / (scaleX || 1);
-            const heightPx = roomRect.height / (scaleY || 1);
+            const measuredWidthPx = roomRect.width / (scaleX || 1);
+            const measuredHeightPx = roomRect.height / (scaleY || 1);
             const xPercent = (centerXpx / containerWidth) * 100;
             const yPercent = (centerYpx / containerHeight) * 100;
-            const widthPercent = (widthPx / containerWidth) * 100;
-            const heightPercent = (heightPx / containerHeight) * 100;
+
+            // Allow overrides to replace measured dimensions
+            const widthPercent =
+              typeof collisionWidthPercent === 'number'
+                ? collisionWidthPercent
+                : typeof collisionWidthPx === 'number'
+                ? (collisionWidthPx / containerWidth) * 100
+                : (measuredWidthPx / containerWidth) * 100;
+
+            const heightPercent =
+              typeof collisionHeightPercent === 'number'
+                ? collisionHeightPercent
+                : typeof collisionHeightPx === 'number'
+                ? (collisionHeightPx / containerHeight) * 100
+                : (measuredHeightPx / containerHeight) * 100;
+
             obstacles.push({
               id: `${id}-small-room`,
               x: xPercent,
               y: yPercent,
-              width: widthPercent-3,
-              height: heightPercent-2,
+              width: widthPercent - 3,
+              height: heightPercent - 2,
             });
           }
         }
@@ -84,7 +103,7 @@ const TableStructure = ({
 
     setup();
     return () => ro?.disconnect();
-  }, [id, containerRef, tablePosition.x, tablePosition.y, imageSize, imageWidth, imageHeight]);
+  }, [id, containerRef, tablePosition.x, tablePosition.y, imageSize, imageWidth, imageHeight, collisionWidthPx, collisionHeightPx, collisionWidthPercent, collisionHeightPercent]);
 
   return (
     <div

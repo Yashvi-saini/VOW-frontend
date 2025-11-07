@@ -13,7 +13,13 @@ const COLS = 4;
 const ROW_GAP = 135;
 const COL_GAP = 165;
 
-const CabinStructure = ({ id = "cabin", onObstaclesReady, position, containerRef }) => {
+const CabinStructure = ({
+  id = "cabin",
+  roomId,
+  onObstaclesReady,
+  position,
+  containerRef,
+}) => {
   const cabinRef = useRef(null);
   const cabinPosition = position ?? DEFAULT_CABIN_POSITION;
 
@@ -93,6 +99,7 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
   return (
     <div
       ref={cabinRef}
+      data-room-id={roomId || (id === 'cabin' ? 'room-cabin' : `room-${id}`)}
       className="absolute"
       style={{
         width: `${CABIN_W}px`,

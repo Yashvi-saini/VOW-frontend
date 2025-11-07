@@ -10,6 +10,8 @@ const MapContainer = ({ children, viewportRef, containerRef, cursorBlocked, hand
     }}
   >
     <div
+      id="corridor"
+      data-room-id="room-corridor"
       ref={containerRef}
       onClick={handleMapClick}
       onPointerMove={handlePointerMove}

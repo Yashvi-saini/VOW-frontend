@@ -251,6 +251,24 @@ const Map = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Expose a safe room collector after map mounts, so callers can query reliably after showing the map
+  useEffect(() => {
+    const collector = (includeCorridor = true) => {
+      const selector = includeCorridor
+        ? '[data-room-id]'
+        : '[data-room-id]:not(#corridor)';
+      return Array.from(document.querySelectorAll(selector))
+        .map(n => n.getAttribute('data-room-id'))
+        .filter(Boolean);
+    };
+    try {
+      window.getMapRooms = collector;
+    } catch (_) {}
+    return () => {
+      try { delete window.getMapRooms; } catch (_) {}
+    };
+  }, []);
+
   return (
     <MapContainer
       viewportRef={viewportRef}

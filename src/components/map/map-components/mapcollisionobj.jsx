@@ -13,7 +13,7 @@ import TableStructure from "../map-objects/TableStructure";
 // Teleport buttons intentionally excluded from room list collection.
 const MapObjects = ({ containerRef, handleObstaclesFromChild }) => (
   <>
-    <TableStructure roomId="room-tableA" id="tableA" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 12.5, y: 21.5 }} imageSize={450} />
+    <TableStructure roomId="room-tableA" id="tableA" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 12.5, y: 21.5 }} imageSize={450}   collisionWidthPx={300} collisionHeightPx={200} />
     <BigTableStructure roomId="room-bigtable" id="bigtable" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 10.5, y: 76 }} imageSize={550} collisionWidthPx={160} collisionHeightPx={430} />
     <CabinStructure roomId="room-cabin" id="cabin" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 48.2, y: 33 }} />
     <ManagerCabin roomId="room-manager" id="manager" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} x={2620} y={212} width={323} height={240} />

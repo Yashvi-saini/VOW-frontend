@@ -10,7 +10,21 @@ import ZoneButton from "../map-components/button.jsx"
  * - onObstaclesReady: (id, obstacles[]) callback from Map.jsx
  * - containerRef: ref to the world container element
  */
-const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesReady, containerRef }) => {
+const ManagerCabin = ({
+  x,
+  y,
+  width,
+  height,
+  title,
+  id = "manager",
+  onObstaclesReady,
+  containerRef,
+  // Optional collision overrides (independent of visual size)
+  collisionWidthPx,
+  collisionHeightPx,
+  collisionWidthPercent,
+  collisionHeightPercent,
+}) => {
   useEffect(() => {
     let ro;
     const send = () => {
@@ -22,12 +36,27 @@ const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesR
       // Convert top-left px rect to percent-based center rect
       const centerX = x + width / 2;
       const centerY = y + height / 2;
+      // Determine collision width/height independently of image/visual rect if overrides provided
+      const widthPercent =
+        typeof collisionWidthPercent === "number"
+          ? collisionWidthPercent
+          : typeof collisionWidthPx === "number"
+          ? (collisionWidthPx / cw) * 100
+          : (width / cw) * 100;
+
+      const heightPercent =
+        typeof collisionHeightPercent === "number"
+          ? collisionHeightPercent
+          : typeof collisionHeightPx === "number"
+          ? (collisionHeightPx / ch) * 100
+          : (height / ch) * 100;
+
       const obs = [{
         id: `${id}-rect`,
         x: (centerX / cw) * 100,
         y: (centerY / ch) * 100,
-        width: (width / cw) * 100,
-        height: (height / ch) * 100,
+        width: widthPercent,
+        height: heightPercent,
       }];
       onObstaclesReady?.(id, obs);
     };
@@ -38,7 +67,7 @@ const ManagerCabin = ({ x, y, width, height, title, id = "manager", onObstaclesR
       ro.observe(container);
     }
     return () => ro?.disconnect();
-  }, [x, y, width, height, id, onObstaclesReady, containerRef]);
+  }, [x, y, width, height, id, onObstaclesReady, containerRef, collisionWidthPx, collisionHeightPx, collisionWidthPercent, collisionHeightPercent]);
 
   return (
     <div

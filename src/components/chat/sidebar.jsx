@@ -31,11 +31,18 @@ const Sidebar = ({ onChannelSelect, onCreateTeam ,onShowMap}) => {
               try {
                 // Notify parent to show map
                 onShowMap?.();
-                // Collect roomIds from DOM (data-room-id attributes injected by map objects)
-                const roomNodes = document.querySelectorAll('[data-room-id]');
-                const rooms = Array.from(roomNodes)
-                  .map(n => n.getAttribute('data-room-id'))
-                  .filter(Boolean);
+                // Wait a tick for the map to mount/update before collecting rooms
+                await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+                // Prefer the map-provided helper to avoid timing issues
+                let rooms = [];
+                if (typeof window !== 'undefined' && typeof window.getMapRooms === 'function') {
+                  rooms = window.getMapRooms(true); // include corridor
+                } else {
+                  const roomNodes = document.querySelectorAll('[data-room-id]');
+                  rooms = Array.from(roomNodes)
+                    .map(n => n.getAttribute('data-room-id'))
+                    .filter(Boolean);
+                }
                 // Prepare payload (backend expects valid JSON + likely absolute layoutUrl)
                 const payload = {
                   name: "Office Layout - Ground Floor",
