@@ -84,12 +84,12 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
             placeholder="Enter the unique id to join its workspace"
             className={`border rounded-lg px-4 py-3 w-full focus:outline-none text-[#585858] font-normal text-[16px] bg-[#EFE7F6] ${
               error
-                ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                : "border-[#BFA2E1] focus:border-[#5E9BFF] focus:ring-2 focus:ring-[#5E9BFF]/20"
+                ? "border-[#CC0404] focus:border-[#CC0404] focus:ring-2 focus:ring-[#CC0404]"
+                : "border-[#BFA2E1] focus:border-[#5E9BFF]  "
             }`}
           />
           {error && (
-            <p className="text-red-500 text-sm mt-2">{error}</p>
+            <p className="text-[#CC0404] text-[16px] mt-2">{error}</p>
           )}
         </div>
 

@@ -236,7 +236,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
             <div className="flex justify-center">
               <button
                 onClick={handleSendInvites}
-                className="px-8 py-3 rounded-lg bg-[#FFFFFF] text-[#450B7B] font-normal w-[220px] h-[44px]"
+                className="px-8 py-3 rounded-lg bg-[#FFFFFF] text-[20px] text-[#450B7B] font-normal w-[220px] h-[44px] border border-[#CCB4E3]"
               >
                 Back
               </button>
