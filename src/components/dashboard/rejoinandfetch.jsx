@@ -4,6 +4,7 @@ import CreateAndJoin from "./createandjoin";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
+import CreateWorkspaceModal from "./CreateWorkspaceModal.jsx";  
 
 const RejoinAndFetch = () => {
   const [workspaces, setWorkspaces] = useState([]);
@@ -11,8 +12,8 @@ const RejoinAndFetch = () => {
   const clickCounts = useRef({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
+const [modalOpen, setModalOpen] = useState(false);
+  
     const fetchWorkspaces = async () => {
       setLoading(true);
       try {
@@ -30,8 +31,9 @@ const RejoinAndFetch = () => {
       }
     };
 
-    fetchWorkspaces();
-  }, []);
+  useEffect(() => {
+  fetchWorkspaces();
+}, []);
 
   const handleTripleClick = (workspaceId) => {
     const count = (clickCounts.current[workspaceId] || 0) + 1;
@@ -84,10 +86,23 @@ const RejoinAndFetch = () => {
   }
 
   if (workspaces.length === 0) {
-    return <CreateAndJoin />;
+    return (
+      <>
+        <CreateAndJoin onCreate={() => setModalOpen(true)} />
+        {modalOpen && (
+          <CreateWorkspaceModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onInvitesSent={fetchWorkspaces}
+          />
+        )}
+      </>
+    );
   }
 
   return (
+  <>
+    {/* Workspaces Grid */}
     <div className="grid grid-cols-3 overflow-x-scroll py-4 px-2">
       <div className="flex gap-4">
         {workspaces.map((ws) => (
@@ -96,10 +111,14 @@ const RejoinAndFetch = () => {
             onClick={() => handleTripleClick(ws._id)}
             className="min-w-[250px] bg-white border border-[#BCBCBC] rounded-lg p-4 shadow-md flex flex-col justify-between cursor-pointer"
           >
-            <h3 className="text-lg font-semibold text-[#0E1219] mb-2">{ws.workspaceName}</h3>
+            <h3 className="text-lg font-semibold text-[#0E1219] mb-2">
+              {ws.workspaceName}
+            </h3>
+
             <p className="text-sm text-[#6B7280] mb-4">
               Last active: {ws.lastActive || "Unknown"}
             </p>
+
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -113,7 +132,18 @@ const RejoinAndFetch = () => {
         ))}
       </div>
     </div>
-  );
+
+    {/* ✅ Modal OUTSIDE the grid */}
+    {modalOpen && (
+      <CreateWorkspaceModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onInvitesSent={fetchWorkspaces}
+      />
+    )}
+  </>
+);
+
 };
 
 export default RejoinAndFetch;

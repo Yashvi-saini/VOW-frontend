@@ -1,6 +1,7 @@
 import React from "react";
 import keyIcon from "../../assets/Key.svg";
- const CreateAndJoin = () => {
+
+ const CreateAndJoin = ({ onCreate }) => {
     return (
         <div className="grid grid-cols-2 gap-6 mb-8">
         
@@ -8,7 +9,7 @@ import keyIcon from "../../assets/Key.svg";
                   <div>
                     <h3 className="font-bold mb-2 text-[24px] text-[#000]">Create Workspace</h3>
                   </div>
-                  <button className="bg-[#5E9BFF] text-white px-6 py-2 rounded-lg hover:bg-[#4A8CE0] transition font-normal text-[20px] border border-[#1F2937] w-[112px] h-[44px]">
+                  <button className="bg-[#5E9BFF] text-white px-6 py-2 rounded-lg hover:bg-[#4A8CE0] transition font-normal text-[20px] border border-[#1F2937] w-[112px] h-[44px]" onClick={onCreate}>
                     Create
                   </button>
                 </div>
