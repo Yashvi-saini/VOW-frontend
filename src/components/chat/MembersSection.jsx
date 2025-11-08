@@ -3,14 +3,47 @@ import socket from "./socket.jsx";
 import down from "../../assets/down.svg";
 import add from "../../assets/add.svg"; // reserved if later adding invite
 import right from "../../assets/right arrow.svg";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useMembers } from "../useMembers";
+import { setUserProfile } from "../userslice";
+import { getProfileInfo } from "../../api/profileapi";
 
 const MembersSection = ({ onSelectChannel, onOpenChat }) => {
-  const { workspaceId } = useSelector((state) => state.user);
+  console.log('[p2p] MembersSection render start');
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user);
+  const { workspaceId, profile } = userState;
   const { members, loading, error, fetchMembers } = useMembers(workspaceId);
   const [isCollapsed, setIsCollapsed] = useState(false);
-const profile = useSelector((state) => state.user.profile);
+  // Derive a stable self userId from available fields to avoid undefined during early render.
+  const storedId = (() => {
+    try { return localStorage.getItem('selfUserId'); } catch (_) { return null; }
+  })();
+  const selfUserId = profile?._id || profile?.id || userState.userId || userState.id || storedId || null;
+
+  // If we don't have a self id yet, try to fetch profile once.
+  React.useEffect(() => {
+    let cancelled = false;
+    const primeProfile = async () => {
+      if (selfUserId) return; // already have it
+      try {
+        const res = await getProfileInfo();
+        const data = res?.data?.data;
+        if (!cancelled && data) {
+          dispatch(setUserProfile(data));
+          const id = data?._id || data?.id || null;
+          if (id) {
+            try { localStorage.setItem('selfUserId', id); } catch (_) {}
+          }
+          console.log('[p2p] hydrated profile via API; id=', id);
+        }
+      } catch (err) {
+        console.warn('[p2p] failed to hydrate profile', err);
+      }
+    };
+    primeProfile();
+    return () => { cancelled = true; };
+  }, [selfUserId, dispatch]);
   const toggle = () => setIsCollapsed((p) => !p);
   const pcRef = useRef(null); // single peer connection per active chat
   const localStreamRef = useRef(null);
@@ -22,12 +55,18 @@ const profile = useSelector((state) => state.user.profile);
 
   // Join a personal signaling room named by our user id
   React.useEffect(() => {
-    if (!profile?._id) return;
-    socket.emit("joinRoom", profile._id);
+    console.log('[p2p] effect: mount/join selfUserId=', selfUserId);
+    if (!selfUserId) {
+      console.warn('[p2p] selfUserId missing; cannot join personal signaling room yet');
+      return;
+    }
+    socket.emit('joinRoom', selfUserId);
+    console.log('[p2p] emitted joinRoom for', selfUserId);
     return () => {
-      socket.emit("leaveRoom", profile._id);
+      console.log('[p2p] cleanup: leaveRoom', selfUserId);
+      socket.emit('leaveRoom', selfUserId);
     };
-  }, [socket, profile?._id]);
+  }, [socket, selfUserId]);
 
   const cleanupPeer = () => {
     try { pcRef.current?.close(); } catch (_) {}
@@ -81,11 +120,23 @@ const profile = useSelector((state) => state.user.profile);
   };
 
   const initiatePeerChat = async (targetUserId) => {
-    if (!profile?._id || !targetUserId || profile._id === targetUserId) return;
+    console.log('[p2p] initiatePeerChat target=', targetUserId, 'self=', selfUserId);
+    if (!selfUserId) {
+      console.warn('[p2p] abort: no selfUserId');
+      return;
+    }
+    if (!targetUserId) {
+      console.warn('[p2p] abort: no targetUserId');
+      return;
+    }
+    if (selfUserId === targetUserId) {
+      console.warn('[p2p] abort: clicked self');
+      return;
+    }
     setActivePeer(targetUserId);
     setCallStatus("calling");
     // Derive deterministic 1:1 channel id (sorted pair) and notify parent to switch chat
-    const channelId = [profile._id, targetUserId].sort().join("-");
+    const channelId = [selfUserId, targetUserId].sort().join("-");
     onSelectChannel?.(channelId);
     onOpenChat?.();
     cleanupPeer();
@@ -98,7 +149,7 @@ const profile = useSelector((state) => state.user.profile);
       console.log('[p2p] created offer type=', offer.type, 'sdp length=', offer.sdp?.length);
       await pcRef.current.setLocalDescription(offer);
       console.log('[p2p] setLocalDescription(offer) signalingState=', pcRef.current.signalingState);
-      socket.emit("call-user", { to: targetUserId, offer, fromUserId: profile._id });
+      socket.emit("call-user", { to: targetUserId, offer, fromUserId: selfUserId });
       console.log('[p2p] emitted call-user to=', targetUserId);
     } catch (err) {
       console.error("Failed to start call", err);
@@ -112,11 +163,12 @@ const profile = useSelector((state) => state.user.profile);
     if (!socket) return;
     const onIncoming = async ({ from, fromUserId, offer }) => {
       // Ignore if it's our own
-      if (fromUserId === profile._id) return;
+      if (fromUserId === selfUserId) { console.log('[p2p] incoming-call ignored (from self)'); return; }
+      console.log('[p2p] incoming-call from=', fromUserId, 'offer present=', !!offer);
       setActivePeer(fromUserId);
       setCallStatus("ringing");
       // Auto switch chat to the incoming peer channel
-      const channelId = [profile._id, fromUserId].sort().join("-");
+      const channelId = [selfUserId, fromUserId].sort().join("-");
       onSelectChannel?.(channelId);
       onOpenChat?.();
       cleanupPeer();
@@ -131,7 +183,7 @@ const profile = useSelector((state) => state.user.profile);
         console.log('[p2p] created answer type=', answer.type, 'sdp length=', answer.sdp?.length);
         await pcRef.current.setLocalDescription(answer);
         console.log('[p2p] setLocalDescription(answer) signalingState=', pcRef.current.signalingState);
-        socket.emit("answer-call", { to: fromUserId, answer, fromUserId: profile._id });
+        socket.emit("answer-call", { to: fromUserId, answer, fromUserId: selfUserId });
         console.log('[p2p] emitted answer-call to=', fromUserId);
       } catch (err) {
         console.error("Error answering call", err);
@@ -164,22 +216,26 @@ const profile = useSelector((state) => state.user.profile);
       setCallStatus("ended");
       cleanupPeer();
     };
+    console.log('[p2p] signaling listeners attached');
     socket.on("incoming-call", onIncoming);
     socket.on("call-answered", onAnswered);
     socket.on("ice-candidate", onCandidate);
     socket.on("call-ended", onEnded);
     return () => {
+      console.log('[p2p] signaling listeners detached');
       socket.off("incoming-call", onIncoming);
       socket.off("call-answered", onAnswered);
       socket.off("ice-candidate", onCandidate);
       socket.off("call-ended", onEnded);
     };
-  }, [socket, activePeer, profile?._id]);
+  }, [socket, activePeer, selfUserId]);
 
   const endActiveCall = () => {
     if (activePeer) {
-      socket.emit("end-call", { to: activePeer, fromUserId: profile._id });
+      socket.emit("end-call", { to: activePeer, fromUserId: selfUserId });
       console.log('[p2p] emitted end-call to=', activePeer);
+    } else {
+      console.warn('[p2p] endActiveCall invoked with no activePeer');
     }
     setCallStatus("ended");
     cleanupPeer();
@@ -207,6 +263,9 @@ const profile = useSelector((state) => state.user.profile);
       {!isCollapsed && (
         <div className="max-h-64 overflow-y-auto scrollbar-hide">
           <style>{`.scrollbar-hide{ -ms-overflow-style:none; scrollbar-width:none; }.scrollbar-hide::-webkit-scrollbar{display:none;}`}</style>
+          {!selfUserId && (
+            <p className="text-[11px] text-yellow-300 bg-[#3A0E70] px-4 py-1">Loading your identity… please wait a moment before starting a call.</p>
+          )}
           {loading && (
             <p className="text-[#BCBCBC] text-sm px-4 py-2">Loading members…</p>
           )}
@@ -214,13 +273,19 @@ const profile = useSelector((state) => state.user.profile);
             <p className="text-red-400 text-sm px-4 py-2">Failed to load members</p>
           )}
             {members.map((m) => {
-              const isSelf = m._id === profile?._id;
+              const isSelf = m._id === selfUserId;
               const isActive = activePeer === m._id && ["calling","ringing","in-call"].includes(callStatus);
+              if (!m._id) {
+                console.warn('[p2p] member missing _id', m);
+              }
               return (
                 <div
                   key={m._id}
                   className={`flex items-center justify-between text-white px-4 py-2 cursor-${isSelf ? 'default' : 'pointer'} ${isActive ? 'bg-[#3A0E70]' : 'bg-[#200539] hover:bg-[#2A0C52]'}`}
-                  onClick={() => !isSelf && initiatePeerChat(m._id)}
+                  onClick={() => {
+                    console.log('[p2p] member row clicked raw object=', m);
+                    if (!isSelf) initiatePeerChat(m._id);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <span className="inline-block w-3 h-3 rounded-full bg-[#2DB3FF]"></span>
