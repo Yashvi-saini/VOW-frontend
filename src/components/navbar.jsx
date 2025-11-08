@@ -6,6 +6,18 @@ import hamburgerIcon from '../assets/hamburger.png';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Smooth scroll navigation function
+  const handleNavigation = (targetId) => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    setIsMenuOpen(false); // Close mobile menu after navigation
+  };
+
   return (
     <div className="w-full fixed top-0 left-0 right-0 flex justify-center py-2 sm:py-2.5 md:py-[10px] px-4 sm:px-5 md:px-[20px] lg:px-[60px] bg-transparent z-50">
       <div className="w-full max-w-[1660px] border border-[#DDDFE1] rounded-[12px] sm:rounded-[14px] md:rounded-[16px] bg-white shadow-sm">
@@ -19,16 +31,16 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <ul className="hidden lg:flex items-center gap-[30px] xl:gap-[60px] 2xl:gap-[90px]">
-            <li className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
+            <li onClick={() => handleNavigation('home')} className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
               Home
             </li>
-            <li className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
+            <li onClick={() => handleNavigation('features')} className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
               Features
             </li>
-            <li className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
+            <li onClick={() => handleNavigation('user-roles')} className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
               About
             </li>
-            <li className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
+            <li onClick={() => handleNavigation('subscribe')} className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
               Contact
             </li>
           </ul>
@@ -66,25 +78,25 @@ const Navbar = () => {
             <ul className="flex flex-col gap-2 sm:gap-3 md:gap-[12px] mb-3 sm:mb-4 md:mb-[16px]">
               <li 
                 className="text-[#969696] font-inter text-[14px] sm:text-[15px] md:text-[16px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors py-1.5 sm:py-2"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => handleNavigation('home')}
               >
                 Home
               </li>
               <li 
                 className="text-[#969696] font-inter text-[14px] sm:text-[15px] md:text-[16px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors py-1.5 sm:py-2"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => handleNavigation('features')}
               >
                 Features
               </li>
               <li 
                 className="text-[#969696] font-inter text-[14px] sm:text-[15px] md:text-[16px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors py-1.5 sm:py-2"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => handleNavigation('user-roles')}
               >
                 About
               </li>
               <li 
                 className="text-[#969696] font-inter text-[14px] sm:text-[15px] md:text-[16px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors py-1.5 sm:py-2"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => handleNavigation('subscribe')}
               >
                 Contact
               </li>
