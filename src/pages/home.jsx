@@ -13,11 +13,12 @@ import greenImg from "../assets/green.svg";
 import pinkImg from "../assets/pink.svg";
 import { useNavigate } from 'react-router-dom';
 import vector from "../assets/vector.svg";
-import img  from "../assets/Rectangle 9.svg";
+import img from "../assets/Rectangle 9.svg";
+import demoVideo from "../assets/demovideo.mp4";
 
 // Animated "Collaborate" heading with sequenced image highlights
 const CollaborateAnimation = ({ className = "" }) => {
-  const [step, setStep] = useState(0); // 0: tilt only, 1-4: images, 5: final text
+  const [step, setStep] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setStep((s) => (s + 1) % 6), 1200);
     return () => clearInterval(id);
@@ -27,23 +28,20 @@ const CollaborateAnimation = ({ className = "" }) => {
     <div className={`relative inline-block ${className}`}>
       <style>{`@keyframes vibrate{0%{transform:translate(0,0) rotate(0)}20%{transform:translate(1px,-1px) rotate(-0.5deg)}40%{transform:translate(-1px,1px) rotate(0.5deg)}60%{transform:translate(1px,1px) rotate(0)}80%{transform:translate(-1px,-1px) rotate(0.5deg)}100%{transform:translate(0,0) rotate(0)}}`}</style>
 
-      {/* Image highlights (one at a time, vibrate when visible) */}
       <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 1 ? 'opacity-90' : ''}`}>
-        <img src={yellowImg} alt="" className="w-full h-auto" style={{ animation: step === 1 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
+        <img src={yellowImg} alt="" className="w-full h-auto" style={{ animation: step === 1 ? 'vibrate 0.9s linear infinite' : 'none' }} />
       </div>
       <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 2 ? 'opacity-90' : ''}`}>
-        <img src={orangeImg} alt="" className="w-full h-auto" style={{ animation: step === 2 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
+        <img src={orangeImg} alt="" className="w-full h-auto" style={{ animation: step === 2 ? 'vibrate 0.9s linear infinite' : 'none' }} />
       </div>
       <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 3 ? 'opacity-90' : ''}`}>
-        <img src={greenImg} alt="" className="w-full h-auto" style={{ animation: step === 3 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
+        <img src={greenImg} alt="" className="w-full h-auto" style={{ animation: step === 3 ? 'vibrate 0.9s linear infinite' : 'none' }} />
       </div>
       <div className={`pointer-events-none select-none absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-50 sm:w-60 md:w-86 opacity-0 transition-opacity duration-500 ${step === 4 ? 'opacity-90' : ''}`}>
-        <img src={pinkImg} alt="" className="w-full h-auto" style={{ animation: step === 4 ? 'vibrate 0.9s linear infinite' : 'none', willChange: 'transform' }} />
+        <img src={pinkImg} alt="" className="w-full h-auto" style={{ animation: step === 4 ? 'vibrate 0.9s linear infinite' : 'none' }} />
       </div>
 
-      {/* Text display: tilted while an image exists (steps 0-4), then final straight text (step 5) */}
       <span className={`block origin-bottom transition-all duration-700 ${step === 0 ? 'opacity-100 -rotate-6 scale-95' : 'opacity-0 rotate-0'}`}>Collaborate</span>
-      
     </div>
   );
 };
@@ -52,47 +50,49 @@ const Home = () => {
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayOpaque, setOverlayOpaque] = useState(false);
+  const [showDemo, setShowDemo] = useState(false); // ✅ State for showing video
 
   const goToSignupWithOverlay = () => {
     setShowOverlay(true);
     requestAnimationFrame(() => setOverlayOpaque(true));
     setTimeout(() => {
       navigate('/signup', { state: { entryOverlay: true } });
-    }, 500); 
+    }, 500);
   };
+
   return (
     <>
       <Navbar />
 
-      {/* HERO SECTION  */}
-  <section className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
+      {/* HERO SECTION */}
+      <section className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
         <div className="relative z-10 max-w-7xl my-55 w-full flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
-            <h1 className=' text-[40px] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
-            <CollaborateAnimation className=' h-13 md:h-20 text-[40px] sm:text-5xl md:text-6xl lg:text-7xl' />
-            <h1 className=' text-[40px] h-13  sm:text-5xl md:text-6xl lg:text-7xl'>Create</h1>
+            <h1 className='text-[40px] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
+            <CollaborateAnimation className='h-13 md:h-20 text-[40px] sm:text-5xl md:text-6xl lg:text-7xl' />
+            <h1 className='text-[40px] h-13 sm:text-5xl md:text-6xl lg:text-7xl'>Create</h1>
           </div>
           <div className='flex flex-col sm:flex-row gap-3 sm:gap-4'>
             <button onClick={goToSignupWithOverlay} className="bg-[#5E9BFF] text-white px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:brightness-105 transition">
               Get Started
             </button>
-            <button className="bg-white text-[#4A0B83] px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:bg-gray-50 transition">
+            <button onClick={() => setShowDemo(true)} className="bg-white text-[#4A0B83] px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:bg-gray-50 transition">
               Watch Demo
             </button>
           </div>
         </div>
 
-        <img src={notes} alt="" aria-hidden className=" md:block pointer-events-none select-none absolute right-0 top-25 w-35 md:top-50 sm:w-30 md:w-50 " />
-        <img src={notes} alt="" aria-hidden className="md:block pointer-events-none select-none absolute left-0 top-10 w-35 sm:w-30 md:w-50 -scale-x-100" />
-        <img src={notes} alt="" aria-hidden className=" md:block pointer-events-none select-none absolute left-1/2 top-148 -translate-x-1/2 -translate-y-1/2 w-35 md:left-[25vw] sm:w-30 md:w-50 " />
-        <img  src={img} className="md:block pointer-events-none select-none absolute left-15 top-130 -translate-x-1/2 -translate-y-1/2 sm:top-120 md:left-[70vw] md:top-[8em] w-20 sm:w-10 md:w-35 "/>
-        <img  src={img} className="md:block pointer-events-none select-none absolute left-12 top-70 -translate-x-1/2 -translate-y-1/2 w-20 md:top-90 md:left-[6vw] sm:w-10 md:w-25 "/>
-        <img  src={img} className="md:block pointer-events-none select-none absolute -right-5 top-90 -translate-x-1/2 -translate-y-1/2 w-20 md:left-[75vw] md:top-[33em] sm:w-10 md:w-30 "/>
+        <img src={notes} alt="" className="md:block pointer-events-none select-none absolute right-0 top-25 w-35 md:top-50 sm:w-30 md:w-50" />
+        <img src={notes} alt="" className="md:block pointer-events-none select-none absolute left-0 top-10 w-35 sm:w-30 md:w-50 -scale-x-100" />
+        <img src={notes} alt="" className="md:block pointer-events-none select-none absolute left-1/2 top-148 -translate-x-1/2 -translate-y-1/2 w-35 md:left-[25vw] sm:w-30 md:w-50" />
+        <img src={img} className="md:block pointer-events-none select-none absolute left-15 top-130 -translate-x-1/2 -translate-y-1/2 sm:top-120 md:left-[70vw] md:top-[8em] w-20 sm:w-10 md:w-35" />
+        <img src={img} className="md:block pointer-events-none select-none absolute left-12 top-70 -translate-x-1/2 -translate-y-1/2 w-20 md:top-90 md:left-[6vw] sm:w-10 md:w-25" />
+        <img src={img} className="md:block pointer-events-none select-none absolute -right-5 top-90 -translate-x-1/2 -translate-y-1/2 w-20 md:left-[75vw] md:top-[33em] sm:w-10 md:w-30" />
       </section>
 
-      {/*FEATURE CARDS */}
+      {/* FEATURE CARDS */}
       <section className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
           All Your Work — In One Virtual Space
         </h2>
         <FeatureCards />
@@ -157,35 +157,59 @@ const Home = () => {
         className={`fixed inset-0 z-60 bg-[#450B7B] transition-opacity duration-500 ${overlayOpaque ? 'opacity-100' : 'opacity-0'} ${showOverlay ? '' : 'pointer-events-none'}`}
       />
 
-       <section className="px-6 md:px-20 mb-40">
+      {/* DEMO VIDEO SECTION */}
+      <section className="px-6 md:px-20 mb-40">
         <div className="relative max-w-4xl mx-auto">
           <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">
             See How VOW Transforms Your Workday
-          </h2> 
-          <div className="w-full bg-[#D9D9D9] rounded-xl mt-10 sm:mt-12 h-56 sm:h-72 md:h-96"></div>
-<img src={vector} alt=" arrow" className='h-15 w-8 -rotate-15 -translate-x-1/2  ' />
+          </h2>
+
+          {/* ✅ Video Section */}
+          <div className="w-full rounded-xl mt-10 sm:mt-12 overflow-hidden shadow-lg">
+            {showDemo ? (
+              <video
+                src={demoVideo}
+                controls
+                autoPlay
+                muted
+                loop
+                className="w-full h-56 sm:h-72 md:h-96 object-cover rounded-xl"
+              />
+            ) : (
+              <div className="w-full bg-[#D9D9D9] flex items-center justify-center h-56 sm:h-72 md:h-96 text-gray-600 text-xl rounded-xl">
+                Click “Watch Demo” to play video
+              </div>
+            )}
+          </div>
+
+          <img src={vector} alt="arrow" className='h-15 w-8 -rotate-15 -translate-x-1/2' />
+
           <div className="mt-0 md:mt-0 flex flex-col md:flex-row items-center md:items-start justify-between gap-6 md:gap-8">
-            
             <p className="max-w-2xl text-base sm:text-xl md:text-xl text-center md:text-left">
               Take a quick tour of how teams connect, collaborate, and create inside their virtual office.
             </p>
-
             <div className="flex gap-4 justify-center md:justify-end">
-              <button className="inline-flex items-center whitespace-nowrap shrink-0 bg-[#5E9BFF] text-white px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:brightness-105 transition">
+              <button
+                onClick={() => setShowDemo(true)}
+                className="inline-flex items-center whitespace-nowrap shrink-0 bg-[#5E9BFF] text-white px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:brightness-105 transition"
+              >
                 Watch Demo
               </button>
-              <button className="inline-flex items-center whitespace-nowrap shrink-0 bg-white text-[#4A0B83] px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:bg-gray-50 transition " onClick={() => navigate('/signup')}>
+              <button
+                onClick={() => navigate('/signup')}
+                className="inline-flex items-center whitespace-nowrap shrink-0 bg-white text-[#4A0B83] px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:bg-gray-50 transition"
+              >
                 Get Started
               </button>
             </div>
           </div>
-          
         </div>
       </section>
+
       <Footer />
-     
     </>
   );
 };
 
 export default Home;
+
