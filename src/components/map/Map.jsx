@@ -460,18 +460,23 @@ const cameraPosRef = useRef({ left: 0, top: 0 });
   return (
     <div
       ref={viewportRef}
-      className="w-full h-screen overflow-auto bg-white"
+      className="w-full h-full overflow-auto bg-white scrollbar-hide"
       style={{
         touchAction: "pan-x pan-y",
         WebkitOverflowScrolling: "touch",
       }}
     >
+      {/* hide scrollbars visually but keep scroll functionality */}
+      <style>{`
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+      `}</style>
       <div
         ref={containerRef}
       onClick={handleMapClick}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
-      className="relative w-full h-screen bg-white overflow-hidden shadow-md border border-gray-200"
+      className="relative w-full h-full bg-white overflow-hidden shadow-md border border-gray-200"
       style={{
         width: 3260,
         height: 2380,
