@@ -1,8 +1,12 @@
 import { io } from "socket.io-client";
 
-// Use env override if provided, else default to same host on port 8001 (matches server.js)
-const SOCKET_URL = import.meta.env?.VITE_SOCKET_URL || `http://${window.location.hostname}:8001`;
-console.log("[socket] Connecting to:", SOCKET_URL);
+// Resolve Socket URL for cross-device usage:
+// 1) Use VITE_SOCKET_URL if provided (recommended for LAN/IP hosting)
+// 2) Fallback to current host with port (e.g., http://<host>:8001)
+const DEFAULT_PORT = import.meta.env.VITE_SOCKET_PORT || 8001;
+const ENV_URL = import.meta.env.VITE_SOCKET_URL;
+const FALLBACK_HOST = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+export const SOCKET_URL = ENV_URL || `http://${FALLBACK_HOST}:${DEFAULT_PORT}`;
 
 const socket = io(SOCKET_URL, {
   autoConnect: true,

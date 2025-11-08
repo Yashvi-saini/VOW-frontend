@@ -40,18 +40,22 @@ io.on("connection", (socket) => {
     io.to(message.channelId).emit("message", message);
   });
 
-  // WebRTC signaling
-  socket.on("call-user", ({ to, offer }) => {
-    io.to(to).emit("incoming-call", { from: socket.id, offer });
+  // 🔑 WebRTC signaling
+  // Treat `to` as either a socket.id or a room name (e.g., target user's id)
+  socket.on("call-user", ({ to, offer, fromUserId }) => {
+    io.to(to).emit("incoming-call", { from: socket.id, fromUserId, offer });
   });
-  socket.on("answer-call", ({ to, answer }) => {
-    io.to(to).emit("call-answered", { from: socket.id, answer });
+
+  socket.on("answer-call", ({ to, answer, fromUserId }) => {
+    io.to(to).emit("call-answered", { from: socket.id, fromUserId, answer });
   });
-  socket.on("ice-candidate", ({ to, candidate }) => {
-    io.to(to).emit("ice-candidate", { from: socket.id, candidate });
+
+  socket.on("ice-candidate", ({ to, candidate, fromUserId }) => {
+    io.to(to).emit("ice-candidate", { from: socket.id, fromUserId, candidate });
   });
-  socket.on("end-call", ({ to }) => {
-    io.to(to).emit("call-ended", { from: socket.id });
+
+  socket.on("end-call", ({ to, fromUserId }) => {
+    io.to(to).emit("call-ended", { from: socket.id, fromUserId });
   });
 
   // ============ Map Presence Protocol ============

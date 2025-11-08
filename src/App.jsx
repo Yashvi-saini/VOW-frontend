@@ -19,7 +19,7 @@ import ChatApp from "./components/chat/chat";
 import { useSelector } from "react-redux";
 
 import TermsAndConditions from "./components/terms and conditions";
-import Join from "./components/dashboard/join.jsx"
+
 
 const App = () => {
 
@@ -40,7 +40,7 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
        
-        <Route path="/join" element={<Join />} />
+        
         <Route
           path="/verify-otp"
           element={

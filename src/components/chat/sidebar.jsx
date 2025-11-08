@@ -1,100 +1,97 @@
-import React from "react";
-import { createLayout } from "../../api/layoutApi";
-import person from "../../assets/account_circle.svg";
-import attherate from "../../assets/At sign.svg";
-import group from "../../assets/groups.svg";
-import space from "../../assets/space.svg";
-import today from "../../assets/today.svg";
+import React, { useState } from "react";
+import person from "../../assets/person.svg";
+import dashevents from "../../assets/dashevents.svg";
+import videocam from "../../assets/videocam.svg";
+import chat from "../../assets/chat.svg";
+import logo from "../../assets/logo.png";
+import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
+import MembersSection from "../chat/MembersSection.jsx";
 
+const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpaceClick, onChatClick, onVideoConferenceClick }) => {
+  // Track which main nav item is active; default to Virtual Space
+  const [active, setActive] = useState("virtual");
 
+  const baseBtnClass =
+    "w-full flex items-center gap-3 px-3 h-11 text-white rounded-lg text-left hover:bg-[#3D1B5F]";
 
-const Sidebar = ({ onChannelSelect, onCreateTeam ,onShowMap}) => {
+  const handleVirtualSpaceClick = () => {
+    setActive("virtual");
+    if (onVirtualSpaceClick) onVirtualSpaceClick();
+  };
 
-  sessionStorage.setItem("allowMap", "true");
- 
+  const handleCreateMeetingClick = () => {
+    setActive("createMeeting");
+    if (onCreateMeeting) onCreateMeeting();
+  };
+
+  const handleVideoConferenceClick = () => {
+    setActive("video");
+    if (onVideoConferenceClick) onVideoConferenceClick();
+  };
+
+  const handleChatClick = () => {
+    setActive("chat");
+    if (onChatClick) onChatClick();
+  };
+
   return (
-    <aside className="w-64 bg-[#200539] border-r border-[#BCBCBC] p-4 pr-5 overflow-y-scroll">
-      <h2 className="text-xl font-bold text-white mb-6">VOW</h2>
-
-      {/* Main Nav */}
-      <nav className="space-y-4 text-xl font-normal">
-        <div className="text-white flex gap-1">
-          <img src={person} alt="" />
-          Dashboard
+    <aside className="w-[320px] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-[#3D1B5F]">
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="VOW Logo" className="w-8 h-8" />
+          <h2 className="text-xl font-bold text-white tracking-wide">VOW</h2>
         </div>
-        <div className="text-white flex gap-2">
-          <img src={space} alt="" />
-          <span
-            className="cursor-pointer"
-            onClick={async () => {
-              try {
-                // Notify parent to show map
-                onShowMap?.();
-                // Wait a tick for the map to mount/update before collecting rooms
-                await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
-                // Prefer the map-provided helper to avoid timing issues
-                let rooms = [];
-                if (typeof window !== 'undefined' && typeof window.getMapRooms === 'function') {
-                  rooms = window.getMapRooms(true); // include corridor
-                } else {
-                  const roomNodes = document.querySelectorAll('[data-room-id]');
-                  rooms = Array.from(roomNodes)
-                    .map(n => n.getAttribute('data-room-id'))
-                    .filter(Boolean);
-                }
-                // Prepare payload (backend expects valid JSON + likely absolute layoutUrl)
-                const payload = {
-                  name: "Office Layout - Ground Floor",
-                  // Use an absolute URL to avoid server rejecting relative paths
-                  layoutUrl: "https://w7.pngwing.com/pngs/279/877/png-transparent-hyperlink-computer-icons-link-text-logo-number-thumbnail.png",
-                  rooms,
-                  metadata: { floor: 1, department: "Engineering" },
-                };
-                const res = await createLayout(payload);
-                console.log("Layout created", res.data);
-                // Optional UX: simple success message
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'success', message: 'Layout created' } }));
-                }
-              } catch (e) {
-                // Surface details
-                const msg = e?.response?.data || e?.message || e;
-                console.error("Failed to create layout", msg);
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('toast', { detail: { type: 'error', message: 'Failed to create layout' } }));
-                }
-              }
-            }}
+      </div>
+
+      {/* Navigation */}
+      <div className="px-6 py-4 overflow-y-auto flex-1 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <style>{`.scrollbar-hide::-webkit-scrollbar{display:none;}`}</style>
+        <nav className="space-y-2 mb-5">
+          <button
+            onClick={handleVirtualSpaceClick}
+            className={`${baseBtnClass} ${active === "virtual" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
           >
-            Virtual Space
-          </span>
-        </div>
-        <div className="text-white flex gap-1">
-          <img src={attherate} alt="" />
-          Mentions
-        </div>
-        <div className="text-white flex gap-1">
-          <img src={today} alt="" />
-          Events
-        </div>
-        <div className="text-white flex gap-1">
-          <img src={group} alt="" />
-          Teams
-        </div>
-         <div
-          className="text-white flex gap-1 cursor-pointer"
-          onClick={onCreateTeam}
-        >
-          <img src={group} alt="" />
-          Create Team
-        </div>
+            <img src={person} alt="" className="w-5 h-5" />
+            <span className="text-base">Virtual Space</span>
+          </button>
 
-      </nav>
+          <button
+            onClick={handleCreateMeetingClick}
+            className={`${baseBtnClass} ${active === "createMeeting" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+          >
+            <img src={dashevents} alt="" className="w-5 h-5" />
+            <span className="text-base">Create meeting</span>
+          </button>
 
-      {/* Team Sections */}
-  <TeamSection title="Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
-  <TeamSection title="Another Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
+          <button
+            onClick={handleVideoConferenceClick}
+            className={`${baseBtnClass} ${active === "video" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+          >
+            <img src={videocam} alt="" className="w-5 h-5" />
+            <span className="text-base">Video Conference</span>
+          </button>
+
+          <button
+            onClick={handleChatClick}
+            className={`${baseBtnClass} ${active === "chat" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+          >
+            <img src={chat} alt="" className="w-5 h-5" />
+            <span className="text-base">Chat Room</span>
+          </button>
+        </nav>
+        <TeamSection title="Team" onChannelSelect={onChannelSelect} />
+        <MembersSection onSelectChannel={onChannelSelect} onOpenChat={onChatClick} />
+      </div>
+
+      {/* Settings at bottom */}
+      <div className="px-6 py-4 border-t border-[#3D1B5F]">
+        <button className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left">
+          <img src={settingsIcon} alt="settings" className="w-5 h-5" />
+          <span className="text-base">Settings</span>
+        </button>
+      </div>
     </aside>
   );
 };

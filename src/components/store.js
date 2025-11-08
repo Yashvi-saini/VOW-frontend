@@ -1,35 +1,40 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage"; 
 import userReducer from "./userslice";
 import presenceReducer from "./map/presenceSlice";
+import workspaceReducer from "./userslice"; 
+import filesReducer from "./dashboard/filesSlice";
+import teamReducer from "./chat/teamslices";
 
-import { persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage
-import { persistStore } from "redux-persist";
 
-// Combine your reducers
 const rootReducer = combineReducers({
   user: userReducer,
   presence: presenceReducer,
+  workspace: workspaceReducer,
+  files: filesReducer,
+  team: teamReducer,
 });
 
-// Configure persistence
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user"], // ✅ only persist the user slice
+  whitelist: ["user"], 
 };
 
-// Wrap root reducer with persistence
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Create the store
+
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // required for redux-persist
+      serializableCheck: false, 
     }),
 });
 
-// Create the persistor
+
 export const persistor = persistStore(store);
+
+
+

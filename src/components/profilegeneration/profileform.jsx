@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createProfile } from "../../api/profileapi";
+import { createProfile,uploadProfilePhoto } from "../../api/profileapi";
 import backarrow from "../../assets/back.png";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -16,6 +16,9 @@ const ProfileForm = ({ onSubmit }) => {
     organisation: "",
     dob: "",
   });
+
+const [selectedFile, setSelectedFile] = useState(null);
+const [preview,setPreview]= useState(null);
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -93,7 +96,7 @@ const ProfileForm = ({ onSubmit }) => {
   }));
 
   dispatch(setProfileNeeded(false)); // ✅ mark profile complete
-  navigate("/dashboard");
+  
 
   onSubmit?.(profile);
 } else {

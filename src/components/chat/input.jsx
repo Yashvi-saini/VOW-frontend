@@ -5,6 +5,7 @@ import share from "../../assets/share.svg";
 import image from "../../assets/image.svg";
 import send from "../../assets/send.svg";
 import EmojiSelector from "../../components/chat/emojipicker.jsx";
+import { uploadFile } from "../../api/file";
 
 const InputBox = ({
   messageInput,
@@ -13,7 +14,45 @@ const InputBox = ({
   mainRef,
   textareaRef,
   handleEmojiSelect,
+  attachments,
+  setAttachments,
 }) => {
+  const fileInputRef = useRef(null);
+
+  const handleTriggerFile = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
+  const handleFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const uploadedMeta = [];
+    for (const f of files) {
+      try {
+        const uploaded = await uploadFile(f); // expects { _id || id, url, originalName }
+        const meta = {
+          fileId: uploaded._id || uploaded.id,
+          url: uploaded.url || uploaded.fileUrl || uploaded.location,
+          name: uploaded.originalName || uploaded.filename || f.name,
+          size: f.size,
+          mimeType: f.type,
+        };
+        uploadedMeta.push(meta);
+      } catch (err) {
+        console.error("Upload failed for", f.name, err);
+      }
+    }
+    if (uploadedMeta.length) {
+      setAttachments((prev) => [...prev, ...uploadedMeta]);
+    }
+   
+    e.target.value = "";
+  };
+
+  const removeAttachment = (fileId) => {
+    setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
+  };
+
   return (
     <footer className="border-[#BCBCBC] p-4">
       <div className="flex items-end border-2 rounded-2xl mx-12 pr-4 py-2">
@@ -33,6 +72,44 @@ const InputBox = ({
             }}
             rows={1}
           />
+          {/* Attachment previews */}
+          {attachments && attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2 px-2">
+              {attachments.map((att) => (
+                <div
+                  key={att.fileId}
+                  className="group flex items-center gap-2 bg-[#EFE7F6] border border-[#BFA2E1] rounded-md px-2 py-1 max-w-[180px]"
+                >
+                  {att.mimeType && att.mimeType.startsWith("image/") ? (
+                    <img
+                      src={att.url}
+                      alt={att.name}
+                      className="w-8 h-8 object-cover rounded"
+                    />
+                  ) : (
+                    <span className="w-8 h-8 flex items-center justify-center text-xs bg-[#5C0EA4] text-white rounded">
+                      {att.name.split('.').pop().slice(0,4).toUpperCase()}
+                    </span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-medium truncate" title={att.name}>
+                      {att.name}
+                    </p>
+                    <p className="text-[10px] text-[#707070]">
+                      {(att.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeAttachment(att.fileId)}
+                    className="text-[10px] text-[#CC0404] opacity-70 hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           {/* Icons below textarea */}
           <div className="flex space-x-3 ml-2 pt-1 pl-1">
             <EmojiSelector
@@ -41,8 +118,15 @@ const InputBox = ({
               onSelect={handleEmojiSelect}
             />
             <img src={battherate} alt="mention" className="cursor-pointer" />
-            <img src={share} alt="share" className="cursor-pointer" />
-            <img src={image} alt="image" className="cursor-pointer" />
+            <img src={share} alt="attach files" className="cursor-pointer" onClick={handleTriggerFile} />
+            <img src={image} alt="attach images" className="cursor-pointer" onClick={handleTriggerFile} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFilesSelected}
+            />
           </div>
         </div>
 

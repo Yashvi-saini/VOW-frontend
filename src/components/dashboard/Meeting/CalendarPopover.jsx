@@ -103,9 +103,22 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
   const label = () => {
     if (!selectedDate) return "Select Date & Time";
     const d = `${monthNames[selectedDate.getMonth()].slice(0, 3)} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
+    const hourClean = (h) => {
+      // Accept strings like "01" "1" and ensure no leading zero for display
+      const n = parseInt(h, 10);
+      return isNaN(n) ? h : String(n);
+    };
+    const minClean = (m) => {
+      const n = parseInt(m, 10);
+      if (isNaN(n)) return "00"; // default to 00
+      return String(n).padStart(2, "0");
+    };
     if (mode === "all") return `${d} - All day`;
-    if (mode === "time") return `${d} at ${pad2(+time.h)}:${pad2(+time.m)} ${time.mer}`;
-    return `${d}, ${pad2(+range.sh)}:${pad2(+range.sm)} ${range.smer} - ${pad2(+range.eh)}:${pad2(+range.em)} ${range.emer}`;
+    if (mode === "time") {
+      return `${d} at ${hourClean(time.h)}:${minClean(time.m)} ${time.mer}`;
+    }
+    // range
+    return `${d}, ${hourClean(range.sh)}:${minClean(range.sm)} ${range.smer} - ${hourClean(range.eh)}:${minClean(range.em)} ${range.emer}`;
   };
 
   if (!open) return null;

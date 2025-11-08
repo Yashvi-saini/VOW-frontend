@@ -64,14 +64,17 @@ const [modalOpen, setModalOpen] = useState(false);
     try {
       console.log("Rejoin requested for:", workspaceId);
       const response = await rejoinWorkspace(workspaceId);
-
-      console.log("Dispatching workspace context:", { workspaceId });
-      dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null }));
+      // Server refreshes HttpOnly cookie; no need to read token in JS
+      console.log("Dispatching workspace context:", { workspaceId, workspaceName: response.data?.workspaceName });
+      dispatch(setWorkspaceContext({ 
+        workspaceId, 
+        workspaceToken: null,
+        workspaceName: response.data?.workspaceName || null
+      }));
       if (response.data?.success) {
         alert(`Rejoined workspace: ${response.data.workspaceName || workspaceId}`);
-        setTimeout(() => {
-    navigate(`/workspace/${workspaceId}/chat`);
-  }, 0);
+        // Navigate directly to chat view; query param ensures Chat Room selection
+        navigate(`/workspace/${workspaceId}/chat?view=chat`);
 
       } else {
         alert(response.data?.message || "Failed to rejoin workspace");
