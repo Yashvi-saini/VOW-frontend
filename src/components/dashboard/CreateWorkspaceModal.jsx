@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createWorkspace } from "../../api/authApi";
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
+import Toast from "../common/Toast";
 
 const CreateWorkspaceModal = ({ isOpen, onClose }) => {
   const [step, setStep] = useState(1); // 1: Create Workspace, 2: Add Members
@@ -12,6 +13,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
   const [workspaceId, setWorkspaceId] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState({ show: false, type: "info", message: "" });
   const dispatch = useDispatch();
 
   const logos = Array(7).fill(0); // 7 logo options
@@ -19,7 +21,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
 
   const handleCreateWorkspace = async () => {
     if (!workspaceName.trim()) {
-      alert("Please enter a workspace name");
+      setToast({ show: true, type: "error", message: "Please enter a workspace name" });
       return;
     }
 
@@ -49,7 +51,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
       setStep(2);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Workspace creation failed.";
-      alert(`Error: ${msg}`);
+      setToast({ show: true, type: "error", message: msg });
     } finally {
       setLoading(false);
     }
@@ -57,12 +59,12 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
 
   const handleCopyInviteCode = () => {
     navigator.clipboard.writeText(inviteCode);
-    alert("Workspace ID copied to clipboard!");
+    setToast({ show: true, type: "success", message: "Invite code copied" });
   };
 
   const handleSendInvites = () => {
     // Logic to send email invites
-    alert("Invites sent successfully!");
+    setToast({ show: true, type: "success", message: "Invites sent successfully" });
     handleClose();
   };
 
@@ -248,6 +250,8 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
           </div>
         )}
       </div>
+      {/* Toast notifications */}
+      <Toast show={toast.show} type={toast.type} message={toast.message} />
     </>
   );
 };
