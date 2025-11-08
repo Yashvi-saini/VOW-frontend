@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import person from "../../assets/person.svg";
 import dashevents from "../../assets/dashevents.svg";
 import videocam from "../../assets/videocam.svg";
@@ -9,16 +9,30 @@ import TeamSection from "../chat/TeamSection.jsx";
 import MembersSection from "../chat/MembersSection.jsx";
 
 const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpaceClick, onChatClick, onVideoConferenceClick }) => {
+  // Track which main nav item is active; default to Virtual Space
+  const [active, setActive] = useState("virtual");
+
+  const baseBtnClass =
+    "w-full flex items-center gap-3 px-3 h-11 text-white rounded-lg text-left hover:bg-[#3D1B5F]";
+
   const handleVirtualSpaceClick = () => {
-    if (onVirtualSpaceClick) {
-      onVirtualSpaceClick();
-    }
+    setActive("virtual");
+    if (onVirtualSpaceClick) onVirtualSpaceClick();
+  };
+
+  const handleCreateMeetingClick = () => {
+    setActive("createMeeting");
+    if (onCreateMeeting) onCreateMeeting();
   };
 
   const handleVideoConferenceClick = () => {
-    if (onVideoConferenceClick) {
-      onVideoConferenceClick();
-    }
+    setActive("video");
+    if (onVideoConferenceClick) onVideoConferenceClick();
+  };
+
+  const handleChatClick = () => {
+    setActive("chat");
+    if (onChatClick) onChatClick();
   };
 
   return (
@@ -43,15 +57,15 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
         <nav className="space-y-2 mb-5">
           <button
             onClick={handleVirtualSpaceClick}
-            className="w-full flex items-center gap-3 px-3 h-11 text-white rounded-lg text-left bg-[#5C0EA4]"
+            className={`${baseBtnClass} ${active === "virtual" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
           >
             <img src={person} alt="" className="w-5 h-5" />
             <span className="text-base">Virtual Space</span>
           </button>
 
           <button
-            onClick={onCreateMeeting}
-            className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
+            onClick={handleCreateMeetingClick}
+            className={`${baseBtnClass} ${active === "createMeeting" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
           >
             <img src={dashevents} alt="" className="w-5 h-5" />
             <span className="text-base">Create meeting</span>
@@ -59,15 +73,15 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
 
           <button
             onClick={handleVideoConferenceClick}
-            className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
+            className={`${baseBtnClass} ${active === "video" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
           >
             <img src={videocam} alt="" className="w-5 h-5" />
             <span className="text-base">Video Conference</span>
           </button>
 
           <button
-            onClick={onChatClick}
-            className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left"
+            onClick={handleChatClick}
+            className={`${baseBtnClass} ${active === "chat" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
           >
             <img src={chat} alt="" className="w-5 h-5" />
             <span className="text-base">Chat Room</span>

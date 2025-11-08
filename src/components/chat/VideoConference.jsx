@@ -6,12 +6,17 @@ import textFields from '../../assets/text_fields.svg';
 import KeyIcon from '../../assets/Key.svg';
 import mic from '../../assets/mic.svg';
 import videocam from '../../assets/videocam.svg';
+import leaveMeet from '../../assets/leavemeet.svg';
+import EmojiSelector from './emojipicker.jsx';
 
 const VideoConference = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [stream, setStream] = useState(null);
+  const [lastEmoji, setLastEmoji] = useState(null); // store last selected emoji reaction
+  const reactionTimeoutRef = useRef(null);
+  const callContainerRef = useRef(null);
   const [participants] = useState([
     { id: 1, name: 'John Doe', avatar: null },
     { id: 2, name: 'Jane Smith', avatar: null },
@@ -23,6 +28,22 @@ const VideoConference = () => {
   const localVideoRef = useRef(null);
   const workspaceName = useSelector((state) => state.user.workspaceName);
 
+  // attach stream to video whenever it changes
+  useEffect(() => {
+    if (!localVideoRef.current) return;
+    if (stream) {
+      try {
+        localVideoRef.current.srcObject = stream;
+        // Some browsers need an explicit play()
+        localVideoRef.current.play?.().catch(() => {});
+      } catch (e) {
+        console.warn('Failed to attach stream to video element', e);
+      }
+    } else {
+      localVideoRef.current.srcObject = null;
+    }
+  }, [stream]);
+
   const startCall = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
@@ -31,10 +52,6 @@ const VideoConference = () => {
       });
       
       setStream(mediaStream);
-      
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = mediaStream;
-      }
 
       setIsCallActive(true);
     } catch (error) {
@@ -54,6 +71,7 @@ const VideoConference = () => {
     setIsCallActive(false);
     setIsMuted(false);
     setIsVideoOff(false);
+    setLastEmoji(null);
   };
 
   const toggleMute = () => {
@@ -66,14 +84,47 @@ const VideoConference = () => {
     }
   };
 
-  const toggleVideo = () => {
-    if (stream) {
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = isVideoOff;
-        setIsVideoOff(!isVideoOff);
-      }
+  // Stop only the video tracks; keep audio running
+  const stopLocalVideo = () => {
+    if (!stream) return;
+    stream.getVideoTracks().forEach((t) => t.stop());
+  };
+
+  const startLocalVideo = async () => {
+    try {
+      const vStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const newVideoTrack = vStream.getVideoTracks()[0];
+      if (!newVideoTrack) return;
+
+      // build a new combined stream to avoid ended tracks lingering
+      const audioTracks = stream ? stream.getAudioTracks() : [];
+      const newStream = new MediaStream([
+        ...audioTracks,
+        newVideoTrack,
+      ]);
+      setStream(newStream);
+    } catch (e) {
+      console.error('Failed to start local video', e);
+      alert('Could not start camera. Please check permissions or close other apps using the camera.');
     }
+  };
+
+  const toggleVideo = async () => {
+    if (!stream) return;
+    // if currently ON -> turn OFF by stopping the track (turns off camera LED on most devices)
+    if (!isVideoOff) {
+      stopLocalVideo();
+      // keep the stream but without active video track
+      const audioTracks = stream.getAudioTracks();
+      const newStream = new MediaStream([...audioTracks]);
+      setStream(newStream);
+      setIsVideoOff(true);
+      return;
+    }
+
+    // currently OFF -> try to (re)start video
+    await startLocalVideo();
+    setIsVideoOff(false);
   };
 
   useEffect(() => {
@@ -81,8 +132,17 @@ const VideoConference = () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      if (reactionTimeoutRef.current) clearTimeout(reactionTimeoutRef.current);
     };
   }, [stream]);
+
+  //clear emoji reaction after a short duration
+  useEffect(() => {
+    if (lastEmoji) {
+      if (reactionTimeoutRef.current) clearTimeout(reactionTimeoutRef.current);
+      reactionTimeoutRef.current = setTimeout(() => setLastEmoji(null), 3000);
+    }
+  }, [lastEmoji]);
 
   return (
     <div className="h-full bg-white text-black flex flex-col">
@@ -91,11 +151,11 @@ const VideoConference = () => {
           
           <div className="flex-1 w-full overflow-y-auto px-4 py-6 space-y-6 flex flex-col items-center">
             {/*  New Call Card */}
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-[#EEF7F6] px-[18px] py-6 gap-6 w-[944px] max-w-[95vw] h-[285px]" style={{ boxShadow: '0 -23px 25px 0 rgba(191, 191, 191, 0.25)' }}>
+            <div className="flex flex-col items-center justify-center rounded-2xl bg-[#EFE7F6] px-[18px] py-6 gap-6 w-[944px] max-w-[95vw] h-[285px]" style={{ boxShadow: '0 -23px 25px 0 rgba(191, 162, 225, 0.17) inset, 0 -36px 30px 0 rgba(204, 180, 227, 0.15) inset, 0 -79px 40px 0 rgba(204, 180, 227, 0.10) inset, 0 2px 1px 0 rgba(204, 180, 227, 0.06), 0 4px 2px 0 rgba(204, 180, 227, 0.09), 0 8px 4px 0 rgba(204, 180, 227, 0.09), 0 16px 8px 0 rgba(204, 180, 227, 0.09), 0 32px 16px 0 rgba(204, 180, 227, 0.09)' }}>
               <div className="w-16 h-16  rounded-lg flex items-center justify-center "><img src={Play} alt="Start Call" className="w-8 h-8" /></div>
               <div className="text-center">
-                <h3 className="text-[20px] font-semibold text-[#0E1219]">Start a New Call</h3>
-                <p className="text-[#4D4D56] mt-2 text-[14px]">Instantly create a video conference for your team or workspace.</p>
+                <h3 className="text-[24px] font-bold text-black">Start a New Call</h3>
+                <p className="text-black mt-2 text-[20px]">Instantly create a video conference for your team or workspace.</p>
               </div>
               <div className="relative w-full max-w-sm">
                 <img src={KeyIcon} alt="Title" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-70" />
@@ -117,11 +177,11 @@ const VideoConference = () => {
             </div>
 
             {/* Join a Call Card */}
-            <div className="flex flex-col items-center justify-center rounded-2xl bg-[#EEF7F6] px-[18px] py-6 gap-6 w-[944px] max-w-[95vw] h-[285px]" style={{ boxShadow: '0 -23px 25px 0 rgba(191, 191, 191, 0.25)' }}>
+            <div className="flex flex-col items-center justify-center rounded-2xl bg-[#EFE7F6] px-[18px] py-6 gap-6 w-[944px] max-w-[95vw] h-[285px]" style={{ boxShadow: '0 -23px 25px 0 rgba(191, 162, 225, 0.17) inset, 0 -36px 30px 0 rgba(204, 180, 227, 0.15) inset, 0 -79px 40px 0 rgba(204, 180, 227, 0.10) inset, 0 2px 1px 0 rgba(204, 180, 227, 0.06), 0 4px 2px 0 rgba(204, 180, 227, 0.09), 0 8px 4px 0 rgba(204, 180, 227, 0.09), 0 16px 8px 0 rgba(204, 180, 227, 0.09), 0 32px 16px 0 rgba(204, 180, 227, 0.09)' }}>
               <div className="w-16 h-16  rounded-lg flex items-center justify-center"><img src={Link} alt="Join Call" className="w-8 h-8" /></div>
               <div className="text-center">
-                <h3 className="text-[20px] font-semibold text-[#0E1219]">Join a Call</h3>
-                <p className="text-[#4D4D56] mt-2 text-[14px]">Enter a meeting ID or paste a link to join.</p>
+                <h3 className="text-[24px] font-bold text-black">Join a Call</h3>
+                <p className="text-black mt-2 text-[20px]">Enter a meeting ID or paste a link to join.</p>
               </div>
               <div className="relative w-full max-w-sm">
                 <img src={textFields} alt="Input" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-70" />
@@ -144,11 +204,11 @@ const VideoConference = () => {
         </div>
       ) : (
        
-        <div className="h-full bg-gray-900 flex flex-col">
+        <div ref={callContainerRef} className="h-full bg-[#FEFEFE] flex flex-col">
           {/* Main video grid */}
           <div className="flex-1 p-4">
             <div className="grid grid-cols-2 gap-4 h-full">
-              {/* Your video */}
+              {/* our video */}
               <div className="relative bg-gray-800 rounded-xl overflow-hidden">
                 {!isVideoOff ? (
                   <video
@@ -168,6 +228,11 @@ const VideoConference = () => {
                 <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 px-3 py-1 rounded-lg">
                   <span className="text-sm font-medium text-white">You {isMuted && '(Muted)'}</span>
                 </div>
+                {lastEmoji && (
+                  <div className="absolute top-4 left-4 text-3xl animate-bounce select-none">
+                    {lastEmoji}
+                  </div>
+                )}
                 {isMuted && (
                   <div className="absolute top-4 right-4 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -195,47 +260,43 @@ const VideoConference = () => {
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="bg-white border-t border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-center gap-6">
-              {/* Mute button */}
+          {/*Bottom Controls */}
+          <div className="bg-[#200539] border-t border-[#3D1B5F] px-6 py-3">
+            <div className="flex items-center justify-center gap-5">
+              {/* Mute */}
               <button
                 onClick={toggleMute}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                  isMuted 
-                    ? 'bg-red-500 hover:bg-red-600 text-white' 
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-150 shadow-md ${
+                  isMuted ? 'bg-red-600 hover:bg-red-500' : 'bg-[#35115A] hover:bg-[#4A1E7A]'
                 }`}
-                title={isMuted ? 'Unmute' : 'Mute'}
               >
-                <img 
-                  src={mic} 
-                  alt="Microphone" 
-                  className={`w-5 h-5 ${isMuted ? 'opacity-70' : ''}`}
-                />
+                <img src={mic} alt="mic" className="w-6 h-6" />
               </button>
 
-              {/* Video button */}
+              {/* Video */}
               <button
                 onClick={toggleVideo}
-                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                  isVideoOff 
-                    ? 'bg-red-500 hover:bg-red-600 text-white' 
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                aria-label={isVideoOff ? 'Turn camera on' : 'Turn camera off'}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-150 shadow-md ${
+                  isVideoOff ? 'bg-red-600 hover:bg-red-500' : 'bg-[#35115A] hover:bg-[#4A1E7A]'
                 }`}
-                title={isVideoOff ? 'Turn on camera' : 'Turn off camera'}
               >
-                <img 
-                  src={videocam} 
-                  alt="Video Camera" 
-                  className={`w-5 h-5 ${isVideoOff ? 'opacity-70' : ''}`}
-                />
+                <img src={videocam} alt="camera" className="w-6 h-6" />
               </button>
 
-              {/* Leave Meet button (text) */}
+              {/* Emoji Reaction */}
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#35115A] hover:bg-[#4A1E7A] transition-colors duration-150 shadow-md">
+                <EmojiSelector
+                  boundaryRef={callContainerRef}
+                  onSelect={(emoji) => setLastEmoji(emoji)}
+                />
+              </div>
+
+              {/* Leave Meet */}
               <button
                 onClick={endCall}
-                className="inline-flex items-center justify-center bg-[#FF3B30] hover:bg-[#E2332A] text-white font-medium px-4 py-2 rounded-md"
+                className="inline-flex items-center justify-center bg-[#FF3B30] hover:bg-[#E2332A] text-white font-medium px-4 py-2 ml-7 rounded-md"
                 title="Leave Meet"
               >
                 Leave Meet
