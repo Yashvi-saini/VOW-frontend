@@ -65,7 +65,7 @@ const Home = () => {
       <Navbar />
 
       {/* HERO SECTION */}
-      <section className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
+      <section id="home" className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
         <div className="relative z-10 max-w-7xl my-55 w-full flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
             <h1 className='text-[40px] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
@@ -91,7 +91,7 @@ const Home = () => {
       </section>
 
       {/* FEATURE CARDS */}
-      <section className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
+      <section id="features" className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
           All Your Work — In One Virtual Space
         </h2>
@@ -100,7 +100,7 @@ const Home = () => {
 
      
 
-      <section className="py-16 px-6 md:px-20 mb-24 ">
+      <section id="user-roles" className="py-16 px-6 md:px-20 mb-24 ">
         <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">Build For Every Team Member</h2>
         <div className='flex justify-between mt-24 flex-col-reverse items-end sm:flex-row sm:justify-between'>
           <div className='w-full max-w-2xl'>
@@ -158,7 +158,7 @@ const Home = () => {
       />
 
       {/* DEMO VIDEO SECTION */}
-      <section className="px-6 md:px-20 mb-40">
+      <section id="demo-video" className="px-6 md:px-20 mb-40">
         <div className="relative max-w-4xl mx-auto">
           <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">
             See How VOW Transforms Your Workday

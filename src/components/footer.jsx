@@ -9,6 +9,34 @@ const Footer = () => {
   const animationFrameRef = useRef(null);
   const lastMouseMoveRef = useRef(0);
 
+  // Smooth scroll navigation function
+  const handleNavigation = (targetId) => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
+  // Email submission handler
+  const handleEmailSubmit = (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    
+    // Create mailto link
+    const subject = encodeURIComponent('VOW Newsletter Subscription');
+    const body = encodeURIComponent(`Hello,\n\nI would like to subscribe to VOW updates with this email: ${email}\n\nThank you!`);
+    const mailtoLink = `mailto:vow.org8000@gmail.com?subject=${subject}&body=${body}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
+    
+    // Reset form
+    e.target.reset();
+  };
+
   // Throttled mouse move handler
   const handleMouseMove = useCallback((e) => {
     const now = Date.now();
@@ -140,12 +168,12 @@ const Footer = () => {
             >
               Get Started
             </Link>
-            <a
-              href="#watch-demo"
-              className="w-full sm:w-[160px] lg:w-[183px] h-[39px] flex items-center justify-center rounded-[8px] text-[14px] sm:text-[16px] font-normal border border-[#EFEFEF] text-[#EDEBFF] hover:bg-white/5 transition"
+            <button
+              onClick={() => handleNavigation('demo-video')}
+              className="w-full sm:w-[160px] lg:w-[183px] h-[39px] flex items-center justify-center rounded-[8px] text-[14px] sm:text-[16px] font-normal border border-[#EFEFEF] text-[#EDEBFF] hover:bg-white/5 transition cursor-pointer"
             >
               Watch Demo
-            </a>
+            </button>
           </div>
         </section>
 
@@ -158,23 +186,27 @@ const Footer = () => {
             Quick Links
           </h4>
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-[16px] list-none p-0 m-0">
-            {["Home", "About", "Features", "Demo video", "User roles"].map(
-              (link, idx) => (
-                <li key={idx}>
-                  <a
-                    className="text-white text-[16px] sm:text-[18px] lg:text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition"
-                    href={`#${link.toLowerCase().replace(" ", "-")}`}
-                  >
-                    {link}
-                  </a>
-                </li>
-              )
-            )}
+            {[
+              { name: "Home", target: "home" },
+              { name: "Features", target: "features" },
+              { name: "Demo video", target: "demo-video" },
+              { name: "User roles", target: "user-roles" },
+              { name: "Contact Us", target: "subscribe" }
+            ].map((link, idx) => (
+              <li key={idx}>
+                <button
+                  onClick={() => handleNavigation(link.target)}
+                  className="text-white text-[16px] sm:text-[18px] lg:text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition cursor-pointer bg-transparent border-none p-0"
+                >
+                  {link.name}
+                </button>
+              </li>
+            ))}
           </ul>
         </nav>
 
         {/* Subscribe */}
-        <section className="w-full max-w-[375px] space-y-4 text-center lg:text-left px-4 lg:px-0">
+        <section id="subscribe" className="w-full max-w-[375px] space-y-4 text-center lg:text-left px-4 lg:px-0">
           <h4 className="text-white font-semibold text-[20px] sm:text-[22px] lg:text-[24px] leading-[1.2] mb-6 sm:mb-8 lg:mb-[42px]">
             Subscribe
           </h4>
@@ -182,8 +214,9 @@ const Footer = () => {
             If you would like to receive daily updates, please write your email.
           </p>
 
-          <form className="flex flex-col w-full gap-2 sm:gap-[8px]">
+          <form onSubmit={handleEmailSubmit} className="flex flex-col w-full gap-2 sm:gap-[8px]">
             <input
+              name="email"
               type="email"
               required
               placeholder="Enter your email"
