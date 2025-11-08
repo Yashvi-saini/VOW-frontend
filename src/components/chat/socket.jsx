@@ -1,12 +1,15 @@
 import { io } from "socket.io-client";
 
-// Resolve Socket URL for cross-device usage:
-// 1) Use VITE_SOCKET_URL if provided (recommended for LAN/IP hosting)
-// 2) Fallback to current host with port (e.g., http://<host>:8001)
 const DEFAULT_PORT = import.meta.env.VITE_SOCKET_PORT || 8001;
 const ENV_URL = import.meta.env.VITE_SOCKET_URL;
-const FALLBACK_HOST = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-export const SOCKET_URL = ENV_URL || `http://${FALLBACK_HOST}:${DEFAULT_PORT}`;
+const FALLBACK_HOST = typeof window !== "undefined" ? window.location.hostname : "localhost";
+
+// Detect protocol (https → wss, http → ws)
+const protocol = typeof window !== "undefined" && window.location.protocol === "https:"
+  ? "wss"
+  : "ws";
+
+export const SOCKET_URL = ENV_URL || `${protocol}://${FALLBACK_HOST}:${DEFAULT_PORT}`;
 
 const socket = io(SOCKET_URL, {
   autoConnect: true,
