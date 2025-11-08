@@ -84,11 +84,8 @@ const MessageList = ({ messages, username }) => {
         onRemoveReaction={handleReactionClick}
       >
         {msg.content && (
-          <div className="max-w-full">
-            <p
-              className="text-sm text-[#333] leading-relaxed whitespace-pre-wrap"
-              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word', hyphens: 'auto' }}
-            >
+          <div>
+            <p className="text-sm max-w-full text-[#333] leading-relaxed whitespace-pre-wrap" style={{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
               {msg.content}
             </p>
           </div>

@@ -44,19 +44,106 @@ const VideoConference = () => {
     }
   }, [stream]);
 
+  const classifyGumError = (err) => {
+    const name = err?.name || '';
+    switch (name) {
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        return 'Permission denied. Please allow camera and microphone access in your browser.';
+      case 'NotFoundError':
+      case 'DevicesNotFoundError':
+        return 'No camera or microphone found. Plug in a device or check your OS privacy settings.';
+      case 'NotReadableError':
+      case 'TrackStartError':
+        return 'Your camera or microphone is in use by another application. Close other apps using them and try again.';
+      case 'OverconstrainedError':
+      case 'ConstraintNotSatisfiedError':
+        return 'Requested media constraints are not supported by your device. Retrying with basic settings...';
+      case 'SecurityError':
+        return 'Access blocked by browser security policy. Ensure you are on HTTPS (or localhost during development).';
+      case 'AbortError':
+        return 'Media request aborted. Please try again.';
+      default:
+        return `Unexpected error (${name || 'unknown'}).`;
+    }
+  };
+
+  const ensureSecureContext = () => {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    if (!window.isSecureContext && !isLocal) {
+      throw new Error('insecure-context');
+    }
+  };
+
+  const listDevices = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasCam = devices.some(d => d.kind === 'videoinput');
+      const hasMic = devices.some(d => d.kind === 'audioinput');
+      return { hasCam, hasMic, devices };
+    } catch {
+      return { hasCam: true, hasMic: true, devices: [] }; // best-effort
+    }
+  };
+
+  const tryGetUserMedia = async (constraints) => {
+    return navigator.mediaDevices.getUserMedia(constraints);
+  };
+
   const startCall = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      
-      setStream(mediaStream);
+      ensureSecureContext();
+      const { hasCam, hasMic } = await listDevices();
+      if (!hasCam && !hasMic) {
+        alert('No camera or microphone found on this device.');
+        return;
+      }
 
+      // Prefer basic-but-compatible constraints
+      const baseConstraints = {
+        video: hasCam ? { facingMode: 'user' } : false,
+        audio: hasMic ? { echoCancellation: true, noiseSuppression: true } : false,
+      };
+
+      let mediaStream;
+      try {
+        mediaStream = await tryGetUserMedia(baseConstraints);
+      } catch (e1) {
+        console.warn('getUserMedia failed with base constraints, retrying with simplest true/true', e1);
+        // Retry with simplest possible constraints
+        try {
+          mediaStream = await tryGetUserMedia({ video: !!hasCam, audio: !!hasMic });
+        } catch (e2) {
+          // Last resort: try audio-only or video-only if one of them exists
+          if (hasMic) {
+            try {
+              mediaStream = await tryGetUserMedia({ audio: true });
+            } catch (e3) {
+              console.error('Audio-only getUserMedia failed', e3);
+            }
+          }
+          if (!mediaStream && hasCam) {
+            try {
+              mediaStream = await tryGetUserMedia({ video: true });
+            } catch (e4) {
+              console.error('Video-only getUserMedia failed', e4);
+            }
+          }
+          if (!mediaStream) throw e2;
+        }
+      }
+
+      setStream(mediaStream);
       setIsCallActive(true);
     } catch (error) {
       console.error('Error accessing camera/microphone:', error);
-      alert('Unable to access camera/microphone. Please check permissions.');
+      if (error?.message === 'insecure-context') {
+        alert('Camera/mic require a secure context. Use HTTPS in production, or run on localhost during development.');
+        return;
+      }
+      const msg = classifyGumError(error);
+      alert(`Unable to access camera/microphone. ${msg}`);
     }
   };
 

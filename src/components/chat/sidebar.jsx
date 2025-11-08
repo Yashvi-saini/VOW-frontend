@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
-import person from '../../assets/person.svg';
-import dashevents from '../../assets/dashevents.svg';
-import videocam from '../../assets/videocam.svg';
-import chatIcon from '../../assets/chat.svg';
-import logo from '../../assets/logo.png';
-import settingsIcon from '../../assets/settings.svg';
-import TeamSection from '../chat/TeamSection.jsx';
-import MembersSection from '../chat/MembersSection.jsx';
-// If your API exports default instead of named, change the import to: import createLayoutApi from '../../api/layoutApi';
-import { createLayout as createLayoutApi } from '../../api/layoutApi';
+import React, { useState } from "react";
+import person from "../../assets/person.svg";
+import dashevents from "../../assets/dashevents.svg";
+import videocam from "../../assets/videocam.svg";
+import chat from "../../assets/chat.svg";
+import logo from "../../assets/logo.png";
+import settingsIcon from "../../assets/settings.svg";
+import TeamSection from "../chat/TeamSection.jsx";
+import MembersSection from "../chat/MembersSection.jsx";
 
 const Sidebar = ({
   onChannelSelect,
@@ -119,14 +117,9 @@ const Sidebar = ({
         </div>
       </div>
 
-      {/* Scrollable Content - hidden scrollbar */}
-      <div
-        className="flex-1 overflow-y-auto px-6 py-3 scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        <style>{`.scrollbar-hide::-webkit-scrollbar { display: none; }`}</style>
-
-        {/* Main Nav */}
+      {/* Navigation */}
+      <div className="px-6 py-4 overflow-y-auto flex-1 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <style>{`.scrollbar-hide::-webkit-scrollbar{display:none;}`}</style>
         <nav className="space-y-2 mb-5">
           <button
             onClick={handleVirtualSpaceClick}
@@ -164,18 +157,16 @@ const Sidebar = ({
               active === 'chat' ? 'bg-[#5C0EA4]' : 'bg-transparent'
             }`}
           >
-            <img src={chatIcon} alt="" className="w-5 h-5" />
+            <img src={chat} alt="" className="w-5 h-5" />
             <span className="text-base">Chat Room</span>
           </button>
         </nav>
-
-        {/* Team and Members */}
         <TeamSection title="Team" onChannelSelect={onChannelSelect} />
-        <MembersSection onSelectChannel={onChannelSelect} onOpenChat={handleChatClick} />
+        <MembersSection onSelectChannel={onChannelSelect} onOpenChat={onChatClick} />
       </div>
 
       {/* Settings at bottom */}
-      <div className="px-6 py-4 border-t border-[#3D1B5F] mt-auto">
+      <div className="px-6 py-4 border-t border-[#3D1B5F]">
         <button className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left">
           <img src={settingsIcon} alt="settings" className="w-5 h-5" />
           <span className="text-base">Settings</span>
