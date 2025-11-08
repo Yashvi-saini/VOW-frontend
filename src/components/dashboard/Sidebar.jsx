@@ -14,15 +14,12 @@ import { useSelector } from "react-redux";
 
 const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWorkspace }) => {
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: personIcon },
+    { id: "dashboard", label: "Dashboard", icon: gridIcon },
     { id: "notification", label: "Notification", icon: notificationIcon },
     { id: "events", label: "Meeting", icon: calendarIcon },
     { id: "files", label: "File Sharing", icon: folderIcon },
   ];
-  const trailingIcons = {
-    dashboard: <img src={gridIcon} alt="grid" className="w-6 h-6" />,
-    files: <img src={personIcon} alt="person" className="w-6 h-6" />,
-  };
+
 const profile = useSelector((state) => state.user.profile);
 
 
@@ -76,20 +73,14 @@ const { fullName, email, avatar } = profile || {};
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
-              className={`flex items-center justify-between gap-3 text-left text-[16px] px-3 py-2 rounded-xl transition-all ${
+              className={`flex items-center gap-3 text-left text-[16px] px-3 py-2 rounded-xl transition-all ${
                 activeSection === item.id
                   ? "bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-white font-medium"
                   : ""
               }`}
             >
-              <span className="flex items-center gap-3">
-                <img src={item.icon} alt={item.label} className="w-5 h-5 filter brightness-0 invert" />
-                <span className="text-[16px] font-normal">{item.label}</span>
-              </span>
-             
-              <span className="shrink-0">
-                {trailingIcons[item.id] || null}
-              </span>
+              <img src={item.icon} alt={item.label} className="w-5 h-5 filter brightness-0 invert" />
+              <span className="text-[16px] font-normal">{item.label}</span>
             </button>
           ))}
         </nav>
