@@ -1,9 +1,10 @@
-import React from "react";
-import person from "../../assets/account_circle.svg";
-import attherate from "../../assets/At sign.svg";
-import group from "../../assets/groups.svg";
-import space from "../../assets/space.svg";
-import today from "../../assets/today.svg";
+import React, { useState } from "react";
+import person from "../../assets/person.svg";
+import dashevents from "../../assets/dashevents.svg";
+import videocam from "../../assets/videocam.svg";
+import chat from "../../assets/chat.svg";
+import logo from "../../assets/logo.png";
+import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
 import { useNavigate } from "react-router-dom";
 
@@ -48,9 +49,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam }) => {
         
       </nav>
 
-      {/* Team Sections */}
-  <TeamSection title="Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
-  <TeamSection title="Another Team" teams={[1, 2, 3, 4]} onChannelSelect={onChannelSelect} />
+  {/* Team Sections */}
+  <TeamSection title="Team" onChannelSelect={onChannelSelect} />
+  <TeamSection title="Another Team" onChannelSelect={onChannelSelect} />
     </aside>
   );
 };

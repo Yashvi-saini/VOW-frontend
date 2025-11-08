@@ -16,7 +16,17 @@ export const useMembers = (workspaceId) => {
       }
       const response = await getMembers(workspaceId);
       if (response.data?.success) {
-        setMembers(response.data.members || []);
+        const raw = response.data.members || [];
+        // Normalize IDs so downstream components can rely on _id.
+        const normalized = raw.map(m => {
+          // Prefer existing _id; else fall back to id or userId; keep original fields.
+          const stableId = m._id || m.id || m.userId || null;
+          if (!stableId) {
+            console.warn('[members] entry missing any id field', m);
+          }
+            return { ...m, _id: stableId };
+        });
+        setMembers(normalized);
       } else {
         throw new Error(response.data?.message || "Failed to fetch members");
       }

@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 
 import TermsAndConditions from "./components/terms and conditions";
 
+
 const App = () => {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const { signupPending, forgotRequested: rdxForgot } = useSelector((state) => state.user || {});
