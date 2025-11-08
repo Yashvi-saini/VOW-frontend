@@ -60,20 +60,24 @@ const RejoinAndFetch = () => {
     }
   };
 
-  const handleRejoin = async (workspaceId) => {
+  const handleRejoin = async (wsOrId) => {
+    const workspaceId = typeof wsOrId === "string" ? wsOrId : wsOrId?._id;
+    const fallbackName = typeof wsOrId === "object" && wsOrId ? wsOrId.workspaceName : (workspaces.find(w => w._id === wsOrId)?.workspaceName);
     try {
       setRejoiningId(workspaceId);
       console.log("Rejoin requested for:", workspaceId);
       const response = await rejoinWorkspace(workspaceId);
       // Server refreshes HttpOnly cookie; no need to read token in JS
-      console.log("Dispatching workspace context:", { workspaceId, workspaceName: response.data?.workspaceName });
+      const apiName = response?.data?.workspace?.workspaceName || response?.data?.workspaceName;
+      const resolvedName = apiName || fallbackName || null;
+      console.log("Dispatching workspace context:", { workspaceId, workspaceName: resolvedName });
       dispatch(setWorkspaceContext({ 
         workspaceId, 
         workspaceToken: null,
-        workspaceName: response.data?.workspaceName || null
+        workspaceName: resolvedName
       }));
       if (response.data?.success) {
-        setToast({ show: true, type: "success", message: `Rejoined workspace: ${response.data.workspaceName || workspaceId}` });
+        setToast({ show: true, type: "success", message: `Rejoined workspace: ${resolvedName || workspaceId}` });
         // Let the toast be visible briefly before navigating
         setTimeout(() => {
           navigate(`/workspace/${workspaceId}/chat?view=chat`);
@@ -156,7 +160,7 @@ const RejoinAndFetch = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleRejoin(ws._id);
+                handleRejoin(ws);
               }}
               disabled={rejoiningId === ws._id}
               className={`min-w-[140px] bg-[#5E9BFF] text-white px-6 py-3 rounded-lg transition ${
