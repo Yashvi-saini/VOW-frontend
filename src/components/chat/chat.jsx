@@ -15,6 +15,7 @@ import ManagerMeeting from "../dashboard/Meeting/ManagerMeeting.jsx";
 import VideoConference from "./VideoConference.jsx";
 import { useVoiceCall } from "../voice/useVoiceCall.js";
 
+import MapView from "../map/Map.jsx"; // adjust path if needed
 const Chat = ({ username, roomId, remoteUserId }) => {
   const workspaceName = useSelector((state) => state.user.workspaceName);
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
@@ -27,6 +28,8 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const socketRef = useRef(null);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
+  const profile = useSelector((state) => state.user.profile);
+
   const handleEmojiSelect = useCallback(
     (selectedEmoji) => setMessageInput((prev) => prev + selectedEmoji),
     []
@@ -142,9 +145,9 @@ const [showTeamBuilder, setShowTeamBuilder] = useState(false);
       content: messageInput,
       attachments: attachments,
       sender: {
-        _id: user._id,
-        username: user.name,
-        avatar: user.avatar,
+        _id: profile?._id,
+        username: profile?.username,
+        avatar: profile?.avatar || "/default-avatar.png",
       },
       createdAt: new Date().toISOString(),
     };

@@ -1,32 +1,35 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import TableStructure from "../map/map objects/TableStructure";
+// Modular single-avatar map implementation
 import Avatar from "../map/map assets/avtar";
 import playerImg from "../map/map assets/avatar1.jpg";
-import CabinStructure from "../map/map objects/cabinStructure";
-import WelcomeZone from "./map objects/WelcomeZone";
-import TeleportButton from "./map objects/Teleport";
-import Gaming from "./map objects/gaming";
-import PrivateRoom from "./map objects/PrivetRoom";
-import ManagerCabin from "./map objects/Manager";
-import SupervisorCabin from "./map objects/Supervisor";
-import BigTableStructure  from "./map objects/bigtablestructure";
+import MapContainer from "./map-components/mapcontainer.jsx";
+import MapObjects from "./map-components/mapcollisionobj.jsx";
+import ClickMarker from "./map-components/clickmarker.jsx";
+import { createCollisionChecker } from "./map-components/collisionlogic.jsx";
+import { findNearestFreePointFactory } from "./map-components/findnearestfreepoint.jsx";
+import { useMovementKeys } from "./map-components/usemovementkeys.jsx";
+import { useCameraPanning } from "./map-components/usecamerapaning.jsx";
+import { updateCursorBlocked } from "./map-components/useCursorBlockDetection.js";
+import { usePlayerMovementCamera } from "./map-components/usePlayerMovementCamera.jsx";
+import { useClickToMove } from "./map-components/useClickToMove.js";
+import { useDispatch, useSelector } from "react-redux";
+import { setIdentity, replaceAvatars, upsertAvatar, updateAvatarPosition } from "./presenceSlice";
+import socket from "../chat/socket.jsx";
+import AvatarsLayer from "./AvatarsLayer.jsx";
 
 const Map = () => {
-  //  Multiple players instead of one position
-  const [players, setPlayers] = useState([
-    { id: "me", name: "You", x: 60, y: 60, image: playerImg }, 
-  ]);
-
-  // Local player ID (the one that moves)
-  const localPlayerId = "me";
-
-  // Static data
+  const dispatch = useDispatch();
+  const { username, workspaceId: workspaceIdFromRedux } = useSelector(s => s.user || {});
+  const selfIdRef = useRef(null);
+  const tabIdRef = useRef(null);
+  const workspaceIdRef = useRef("default-workspace");
+  // Single local avatar state
   const [position, setPosition] = useState({ x: 60, y: 60 });
-  const [clickMarker, setClickMarker] = useState(null); // {x, y, valid }
+  const [clickMarker, setClickMarker] = useState(null); // {x, y, valid}
   const [cursorBlocked, setCursorBlocked] = useState(false);
   const [obstacles, setObstacles] = useState([]);
 
-  // Refs for smooth physics
+  // Refs
   const velocityRef = useRef({ vx: 0, vy: 0 });
   const positionRef = useRef({ x: 60, y: 60 });
   const obstaclesRef = useRef([]);
@@ -34,580 +37,257 @@ const Map = () => {
   const keysPressed = useRef({});
   const animationRef = useRef(null);
   const containerRef = useRef(null);
-   const viewportRef = useRef(null);
-     const followCameraRef = useRef(true); 
-const userPanningRef = useRef(false);
-const cameraPosRef = useRef({ left: 0, top: 0 });
+  const viewportRef = useRef(null);
+  const followCameraRef = useRef(true);
+  const userPanningRef = useRef(false);
+  const cameraPosRef = useRef({ left: 0, top: 0 });
   const cameraTargetRef = useRef({ left: 0, top: 0 });
-  // clear allowMap once map mounts so direct visits afterwards are blocked
-  useEffect(() => {
-    try {
-      sessionStorage.removeItem("allowMap");
-    } catch (e) {}
-  }, []);
-  // When a user clicks the map we store a target here (percent coords)
   const moveToTargetRef = useRef(null);
-  const DEADZONE_RATIO = 0.30;   // 30% margin per side
-  const CAMERA_SMOOTH = 0.18;
-  // Movement physics
+
+  // Config
   const avatarSize = 65;
   const accel = 0.03;
   const maxSpeed = 0.5;
   const friction = 0.12;
-  const COLLISION_EPS = 0.0; 
+  const COLLISION_EPS = 0;
+  const DEADZONE_RATIO = 0.3;
+  const CAMERA_SMOOTH = 0.18;
 
-  //  Receive obstacles from child components (memoized to avoid re-creating each render)
+  // Clear allowMap flag when mounting (legacy logic)
+  useEffect(() => {
+    try { sessionStorage.removeItem("allowMap"); } catch (_) {}
+  }, []);
+
+  // Aggregate obstacles from children
   const handleObstaclesFromChild = useCallback((id, newObstacles) => {
-    obstaclesByIdRef.current = {
-      ...obstaclesByIdRef.current,
-      [id]: newObstacles,
-    };
+    obstaclesByIdRef.current = { ...obstaclesByIdRef.current, [id]: newObstacles };
     const merged = Object.values(obstaclesByIdRef.current).flat();
     obstaclesRef.current = merged;
-    // Only update state if changed length or content reference differs
     setObstacles((prev) => (prev === merged ? prev : merged));
   }, []);
 
-  //  Collision detection
-  const isColliding = (newX, newY, eps = COLLISION_EPS) => {
-    if (!containerRef.current) return false;
+  // Collision + nearest free point utilities
+  const isColliding = createCollisionChecker({
+    containerRef,
+    obstaclesRef,
+    avatarSize,
+    COLLISION_EPS,
+  });
+  const findNearestFreePoint = findNearestFreePointFactory(isColliding);
 
-    const container = containerRef.current;
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
+  // Keyboard and camera panning hooks
+  useMovementKeys({ keysPressedRef: keysPressed, followCameraRef });
+  useCameraPanning({ viewportRef, followCameraRef, cameraPosRef, cameraTargetRef, userPanningRef });
 
-    const avatarWidthPercent = (avatarSize / containerWidth) * 100;
-    const avatarHeightPercent = (avatarSize / containerHeight) * 100;
-
-    return obstaclesRef.current.some((obs) => {
-      if (
-        !Number.isFinite(obs.x) ||
-        !Number.isFinite(obs.y) ||
-        !Number.isFinite(obs.width) ||
-        !Number.isFinite(obs.height) ||
-        obs.width <= 0 ||
-        obs.height <= 0
-      )
-        return false;
-
-      const avatarLeft = newX - avatarWidthPercent / 2;
-      const avatarRight = newX + avatarWidthPercent / 2;
-      const avatarTop = newY - avatarHeightPercent / 2;
-      const avatarBottom = newY + avatarHeightPercent / 2;
-
-      const obsLeft = obs.x - obs.width / 2 - eps;
-      const obsRight = obs.x + obs.width / 2 + eps;
-      const obsTop = obs.y - obs.height / 2 - eps;
-      const obsBottom = obs.y + obs.height / 2 + eps;
-
-      return (
-        avatarRight > obsLeft &&
-        avatarLeft < obsRight &&
-        avatarBottom > obsTop &&
-        avatarTop < obsBottom
-      );
-    });
-  };
-
-  // Find the nearest non-colliding point around (x,y) in percent units
-  // Returns {x, y} or null if none found within search radius
-  const findNearestFreePoint = (x, y) => {
-    if (!isColliding(x, y)) return { x, y };
-    const clamp01 = (v) => Math.max(0, Math.min(100, v));
-    const maxRadius = 12; // percent
-    const step = 0.6;     // radial step in percent
-    const samples = 24;   // angular samples per ring
-    let best = null;
-    let bestDist2 = Infinity;
-
-    for (let r = step; r <= maxRadius; r += step) {
-      for (let i = 0; i < samples; i++) {
-        const theta = (i / samples) * Math.PI * 2;
-        const cx = clamp01(x + r * Math.cos(theta));
-        const cy = clamp01(y + r * Math.sin(theta));
-        if (!isColliding(cx, cy)) {
-          const dx = cx - x;
-          const dy = cy - y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < bestDist2) {
-            bestDist2 = d2;
-            best = { x: cx, y: cy };
-          }
-        }
-      }
-      if (best) break; // earliest ring win = nearest
-    }
-    return best;
-  };
-
-  const updateCursorBlocked = (clientX, clientY) => {
-    const world = containerRef.current;
-    if (!world || typeof clientX !== "number" || typeof clientY !== "number") return;
-    const rect = world.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-    const px = Math.max(0, Math.min((clientX - rect.left) / rect.width, 1));
-    const py = Math.max(0, Math.min((clientY - rect.top) / rect.height, 1));
-    const tx = px * 100;
-    const ty = py * 100;
-    const blocked = isColliding(tx, ty);
-    setCursorBlocked((prev) => (prev === blocked ? prev : blocked));
-  };
-
-  const handlePointerMove = (e) => {
-    updateCursorBlocked(e.clientX, e.clientY);
-  };
-
-  const handlePointerLeave = () => {
-    setCursorBlocked(false);
-  };
-
-  
+  // Initialize camera position once viewport ready
   useEffect(() => {
-    const isMoveKey = (k) =>
-      [
-        "ArrowUp",
-        "ArrowDown",
-        "ArrowLeft",
-        "ArrowRight",
-        "w",
-        "a",
-        "s",
-        "d",
-        "W",
-        "A",
-        "S",
-        "D",
-      ].includes(k);
-
-    const down = (e) => {
-      if (isMoveKey(e.key)) {
-        e.preventDefault();
-        followCameraRef.current = true;
-      }
-      keysPressed.current[e.key] = true;
-    };
-
-    const up = (e) => {
-      if (isMoveKey(e.key)) e.preventDefault();
-      keysPressed.current[e.key] = false;
-    };
-
-    window.addEventListener("keydown", down);
-    window.addEventListener("keyup", up);
-    return () => {
-      window.removeEventListener("keydown", down);
-      window.removeEventListener("keyup", up);
-    };
-  }, []);
-
-  // no timers to cleanup
- useEffect(() => {
     const vp = viewportRef.current;
     if (!vp) return;
-    // init camera refs to current scroll
     cameraPosRef.current = { left: vp.scrollLeft, top: vp.scrollTop };
     cameraTargetRef.current = { left: vp.scrollLeft, top: vp.scrollTop };
   }, []);
-  
- useEffect(() => {
-    const vp = viewportRef.current;
-    if (!vp) return;
 
-    const onWheel = () => {
-      followCameraRef.current = false;
-      cameraPosRef.current = { left: vp.scrollLeft, top: vp.scrollTop };
-      cameraTargetRef.current = cameraPosRef.current;
-    };
+  // Movement + camera loop (hook)
+  usePlayerMovementCamera({
+    positionRef,
+    velocityRef,
+    setPosition,
+    setClickMarker,
+    keysPressed,
+    moveToTargetRef,
+    containerRef,
+    viewportRef,
+    cameraPosRef,
+    cameraTargetRef,
+    followCameraRef,
+    avatarConfig: { accel, maxSpeed, friction, DEADZONE_RATIO, CAMERA_SMOOTH },
+    isColliding,
+  });
 
-    const onPointerDown = () => {
-      userPanningRef.current = true;
-      followCameraRef.current = false;
-       cameraPosRef.current = { left: vp.scrollLeft, top: vp.scrollTop };
-      cameraTargetRef.current = cameraPosRef.current;
-    };
+  // Cursor blocked detection
+  const handlePointerMove = (e) => updateCursorBlocked({
+    clientX: e.clientX,
+    clientY: e.clientY,
+    containerRef,
+    isColliding,
+    setCursorBlocked,
+  });
+  const handlePointerLeave = () => setCursorBlocked(false);
 
-    const onPointerUp = () => {
-      userPanningRef.current = false;
-    };
+  // Click-to-move handler (hook)
+  const handleMapClick = useClickToMove({
+    containerRef,
+    isColliding,
+    findNearestFreePoint,
+    setClickMarker,
+    moveToTargetRef,
+    followCameraRef,
+  });
 
-    vp.addEventListener("wheel", onWheel, { passive: true });
-    vp.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointerup", onPointerUp);
-
-    return () => {
-      vp.removeEventListener("wheel", onWheel);
-      vp.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointerup", onPointerUp);
-    };
-  }, []);
-
-  //  Core movement + camera follow logic
+  // ========== Presence wiring ==========
+  // Join presence on mount
   useEffect(() => {
-    let lastTime = performance.now();
+    console.log("[map] mount: initializing presence");
+    // Resolve workspaceId from Redux (fallback to default if absent)
+    const resolvedWorkspaceId = workspaceIdFromRedux || "default-workspace";
+    workspaceIdRef.current = resolvedWorkspaceId;
+    console.log("[map] workspaceId (redux->used):", workspaceIdFromRedux, "->", resolvedWorkspaceId);
 
-    const step = () => {
-      const now = performance.now();
-      const dt = Math.min(32, now - lastTime);
-      lastTime = now;
-
-  const localPlayer = players.find((p) => p.id === localPlayerId);
-  if (!localPlayer) return;
-
-  // Use authoritative physics position, not players[] snapshot
-  let { x, y } = positionRef.current;
-      let { vx, vy } = velocityRef.current;
-      let arrivedNow = false;
-
-      // If the user clicked to move, steer toward the target
-      const target = moveToTargetRef.current;
-      if (target) {
-        const dx = target.x - x;
-        const dy = target.y - y;
-        const dist = Math.hypot(dx, dy);
-  const STOP_THRESHOLD = 0.2; // percent units for tighter snapping
-        if (dist < STOP_THRESHOLD) {
-          // close enough -> snap and stop
-          x = target.x;
-          y = target.y;
-          vx = 0;
-          vy = 0;
-          positionRef.current = { x, y };
-          velocityRef.current = { vx, vy };
-          setPosition({ x, y });
-          moveToTargetRef.current = null;
-          // hide marker once we arrive
-          setClickMarker(null);
-          arrivedNow = true;
-        } else {
-          // Better 'arrive' steering to prevent circling around the point
-          const dirX = dx / (dist || 1);
-          const dirY = dy / (dist || 1);
-          const SLOW_RADIUS = 6; // percent range to start slowing down
-          const MAX_ACCEL = 0.35; // max steering accel per frame
-          // Taper desired speed as we get close
-          const speedFactor = Math.min(1, dist / SLOW_RADIUS);
-          const desiredSpeed = maxSpeed * speedFactor;
-          const desiredVx = dirX * desiredSpeed;
-          const desiredVy = dirY * desiredSpeed;
-          // Steering force = desired vel - current vel (PD-like)
-          let steerX = desiredVx - vx;
-          let steerY = desiredVy - vy;
-          const steerMag = Math.hypot(steerX, steerY);
-          if (steerMag > MAX_ACCEL) {
-            steerX = (steerX / steerMag) * MAX_ACCEL;
-            steerY = (steerY / steerMag) * MAX_ACCEL;
+    // Ensure we have a stable selfId; prefer socket.id when connected
+    const ensureSelfId = () => {
+      // Stable per-tab id (sessionStorage) avoids collisions across windows even before socket connects
+      if (!tabIdRef.current) {
+        try {
+          const key = 'mapTabId';
+          let tid = sessionStorage.getItem(key);
+          if (!tid) {
+            tid = (crypto?.randomUUID ? crypto.randomUUID() : `tab-${Math.random().toString(36).slice(2)}`);
+            sessionStorage.setItem(key, tid);
           }
-          vx += steerX;
-          vy += steerY;
-
-          // Kill lateral velocity near target to avoid orbiting
-          if (dist < 2.0) {
-            const dot = vx * dirX + vy * dirY; // component toward target
-            const vParallelX = dot * dirX;
-            const vParallelY = dot * dirY;
-            const vPerpX = vx - vParallelX;
-            const vPerpY = vy - vParallelY;
-            const lateralDamp = 0.5; // remove 50% of lateral per frame when very close
-            vx = vParallelX + vPerpX * (1 - lateralDamp);
-            vy = vParallelY + vPerpY * (1 - lateralDamp);
-          }
+          tabIdRef.current = tid;
+        } catch {
+          tabIdRef.current = `tab-${Math.random().toString(36).slice(2)}`;
         }
       }
-
-      if (!arrivedNow) {
-        // Keyboard input forces (only if we didn't arrive this frame)
-        if (keysPressed.current.ArrowUp) vy -= accel;
-        if (keysPressed.current.ArrowDown) vy += accel;
-        if (keysPressed.current.ArrowLeft) vx -= accel;
-        if (keysPressed.current.ArrowRight) vx += accel;
-
-        // Clamp and friction
-        vx = Math.max(Math.min(vx, maxSpeed), -maxSpeed);
-        vy = Math.max(Math.min(vy, maxSpeed), -maxSpeed);
-        vx *= 1 - friction;
-        vy *= 1 - friction;
-
-        // Integrate and handle collisions (unless click-move is active)
-        let newX = Math.max(0, Math.min(x + vx, 100));
-        if (!moveToTargetRef.current && isColliding(newX, y)) {
-          newX = x; 
-          vx *= 0.3; 
-        }
-
-        let newY = Math.max(0, Math.min(y + vy, 100));
-        if (!moveToTargetRef.current && isColliding(newX, newY)) {
-          if (isColliding(newX, y)) {
-            newY = y;
-            vy *= 0.3;
-          } else if (isColliding(newX, newY)) {
-            newY = y;
-            vy *= 0.3;
-          }
-        }
-
-        positionRef.current = { x: newX, y: newY };
-        velocityRef.current = { vx, vy };
-        setPosition(positionRef.current);
-      }
-      const world = containerRef.current;
-      const viewport = viewportRef.current;
-       if (world && viewport) {
-        const ww = world.clientWidth;
-        const wh = world.clientHeight;
-        const vw = viewport.clientWidth;
-        const vh = viewport.clientHeight;
-
-        const ax = (positionRef.current.x / 100) * ww;
-        const ay = (positionRef.current.y / 100) * wh;
-
-        if (followCameraRef.current) {
-          // compute target with deadzone using current camera pos
-          const currentLeft = cameraPosRef.current.left;
-          const currentTop = cameraPosRef.current.top;
-
-          const horizontalThreshold = vw * DEADZONE_RATIO;
-          const verticalThreshold = vh * DEADZONE_RATIO;
-
-          let targetLeft = currentLeft;
-          let targetTop = currentTop;
-
-          if (ax < currentLeft + horizontalThreshold) {
-            targetLeft = Math.max(0, ax - horizontalThreshold);
-          } else if (ax > currentLeft + vw - horizontalThreshold) {
-            targetLeft = Math.min(ww - vw, ax - vw + horizontalThreshold);
-          }
-          if (ay < currentTop + verticalThreshold) {
-            targetTop = Math.max(0, ay - verticalThreshold);
-          } else if (ay > currentTop + vh - verticalThreshold) {
-            targetTop = Math.min(wh - vh, ay - vh + verticalThreshold);
-          }
-
-          cameraTargetRef.current = { left: targetLeft, top: targetTop };
-
-          // time-correct smoothing factor
-          const alpha = 1 - Math.pow(1 - CAMERA_SMOOTH, dt / 16.67);
-
-          // lerp camera pos toward target
-          const nextLeft = cameraPosRef.current.left + (cameraTargetRef.current.left - cameraPosRef.current.left) * alpha;
-          const nextTop = cameraPosRef.current.top + (cameraTargetRef.current.top - cameraPosRef.current.top) * alpha;
-          cameraPosRef.current = { left: nextLeft, top: nextTop };
-
-          viewport.scrollTo({ left: nextLeft, top: nextTop, behavior: "auto" });
-        } else {
-          // if user is manually panning, keep refs synced
-          cameraPosRef.current = { left: viewport.scrollLeft, top: viewport.scrollTop };
-          cameraTargetRef.current = cameraPosRef.current;
-        }
-      }
-
-      animationRef.current = requestAnimationFrame(step);
+      // Use socket.id if available; else use tabId
+      const candidate = (socket.id && socket.connected) ? socket.id : tabIdRef.current;
+      selfIdRef.current = candidate;
+      return selfIdRef.current;
     };
+    const selfId = ensureSelfId();
+    dispatch(setIdentity({ selfId, workspaceId: resolvedWorkspaceId }));
+    console.log("[map] identity set:", { selfId, workspaceId: resolvedWorkspaceId, tabId: tabIdRef.current, socketId: socket.id });
 
-    animationRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationRef.current);
-  }, [players]);
+    function onState({ avatars }) {
+      console.log("[map] map:state received count=", avatars?.length ?? 0, avatars);
+      dispatch(replaceAvatars(avatars));
+    }
+    function onJoined(avatar) {
+      console.log("[map] map:joined received:", avatar);
+      dispatch(upsertAvatar(avatar));
+    }
+    function onUpdated({ userId, x, y }) {
+      // Avoid log spam; sample
+      if (Math.random() < 0.05) {
+        console.log("[map] map:updated received:", { userId, x, y });
+      }
+      dispatch(updateAvatarPosition({ userId, x, y }));
+    }
+    function onLeft({ userId }) {
+      console.log("[map] map:left received user=", userId);
+      // reuse replaceAvatars? add a remove action later if needed
+      dispatch({ type: 'presence/removeAvatar', payload: userId });
+    }
 
-  useEffect(() => {
-    const dummyPlayers = [
-      { id: "p2", name: "guest1", x: 40, y: 55, image: playerImg }, // hardcoded for now
-      { id: "p3", name: "guest2", x: 76, y: 28, image: playerImg },
-    ];
-    // Guard against double-effect execution in StrictMode / HMR by de-duplicating by id
-    setPlayers((prev) => {
-      const existingIds = new Set(prev.map((p) => p.id));
-      const toAdd = dummyPlayers.filter((p) => !existingIds.has(p.id));
-      return toAdd.length ? [...prev, ...toAdd] : prev;
+    socket.on("map:state", onState);
+    socket.on("map:joined", onJoined);
+    socket.on("map:join:ack", (ack) => {
+      console.log("[map] join ack:", ack);
     });
-  }, []);
- 
-  //  Map & avatars rendering
-  // Handle clicks on the map: convert client coords to percent (0-100)
-  const handleMapClick = (e) => {
-    // Ignore clicks originating from UI controls that should not move the avatar
-    if (e.target && typeof e.target.closest === 'function') {
-      const uiEl = e.target.closest('[data-map-no-move]');
-      if (uiEl) return;
-    }
-    if (e.button && e.button !== 0) return;
-    const world = containerRef.current;
-    if (!world) return;
-    const rect = world.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-    const px = Math.max(0, Math.min(clickX / rect.width, 1));
-    const py = Math.max(0, Math.min(clickY / rect.height, 1));
-    const tx = px * 100;
-    const ty = py * 100;
+    socket.on("map:updated", onUpdated);
+    socket.on("map:left", onLeft);
 
-    const blocked = isColliding(tx, ty);
-    let target = { x: tx, y: ty };
-    if (blocked) {
-      const nearest = findNearestFreePoint(tx, ty);
-      setClickMarker({ x: tx, y: ty, valid: false });
-      if (!nearest) {
-        moveToTargetRef.current = null;
-        return;
+    // Helper to emit join (used on connect and on mount)
+    const emitJoin = () => {
+      const sid = ensureSelfId();
+      const joinPayload = {
+        workspaceId: workspaceIdRef.current,
+        userId: sid,
+        name: username || "You",
+        x: positionRef.current.x,
+        y: positionRef.current.y,
+      };
+      console.log("[map] emitting map:join", joinPayload);
+      socket.emit("map:join", joinPayload);
+      // Ask for full state after a short delay to ensure we didn't miss initial state
+      setTimeout(() => {
+        console.log("[map] requesting map:state explicitly");
+        socket.emit("map:state:request", { workspaceId: workspaceIdRef.current });
+      }, 200);
+    };
+
+    // If already connected, join immediately; else wait for connect
+    if (socket.connected) emitJoin();
+    const onConnect = () => {
+      console.log("[map] socket connected, joining presence");
+      emitJoin();
+    };
+    const onReconnect = () => {
+      console.log("[map] socket reconnected, re-joining presence");
+      emitJoin();
+    };
+    socket.on("connect", onConnect);
+    socket.on("reconnect", onReconnect);
+
+    // Leave on unmount
+    return () => {
+      socket.emit("map:leave", { workspaceId: workspaceIdRef.current, userId: selfIdRef.current });
+      socket.off("map:state", onState);
+      socket.off("map:joined", onJoined);
+      socket.off("map:updated", onUpdated);
+      socket.off("map:left", onLeft);
+  socket.off("map:join:ack");
+      socket.off("connect", onConnect);
+      socket.off("reconnect", onReconnect);
+    };
+  }, [dispatch, username, workspaceIdFromRedux]);
+
+  // Throttle local position updates ~16Hz
+  useEffect(() => {
+    const lastSentRef = { x: null, y: null };
+    const interval = setInterval(() => {
+      const selfId = selfIdRef.current;
+      if (!selfId) return;
+      const workspaceId = workspaceIdRef.current;
+      const { x, y } = positionRef.current;
+      const dx = lastSentRef.x == null ? 999 : Math.abs(x - lastSentRef.x);
+      const dy = lastSentRef.y == null ? 999 : Math.abs(y - lastSentRef.y);
+      if (dx > 0.05 || dy > 0.05 || Math.random() < 0.02) {
+        console.debug("[map] emitting map:update", { x: x.toFixed(2), y: y.toFixed(2) });
       }
-      target = nearest;
-    } else {
-      setClickMarker({ x: tx, y: ty, valid: true });
-    }
+      lastSentRef.x = x; lastSentRef.y = y;
+      socket.emit("map:update", { workspaceId, userId: selfId, x, y });
+    }, 60);
+    return () => clearInterval(interval);
+  }, []);
 
-    moveToTargetRef.current = target;
-    followCameraRef.current = true;
-  };
+  // Expose a safe room collector after map mounts, so callers can query reliably after showing the map
+  useEffect(() => {
+    const collector = (includeCorridor = true) => {
+      const selector = includeCorridor
+        ? '[data-room-id]'
+        : '[data-room-id]:not(#corridor)';
+      return Array.from(document.querySelectorAll(selector))
+        .map(n => n.getAttribute('data-room-id'))
+        .filter(Boolean);
+    };
+    try {
+      window.getMapRooms = collector;
+    } catch (_) {}
+    return () => {
+      try { delete window.getMapRooms; } catch (_) {}
+    };
+  }, []);
 
   return (
-    <div
-      ref={viewportRef}
-      className="w-full h-full overflow-auto bg-white scrollbar-hide"
-      style={{
-        touchAction: "pan-x pan-y",
-        WebkitOverflowScrolling: "touch",
-      }}
+    <MapContainer
+      viewportRef={viewportRef}
+      containerRef={containerRef}
+      cursorBlocked={cursorBlocked}
+      handleMapClick={handleMapClick}
+      handlePointerMove={handlePointerMove}
+      handlePointerLeave={handlePointerLeave}
     >
-      {/* hide scrollbars visually but keep scroll functionality */}
-      <style>{`
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-      `}</style>
-      <div
-        ref={containerRef}
-      onClick={handleMapClick}
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
-      className="relative w-full h-full bg-white overflow-hidden shadow-md border border-gray-200"
-      style={{
-        width: 3260,
-        height: 2380,
-        cursor: cursorBlocked ? "not-allowed" : "pointer",
-      }}
-      >
-        {/* Map objects */}
-        <TableStructure
-          id="tableA"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 12.5, y: 21.5 }}
-          imageSize={450}
-        />
-        <BigTableStructure
-          id="bigtable"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 10.5, y: 76 }}
-          imageSize={550}
-        />
-        <CabinStructure
-          id="cabin"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 48.2, y: 33 }}
-        />
-        <ManagerCabin
-          id="manager"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={2620} y={212} width={323} height={240}
-        />
-        <TableStructure
-          id="tableB"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          position={{ x: 85, y: 50 }}
-          imageSize={450}
-        />
-        <SupervisorCabin
-          id="supervisor"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={2639} y={1620} width={323} height={240} 
-        />
-        <Gaming
-          id="gaming"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={2639} y={1890} width={323} height={240} 
+      <MapObjects containerRef={containerRef} handleObstaclesFromChild={handleObstaclesFromChild} />
+      <Avatar
+        image={playerImg}
+        size={avatarSize}
+        name="You"
+        style={{ position: "absolute", top: `${position.y}%`, left: `${position.x}%`, transform: "translate(-50%, -50%)" }}
       />
-        <PrivateRoom
-          id="privateRoom"
-          onObstaclesReady={handleObstaclesFromChild}
-          containerRef={containerRef}
-          x={920} y={1895} width={1040} height={240}
-        />
-        <WelcomeZone
-        x={920}  y={1550} width={1040} height={240}
-        />
-        <TeleportButton
-        x={2300} y={290} width={70}
-        />
-        <TeleportButton
-        x={2100} y={1650} width={70}
-        />
-        <TeleportButton
-        x={350} y={1090} width={70}
-        />
-
-        {/*  Render all avatars */}
-        {players.map((player) => {
-          const isLocal = player.id === localPlayerId;
-          const renderX = isLocal ? position.x : player.x;
-          const renderY = isLocal ? position.y : player.y;
-          return (
-            <Avatar
-              key={player.id}
-              image={player.image}
-              size={avatarSize}
-              name={player.name}
-              style={{
-                position: "absolute",
-                top: `${renderY}%`,
-                left: `${renderX}%`,
-                transform: "translate(-50%, -50%)",
-                willChange: "top, left, transform",
-              }}
-            />
-          );
-        })}
-
-        {/* Click marker should be positioned in the same world container */}
-        {clickMarker && (
-          <div
-            style={{
-              position: "absolute",
-              top: `${clickMarker.y}%`,
-              left: `${clickMarker.x}%`,
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-            }}
-          >
-            {(() => {
-              const valid = clickMarker.valid !== false;
-              const ringClass = valid
-                ? "bg-blue-400 opacity-50"
-                : "bg-red-500 opacity-60";
-              const coreClass = valid ? "bg-blue-600" : "bg-red-600";
-              return (
-                <>
-                  <span
-                    className={`absolute inline-flex h-8 w-8 rounded-full ${ringClass} animate-ping`}
-                  ></span>
-                  <span
-                    className={`relative inline-flex rounded-full h-3 w-3 ${coreClass} shadow`}
-                  ></span>
-                  {!valid && (
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-red-800">
-                      X
-                    </span>
-                  )}
-                </>
-              );
-            })()}
-          </div>
-        )}
-      </div>
-
-    </div>
+      <AvatarsLayer />
+      <ClickMarker clickMarker={clickMarker} />
+    </MapContainer>
   );
 };
 

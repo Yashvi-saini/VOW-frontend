@@ -62,6 +62,7 @@ const PrivateRoom = ({ x, y, width, height, title, id = "privateRoom", onObstacl
   return (
     <div
       ref={wrapperRef}
+      data-room-id={id === "privateRoom" ? "room-privateRoom" : `room-${id}`}
   className="absolute bg-[#FFF] border-2 border-[#385D99] border-dashed flex items-center justify-center rounded-lg"
       style={{
         left: `${x}px`,

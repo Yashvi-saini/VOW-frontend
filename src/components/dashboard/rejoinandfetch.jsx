@@ -6,6 +6,8 @@ import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
 import CreateWorkspaceModal from "./CreateWorkspaceModal.jsx";  
 
+import CreateWorkspace from "./CreateWorkspace.jsx";  
+
 const RejoinAndFetch = () => {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);

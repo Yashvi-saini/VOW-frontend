@@ -4,12 +4,14 @@ import storage from "redux-persist/lib/storage";
 import userReducer from "./userslice";
 import workspaceReducer from "./userslice"; 
 import filesReducer from "./dashboard/filesSlice";
+import presenceReducer from "./map/presenceSlice";
 
 
 const rootReducer = combineReducers({
   user: userReducer,
   workspace: workspaceReducer,
   files: filesReducer,
+  presence: presenceReducer,
 });
 
 const persistConfig = {

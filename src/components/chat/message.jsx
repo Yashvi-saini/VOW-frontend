@@ -59,8 +59,8 @@ const MessageList = ({ messages, username }) => {
 />
     </div>
 
-    {/* Message Bubble + Reactions */}
-    <div className="flex flex-col space-y-2 w-full relative">
+  {/* Message Bubble + Reactions */}
+  <div className="flex flex-col space-y-2 w-full relative min-w-0">
       <div className="flex items-center space-x-2">
         <p className="text-sm font-semibold text-[#0E1219]">
           {typeof msg.sender === "string"
@@ -84,8 +84,11 @@ const MessageList = ({ messages, username }) => {
         onRemoveReaction={handleReactionClick}
       >
         {msg.content && (
-          <div>
-            <p className="text-sm text-[#333] leading-relaxed whitespace-pre-wrap">
+          <div className="max-w-full">
+            <p
+              className="text-sm text-[#333] leading-relaxed whitespace-pre-wrap"
+              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word', hyphens: 'auto' }}
+            >
               {msg.content}
             </p>
           </div>
