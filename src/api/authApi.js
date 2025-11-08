@@ -9,10 +9,8 @@ export const resetPassword = (newPassword) => api.post("auth/updatepassword", { 
 export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
 
 export const createWorkspace = (data) => {
-
-  return api.post("workspaces/create", data, {
-
-  });
+  // Server will set workspaceToken_<id> as HttpOnly cookie
+  return api.post("workspaces/create", data);
 };
 
 export const joinWorkspace = (inviteCode) => {
@@ -30,53 +28,31 @@ export const getJoinedWorkspaces = () => {
 };
 
 export const rejoinWorkspace = (workspaceId) => {
-  // Prefer workspace-scoped token; fall back to user access token if not present
-  const workspaceToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
+  // Use user access token to authenticate; server refreshes workspace cookie
   const accessToken = localStorage.getItem("accessToken");
-  const authToken = workspaceToken || accessToken;
-
-  if (!authToken) {
-    throw new Error("Missing tokens. Please join the workspace again.");
-  }
-
+  if (!accessToken) throw new Error("Missing access token. Please log in again.");
   return api.get(`/workspaces/${workspaceId}/rejoin`, {
-    headers: { Authorization: `Bearer ${authToken}` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 };
 
 export const deleteWorkspace = (workspaceId) => {
-  // Prefer workspace-scoped token, but fall back to user access token if needed
-  const workspaceToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
+  // Use user access token; workspace cookie will also be sent automatically
   const accessToken = localStorage.getItem("accessToken");
-  const authToken = workspaceToken || accessToken;
-
-  if (!authToken) {
-    throw new Error("No token found for this workspace or user");
-  }
-
+  if (!accessToken) throw new Error("Missing access token.");
   return api.delete(`/workspaces/${workspaceId}`, {
-    headers: { Authorization: `Bearer ${authToken}` },
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 };
 
 export const getMembers = (workspaceId) => {
-  const workspaceToken = localStorage.getItem(`workspaceToken_${workspaceId}`);
-  if (!workspaceToken) {
-    throw new Error("Missing workspace token. Please join or rejoin the workspace.");
-  }
-  return api.get(`/workspaces/${workspaceId}/members`, {
-    headers: { Authorization: `Bearer ${workspaceToken}` },
-  });
+  // Workspace cookie (HttpOnly) will be sent automatically
+  return api.get(`/workspaces/${workspaceId}/members`);
 };
 
 export const createChannel = (data) => {
-  const workspaceToken = localStorage.getItem(`workspaceToken_${data.workspaceId}`);
-  if (!workspaceToken) {
-    throw new Error("Missing workspace token for channel creation.");
-  }
-  return api.post("/channels", data, {
-    headers: { Authorization: `Bearer ${workspaceToken}` },
-  });
+  // Rely on workspace cookie
+  return api.post("/channels", data);
 };
 
 
@@ -105,3 +81,34 @@ export const getChannels = async (workspaceId) => {
 export const createTeam = (workspaceId, payload) => {
   return api.post(`/manager/team/create/${workspaceId}`, payload);
 };
+
+// Retrieve or ensure a direct workspace/context for two users (GET, no body)
+export const getWorkspaceForUsers = (user1Id, user2Id) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return api.get(`/workspace/${user1Id}/${user2Id}`, { headers });
+};
+
+// Assign supervisor (lead) to existing team
+export const assignTeamLead = (workspaceId, teamId, leadId) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return api.put(`/manager/team/assign-lead/${workspaceId}/${teamId}`, { leadId }, { headers });
+};
+
+// Fetch all teams for a workspace
+export const getTeams = (workspaceId) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  // Assuming list endpoint; adjust if backend differs
+  return api.get(`/manager/team/list/${workspaceId}`, { headers });
+};
+
+// Schedule a meeting in a workspace
+export const scheduleMeeting = (workspaceId, body) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return api.post(`/meeting/schedule/${workspaceId}`, body, { headers });
+};
+// Logout (POST) - clears server-side session/cookies
+export const logoutUser = () => api.post("auth/logout");

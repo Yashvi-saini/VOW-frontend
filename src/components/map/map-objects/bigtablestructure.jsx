@@ -8,9 +8,17 @@ const BigTableStructure = ({
   onObstaclesReady,
   position,
   containerRef,
-  imageSize,      // optional square size (px)
-  imageWidth,     // optional width (px)
-  imageHeight,    // optional height (px)
+  imageSize,     
+  imageWidth,     
+  imageHeight,    
+
+  collisionWidthPx,
+  collisionHeightPx,
+  // Or percent override relative to container (0-100)
+  collisionWidthPercent,
+  collisionHeightPercent,
+  // Optional padding (can be negative) applied after size selection (px)
+  collisionPaddingPx = 0,
 }) => {
   const tableRef = useRef(null);
   const bigTableRef = useRef(null);
@@ -39,36 +47,57 @@ const BigTableStructure = ({
           notifyObstacles?.(id, []);
           return;
         }
-
-        // Start with no obstacles from legacy rectangles; we only use the image bounds now.
         const obstacles = [];
 
-        // Also add a collision box for the big table SVG, measured from its DOM box
+
+        const containerRect = container.getBoundingClientRect();
+        const scaleX = containerRect.width / containerWidth;
+        const scaleY = containerRect.height / containerHeight;
+        let centerXpx; let centerYpx; let baseWidthPx; let baseHeightPx;
+
         const tableEl = bigTableRef.current;
         if (tableEl) {
-          const containerRect = container.getBoundingClientRect();
           const tableRect = tableEl.getBoundingClientRect();
-          if (tableRect.width > 0 && tableRect.height > 0) {
-            // Adjust for world scale: convert measured (scaled) px back to unscaled px
-            const scaleX = containerRect.width / containerWidth;
-            const scaleY = containerRect.height / containerHeight;
-            const centerXpx = (tableRect.left - containerRect.left + tableRect.width / 2) / (scaleX || 1);
-            const centerYpx = (tableRect.top - containerRect.top + tableRect.height / 2) / (scaleY || 1);
-            const widthPx = tableRect.width / (scaleX || 1);
-            const heightPx = tableRect.height / (scaleY || 1);
-            const xPercent = (centerXpx / containerWidth) * 100;
-            const yPercent = (centerYpx / containerHeight) * 100;
-            const widthPercent = (widthPx / containerWidth) * 100;
-            const heightPercent = (heightPx / containerHeight) * 100;
-            obstacles.push({
-              id: `${id}-big-table`,
-              x: xPercent,
-              y: yPercent,
-              width: widthPercent-3,
-              height: heightPercent-2,
-            });
-          }
+
+          centerXpx = (tableRect.left - containerRect.left + tableRect.width / 2) / (scaleX || 1);
+          centerYpx = (tableRect.top - containerRect.top + tableRect.height / 2) / (scaleY || 1);
+          baseWidthPx = tableRect.width / (scaleX || 1);
+          baseHeightPx = tableRect.height / (scaleY || 1);
+        } else {
+
+          centerXpx = (tablePosition.x / 100) * containerWidth;
+          centerYpx = (tablePosition.y / 100) * containerHeight;
+
+          baseWidthPx = 220;
+          baseHeightPx = 120;
         }
+
+        let finalWidthPercent;
+        let finalHeightPercent;
+        if (Number.isFinite(collisionWidthPercent) && Number.isFinite(collisionHeightPercent)) {
+          finalWidthPercent = collisionWidthPercent;
+          finalHeightPercent = collisionHeightPercent;
+        } else {
+          let widthPx = Number.isFinite(collisionWidthPx) ? collisionWidthPx : baseWidthPx;
+          let heightPx = Number.isFinite(collisionHeightPx) ? collisionHeightPx : baseHeightPx;
+          if (collisionPaddingPx) {
+            widthPx += collisionPaddingPx * 2;
+            heightPx += collisionPaddingPx * 2;
+          }
+          finalWidthPercent = (widthPx / containerWidth) * 100;
+          finalHeightPercent = (heightPx / containerHeight) * 100;
+        }
+
+        const xPercent = (centerXpx / containerWidth) * 100;
+        const yPercent = (centerYpx / containerHeight) * 100;
+
+        obstacles.push({
+          id: `${id}-big-table`,
+          x: xPercent,
+          y: yPercent,
+          width: finalWidthPercent,
+          height: finalHeightPercent,
+        });
 
           const valid = obstacles.filter(
             (o) => Number.isFinite(o.x) && Number.isFinite(o.y) && Number.isFinite(o.width) && Number.isFinite(o.height) && o.width > 0 && o.height > 0
@@ -84,11 +113,12 @@ const BigTableStructure = ({
 
     setup();
     return () => ro?.disconnect();
-  }, [id, containerRef, tablePosition.x, tablePosition.y, imageSize, imageWidth, imageHeight]);
+  }, [id, containerRef, tablePosition.x, tablePosition.y, imageSize, imageWidth, imageHeight, collisionWidthPx, collisionHeightPx, collisionWidthPercent, collisionHeightPercent, collisionPaddingPx]);
 
   return (
     <div
       ref={tableRef}
+      data-room-id={"room-bigtable"}
       className="absolute border-2 border-dashed border-[#385D99] rounded-lg"
       style={{
         width: "400px",
@@ -98,7 +128,7 @@ const BigTableStructure = ({
         transform: "translate(-50%, -50%)",
       }}
     >
-      {/* Single image representing the structure; its bounds are used as the collision box */}
+
       <img
         ref={bigTableRef}
         src={bigtable}

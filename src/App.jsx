@@ -12,26 +12,23 @@ import ForgotPassword from "./components/forgotpassword";
 import VerifyOtp from "./pages/verifyotp";
 import ResetPassword from "./pages/resetpassword";
 import ResetSuccess from "./pages/resetsuccess";
-import Dashboard from "../src/components/dashboard/dashboard.jsx";
+import Dashboard from "./components/dashboard/dashboard.jsx";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
-import FileTester from "./pages/fileapitester";
+import { useSelector } from "react-redux";
+
 import TermsAndConditions from "./components/terms and conditions";
+
 
 const App = () => {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const signupDone = !!localStorage.getItem("signupDone");
-  const forgotRequested = !!localStorage.getItem("forgotRequested");
+  const { signupPending, forgotRequested: rdxForgot } = useSelector((state) => state.user || {});
+  const forgotRequested = rdxForgot || !!localStorage.getItem("forgotRequested");
 
-  
-
-  const verifyCondition = !isLoggedIn || (signupDone || forgotRequested);
-  const verifyRedirectTo = isLoggedIn
-    ? "/"
-    : signupDone
-    ? "/signup"
-    : "/forgot-password";
+  // Allow verify-otp whenever a flow is active (signup or forgot), regardless of login
+  const verifyCondition = !!signupPending || !!forgotRequested;
+  const verifyRedirectTo = forgotRequested ? "/forgot-password" : "/signup";
 
   return (
     <Router>
@@ -42,8 +39,8 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-        <Route path="/filetester" element={<FileTester />} />
-
+       
+        
         <Route
           path="/verify-otp"
           element={
@@ -102,12 +99,13 @@ const App = () => {
           path="/map"
           element={
             <ProtectedRoute>
-              <FlowProtectedRoute
-                condition={sessionStorage.getItem("allowMap") === "true"}
-                redirectTo="/dashboard"
-              >
-                <Map />
-              </FlowProtectedRoute>
+                <FlowProtectedRoute
+                  // allow when session flag set by dashboard button
+                  condition={sessionStorage.getItem("allowMap") === "true"}
+                  redirectTo="/login"
+                >
+                  <Map />
+                </FlowProtectedRoute>
             </ProtectedRoute>
           }
         />

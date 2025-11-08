@@ -1,37 +1,46 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const initialState = {
+  username: null,
+  email: null,
+  avatar: null,
+  fullName: null,
+  workspaceId: null,
+  workspaceToken: null,
+  workspaceName: null,
+  // profile gating
+  isProfileNeeded: false,
+  signupDone: false,
+  // transient auth/OTP flows (can be persisted but will be cleared on success)
+  signupPending: false,
+  forgotRequested: false,
+  pendingEmail: null,
+  pendingMode: null, // "signup" | "forgot"
+};
+
 const userSlice = createSlice({
   name: "user",
-  initialState: {
-    username: null,
-    fullName: null,
-    email: null,
-    avatar: null,
-    workspaceId: null,
-    workspaceToken: null,
-  },
+  initialState,
   reducers: {
     setUsername: (state, action) => {
       state.username = action.payload;
     },
     setUserProfile: (state, action) => {
-      const { username, fullName, email, avatar } = action.payload || {};
-      if (username !== undefined) state.username = username;
-      if (fullName !== undefined) state.fullName = fullName;
-      if (email !== undefined) state.email = email;
-      if (avatar !== undefined) state.avatar = avatar;
-    },
+  state.profile = action.payload; // store full profile object
+},
     setUserAvatar: (state, action) => {
       state.avatar = action.payload;
     },
     setWorkspaceContext: (state, action) => {
-      const { workspaceId, workspaceToken } = action.payload || {};
+      const { workspaceId, workspaceToken, workspaceName } = action.payload || {};
       state.workspaceId = workspaceId || null;
       state.workspaceToken = workspaceToken || null;
+      state.workspaceName = workspaceName || null;
     },
     clearWorkspaceContext: (state) => {
       state.workspaceId = null;
       state.workspaceToken = null;
+      state.workspaceName = null;
     },
     clearUser: (state) => {
       state.username = null;
@@ -40,6 +49,37 @@ const userSlice = createSlice({
       state.avatar = null;
       state.workspaceId = null;
       state.workspaceToken = null;
+    },
+    setProfileNeeded: (state, action) => {
+  state.isProfileNeeded = action.payload; 
+},
+    setSignupDone: (state, action) => {
+      state.signupDone = action.payload;
+    },
+    // Flow controls
+    startSignupFlow: (state, action) => {
+      state.signupPending = true;
+      state.pendingEmail = action.payload || null;
+      state.pendingMode = "signup";
+    },
+    clearSignupFlow: (state) => {
+      state.signupPending = false;
+      if (state.pendingMode === "signup") {
+        state.pendingEmail = null;
+        state.pendingMode = null;
+      }
+    },
+    startForgotFlow: (state, action) => {
+      state.forgotRequested = true;
+      state.pendingEmail = action.payload || null;
+      state.pendingMode = "forgot";
+    },
+    clearForgotFlow: (state) => {
+      state.forgotRequested = false;
+      if (state.pendingMode === "forgot") {
+        state.pendingEmail = null;
+        state.pendingMode = null;
+      }
     },
   },
 });
@@ -51,6 +91,12 @@ export const {
   setWorkspaceContext,
   clearWorkspaceContext,
   clearUser,
+  setProfileNeeded,
+  setSignupDone,
+  startSignupFlow,
+  clearSignupFlow,
+  startForgotFlow,
+  clearForgotFlow,
 } = userSlice.actions;
 
 export default userSlice.reducer;

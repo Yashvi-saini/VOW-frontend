@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createWorkspace } from "../../api/authApi"; // adjust path as needed
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice"; // normalized path
-const CreateWorkspace = () => {
+const CreateWorkspace = ({ onCreated }) => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [emails, setEmails] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,22 +15,22 @@ const CreateWorkspace = () => {
 
     try {
       setLoading(true);
-      const response = await createWorkspace({ workspaceName, inviteEmails });
-      const { workspace, workspaceToken } = response.data;
+  const response = await createWorkspace({ workspaceName, inviteEmails });
+  const { workspace } = response.data; // token is set as HttpOnly cookie
       const workspaceId = workspace._id || workspace.id;
       const inviteCode = workspace.inviteCode;
 console.log("Checking token for:", workspaceId);
       localStorage.setItem("workspaceId", workspaceId);
       localStorage.setItem("inviteCode", inviteCode);
-      localStorage.setItem(`workspaceToken_${workspaceId}`, workspaceToken); 
-
-console.log("Token found:", localStorage.getItem(`workspaceToken_${workspaceId}`));
-console.log("token is",workspaceToken);
- console.log("Dispatching workspace context:", { workspaceId, workspaceToken});
-dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
+  console.log("Dispatching workspace context:", { workspaceId });
+  dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null }));
       alert("Workspace created successfully!");
       setWorkspaceName("");
       setEmails("");
+      // Notify parent if provided (e.g., to refresh and/or close modal)
+      if (typeof onCreated === "function") {
+        try { onCreated({ workspace }); } catch (_) {}
+      }
     } catch (err) {
       const msg =
         err.response?.data?.message ||
@@ -45,11 +45,11 @@ dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
   return (
     <div className="relative z-10 ml-[71px]">
       <div className="max-w-lg space-y-6">
-        <h2 className="text-[36px] font-bold mb-6 text-[#000]">Create a New Workspace</h2>
+  <h2 className="text-[36px] font-bold mb-6 text-black">Create a New Workspace</h2>
 
         {/* Workspace Name */}
         <div>
-          <label className="block text-[24px] font-semibold mb-2 text-[#000]">Workspace Name</label>
+          <label className="block text-[24px] font-semibold mb-2 text-black">Workspace Name</label>
           <input
             type="text"
             value={workspaceName}
@@ -61,7 +61,7 @@ dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
 
         {/* Logo Picker (UI only) */}
         <div>
-          <label className="block font-semibold border-[#707070] text-[24px] mb-2 text-[#000]">Choose Workspace Logo</label>
+          <label className="block font-semibold border-[#707070] text-[24px] mb-2 text-black">Choose Workspace Logo</label>
           <div className="flex items-center gap-4">
             <button className="text-xl font-bold text-[#5E9BFF] hover:text-[#4A8CE0]">{"<"}</button>
             {Array(6)
@@ -75,7 +75,7 @@ dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
 
         {/* Total Members (UI only) */}
         <div>
-          <label className="block font-semibold mb-2 text-[#000] text-[24px]">Total Members</label>
+          <label className="block font-semibold mb-2 text-black text-[24px]">Total Members</label>
           <div className="flex gap-3 bg-[#EFE7F6] border-[#707070]">
             <button className="border border-gray-300 px-4 py-2 rounded-lg hover:bg-[#FFF] transition text-[#6B7280]">{"<20"}</button>
             <button className="border border-gray-300 px-4 py-2 rounded-lg hover:bg-[#FFF] transition text-[#6B7280]">21–40</button>
@@ -86,7 +86,7 @@ dispatch(setWorkspaceContext({ workspaceId, workspaceToken }));
 
         {/* Email Input */}
         <div>
-          <label className="block text-[24px] font-semibold mb-2 text-[#000]">Invite Members (comma-separated emails)</label>
+          <label className="block text-[24px] font-semibold mb-2 text-black">Invite Members (comma-separated emails)</label>
           <input
             type="text"
             value={emails}
