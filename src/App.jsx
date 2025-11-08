@@ -39,8 +39,8 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-       
-        
+
+
         <Route
           path="/verify-otp"
           element={
