@@ -5,6 +5,18 @@ import { logoutUser } from "../../api/authApi";
 import { setUserProfile } from "../userslice";
 import Toast from "../common/Toast";
 
+// Convert any date-like value to strict YYYY-MM-DD for <input type="date">
+const toYYYYMMDD = (val) => {
+  if (!val) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+  const d = new Date(val);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
 const defaultAvatars = {
   male: "/avatars/male/avatar1.png",
   female: "/avatars/female/avatar1.png",
@@ -41,7 +53,7 @@ const ProfileSettings = ({ onClose }) => {
           fullName: data.fullName || rdxProfile?.fullName || "",
           email: data.email || rdxProfile?.email || "",
           gender: (data.gender || rdxProfile?.gender || "other").toLowerCase(),
-          dob: data.dob || "",
+          dob: toYYYYMMDD(data.dob) || "",
           organisation: data.organisation || rdxProfile?.organisation || "",
           avatar: data.avatar || rdxProfile?.avatar || "",
         }));
@@ -51,6 +63,7 @@ const ProfileSettings = ({ onClose }) => {
           fullName: rdxProfile?.fullName || "",
           email: rdxProfile?.email || "",
           gender: (rdxProfile?.gender || "other").toLowerCase(),
+          dob: toYYYYMMDD(rdxProfile?.dob) || "",
           organisation: rdxProfile?.organisation || "",
           avatar: rdxProfile?.avatar || "",
         }));
@@ -66,7 +79,11 @@ const ProfileSettings = ({ onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    if (name === "dob") {
+      setForm((p) => ({ ...p, dob: toYYYYMMDD(value) }));
+    } else {
+      setForm((p) => ({ ...p, [name]: value }));
+    }
   };
 
   const handleSave = async () => {
@@ -77,7 +94,7 @@ const ProfileSettings = ({ onClose }) => {
         fullName: form.fullName,
         organisation: form.organisation,
         gender: form.gender,
-        dob: form.dob,
+        dob: toYYYYMMDD(form.dob) || "",
       });
       // Refresh profile info and update Redux so UI (Topbar/Sidebar) reflects immediately
       try {
@@ -198,7 +215,14 @@ const ProfileSettings = ({ onClose }) => {
           </div>
           <div>
             <label className="block text-sm text-[#2B2B2B] mb-1">Date of Birth</label>
-            <input type="date" name="dob" value={form.dob || ""} onChange={handleChange} className="w-full h-10 border rounded-lg px-3 bg-white" />
+            <input
+              type="date"
+              name="dob"
+              value={form.dob || ""}
+              onChange={handleChange}
+              className="w-full h-10 border rounded-lg px-3 bg-white"
+            />
+            <p className="text-[10px] text-[#707070] mt-1">Format: YYYY-MM-DD</p>
           </div>
           <div>
             <label className="block text-sm text-[#2B2B2B] mb-1">Organization Name</label>
