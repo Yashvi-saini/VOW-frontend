@@ -4,6 +4,9 @@ import CreateAndJoin from "./createandjoin";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
+import CreateWorkspaceModal from "./CreateWorkspaceModal.jsx";  
+
+import CreateWorkspace from "./CreateWorkspace.jsx";  
 import Toast from "../common/Toast";
 
 const RejoinAndFetch = () => {
@@ -14,8 +17,8 @@ const RejoinAndFetch = () => {
   const clickCounts = useRef({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  useEffect(() => {
+const [modalOpen, setModalOpen] = useState(false);
+  
     const fetchWorkspaces = async () => {
       setLoading(true);
       try {
@@ -33,8 +36,9 @@ const RejoinAndFetch = () => {
       }
     };
 
-    fetchWorkspaces();
-  }, []);
+  useEffect(() => {
+  fetchWorkspaces();
+}, []);
 
   const handleTripleClick = (workspaceId) => {
     const count = (clickCounts.current[workspaceId] || 0) + 1;
@@ -127,10 +131,22 @@ const RejoinAndFetch = () => {
   }
 
   if (workspaces.length === 0) {
-    return <CreateAndJoin />;
+    return (
+      <>
+        <CreateAndJoin onCreate={() => setModalOpen(true)} />
+        {modalOpen && (
+          <CreateWorkspaceModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onInvitesSent={fetchWorkspaces}
+          />
+        )}
+      </>
+    );
   }
 
   return (
+    <>
     <div className="grid grid-cols-3 overflow-x-auto hide-scrollbar py-6 px-6 mb-12 bg-[#FEFEFE] rounded-xl">
       <div className="flex gap-12">
         {workspaces.map((ws) => (
@@ -175,7 +191,18 @@ const RejoinAndFetch = () => {
       {/* Toast notifications */}
       <Toast show={toast.show} type={toast.type} message={toast.message} />
     </div>
-  );
+
+    {/* ✅ Modal OUTSIDE the grid */}
+    {modalOpen && (
+      <CreateWorkspaceModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onInvitesSent={fetchWorkspaces}
+      />
+    )}
+  </>
+);
+
 };
 
 export default RejoinAndFetch;

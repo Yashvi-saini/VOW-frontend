@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createWorkspace } from "../../api/authApi";
+import { createWorkspace } from "../../api/authApi"; // adjust path as needed
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
 import Toast from "../common/Toast";
@@ -66,6 +66,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
       >
         <button
           onClick={handleClose}
+          aria-label="Close"
           className="absolute top-4 right-4 text-black font-bold text-3xl"
         >
           ×

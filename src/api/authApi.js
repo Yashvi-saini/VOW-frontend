@@ -82,5 +82,33 @@ export const createTeam = (workspaceId, payload) => {
   return api.post(`/manager/team/create/${workspaceId}`, payload);
 };
 
+// Retrieve or ensure a direct workspace/context for two users (GET, no body)
+export const getWorkspaceForUsers = (user1Id, user2Id) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return api.get(`/workspace/${user1Id}/${user2Id}`, { headers });
+};
+
+// Assign supervisor (lead) to existing team
+export const assignTeamLead = (workspaceId, teamId, leadId) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return api.put(`/manager/team/assign-lead/${workspaceId}/${teamId}`, { leadId }, { headers });
+};
+
+// Fetch all teams for a workspace
+export const getTeams = (workspaceId) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  // Assuming list endpoint; adjust if backend differs
+  return api.get(`/manager/team/list/${workspaceId}`, { headers });
+};
+
+// Schedule a meeting in a workspace
+export const scheduleMeeting = (workspaceId, body) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return api.post(`/meeting/schedule/${workspaceId}`, body, { headers });
+};
 // Logout (POST) - clears server-side session/cookies
 export const logoutUser = () => api.post("auth/logout");

@@ -59,8 +59,8 @@ const MessageList = ({ messages, username }) => {
 />
     </div>
 
-    {/* Message Bubble + Reactions */}
-    <div className="flex flex-col space-y-2 w-full relative">
+  {/* Message Bubble + Reactions */}
+  <div className="flex flex-col space-y-2 w-full relative min-w-0">
       <div className="flex items-center space-x-2">
         <p className="text-sm font-semibold text-[#0E1219]">
           {typeof msg.sender === "string"
@@ -85,7 +85,7 @@ const MessageList = ({ messages, username }) => {
       >
         {msg.content && (
           <div>
-            <p className="text-sm max-w-full text-[#333] leading-relaxed break-all whitespace-pre-wrap">
+            <p className="text-sm max-w-full text-[#333] leading-relaxed whitespace-pre-wrap" style={{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
               {msg.content}
             </p>
           </div>

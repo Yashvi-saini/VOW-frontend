@@ -88,28 +88,42 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
     console.log('[p2p] createPeerConnection target=', targetUserId);
     const pc = new RTCPeerConnection({
       iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
+        { urls: 'stun:stun.l.google.com:19302' },
       ],
     });
-    pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        console.log('[p2p] local ICE candidate', e.candidate);
-        socket.emit("ice-candidate", { to: targetUserId, candidate: e.candidate, fromUserId: profile._id });
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        console.log('[p2p] ICE candidate generated, sending to peer');
+        socket.emit('ice-candidate', {
+          toUserId: targetUserId,
+          candidate: event.candidate,
+          fromUserId: selfUserId,
+        });
       } else {
-        console.log('[p2p] ICE gathering complete');
+        console.log('[p2p] ICE candidate gathering complete');
       }
     };
-    pc.ontrack = (e) => {
-      const [remoteStream] = e.streams;
-      if (remoteAudioRef.current && remoteStream) {
+
+    pc.ontrack = (event) => {
+      const [stream] = event.streams;
+      const remoteStream = stream || (() => {
+        const s = new MediaStream();
+        s.addTrack(event.track);
+        return s;
+      })();
+      if (remoteAudioRef.current) {
         remoteAudioRef.current.srcObject = remoteStream;
-        console.log('[p2p] remote stream received tracks=', remoteStream.getTracks().map(t=>t.kind));
       }
+      const tracks = remoteStream.getTracks ? remoteStream.getTracks() : [event.track];
+      console.log('[p2p] remote stream received tracks=', tracks.map(t => t.kind));
+      setCallStatus('in-call');
     };
+
     pc.onconnectionstatechange = () => {
       console.log('[p2p] connectionState=', pc.connectionState);
-      if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
-        setCallStatus("ended");
+      if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+        setCallStatus('ended');
         cleanupPeer();
       }
     };
