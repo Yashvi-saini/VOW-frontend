@@ -74,9 +74,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
           </button>
         </nav>
 
-        {/* Team Sections */}
+    {/* Team Sections */}
   <TeamSection title="Team" onChannelSelect={onChannelSelect} />
-  <MembersSection />
+  <MembersSection onSelectChannel={onChannelSelect} onOpenChat={onChatClick} />
       </div>
 
       {/* Settings at bottom */}
