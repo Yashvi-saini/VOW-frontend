@@ -81,3 +81,6 @@ export const getChannels = async (workspaceId) => {
 export const createTeam = (workspaceId, payload) => {
   return api.post(`/manager/team/create/${workspaceId}`, payload);
 };
+
+// Logout (POST) - clears server-side session/cookies
+export const logoutUser = () => api.post("auth/logout");

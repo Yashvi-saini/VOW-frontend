@@ -37,7 +37,10 @@ const { fullName, email, avatar } = profile || {};
         </div>
 
         
-        <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-4 py-3 mb-8">
+        <button
+          onClick={() => setActiveSection('profile')}
+          className="rounded-2xl border border-dashed border-[#EFE7F6] px-4 py-3 mb-8 w-full text-left hover:bg-[#2E0F52] transition"
+        >
           <div className="flex items-center gap-3">
             <img src={avatar ? avatar : userIcon} alt="Avatar" className="w-8 h-8 rounded-full" />
             <div>
@@ -45,7 +48,7 @@ const { fullName, email, avatar } = profile || {};
               <p className="text-xs text-[#B9B0C8]">{email || "No Email"}</p>
             </div>
           </div>
-        </div>
+        </button>
 
         
         <div className="flex flex-col gap-4 mb-8">
