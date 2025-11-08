@@ -85,7 +85,7 @@ const MessageList = ({ messages, username }) => {
       >
         {msg.content && (
           <div>
-            <p className="text-sm text-[#333] leading-relaxed break-all whitespace-pre-wrap">
+            <p className="text-sm max-w-full text-[#333] leading-relaxed break-all whitespace-pre-wrap">
               {msg.content}
             </p>
           </div>
