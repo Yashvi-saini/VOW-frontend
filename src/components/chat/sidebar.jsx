@@ -108,7 +108,7 @@ const Sidebar = ({
   };
 
   return (
-    <aside className="w-[320px] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
+    <aside className="w-[290px] h-full bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#3D1B5F]">
         <div className="flex items-center gap-2">
