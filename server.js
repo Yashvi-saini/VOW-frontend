@@ -18,8 +18,29 @@ const io = new Server(server, {
   },
 });
 
+// Simple health endpoint to verify server reachability
+app.get('/health', (req, res) => {
+  res.json({ ok: true, time: Date.now() });
+});
+
 // In-memory avatar presence (by workspace). For production consider persistence or TTL cleanup.
 const workspacePresence = new Map(); // workspaceId -> Map(userId -> { userId, name, x, y, updatedAt })
+
+// Engine.IO level diagnostics (connection/upgrade/errors)
+io.engine.on("connection", (rawSocket) => {
+  const origin = rawSocket?.request?.headers?.origin;
+  const ip = rawSocket?.request?.socket?.remoteAddress;
+  console.log("[engine] connection transport=", rawSocket.transport.name, "origin=", origin, "ip=", ip);
+  rawSocket.on("upgrade", () => {
+    console.log("[engine] upgraded to", rawSocket.transport.name);
+  });
+  rawSocket.on("error", (err) => {
+    console.log("[engine] error", err?.message || err);
+  });
+  rawSocket.on("close", (reason) => {
+    console.log("[engine] close", reason);
+  });
+});
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);

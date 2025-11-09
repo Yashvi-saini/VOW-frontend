@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "server": "node server.js",
+    "dev:all": "powershell -NoProfile -Command \"Start-Process powershell -ArgumentList '-NoProfile','-Command','npm run server'; npm run dev\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
