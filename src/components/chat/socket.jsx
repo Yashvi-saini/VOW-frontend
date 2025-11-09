@@ -1,29 +1,28 @@
+// socket.jsx
 import { io } from "socket.io-client";
 
-// Resolve Socket URL for cross-device usage:
-// 1) Use VITE_SOCKET_URL if provided (recommended for LAN/IP hosting)
-// 2) Fallback to current host with port (e.g., http://<host>:8001)
-const DEFAULT_PORT = import.meta.env.VITE_SOCKET_PORT || 8001;
-const ENV_URL = import.meta.env.VITE_SOCKET_URL;
-const FALLBACK_HOST = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-export const SOCKET_URL = ENV_URL || `http://${FALLBACK_HOST}:${DEFAULT_PORT}`;
+// Point to your backend server
+// Use localhost in dev, your domain in production
+export const SOCKET_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://vow-org.me"       // your deployed backend
+    : "http://localhost:8001";   // local dev backend
 
+// Create a single socket instance
 const socket = io(SOCKET_URL, {
-  autoConnect: true,
-  transports: ["websocket"],
+  transports: ["websocket"], // force WebSocket for stability
+  withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
 });
 
 socket.on("connect", () => {
-  console.log("[socket] connected:", socket.id);
+  console.log("✅ Connected to socket server:", SOCKET_URL, "as", socket.id);
 });
-socket.on("connect_error", (err) => {
-  console.error("[socket] connect_error:", err?.message || err);
-});
-socket.on("reconnect", (attempt) => {
-  console.log("[socket] reconnected after attempts:", attempt, "id:", socket.id);
-});
+
 socket.on("disconnect", (reason) => {
-  console.warn("[socket] disconnected:", reason);
+  console.warn("⚠️ Disconnected from socket server:", reason);
 });
 
 export default socket;
