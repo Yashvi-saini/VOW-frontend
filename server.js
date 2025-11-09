@@ -7,9 +7,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    // Allow your production domains. Regex allows any Vercel preview domain as well.
+    // Allow your production and local dev origins. Regex allows any Vercel preview domain as well.
     origin: [
-      "https://vow-org.me",
+      "https://vow-blush.vercel.app",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
       /\.vercel\.app$/
     ],
     credentials: true,

@@ -6,11 +6,17 @@ const ENV_PATH = import.meta.env.VITE_SOCKET_PATH || "/socket.io";
 const isBrowser = typeof window !== "undefined";
 const pageProtocol = isBrowser ? window.location.protocol : "http:";
 const pageOrigin = isBrowser ? window.location.origin : `http://localhost:${DEFAULT_PORT}`;
+const hostname = isBrowser ? window.location.hostname : "localhost";
+const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
 
-// Prefer explicit URL from env. If absent, derive from current origin.
-// Note: On HTTPS pages, WebSocket must be WSS and backend must terminate TLS.
+// Prefer explicit URL from env. If absent:
+// - In localhost dev, default to ws://localhost:8001 (or VITE_SOCKET_PORT)
+// - Otherwise, derive from current page origin (http->ws, https->wss)
 export const SOCKET_URL = ENV_URL
-  || (pageProtocol === "https:" ? pageOrigin.replace(/^https/, "wss") : pageOrigin.replace(/^http/, "ws"));
+  || (isLocalhost
+    ? `ws://localhost:${DEFAULT_PORT}`
+    : (pageProtocol === "https:" ? pageOrigin.replace(/^https/, "wss") : pageOrigin.replace(/^http/, "ws"))
+  );
 
 const socket = io(SOCKET_URL, {
   autoConnect: true,
