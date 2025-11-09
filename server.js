@@ -41,6 +41,22 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(process.env.PORT || 8001, () => {
-  console.log("🚀 Chat server running");
+// Health check to verify server is reachable
+app.get('/health', (req, res) => {
+  res.json({ ok: true, time: Date.now() });
+});
+
+const PORT = process.env.PORT || 8001;
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[server] Port ${PORT} is already in use. Set PORT to a free port and retry.`);
+  } else {
+    console.error('[server] Error:', err);
+  }
+  process.exit(1);
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
