@@ -29,11 +29,6 @@ const InfoBar = ({ channelName = 'Team 1', memberCount = 0, onlineCount = 0, onS
           <p className="text-[26px] mr-2">#</p>
           <p className="text-2xl pt-0.5 truncate max-w-40" title={channelName}>{channelName}</p>
         </div>
-        <div className="flex items-center gap-3 text-sm md:text-base">
-          <img src={guser} alt="members" className="w-5 h-5" />
-          <p>{memberCount} members</p>
-          <p>{onlineCount} online</p>
-        </div>
         <div className="flex items-center gap-5 mr-3">
           <button type="button" className="w-5" title="Pinned">
             <img src={pin} alt="pin" className="w-4" />

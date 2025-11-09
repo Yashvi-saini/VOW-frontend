@@ -6,7 +6,7 @@ import video from "../../assets/Video.svg";
 
 const Header = ({ title = "Chat", onCallClick }) => {
   return (
-    <header className="bg-[#200539] border-b border-[#BCBCBC] p-4 flex justify-between items-center">
+    <header className="bg-[#200539] border-b border-[#BCBCBC] p-3 flex justify-between items-center">
       <h3 className="text-2xl font-semibold text-white">{title}</h3>
       <div className="flex gap-2">
         <img

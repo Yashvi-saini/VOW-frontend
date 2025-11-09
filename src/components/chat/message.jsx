@@ -40,7 +40,7 @@ const MessageList = ({ messages, username }) => {
         const reactions = messageReactions[index] || [];
 
         return (
-         <div key={msg._id || index} className="flex w-full group">
+         <div key={msg._id || index} className="flex w-[90vw] group">
   <div
     className={`flex items-start space-x-3 w-full ${
       isSentByUser ? "flex-row space-x-reverse" : ""
@@ -85,7 +85,7 @@ const MessageList = ({ messages, username }) => {
       >
         {msg.content && (
           <div>
-            <p className="text-sm max-w-full text-[#333] leading-relaxed whitespace-pre-wrap" style={{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
+            <p className="text-sm w-auto text-[#333] leading-relaxed whitespace-pre-wrap" style={{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
               {msg.content}
             </p>
           </div>

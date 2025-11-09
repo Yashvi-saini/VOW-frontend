@@ -54,8 +54,8 @@ const InputBox = ({
   };
 
   return (
-    <footer className="border-[#BCBCBC] p-4">
-      <div className="flex items-end border-2 rounded-2xl mx-12 pr-4 py-2">
+    <footer className="border-[#BCBCBC] p-4 w-full max-w-full">
+      <div className="flex items-end border-2 rounded-2xl w-full max-w-full pr-4 py-2">
         {/* Left section: Textarea + icons */}
         <div className="flex flex-col w-full">
           <textarea

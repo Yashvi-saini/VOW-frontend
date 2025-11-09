@@ -55,6 +55,12 @@ export const createChannel = (data) => {
   return api.post("/channels", data);
 };
 
+// Rename a channel by id
+export const renameChannel = (channelId, name) => {
+  // Workspace cookie should authorize this like other channel endpoints
+  return api.put(`/channels/${channelId}`, { name });
+};
+
 
 export const sendMessageToChannel = (channelId, content, attachments = []) => {
   const token = localStorage.getItem("accessToken");
@@ -100,8 +106,16 @@ export const assignTeamLead = (workspaceId, teamId, leadId) => {
 export const getTeams = (workspaceId) => {
   const token = localStorage.getItem("accessToken");
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-  // Assuming list endpoint; adjust if backend differs
-  return api.get(`/manager/team/list/${workspaceId}`, { headers });
+  // Updated endpoint to fetch all teams per new spec
+  return api.get(`/manager/team/all/${workspaceId}`, { headers });
+};
+
+// Rename a team
+export const renameTeam = (workspaceId, teamId, newName) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  // API expects { newName: "string" }
+  return api.put(`/manager/team/rename/${workspaceId}/${teamId}`, { newName }, { headers });
 };
 
 // Schedule a meeting in a workspace
