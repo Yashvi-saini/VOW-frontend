@@ -6,7 +6,14 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*", credentials: true },
+  cors: {
+    // Allow your production domains. Regex allows any Vercel preview domain as well.
+    origin: [
+      "https://vow-org.me",
+      /\.vercel\.app$/
+    ],
+    credentials: true,
+  },
 });
 
 // In-memory avatar presence (by workspace). For production consider persistence or TTL cleanup.
