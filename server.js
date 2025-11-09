@@ -25,10 +25,43 @@ const io = new Server(server, {
     },
     credentials: true,
   },
+  allowRequest: (req, callback) => {
+    // Detailed low-level request logging for polling & upgrade phases
+    const url = req.url;
+    const origin = req.headers.origin;
+    const ua = req.headers['user-agent'];
+    console.log('[allowRequest]', { url, origin, ua });
+    callback(null, true);
+  }
+});
+
+// Express middleware to log raw HTTP polling requests hitting /socket.io
+app.use((req, res, next) => {
+  if (req.path && req.path.startsWith('/socket.io')) {
+    console.log('[socket.io][http]', req.method, req.url, 'origin=', req.headers.origin, 'sid=', req.query.sid);
+  }
+  next();
+});
+
+// Engine.IO level diagnostics to trace 400 causes
+io.engine.on('connection_error', (err) => {
+  console.log('[engine][connection_error]', err.message, err.code, err.context || '');
+});
+io.engine.on('initial_headers', (headers, req) => {
+  console.log('[engine][initial_headers]', req.url);
+});
+io.engine.on('headers', (headers, req) => {
+  console.log('[engine][headers]', req.url);
+});
+io.engine.on('upgrade', (req) => {
+  console.log('[engine][upgrade]', req.url, 'transport=', req._query && req._query.transport);
+});
+io.engine.on('connection', (rawSocket) => {
+  console.log('[engine][connection] id=', rawSocket.id, 'transport=', rawSocket.transport.name);
 });
 
 io.on("connection", (socket) => {
-  console.log("🔵 User connected:", socket.id);
+  console.log("🔵 User connected:", socket.id, 'transport=', socket.conn.transport.name);
 
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
@@ -47,8 +80,8 @@ io.on("connection", (socket) => {
     io.to(message.channelId).emit("message", message);
   });
 
-  socket.on("disconnect", () => {
-    console.log(`🔴 ${socket.id} disconnected`);
+  socket.on("disconnect", (reason) => {
+    console.log(`🔴 ${socket.id} disconnected`, 'reason=', reason);
     io.emit("user-disconnected", { userId: socket.id });
   });
 });

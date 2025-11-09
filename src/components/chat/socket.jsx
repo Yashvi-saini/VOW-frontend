@@ -10,10 +10,11 @@ export const SOCKET_PATH = import.meta.env.VITE_SOCKET_PATH || '/socket.io';
 
 // Enable deep debug logging via ?socketDebug or VITE_SOCKET_DEBUG=true
 const DEBUG = (import.meta.env.VITE_SOCKET_DEBUG === 'true') || (typeof window !== 'undefined' && /[?&]socketDebug(=true)?/i.test(window.location.search));
+const FORCE_POLLING = (import.meta.env.VITE_SOCKET_FORCE_POLLING === 'true') || (typeof window !== 'undefined' && /[?&]forcePolling(=true)?/i.test(window.location.search));
 
 const socket = io(SOCKET_URL, {
   path: SOCKET_PATH,
-  transports: ["websocket", "polling"], // allow fallback if websocket blocked
+  transports: FORCE_POLLING ? ["polling"] : ["websocket", "polling"], // allow forcing polling while debugging
   withCredentials: true,
   reconnection: true,
   reconnectionAttempts: Infinity,
@@ -23,7 +24,7 @@ const socket = io(SOCKET_URL, {
 });
 
 if (DEBUG) {
-  console.log('[socket][debug] init', { SOCKET_URL, SOCKET_PATH, ENV_URL, isProd });
+  console.log('[socket][debug] init', { SOCKET_URL, SOCKET_PATH, ENV_URL, isProd, FORCE_POLLING });
   if (typeof window !== 'undefined') {
     window.__socket = socket; // expose for manual inspection
   }
