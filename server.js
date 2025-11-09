@@ -7,10 +7,22 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173", // local dev
-      "https://vow-blush.vercel.app" // deployed frontend
-    ],
+    // Allow list covers local dev, primary production domains, and any Vercel preview.
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // non-browser or same-origin
+      const allowed = [
+        'http://localhost:5173',
+        'https://vow-blush.vercel.app',
+        'https://vow-live.me',
+        'https://vow-org.me'
+      ];
+      const vercelPreview = /\.vercel\.app$/i.test(origin);
+      if (allowed.includes(origin) || vercelPreview) {
+        return callback(null, true);
+      }
+      console.warn('[cors] blocked origin', origin);
+      return callback(new Error('CORS not allowed for origin: ' + origin));
+    },
     credentials: true,
   },
 });

@@ -1,12 +1,12 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; 
+import storage from "redux-persist/lib/storage";
+
 import userReducer from "./userslice";
 import presenceReducer from "./map/presenceSlice";
-import workspaceReducer from "./userslice"; 
+import workspaceReducer from "./workspaceSlice"; 
 import filesReducer from "./dashboard/filesSlice";
 import teamReducer from "./chat/teamslices";
-
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -19,22 +19,17 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user"], 
+  whitelist: ["user", "workspace"], // persist both if needed
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
-
 
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, 
+      serializableCheck: false,
     }),
 });
 
-
 export const persistor = persistStore(store);
-
-
-
