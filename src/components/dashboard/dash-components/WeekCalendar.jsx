@@ -44,7 +44,7 @@ export default function WeekCalendar({ currentDate, selectedDate, onDateSelect, 
   };
 
   return (
-    <div className="rounded-xl p-4  border border-none relative">
+    <div className="rounded-xl   border border-none relative">
       {/* Month Header */}
       <div className="flex items-center justify-between mb-4 rounded-4xl text-white bg-[#5C0EA4] px-1">
         <button onClick={goToPreviousMonth} className="bg-white p-3 rounded-full">
@@ -57,7 +57,7 @@ export default function WeekCalendar({ currentDate, selectedDate, onDateSelect, 
       </div>
 
       {/* Week Navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-2">
         <button onClick={goToPreviousWeek} className="p-2 rounded-full">
           <img src={icon} alt="prev-week" className="w-4 h-4 rotate-180" />
         </button>

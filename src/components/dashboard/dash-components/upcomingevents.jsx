@@ -10,7 +10,7 @@ export default function UpcomingEvents() {
   }, [selectedDate]);
 
   return (
-    <div className=" w-[590px] p-4 bg-[radial-gradient(circle_at_center,_rgba(239,230,246,1)_40%,_rgba(225,208,238,0.9)_70%)] rounded-2xl ">
+    <div className=" w-[590px] py-8 px-6 bg-[radial-gradient(circle_at_center,_rgba(239,230,246,1)_40%,_rgba(225,208,238,0.9)_70%)] rounded-2xl ">
       <h2 className="text-2xl font-bold mb-4">Upcoming Meetings</h2>
       <WeekCalendar
       currentDate={weekAnchor}

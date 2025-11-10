@@ -279,26 +279,26 @@ const FileTransfer = () => {
   };
 
   return (
-  <div className="relative h-full flex flex-col bg-gray-50">
+  <div className="relative h-full flex flex-col bg-gray-50 m-15 mt-10">
       {/* Blur overlay for content area when share dialog is open */}
       {showShareDialog && (
         <div className="absolute inset-0 backdrop-blur-sm bg-white/20 z-40 pointer-events-none"></div>
       )}
       
       {/* Search and Upload Section (Header lives in Topbar) */}
-      <div className="bg-white p-4 border-b border-gray-200">
+      <div className="bg-white pb-4 border-b border-gray-200">
         <div className="flex items-center justify-between gap-4">
           {/* Search Bar */}
-          <div className="flex-1 relative">
+          <div className="flex-1 ">
             <input
               type="text"
               placeholder="Search by file name, software, tag, or keyword"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
             <svg
-              className="absolute right-3 top-2.5 h-5 w-5 text-gray-400"
+              className=" h-5 w-5 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
