@@ -2,10 +2,10 @@ import React from "react";
 import searchIcon from "../../assets/dashsearch.svg";
 import { useSelector } from "react-redux";
 
-const TopBar = () => {
- const profile = useSelector((state) => state.user.profile);
- const { fullName, username } = profile || {};
-  console.log("TopBar Redux state:", { fullName, username });
+// Accept a dynamic title from parent; fallback to Dashboard
+const TopBar = ({ title = "Dashboard" }) => {
+  const profile = useSelector((state) => state.user.profile);
+  const { fullName, username } = profile || {};
   return (
     <header className="bg-[#240A44] text-white px-4.5 py-3.5 flex justify-between items-center">
     <div>  <span className="text-[26px] font-medium">Welcome back,</span>

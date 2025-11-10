@@ -1,4 +1,8 @@
 import React from "react";
+import ss1 from "../assets/ss1.svg";
+import ss2 from "../assets/ss2.svg";
+import ss3 from "../assets/ss3.png";
+import ss4 from "../assets/ss4.svg";
 
 const features = [
   {
@@ -34,13 +38,41 @@ const FeatureCards = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex-none w-[472px] h-[424px] bg-[#EBE2F6] p-[8px] mr-[65px] rounded-[12px] "
+              className="flex-none w-[472px] h-[424px] bg-[#EBE2F6] p-2 mr-[65px] rounded-xl"
             >
-              <div className="w-full h-[288px] mb-4 bg-[#D9D9D9] rounded-[6px]" />
-              <h3 className="text-[32px] font-medium mb-[16px] text-black text-left w-[456px] h-[38px] ">
+              <div className="w-full h-72 mb-4 rounded-md overflow-hidden flex items-center justify-center">
+                {index === 0 ? (
+                  <img 
+                    src={ss1} 
+                    alt="Custom Workspaces" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : index === 1 ? (
+                  <img 
+                    src={ss2} 
+                    alt="Room Navigation" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : index === 2 ? (
+                  <img 
+                    src={ss3} 
+                    alt="Real-Time Communication" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : index === 3 ? (
+                  <img 
+                    src={ss4} 
+                    alt="Analytics and Insights" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#D9D9D9]" />
+                )}
+              </div>
+              <h3 className="text-[32px] font-medium mb-4 text-black text-left w-[456px] h-[38px]">
                 {feature.title}
               </h3>
-              <div className="w-[456px] h-[48px] text-[20px] text-[#000] text-left font-normal">
+              <div className="w-[456px] h-12 text-[20px] text-black text-left font-normal ">
                 {feature.description}
               </div>
             </div>

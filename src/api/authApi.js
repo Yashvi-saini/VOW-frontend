@@ -110,3 +110,12 @@ export const scheduleMeeting = (workspaceId, body) => {
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   return api.post(`/meeting/schedule/${workspaceId}`, body, { headers });
 };
+// Logout (POST) - clears server-side session/cookies
+export const logoutUser = () => api.post("auth/logout");
+
+export const getAllMeetings = () => {
+  const token = localStorage.getItem("accessToken");
+  return api.get("/meeting/all", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};

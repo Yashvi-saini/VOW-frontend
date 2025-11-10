@@ -10,6 +10,7 @@ import MeetingSection from "./MeetingSection";
 import FileTransfer from "./FileTransfer";
 import dashboardBg from "../../assets/dashboardbg.svg";
 import TeamBuilder from "../chat/teambuilder.jsx";
+import ProfileSettings from "../profilegeneration/ProfileSettings.jsx";
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -30,13 +31,15 @@ const Dashboard = () => {
         return <TeamBuilder />;
       case "files":
         return <FileTransfer />;
+      case "profile":
+        return <ProfileSettings onClose={() => setActiveSection("dashboard")} />;
       default:
         return <DashboardContainer />;
     }
   };
 
   return (
-    <div className="flex h-screen bg-[#F8F6FC] font-poppins ">
+    <div className="flex h-screen bg-[#F8F6FC] font-poppins hide-scrollbar ">
       <Sidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection}
@@ -44,8 +47,16 @@ const Dashboard = () => {
         onJoinWorkspace={() => setIsJoinModalOpen(true)}
       />
       <div className="flex-1 flex flex-col h-[900px] relative">
-        <TopBar />
-        <main className="flex-1 p-15 overflow-y-auto relative bg-[#FEFEFE]">
+        <TopBar title={{
+          dashboard: "Dashboard",
+          search: "Search",
+          notification: "Notification",
+          events: "Meeting",
+          files: "File Sharing",
+          "create team": "Create Team",
+          profile: "Profile Settings",
+        }[activeSection] || "Dashboard"} />
+        <main className="flex-1  overflow-y-auto relative bg-[#FEFEFE]">
           {renderSection()}
           <div
             className="absolute inset-0 w-full h-full bg-no-repeat bg-bottom bg-contain opacity-80 pointer-events-none"

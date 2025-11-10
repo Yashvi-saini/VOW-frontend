@@ -1,56 +1,26 @@
 import React from "react";
-
+import rotatedarrow from "../../assets/rotatedarrow.svg";
 import RejoinAndFetch from "./rejoinandfetch.jsx";
-
+import UpcomingEvents from "./dash-components/upcomingevents.jsx";
 const DashboardMain = () => (
   <div>
     <div className="relative z-10">
      <RejoinAndFetch /> 
 
-      <div className="grid grid-cols-2 gap-6 ">
-        <div className="bg-[#EFE7F6] rounded-xl p-6 shadow-sm border border-[#8F7AA9] flex flex-col min-h-[350px]">
-          <h4 className="font-bold mb-4 text-[24px] text-[#000]">Upcoming Events</h4>
-          <div className="flex items-center justify-between mb-4">
-            <button className="text-[#5E9BFF] hover:text-[#4A8CE0] font-medium text-sm">Previous</button>
-            <span className="font-medium text-[#0E1219] text-sm">November 2025</span>
-            <button className="text-[#5E9BFF] hover:text-[#4A8CE0] font-medium text-sm">Next</button>
-          </div>
-          <div className="space-y-3 flex-grow">
-            <div className="bg-[#5C0EA4] text-white p-4 rounded-lg">
-              <p className="text-sm font-medium">Event Title</p>
-              <p className="text-xs opacity-90">09:00-09:45 AM IST</p>
-            </div>
-            <div className="border border-[#BCBCBC] p-4 rounded-lg bg-[#E9EAEB]">
-              <p className="text-sm font-medium text-[#0E1219]">Event Title</p>
-              <p className="text-xs text-[#6B7280]">09:00-09:45 AM IST</p>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-between mx-15  ">
+        
+        <UpcomingEvents />
 
-        <div className="bg-[#EFE7F6] rounded-xl p-6 shadow-sm border border-[#8F7AA9] flex flex-col min-h-[350px]">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-bold text-[24px] text-[#000]">Recent Chats</h4>
-            <span className="text-sm text-[#6B7280]">5 unread messages</span>
+        <div className=" rounded-xl  ml-13 border border-none flex flex-col w-[450px] min-h-[350px]">
+          <div className="flex  justify-between p-5 bg-[radial-gradient(circle_at_center,_rgba(239,230,246,1)_40%,_rgba(225,208,238,0.9)_70%)] rounded-2xl w-full">
+          <div className="text-2xl">
+            <h3>File Shared Today</h3>
+            <p>12</p>
           </div>
-          <div className="space-y-3 flex-grow">
-            {Array(3)
-              .fill(null)
-              .map((_, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-[#EFE7F6] rounded-lg hover:bg-gray-100 transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#5E9BFF] rounded-full "></div>
-                    <div>
-                      <p className="font-medium text-[20px] text-[#000]">Workspace name</p>
-                      <p className="text-[16px] text-[#000]">Fullname: Text Message</p>
-                    </div>
-                  </div>
-                  <button className="text-[#5E9BFF] hover:text-[#4A8CE0] text-sm font-medium">→</button>
-                </div>
-              ))}
+          <div>
+            <img src={rotatedarrow} alt="rotated arrow" className="w-5" />
           </div>
+      </div>
         </div>
       </div>
     </div>

@@ -1,11 +1,12 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import emoji from "../../assets/emoji.svg";
 import battherate from "../../assets/battherate.svg";
 import share from "../../assets/share.svg";
 import image from "../../assets/image.svg";
 import send from "../../assets/send.svg";
 import EmojiSelector from "../../components/chat/emojipicker.jsx";
-import { uploadFile } from "../../api/file";
+import { uploadFileToWorkspace } from "../../api/file";
 
 const InputBox = ({
   messageInput,
@@ -18,6 +19,11 @@ const InputBox = ({
   setAttachments,
 }) => {
   const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  
+  // Get workspace info from Redux store
+  const userState = useSelector((state) => state.user);
+  const workspaceId = userState?.workspaceId;
 
   const handleTriggerFile = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -26,10 +32,23 @@ const InputBox = ({
   const handleFilesSelected = async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
+
+    // Check if user has selected a workspace
+    if (!workspaceId) {
+      console.error("No workspace selected for file upload");
+      alert("Please join or select a workspace before uploading files.");
+      return;
+    }
+
+    setUploading(true);
     const uploadedMeta = [];
+    
     for (const f of files) {
       try {
-        const uploaded = await uploadFile(f); // expects { _id || id, url, originalName }
+        console.log(`[Chat] Uploading file "${f.name}" to workspace: ${workspaceId}`);
+        
+        const uploaded = await uploadFileToWorkspace(f, workspaceId);
+        
         const meta = {
           fileId: uploaded._id || uploaded.id,
           url: uploaded.url || uploaded.fileUrl || uploaded.location,
@@ -37,15 +56,30 @@ const InputBox = ({
           size: f.size,
           mimeType: f.type,
         };
+        
         uploadedMeta.push(meta);
+        console.log(`[Chat] File uploaded successfully: ${meta.name}`);
       } catch (err) {
         console.error("Upload failed for", f.name, err);
+        
+        // Show user-friendly error message
+        const errorMsg = err.message || `Failed to upload ${f.name}`;
+        alert(`Upload failed: ${errorMsg}`);
       }
     }
+    
     if (uploadedMeta.length) {
       setAttachments((prev) => [...prev, ...uploadedMeta]);
+      
+      // Show success message if some files uploaded
+      if (uploadedMeta.length === files.length) {
+        console.log(`[Chat] All ${uploadedMeta.length} files uploaded successfully`);
+      } else {
+        console.log(`[Chat] ${uploadedMeta.length} of ${files.length} files uploaded successfully`);
+      }
     }
    
+    setUploading(false);
     e.target.value = "";
   };
 
@@ -118,12 +152,30 @@ const InputBox = ({
               onSelect={handleEmojiSelect}
             />
             <img src={battherate} alt="mention" className="cursor-pointer" />
-            <img src={share} alt="attach files" className="cursor-pointer" onClick={handleTriggerFile} />
-            <img src={image} alt="attach images" className="cursor-pointer" onClick={handleTriggerFile} />
+            <img 
+              src={share} 
+              alt="attach files" 
+              className={`cursor-pointer ${uploading ? 'opacity-50' : 'hover:opacity-80'}`}
+              onClick={uploading ? undefined : handleTriggerFile} 
+            />
+            <img 
+              src={image} 
+              alt="attach images" 
+              className={`cursor-pointer ${uploading ? 'opacity-50' : 'hover:opacity-80'}`}
+              onClick={uploading ? undefined : handleTriggerFile} 
+            />
+            {uploading && (
+              <div className="flex items-center text-xs text-blue-600">
+                <div className="animate-spin rounded-full h-3 w-3 border-b border-blue-600 mr-1"></div>
+                Uploading...
+              </div>
+            )}
             <input
               ref={fileInputRef}
               type="file"
               multiple
+              accept="*/*"
+              disabled={uploading}
               className="hidden"
               onChange={handleFilesSelected}
             />

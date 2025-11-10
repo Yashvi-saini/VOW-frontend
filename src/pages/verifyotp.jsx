@@ -127,7 +127,10 @@ const handleKeyDown = (e, index) => {
             localStorage.setItem("forgotOtpVerified", "true");
             localStorage.removeItem("forgotRequested");
             dispatch(clearForgotFlow());
-            navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
+            setTimeout(() => {
+                navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
+            }, 200);
+          
           }
         }, 1500);
       } else {

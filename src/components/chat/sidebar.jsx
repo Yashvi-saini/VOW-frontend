@@ -8,31 +8,103 @@ import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
 import MembersSection from "../chat/MembersSection.jsx";
 
-const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpaceClick, onChatClick, onVideoConferenceClick }) => {
-  // Track which main nav item is active; default to Virtual Space
-  const [active, setActive] = useState("virtual");
+const Sidebar = ({
+  onChannelSelect,
+  onCreateTeam,
+  onCreateMeeting,
+  onVirtualSpaceClick,
+  onChatClick,
+  onVideoConferenceClick,
+  onShowMap, // optional legacy prop
+}) => {
+  const [active, setActive] = useState('virtual');
 
   const baseBtnClass =
-    "w-full flex items-center gap-3 px-3 h-11 text-white rounded-lg text-left hover:bg-[#3D1B5F]";
+    'w-full flex items-center gap-3 px-3 h-11 text-white rounded-lg text-left hover:bg-[#3D1B5F]';
 
-  const handleVirtualSpaceClick = () => {
-    setActive("virtual");
-    if (onVirtualSpaceClick) onVirtualSpaceClick();
+  const collectRooms = () => {
+    try {
+      if (typeof window !== 'undefined' && typeof window.getMapRooms === 'function') {
+        const ids = window.getMapRooms(true); // include corridor
+        console.log('[sidebar] collected rooms via helper:', ids);
+        return ids;
+      }
+      const nodes = document.querySelectorAll('[data-room-id]');
+      const ids = Array.from(nodes)
+        .map((n) => n.getAttribute('data-room-id'))
+        .filter(Boolean);
+      console.log('[sidebar] collected rooms via query:', ids);
+      return ids;
+    } catch (e) {
+      console.error('[sidebar] collectRooms failed', e);
+      return [];
+    }
+  };
+
+  const postLayout = async (rooms) => {
+    const payload = {
+      name: 'Office Layout - Ground Floor',
+      layoutUrl:
+        'https://w7.pngwing.com/pngs/279/877/png-transparent-hyperlink-computer-icons-link-text-logo-number-thumbnail.png',
+      rooms,
+      metadata: { floor: 1, department: 'Engineering' },
+    };
+    console.log('[sidebar] posting layout payload:', payload);
+    try {
+      if (typeof createLayoutApi === 'function') {
+        const res = await createLayoutApi(payload);
+        console.log('[sidebar] layout created (api module):', res?.data ?? res);
+      } else {
+        const res = await fetch('https://vow-org.me/maps', {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: payload.name,
+            layoutUrl: payload.layoutUrl,
+            rooms: payload.rooms,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        console.log('[sidebar] layout created (fetch fallback):', data);
+      }
+    } catch (err) {
+      console.error('[sidebar] layout create failed:', err?.response?.data ?? err);
+    }
+  };
+
+  const handleVirtualSpaceClick = async () => {
+    setActive('virtual');
+    // Show the map in the main view
+    onVirtualSpaceClick?.();
+    onShowMap?.();
+    // Wait for the map to mount/update before collecting rooms
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => setTimeout(resolve, 0))
+    );
+    const rooms = collectRooms();
+    if (rooms.length) {
+      await postLayout(rooms);
+    } else {
+      console.warn('[sidebar] no rooms found to post');
+    }
   };
 
   const handleCreateMeetingClick = () => {
-    setActive("createMeeting");
-    if (onCreateMeeting) onCreateMeeting();
+    setActive('createMeeting');
+    onCreateMeeting?.();
   };
 
   const handleVideoConferenceClick = () => {
-    setActive("video");
-    if (onVideoConferenceClick) onVideoConferenceClick();
+    setActive('video');
+    onVideoConferenceClick?.();
   };
 
   const handleChatClick = () => {
-    setActive("chat");
-    if (onChatClick) onChatClick();
+    setActive('chat');
+    onChatClick?.();
   };
 
   return (
@@ -51,7 +123,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
         <nav className="space-y-2 mb-5">
           <button
             onClick={handleVirtualSpaceClick}
-            className={`${baseBtnClass} ${active === "virtual" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+            className={`${baseBtnClass} ${
+              active === 'virtual' ? 'bg-[#5C0EA4]' : 'bg-transparent'
+            }`}
           >
             <img src={person} alt="" className="w-5 h-5" />
             <span className="text-base">Virtual Space</span>
@@ -59,7 +133,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
 
           <button
             onClick={handleCreateMeetingClick}
-            className={`${baseBtnClass} ${active === "createMeeting" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+            className={`${baseBtnClass} ${
+              active === 'createMeeting' ? 'bg-[#5C0EA4]' : 'bg-transparent'
+            }`}
           >
             <img src={dashevents} alt="" className="w-5 h-5" />
             <span className="text-base">Create meeting</span>
@@ -67,7 +143,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
 
           <button
             onClick={handleVideoConferenceClick}
-            className={`${baseBtnClass} ${active === "video" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+            className={`${baseBtnClass} ${
+              active === 'video' ? 'bg-[#5C0EA4]' : 'bg-transparent'
+            }`}
           >
             <img src={videocam} alt="" className="w-5 h-5" />
             <span className="text-base">Video Conference</span>
@@ -75,7 +153,9 @@ const Sidebar = ({ onChannelSelect, onCreateTeam, onCreateMeeting, onVirtualSpac
 
           <button
             onClick={handleChatClick}
-            className={`${baseBtnClass} ${active === "chat" ? "bg-[#5C0EA4]" : "bg-transparent"}`}
+            className={`${baseBtnClass} ${
+              active === 'chat' ? 'bg-[#5C0EA4]' : 'bg-transparent'
+            }`}
           >
             <img src={chat} alt="" className="w-5 h-5" />
             <span className="text-base">Chat Room</span>
