@@ -9,7 +9,7 @@ import CrossIcon from "../assets/X.png";
 import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
 import { useDispatch, useSelector } from "react-redux";
-import { setProfileNeeded, setSignupDone, startSignupFlow } from "../components/userslice";
+import { setSignupDone, startSignupFlow } from "../components/userslice";
 export default function Signup() {
   const [enter, setEnter] = useState(false);
   useEffect(() => {
@@ -39,14 +39,14 @@ export default function Signup() {
   const [routeOverlayOpaque, setRouteOverlayOpaque] = useState(initialEntryOverlay);
 // Redirect only after this submit completes (avoid persisted-flag surprises)
 const signupDone = useSelector((state) => state.user.signupDone);
-const isProfileNeeded = useSelector((state) => state.user.isProfileNeeded);
+
 const [afterSubmit, setAfterSubmit] = useState(false);
 useEffect(() => {
-  if (afterSubmit && signupDone && isProfileNeeded) {
+  if (afterSubmit && signupDone ) {
     navigate("/verify-otp", { state: { email, mode: "signup" } });
     setAfterSubmit(false);
   }
-}, [afterSubmit, signupDone, isProfileNeeded, email, navigate]);
+}, [afterSubmit, signupDone,  email, navigate]);
   // Fade out the entry overlay once on mount if coming from Home
   useEffect(() => {
     if (initialEntryOverlay) {
@@ -75,6 +75,7 @@ const isUsernameMaxLength = trimmedUsername.length <= 20;
 const isUsernameValidChars = /^[a-zA-Z0-9._]+$/.test(trimmedUsername);
 const noConsecutiveSpecials = !/[\._]{2,}/.test(trimmedUsername);
 const validStartEnd = /^[a-zA-Z0-9].*[a-zA-Z0-9]$/.test(trimmedUsername);
+
 
 // Final combined username validity
 const isUsernameValid =
@@ -145,17 +146,20 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   email: email.trim(), 
   password 
 };
+  if (loading) return; // safeguard against double-clicks
+
+  setLoading(true);
 
 
     try {
       const res = await registerUser(payload);
       const data = res.data;
-
+      
       if (data.success) {
         setServerMsg("");
         // 1) flip Redux flags
         dispatch(setSignupDone(true));
-        dispatch(setProfileNeeded(true));
+        
         // 2) set OTP flow so /verify-otp guard allows entry
         dispatch(startSignupFlow(trimmedEmail));
         // 2b) set session fallbacks to ensure OTP has email/mode even on reload
@@ -174,7 +178,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
         if (msg.includes("username already taken")) {
           setUsernameExists(true);
         }
-        if (msg.includes("user already exists")) {
+        if (msg.includes("email already in use")) {
           setuserexists(true);
         }
 
@@ -434,6 +438,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
             {/* Submit */}
             <button
               type="submit"
+              disabled={loading}
              className="w-full rounded-lg font-normal h-[clamp(44px,6vh,48px)] text-[clamp(16px,2.2vh,20px)] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
             >
               {loading ? "Signing up..." : "Sign up"}

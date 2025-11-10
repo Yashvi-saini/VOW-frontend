@@ -29,10 +29,7 @@ const ForgotPassword = () => {
     if (data.success) {
       setServerMsg("");
       localStorage.setItem("forgotRequested", "true");
-      setTimeout(
-        () => navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } }),
-        1200
-      );
+      navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } })
     } else {
       setServerMsg(` ${data.msg || "Failed to send OTP"}`);
     }
@@ -44,7 +41,9 @@ const ForgotPassword = () => {
       setServerMsg(" Network or server error.");
     }
   } finally {
-    setLoading(false);
+    setTimeout(() => {
+         setLoading(false);
+      }, 2000);
   }
 };
 

@@ -5,7 +5,7 @@ import logo from "../assets/logo.png";
 import arrow from "../assets/arrow.svg";
 import { verifyEmail, resendOtp, forgotPassword, verifyResetOtp } from '../api/authApi';
 import Background from "../components/background.jsx";
-import { clearSignupFlow, clearForgotFlow, setSignupDone } from "../components/userslice";
+import { clearSignupFlow, setProfileNeeded,clearForgotFlow, setSignupDone } from "../components/userslice";
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,6 @@ const VerifyOtp = () => {
   const navigate = useNavigate();
   const location = useLocation();
 const [anyInputFocused, setAnyInputFocused] = useState(false);
-
   const dispatch = useDispatch();
   const { signupPending, forgotRequested: rdxForgot, pendingEmail: rdxEmail, pendingMode: rdxMode } = useSelector((s) => s.user || {});
   const email = location.state?.email;
@@ -122,6 +121,7 @@ const handleKeyDown = (e, index) => {
             dispatch(clearSignupFlow());
             sessionStorage.removeItem("pendingEmail");
             sessionStorage.removeItem("pendingMode");
+            dispatch(setProfileNeeded(true)); // retain profile needed state
             navigate("/login");
           } else {
             localStorage.setItem("forgotOtpVerified", "true");
@@ -139,7 +139,9 @@ const handleKeyDown = (e, index) => {
       setOtpError(true);
       setMessage(err.response?.data?.msg || "Network or server error.");
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+         setLoading(false);
+      }, 2000);
     }
   };
 

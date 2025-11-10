@@ -36,7 +36,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8F6FC] font-poppins">
+    <div className="flex h-screen bg-[#F8F6FC] font-poppins ">
       <Sidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection}
@@ -45,7 +45,7 @@ const Dashboard = () => {
       />
       <div className="flex-1 flex flex-col h-[900px] relative">
         <TopBar />
-        <main className="flex-1 p-8 overflow-y-auto relative bg-[#FEFEFE]">
+        <main className="flex-1 p-15 overflow-y-auto relative bg-[#FEFEFE]">
           {renderSection()}
           <div
             className="absolute inset-0 w-full h-full bg-no-repeat bg-bottom bg-contain opacity-80 pointer-events-none"

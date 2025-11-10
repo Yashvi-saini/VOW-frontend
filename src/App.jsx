@@ -45,7 +45,7 @@ const App = () => {
           path="/verify-otp"
           element={
             <FlowProtectedRoute
-              condition={verifyCondition}
+              condition={true}
               redirectTo={verifyRedirectTo}
             >
               <VerifyOtp />
