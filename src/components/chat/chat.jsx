@@ -21,7 +21,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const profile = useSelector((state) => state.user.profile);
 
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
-  const [messages, setMessages] = useState([]); // ✅ Added missing state
+  const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [showMap, setShowMap] = useState(false);
@@ -33,7 +33,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const layoutPostedRef = useRef(false);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
-  const socketRef = useRef(socket); // ✅ Added socketRef
+  const socketRef = useRef(socket);
 
   const { startCall } = useVoiceCall(SOCKET_URL);
 
@@ -49,21 +49,18 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     setShowMeeting(false);
     setShowVideoConference(false);
   };
-
   const handleCreateMeetingClick = () => {
     setShowMeeting(true);
     setShowMap(false);
     setShowTeamBuilder(false);
     setShowVideoConference(false);
   };
-
   const handleVirtualSpaceClick = () => {
     setShowMap(true);
     setShowTeamBuilder(false);
     setShowMeeting(false);
     setShowVideoConference(false);
   };
-
   const handleVideoConferenceClick = () => {
     setShowVideoConference(true);
     setShowMap(false);
@@ -72,11 +69,8 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   };
 
   const handleCallClick = () => {
-    if (remoteUserId) {
-      startCall(remoteUserId);
-    } else {
-      console.warn("No remote user ID provided for call.");
-    }
+    if (remoteUserId) startCall(remoteUserId);
+    else console.warn("No remote user ID provided for call.");
   };
 
   // --- Auto-resize textarea ---
@@ -107,14 +101,11 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     const s = socketRef.current;
     if (!s) return;
 
-    // Join active room
     if (activeRoomId) s.emit("joinRoom", activeRoomId);
 
-    // Listen for incoming messages
     const onMessage = (msg) => setMessages((prev) => [...prev, msg]);
     s.on("message", onMessage);
 
-    // Cleanup
     return () => {
       if (activeRoomId) s.emit("leaveRoom", activeRoomId);
       s.off("message", onMessage);
@@ -124,6 +115,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   // --- Create layout when map is shown ---
   useEffect(() => {
     if (!showMap || layoutPostedRef.current) return;
+
     const id = requestAnimationFrame(() => {
       try {
         let rooms = [];
@@ -145,21 +137,18 @@ const Chat = ({ username, roomId, remoteUserId }) => {
           .then((res) => {
             console.log("[layout] created/updated", res?.data);
             layoutPostedRef.current = true;
-            try {
-              window.dispatchEvent(new CustomEvent("toast", { detail: { type: "success", message: "Layout saved" } }));
-            } catch {}
+            window.dispatchEvent(new CustomEvent("toast", { detail: { type: "success", message: "Layout saved" } }));
           })
           .catch((err) => {
             const msg = err?.response?.data || err?.message || err;
             console.error("[layout] failed", msg);
-            try {
-              window.dispatchEvent(new CustomEvent("toast", { detail: { type: "error", message: "Layout save failed" } }));
-            } catch {}
+            window.dispatchEvent(new CustomEvent("toast", { detail: { type: "error", message: "Layout save failed" } }));
           });
       } catch (e) {
         console.error("[layout] unexpected error while preparing payload", e);
       }
     });
+
     return () => cancelAnimationFrame(id);
   }, [showMap]);
 
@@ -168,7 +157,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     if (roomId !== activeRoomId) setActiveRoomId(roomId);
   }, [roomId]);
 
-  // --- Send message with optimistic UI ---
+  // --- Send message ---
   const sendMessage = async () => {
     if (messageInput.trim() === "" && attachments.length === 0) return;
 
@@ -193,13 +182,9 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       createdAt: new Date().toISOString(),
     };
 
-    // 1️⃣ Optimistic UI
     setMessages((prev) => [...prev, message]);
-
-    // 2️⃣ Emit to socket
     socketRef.current.emit("message", message);
 
-    // 3️⃣ Persist to backend (non-blocking)
     try {
       if (activeRoomId) await sendMessageToChannel(activeRoomId, message.content, message.attachments);
     } catch (err) {
@@ -223,14 +208,18 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   // --- Render ---
   return (
     <ChatLayout
-      sidebar={<Sidebar
-        onChannelSelect={setActiveRoomId}
-        onCreateTeam={handleCreateTeamClick}
-        onCreateMeeting={handleCreateMeetingClick}
-        onVirtualSpaceClick={handleVirtualSpaceClick}
-        onVideoConferenceClick={handleVideoConferenceClick}
-        onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); setShowVideoConference(false); }}
-      />}
+      sidebar={
+        <Sidebar
+          onChannelSelect={setActiveRoomId}
+          onCreateTeam={handleCreateTeamClick}
+          onCreateMeeting={handleCreateMeetingClick}
+          onVirtualSpaceClick={handleVirtualSpaceClick}
+          onVideoConferenceClick={handleVideoConferenceClick}
+          onChatClick={() => {
+            setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); setShowVideoConference(false);
+          }}
+        />
+      }
     >
       <main ref={mainRef} className="flex-1 flex flex-col relative">
         <Header
