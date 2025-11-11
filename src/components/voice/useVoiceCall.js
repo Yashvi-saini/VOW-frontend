@@ -1,79 +1,122 @@
-import { useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
-
-export const useVoiceCall = (serverUrl) => {
+import { useEffect, useRef } from "react";
+export const useVoiceCall = (SOCKET_URL) => {
   const socketRef = useRef(null);
-  const peerRef = useRef(null);
+  const peerConnectionRef = useRef(null);
   const localStreamRef = useRef(null);
-  const [remoteStream, setRemoteStream] = useState(null);
-  const [inCall, setInCall] = useState(false);
+  const remoteAudioRef = useRef(null);
 
   useEffect(() => {
-    socketRef.current = io(serverUrl);
+    if (!SOCKET_URL) return;
+    import("socket.io-client").then(({ io }) => {
+      socketRef.current = io(SOCKET_URL, {
+        transports: ["websocket"],
+        withCredentials: true,
+      });
 
-    socketRef.current.on("incoming-call", async ({ from, offer }) => {
-      peerRef.current = createPeer(false, from);
-      await peerRef.current.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerRef.current.createAnswer();
-      await peerRef.current.setLocalDescription(answer);
-      socketRef.current.emit("answer-call", { to: from, answer });
-      setInCall(true);
-    });
+      socketRef.current.on("connect", () => {
+        console.log("[VoiceCall] Connected to signaling server");
+      });
 
-    socketRef.current.on("call-answered", async ({ answer }) => {
-      await peerRef.current.setRemoteDescription(new RTCSessionDescription(answer));
-      setInCall(true);
-    });
+      socketRef.current.on("offer", async ({ from, offer }) => {
+        console.log("[VoiceCall] Received offer from:", from);
+        await handleReceiveOffer(from, offer);
+      });
 
-    socketRef.current.on("ice-candidate", ({ candidate }) => {
-      peerRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-    });
+      socketRef.current.on("answer", async ({ from, answer }) => {
+        console.log("[VoiceCall] Received answer from:", from);
+        await peerConnectionRef.current?.setRemoteDescription(answer);
+      });
 
-    socketRef.current.on("call-ended", () => {
-      endCall();
+      socketRef.current.on("ice-candidate", async ({ candidate }) => {
+        if (candidate && peerConnectionRef.current) {
+          try {
+            await peerConnectionRef.current.addIceCandidate(candidate);
+          } catch (err) {
+            console.error("[VoiceCall] Error adding ICE candidate:", err);
+          }
+        }
+      });
     });
 
     return () => {
-      socketRef.current.disconnect();
+      socketRef.current?.disconnect();
     };
-  }, [serverUrl]);
+  }, [SOCKET_URL]);
 
-  const startCall = async (to) => {
-    peerRef.current = createPeer(true, to);
-    localStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
-    localStreamRef.current.getTracks().forEach((track) => {
-      peerRef.current.addTrack(track, localStreamRef.current);
-    });
-
-    const offer = await peerRef.current.createOffer();
-    await peerRef.current.setLocalDescription(offer);
-    socketRef.current.emit("call-user", { to, offer });
-  };
-
-  const createPeer = (initiator, remoteId) => {
-    const peer = new RTCPeerConnection({
+  const setupPeerConnection = () => {
+    const pc = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
 
-    peer.onicecandidate = (event) => {
+    pc.onicecandidate = (event) => {
       if (event.candidate) {
-        socketRef.current.emit("ice-candidate", { to: remoteId, candidate: event.candidate });
+        socketRef.current?.emit("ice-candidate", { candidate: event.candidate });
       }
     };
 
-    peer.ontrack = (event) => {
-      setRemoteStream(event.streams[0]);
+    pc.ontrack = (event) => {
+      console.log("[VoiceCall] Remote track received");
+      if (!remoteAudioRef.current) {
+        const audio = document.createElement("audio");
+        audio.autoplay = true;
+        audio.srcObject = event.streams[0];
+        document.body.appendChild(audio);
+        remoteAudioRef.current = audio;
+      }
     };
 
-    return peer;
+    peerConnectionRef.current = pc;
+    return pc;
+  };
+
+  const startCall = async (remoteUserId) => {
+    console.log("[VoiceCall] Starting call to:", remoteUserId);
+
+    try {
+      const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localStreamRef.current = localStream;
+
+      const pc = setupPeerConnection();
+      localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      socketRef.current?.emit("offer", { to: remoteUserId, offer });
+    } catch (err) {
+      console.error("[VoiceCall] Error starting call:", err);
+    }
+  };
+
+  const handleReceiveOffer = async (from, offer) => {
+    try {
+      const pc = setupPeerConnection();
+      const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      localStreamRef.current = localStream;
+      localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+
+      await pc.setRemoteDescription(offer);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      socketRef.current?.emit("answer", { to: from, answer });
+    } catch (err) {
+      console.error("[VoiceCall] Error handling offer:", err);
+    }
   };
 
   const endCall = () => {
-    peerRef.current?.close();
-    peerRef.current = null;
-    setRemoteStream(null);
-    setInCall(false);
+    peerConnectionRef.current?.close();
+    peerConnectionRef.current = null;
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((t) => t.stop());
+    }
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.remove();
+      remoteAudioRef.current = null;
+    }
+    console.log("[VoiceCall] Call ended");
   };
 
-  return { startCall, endCall, remoteStream, inCall };
+  return { startCall, endCall };
 };
