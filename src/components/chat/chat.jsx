@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import MessageList from "../chat/message.jsx";
 import Sidebar from "../chat/sidebar.jsx";
@@ -14,13 +14,14 @@ import { useVoiceCall } from "../voice/useVoiceCall.js";
 import { SOCKET_URL } from "../../config.js";
 import socket from "./socket.jsx";
 import { createLayout } from "../../api/layoutApi.js";
+import ChatLayout from "./ChatLayout.jsx";
 
 const Chat = ({ username, roomId, remoteUserId }) => {
   const workspaceName = useSelector((state) => state.user.workspaceName);
   const profile = useSelector((state) => state.user.profile);
 
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // ✅ Added missing state
   const [messageInput, setMessageInput] = useState("");
   const [attachments, setAttachments] = useState([]);
   const [showMap, setShowMap] = useState(false);
@@ -30,9 +31,9 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const layoutPostedRef = useRef(false);
-  const socketRef = useRef(socket);
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
+  const socketRef = useRef(socket); // ✅ Added socketRef
 
   const { startCall } = useVoiceCall(SOCKET_URL);
 
@@ -178,7 +179,6 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       peerId = parts.find((p) => p && p !== String(selfId)) || null;
     }
 
-    // Attempt /workspace call (non-blocking)
     try {
       if (selfId && peerId) await getWorkspaceForUsers(selfId, peerId);
     } catch (e) {
@@ -222,16 +222,16 @@ const Chat = ({ username, roomId, remoteUserId }) => {
 
   // --- Render ---
   return (
-    <div className="flex h-screen bg-[#F3F3F6] text-[#0E1219]">
-      <Sidebar
+    <ChatLayout
+      sidebar={<Sidebar
         onChannelSelect={setActiveRoomId}
         onCreateTeam={handleCreateTeamClick}
         onCreateMeeting={handleCreateMeetingClick}
         onVirtualSpaceClick={handleVirtualSpaceClick}
         onVideoConferenceClick={handleVideoConferenceClick}
         onChatClick={() => { setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); setShowVideoConference(false); }}
-      />
-
+      />}
+    >
       <main ref={mainRef} className="flex-1 flex flex-col relative">
         <Header
           title={
@@ -251,8 +251,8 @@ const Chat = ({ username, roomId, remoteUserId }) => {
           {showTeamBuilder && !showMap && !showMeeting && !showVideoConference && <div className="absolute inset-0 overflow-y-auto px-4 py-2"><TeamBuilder /></div>}
 
           {!showMap && !showTeamBuilder && !showMeeting && !showVideoConference && (
-            <div className="flex flex-col h-full">
-              <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide">
+            <div className="flex flex-col h-full min-h-0">
+              <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide min-h-0">
                 <InfoBar onSearchChange={setSearchQuery} channelName={activeRoomId || 'Channel'} memberCount={0} onlineCount={0} />
                 <MessageList messages={displayedMessages} username={username} />
               </div>
@@ -275,7 +275,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
           `}</style>
         </div>
       </main>
-    </div>
+    </ChatLayout>
   );
 };
 

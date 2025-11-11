@@ -29,12 +29,13 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await createWorkspace({ workspaceName, inviteEmails });
-      const { workspace } = response.data;
+  const { workspace } = response.data;
       const wsId = workspace._id || workspace.id;
       const wsInviteCode = workspace.inviteCode;
+  const managerId = workspace.manager || workspace.managerId || workspace.ownerId || null;
       localStorage.setItem("workspaceId", wsId);
       localStorage.setItem("inviteCode", wsInviteCode);
-      dispatch(setWorkspaceContext({ workspaceId: wsId, workspaceToken: null, workspaceName }));
+  dispatch(setWorkspaceContext({ workspaceId: wsId, workspaceToken: null, workspaceName, workspaceManagerId: managerId }));
       setToast({ show: true, type: "success", message: `Workspace created. Invites: ${inviteEmails.length}. Code: ${wsInviteCode}` });
       setTimeout(() => handleClose(), 1500);
     } catch (err) {

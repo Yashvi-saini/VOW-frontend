@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useMembers } from "../useMembers";
 import { setUserProfile } from "../userslice";
 import { getProfileInfo } from "../../api/profileapi";
+import { getWorkspaceForUsers } from "../../api/authApi";
 
 const MembersSection = ({ onSelectChannel, onOpenChat }) => {
   console.log('[p2p] MembersSection render start');
@@ -149,8 +150,28 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
     }
     setActivePeer(targetUserId);
     setCallStatus("calling");
-    // Derive deterministic 1:1 channel id (sorted pair) and notify parent to switch chat
-    const channelId = [selfUserId, targetUserId].sort().join("-");
+    // Ensure a direct workspace/channel exists via API; prefer server-provided id
+    let channelId = null;
+    try {
+      const res = await getWorkspaceForUsers(selfUserId, targetUserId);
+      const data = res?.data || {};
+      channelId = data.channelId
+        || data.channel?._id
+        || data.workspace?.channelId
+        || data.workspaceId
+        || data.workspace?._id
+        || null;
+      if (!channelId) {
+        // Fallback to deterministic synthetic id for UI continuity
+        channelId = [selfUserId, targetUserId].sort().join("-");
+        console.warn('[p2p] using synthetic DM channel id; server did not return a channelId');
+      } else {
+        console.log('[p2p] resolved DM channelId=', channelId);
+      }
+    } catch (err) {
+      console.warn('[p2p] getWorkspaceForUsers failed; falling back to synthetic id', err?.response?.data || err?.message || err);
+      channelId = [selfUserId, targetUserId].sort().join("-");
+    }
     onSelectChannel?.(channelId);
     onOpenChat?.();
     cleanupPeer();

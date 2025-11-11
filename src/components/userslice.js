@@ -8,6 +8,7 @@ const initialState = {
   workspaceId: null,
   workspaceToken: null,
   workspaceName: null,
+  workspaceManagerId: null, // manager/owner id for current workspace
   // profile gating
   isProfileNeeded: false,
   signupDone: false,
@@ -32,33 +33,17 @@ const userSlice = createSlice({
       state.avatar = action.payload;
     },
     setWorkspaceContext: (state, action) => {
-      const { workspaceId, workspaceToken, workspaceName } = action.payload || {};
+      const { workspaceId, workspaceToken, workspaceName, workspaceManagerId } = action.payload || {};
       state.workspaceId = workspaceId || null;
       state.workspaceToken = workspaceToken || null;
       state.workspaceName = workspaceName || null;
-      
-      // Also save to localStorage for file API consistency
-      try {
-        if (workspaceId) {
-          localStorage.setItem('workspaceId', workspaceId);
-        } else {
-          localStorage.removeItem('workspaceId');
-        }
-      } catch (error) {
-        console.warn('Could not save workspaceId to localStorage:', error);
-      }
+      if (workspaceManagerId) state.workspaceManagerId = workspaceManagerId;
     },
     clearWorkspaceContext: (state) => {
       state.workspaceId = null;
       state.workspaceToken = null;
       state.workspaceName = null;
-      
-      // Also clear from localStorage
-      try {
-        localStorage.removeItem('workspaceId');
-      } catch (error) {
-        console.warn('Could not clear workspaceId from localStorage:', error);
-      }
+      state.workspaceManagerId = null;
     },
     clearUser: (state) => {
       state.username = null;
