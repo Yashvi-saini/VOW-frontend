@@ -14,7 +14,7 @@ import { usePlayerMovementCamera } from "./map-components/usePlayerMovementCamer
 import { useClickToMove } from "./map-components/useClickToMove.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setIdentity, replaceAvatars, upsertAvatar, updateAvatarPosition } from "./presenceSlice";
-import socket from "../chat/socket.jsx";
+import socket, { SOCKET_URL } from "../chat/socket.jsx";
 import AvatarsLayer from "./AvatarsLayer.jsx";
 
 const Map = () => {
@@ -128,6 +128,7 @@ const Map = () => {
   // Join presence on mount
   useEffect(() => {
     console.log("[map] mount: initializing presence");
+    console.log("[map] socket target:", SOCKET_URL, "connected?", socket.connected, "id:", socket.id);
     // Resolve workspaceId from Redux (fallback to default if absent)
     const resolvedWorkspaceId = workspaceIdFromRedux || "default-workspace";
     workspaceIdRef.current = resolvedWorkspaceId;
@@ -184,6 +185,9 @@ const Map = () => {
     socket.on("map:join:ack", (ack) => {
       console.log("[map] join ack:", ack);
     });
+    socket.on("map:left", (payload) => {
+      console.log("[map] map:left received:", payload);
+    });
     socket.on("map:updated", onUpdated);
     socket.on("map:left", onLeft);
 
@@ -201,9 +205,9 @@ const Map = () => {
       socket.emit("map:join", joinPayload);
       // Ask for full state after a short delay to ensure we didn't miss initial state
       setTimeout(() => {
-        console.log("[map] requesting map:state explicitly");
+        console.log("[map] requesting map:state explicitly (delayed)");
         socket.emit("map:state:request", { workspaceId: workspaceIdRef.current });
-      }, 200);
+      }, 800);
     };
 
     // If already connected, join immediately; else wait for connect

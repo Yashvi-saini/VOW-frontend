@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../api/authApi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background.jsx";
+import logo from "../assets/logo.svg";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
@@ -70,7 +71,7 @@ const ForgotPassword = () => {
         <div className="px-6 sm:px-10 pb-10">
           {/* Logo */}
           <div className="flex justify-center mt-1">
-            <img src="./logo.svg" alt="Logo" className="h-[35px] w-[51px]" />
+            <img src={logo} alt="Logo" className="h-[35px] w-[51px]" />
           </div>
 
           {/* Heading */}

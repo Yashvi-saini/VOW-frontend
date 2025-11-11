@@ -11,7 +11,7 @@ import contactIcon from "../../assets/dashphone.svg";
 import userIcon from "../../assets/dashuser.svg";
 import { useSelector } from "react-redux";
 
-const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWorkspace }) => {
+const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWorkspace, isSidebarOpen, setIsSidebarOpen }) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: gridIcon },
     { id: "notification", label: "Notification", icon: notificationIcon },
@@ -24,8 +24,29 @@ const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWor
 
   const { fullName, email, avatar } = profile || {};
 
+  const handleMenuClick = (id) => {
+    setActiveSection(id);
+    setIsSidebarOpen(false); // Close sidebar on mobile after selection
+  };
+
   return (
-    <aside className="w-[340px] h-[900px] bg-[#240A44] text-white flex flex-col p-5.5 pt-4.5">
+    <>
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
+      <aside 
+        className={`
+          fixed md:static inset-y-0 left-0 z-50
+          w-[340px] h-[900px] bg-[#240A44] text-white flex flex-col p-5.5 pt-4.5
+          transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}
+      >
       <div className="flex-1 flex flex-col">
         {/* Logo */}
         <div className="flex items-center gap-1 mb-8">
@@ -68,7 +89,7 @@ const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWor
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => handleMenuClick(item.id)}
               className={`flex items-center gap-3.5 px-3 py-2 rounded-xl transition-all ${
                 activeSection === item.id
                   ? "bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-white font-medium"
@@ -94,6 +115,7 @@ const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWor
         </button>
       </div>
     </aside>
+    </>
   );
 };
 

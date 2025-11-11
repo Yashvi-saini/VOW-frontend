@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -45,17 +46,22 @@ const Dashboard = () => {
         setActiveSection={setActiveSection}
         onCreateWorkspace={() => setIsCreateModalOpen(true)}
         onJoinWorkspace={() => setIsJoinModalOpen(true)}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
       />
       <div className="flex-1 flex flex-col h-[900px] relative">
-        <TopBar title={{
-          dashboard: "Dashboard",
-          search: "Search",
-          notification: "Notification",
-          events: "Meeting",
-          files: "File Sharing",
-          "create team": "Create Team",
-          profile: "Profile Settings",
-        }[activeSection] || "Dashboard"} />
+        <TopBar 
+          title={{
+            dashboard: "Dashboard",
+            search: "Search",
+            notification: "Notification",
+            events: "Meeting",
+            files: "File Sharing",
+            "create team": "Create Team",
+            profile: "Profile Settings",
+          }[activeSection] || "Dashboard"}
+          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
         <main className="flex-1  overflow-y-auto relative bg-[#FEFEFE]">
           {renderSection()}
           <div

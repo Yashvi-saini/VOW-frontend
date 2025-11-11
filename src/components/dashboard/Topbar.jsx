@@ -3,12 +3,23 @@ import searchIcon from "../../assets/dashsearch.svg";
 import { useSelector } from "react-redux";
 
 // Accept a dynamic title from parent; fallback to Dashboard
-const TopBar = ({ title = "Dashboard" }) => {
+const TopBar = ({ title = "Dashboard", onMenuClick }) => {
   const profile = useSelector((state) => state.user.profile);
   const { fullName, username } = profile || {};
   return (
     <header className="bg-[#240A44] text-white px-4.5 py-3.5 flex justify-between items-center">
-    <div>  <span className="text-[26px] font-medium">Welcome back,</span>
+      {/* Hamburger menu - visible only on mobile/tablet */}
+      <button
+        onClick={onMenuClick}
+        className="md:hidden flex flex-col gap-1 p-2 mr-3"
+        aria-label="Toggle menu"
+      >
+        <span className="w-6 h-0.5 bg-white rounded"></span>
+        <span className="w-6 h-0.5 bg-white rounded"></span>
+        <span className="w-6 h-0.5 bg-white rounded"></span>
+      </button>
+      
+      <div>  <span className="text-[26px] font-medium">Welcome back,</span>
       <span className="text-[26px] text-[#BFA2E1] font-medium"> {fullName || username || "Guest"}</span>
       </div>
       <div className="flex items-center">
