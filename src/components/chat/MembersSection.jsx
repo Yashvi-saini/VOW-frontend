@@ -10,7 +10,7 @@ import { getProfileInfo } from "../../api/profileapi";
 import { getWorkspaceForUsers } from "../../api/authApi";
 
 const MembersSection = ({ onSelectChannel, onOpenChat }) => {
-  console.log('[p2p] MembersSection render start');
+
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
   const { workspaceId, profile } = userState;

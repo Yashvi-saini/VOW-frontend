@@ -2,7 +2,11 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import MessageList from "../chat/message.jsx";
 import Sidebar from "../chat/sidebar.jsx";
-import { sendMessageToChannel, fetchChannelMessages, getWorkspaceForUsers } from "../../api/authApi.js";
+import {
+  sendMessageToChannel,
+  fetchChannelMessages,
+  getWorkspaceForUsers,
+} from "../../api/authApi.js";
 import InputBox from "../chat/input.jsx";
 import Header from "../chat/header.jsx";
 import InfoBar from "../chat/infobar.jsx";
@@ -34,11 +38,11 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const textareaRef = useRef(null);
   const mainRef = useRef(null);
   const socketRef = useRef(socket);
-
   const { startCall } = useVoiceCall(SOCKET_URL);
 
+  // --- Emoji handling ---
   const handleEmojiSelect = useCallback(
-    (selectedEmoji) => setMessageInput((prev) => prev + selectedEmoji),
+    (emoji) => setMessageInput((prev) => prev + emoji),
     []
   );
 
@@ -77,7 +81,10 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        160
+      )}px`;
     }
   }, [messageInput]);
 
@@ -87,7 +94,9 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       if (!activeRoomId) return setMessages([]);
       try {
         const response = await fetchChannelMessages(activeRoomId);
-        const raw = Array.isArray(response?.data) ? response.data : response?.data?.messages;
+        const raw = Array.isArray(response?.data)
+          ? response.data
+          : response?.data?.messages;
         setMessages(raw || []);
       } catch (err) {
         console.error("Failed to fetch messages:", err);
@@ -96,97 +105,87 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     fetchMessages();
   }, [activeRoomId]);
 
-  // --- Socket connection & room handling ---
+  // --- SOCKET HANDLING ---
   useEffect(() => {
     const s = socketRef.current;
     if (!s) return;
 
-    if (activeRoomId) s.emit("joinRoom", activeRoomId);
+    if (activeRoomId) {
+      s.emit("join_channel", activeRoomId);
+      console.log("[socket] joined_channel:", activeRoomId);
+    }
 
-    const onMessage = (msg) => setMessages((prev) => [...prev, msg]);
-    s.on("message", onMessage);
+    const onReceiveMessage = (msg) => {
+      console.log("[socket] receive_message:", msg);
 
-    return () => {
-      if (activeRoomId) s.emit("leaveRoom", activeRoomId);
-      s.off("message", onMessage);
-    };
-  }, [activeRoomId]);
-
-  // --- Create layout when map is shown ---
-  useEffect(() => {
-    if (!showMap || layoutPostedRef.current) return;
-
-    const id = requestAnimationFrame(() => {
-      try {
-        let rooms = [];
-        if (typeof window !== "undefined" && typeof window.getMapRooms === "function") {
-          rooms = window.getMapRooms(true);
-        } else {
-          const nodes = document.querySelectorAll("[data-room-id]");
-          rooms = Array.from(nodes).map((n) => n.getAttribute("data-room-id")).filter(Boolean);
+      setMessages((prev) => {
+        // --- Check for duplicates (tempId or _id)
+        if (prev.some((m) => m._id === msg._id || m.tempId === msg._id)) {
+          console.log("[socket] skipped duplicate message:", msg._id);
+          return prev;
         }
 
-        const payload = {
-          name: "Office Layout - Ground Floor",
-          layoutUrl: "https://w7.pngwing.com/pngs/279/877/png-transparent-hyperlink-computer-icons-link-text-logo-number-thumbnail.png",
-          rooms,
-          metadata: { floor: 1 },
-        };
+        // --- Replace temp message if found
+        const tempIndex = prev.findIndex(
+          (m) =>
+            m.tempId &&
+            m.content === msg.content &&
+            m.sender?._id === msg.sender?._id
+        );
 
-        createLayout(payload)
-          .then((res) => {
-            console.log("[layout] created/updated", res?.data);
-            layoutPostedRef.current = true;
-            window.dispatchEvent(new CustomEvent("toast", { detail: { type: "success", message: "Layout saved" } }));
-          })
-          .catch((err) => {
-            const msg = err?.response?.data || err?.message || err;
-            console.error("[layout] failed", msg);
-            window.dispatchEvent(new CustomEvent("toast", { detail: { type: "error", message: "Layout save failed" } }));
-          });
-      } catch (e) {
-        console.error("[layout] unexpected error while preparing payload", e);
+        if (tempIndex !== -1) {
+          const updated = [...prev];
+          updated[tempIndex] = msg; // replace temp with server message
+          return updated;
+        }
+
+        // --- Otherwise, add new message
+        const updated = [...prev, msg];
+        mainRef.current?.scrollTo({
+          top: mainRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+        console.log("[socket] updated messages:", updated.length);
+        return updated;
+      });
+    };
+
+    s.on("receive_message", onReceiveMessage);
+
+    return () => {
+      if (activeRoomId) {
+        s.emit("leave_channel", activeRoomId);
+        console.log("[socket] leave_channel:", activeRoomId);
       }
-    });
-
-    return () => cancelAnimationFrame(id);
-  }, [showMap]);
-
-  // --- Room ID sync ---
-  useEffect(() => {
-    if (roomId !== activeRoomId) setActiveRoomId(roomId);
-  }, [roomId]);
+      s.off("receive_message", onReceiveMessage);
+    };
+  }, [activeRoomId]);
 
   // --- Send message ---
   const sendMessage = async () => {
     if (messageInput.trim() === "" && attachments.length === 0) return;
 
-    const selfId = profile?._id || profile?.id || null;
-    let peerId = remoteUserId || null;
-    if (!peerId && typeof activeRoomId === "string" && selfId && activeRoomId.includes("-")) {
-      const parts = activeRoomId.split("-");
-      peerId = parts.find((p) => p && p !== String(selfId)) || null;
-    }
-
-    try {
-      if (selfId && peerId) await getWorkspaceForUsers(selfId, peerId);
-    } catch (e) {
-      console.warn("/workspace/{user1}/{user2} call failed", e?.response?.data || e?.message || e);
-    }
-
+    const tempId = Math.random().toString(36).substring(2, 9);
+    const selfId = profile?._id;
     const message = {
+      tempId,
       channelId: activeRoomId,
       content: messageInput,
       attachments,
-      sender: { _id: profile?._id, username: profile?.username, avatar: profile?.avatar || "/default-avatar.png" },
+      sender: {
+        _id: selfId,
+        username: profile?.username,
+        avatar: profile?.avatar || "/default-avatar.png",
+      },
       createdAt: new Date().toISOString(),
     };
 
+    // --- Optimistic update
     setMessages((prev) => [...prev, message]);
-    socketRef.current.emit("message", message);
+    socketRef.current.emit("send_message", message);
 
     try {
-      if (activeRoomId) await sendMessageToChannel(activeRoomId, message.content, message.attachments);
+      await sendMessageToChannel(activeRoomId, message.content, message.attachments);
     } catch (err) {
       console.error("Failed to save message:", err);
     }
@@ -200,12 +199,14 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     ? messages.filter((m) => {
         const q = searchQuery.toLowerCase();
         const content = (m.content || "").toLowerCase();
-        const senderName = typeof m.sender === "string" ? m.sender.toLowerCase() : (m.sender?.username || "").toLowerCase();
+        const senderName =
+          typeof m.sender === "string"
+            ? m.sender.toLowerCase()
+            : (m.sender?.username || "").toLowerCase();
         return content.includes(q) || senderName.includes(q);
       })
     : messages;
 
-  // --- Render ---
   return (
     <ChatLayout
       sidebar={
@@ -216,33 +217,40 @@ const Chat = ({ username, roomId, remoteUserId }) => {
           onVirtualSpaceClick={handleVirtualSpaceClick}
           onVideoConferenceClick={handleVideoConferenceClick}
           onChatClick={() => {
-            setShowMap(false); setShowTeamBuilder(false); setShowMeeting(false); setShowVideoConference(false);
+            setShowMap(false);
+            setShowTeamBuilder(false);
+            setShowMeeting(false);
+            setShowVideoConference(false);
           }}
         />
       }
     >
-      <main ref={mainRef} className="flex-1 flex flex-col relative overflow-y-auto ">
+      <main ref={mainRef} className="flex-1 flex flex-col relative overflow-y-auto">
         <Header
           title={
-            showVideoConference ? "Video Conference" :
-            showMap ? "Virtual Space" :
-            showMeeting ? "Meeting" :
-            showTeamBuilder ? "Team Builder" :
-            workspaceName || "Workspace"
+            showVideoConference
+              ? "Video Conference"
+              : showMap
+              ? "Virtual Space"
+              : showMeeting
+              ? "Meeting"
+              : showTeamBuilder
+              ? "Team Builder"
+              : workspaceName || "Workspace"
           }
           onCallClick={handleCallClick}
         />
 
         <div className="flex-1 relative overflow-hidden">
-          {showMap && <div className="absolute inset-0 overflow-auto scrollbar-hide"><Map /></div>}
-          {showMeeting && !showMap && <div className="absolute inset-0 overflow-y-auto px-8 py-6 bg-[#F3F3F6]"><ManagerMeeting /></div>}
-          {showVideoConference && !showMap && !showMeeting && <div className="absolute inset-0"><VideoConference /></div>}
-          {showTeamBuilder && !showMap && !showMeeting && !showVideoConference && <div className="absolute inset-0 overflow-y-auto px-4 py-2"><TeamBuilder /></div>}
-
           {!showMap && !showTeamBuilder && !showMeeting && !showVideoConference && (
             <div className="flex flex-col h-full min-h-0">
               <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide min-h-0">
-                <InfoBar onSearchChange={setSearchQuery} channelName={activeRoomId || 'Channel'} memberCount={0} onlineCount={0} />
+                <InfoBar
+                  onSearchChange={setSearchQuery}
+                  channelName={activeRoomId || "Channel"}
+                  memberCount={0}
+                  onlineCount={0}
+                />
                 <MessageList messages={displayedMessages} username={username} />
               </div>
               <InputBox
@@ -257,7 +265,6 @@ const Chat = ({ username, roomId, remoteUserId }) => {
               />
             </div>
           )}
-
           <style>{`
             .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
             .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -269,3 +276,4 @@ const Chat = ({ username, roomId, remoteUserId }) => {
 };
 
 export default Chat;
+

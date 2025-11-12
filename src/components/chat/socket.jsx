@@ -2,13 +2,14 @@ import { io } from "socket.io-client";
 import { SOCKET_URL } from "../../config.js";
 
 const socket = io(SOCKET_URL, {
-  transports: ["websocket"],
+  transports: ["polling"],
   withCredentials: true,
   
 });
 
 socket.on("connect", () => {
-  console.log("[socket] connected:", socket.id);
+  const t = socket.io.engine.transport?.name;
+  console.log("[socket] connected:", socket.id, "transport=", t);
 });
 
 socket.on("connect_error", (err) => {

@@ -9,7 +9,7 @@ export const useVoiceCall = (SOCKET_URL) => {
     if (!SOCKET_URL) return;
     import("socket.io-client").then(({ io }) => {
       socketRef.current = io(SOCKET_URL, {
-        transports: ["websocket"],
+        transports: ["polling"],
         withCredentials: true,
       });
 
