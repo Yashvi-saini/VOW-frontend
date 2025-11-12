@@ -34,13 +34,13 @@ const MessageList = ({ messages, username }) => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-6 p-4">
+    <div className="flex-1 overflow-x-hidden space-y-6 p-4 min-w-0">
       {messages.map((msg, index) => {
         const isSentByUser = msg.sender === username;
         const reactions = messageReactions[index] || [];
 
         return (
-         <div key={msg._id || index} className="flex w-[90vw] group">
+         <div key={msg._id || index} className="flex w-full max-w-full min-w-0 group">
   <div
     className={`flex items-start space-x-3 w-full ${
       isSentByUser ? "flex-row space-x-reverse" : ""

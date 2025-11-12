@@ -1,1 +1,1 @@
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "https://vow-org.me";
+export const SOCKET_URL =  "https://vow-org.me";

@@ -221,7 +221,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
         />
       }
     >
-      <main ref={mainRef} className="flex-1 flex flex-col relative">
+      <main ref={mainRef} className="flex-1 flex flex-col relative overflow-y-auto ">
         <Header
           title={
             showVideoConference ? "Video Conference" :
