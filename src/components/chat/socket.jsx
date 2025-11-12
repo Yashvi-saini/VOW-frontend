@@ -6,12 +6,10 @@ const socket = io(SOCKET_URL, {
   withCredentials: true,
   
 });
-
 socket.on("connect", () => {
   const t = socket.io.engine.transport?.name;
   console.log("[socket] connected:", socket.id, "transport=", t);
 });
-
 socket.on("connect_error", (err) => {
   console.error("[socket] connect_error:", err?.message || err);
 });
