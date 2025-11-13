@@ -4,7 +4,7 @@ import { getAllFiles, deleteFile } from '../../api/file';
 import emptyFolderIcon from '../../assets/emptyfolder.svg';
 import DeleteModal from '../common/DeleteModal';
 import Toast from '../common/Toast';
-import filter from "../../assets/filter.svg";
+import filter from "../../assets/Filter.svg";
 import menu from "../../assets/menu_open.svg";
 import FilesTable from './dash-components/FilesTable';
 import search from "../../assets/search.svg";
