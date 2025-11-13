@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import DashboardMain from "./DashboardMain";
+import DashboardMain from "../dashboard/DashboardMain";
 import DashboardNewUser from "./DashboardNewUser";
 
 const DashboardContainer = () => {

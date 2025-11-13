@@ -1,180 +1,108 @@
-// import express from "express";
-// import http from "http";
-// import { Server } from "socket.io";
+/*import express from "express";
+import http from "http";
+import { Server } from "socket.io";
 
 // const app = express();
 // const server = http.createServer(app);
 // app.use(express.json());
 
-// // Allow custom origins via env, fallback to defaults
-// const allowedOrigins = (process.env.SOCKET_ORIGINS || "")
-//   .split(",")
-//   .map(o => o.trim())
-//   .filter(Boolean);
-// if (!allowedOrigins.length) {
-//   allowedOrigins.push("http://localhost:5173");
-//   // Add production domain placeholder; replace with real domain e.g. https://vow-org.me
-//   allowedOrigins.push("https://vow-org.me");
-// }
+const io = new Server(server, {
+  cors: {
+    // Allow list covers local dev, primary production domains, and any Vercel preview.
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // non-browser or same-origin
+      const allowed = [
+        'http://localhost:5173',
+        'https://vow-blush.vercel.app',
+        'https://vow-live.me',
+        'https://vow-org.me'
+      ];
+      const vercelPreview = /\.vercel\.app$/i.test(origin);
+      if (allowed.includes(origin) || vercelPreview) {
+        return callback(null, true);
+      }
+      console.warn('[cors] blocked origin', origin);
+      return callback(new Error('CORS not allowed for origin: ' + origin));
+    },
+    credentials: true,
+  },
+  allowRequest: (req, callback) => {
+    // Detailed low-level request logging for polling & upgrade phases
+    const url = req.url;
+    const origin = req.headers.origin;
+    const ua = req.headers['user-agent'];
+    console.log('[allowRequest]', { url, origin, ua });
+    callback(null, true);
+  }
+});
 
-// const io = new Server(server, {
-//   cors: {
-//     origin: allowedOrigins,
-//     credentials: true,
-//   },
-// });
+// Express middleware to log raw HTTP polling requests hitting /socket.io
+app.use((req, res, next) => {
+  if (req.path && req.path.startsWith('/socket.io')) {
+    console.log('[socket.io][http]', req.method, req.url, 'origin=', req.headers.origin, 'sid=', req.query.sid);
+  }
+  next();
+});
 
-// console.log("⚙️ Socket.IO CORS origins:", allowedOrigins);
+// Engine.IO level diagnostics to trace 400 causes
+io.engine.on('connection_error', (err) => {
+  console.log('[engine][connection_error]', err.message, err.code, err.context || '');
+});
+io.engine.on('initial_headers', (headers, req) => {
+  console.log('[engine][initial_headers]', req.url);
+});
+io.engine.on('headers', (headers, req) => {
+  console.log('[engine][headers]', req.url);
+});
+io.engine.on('upgrade', (req) => {
+  console.log('[engine][upgrade]', req.url, 'transport=', req._query && req._query.transport);
+});
+io.engine.on('connection', (rawSocket) => {
+  console.log('[engine][connection] id=', rawSocket.id, 'transport=', rawSocket.transport.name);
+});
 
-// // In-memory presence for map per workspace
-// // workspaces: Map<workspaceId, Map<userId, { userId, name, x, y }>>
-// const workspaces = new Map();
+io.on("connection", (socket) => {
+  console.log("🔵 User connected:", socket.id, 'transport=', socket.conn.transport.name);
 
-// io.on("connection", (socket) => {
-//   console.log("🔵 User connected:", socket.id, {
-//     transport: socket.conn.transport.name,
-//     ua: socket.handshake.headers["user-agent"],
-//     origin: socket.handshake.headers.origin,
-//   });
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    console.log(`✅ ${socket.id} joined room ${roomId}`);
+    io.to(roomId).emit("user-joined", { userId: socket.id });
+  });
 
-//   // Track which workspace/user pairs this socket represents
-//   socket.data.memberships = new Set(); // entries like `${workspaceId}::${userId}`
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
+    console.log(`🚪 ${socket.id} left room ${roomId}`);
+    io.to(roomId).emit("user-left", { userId: socket.id });
+  });
 
-//   // ========== Chat events (existing) ==========
-//   socket.on("joinRoom", (roomId) => {
-//     socket.join(roomId);
-//     console.log(`✅ ${socket.id} joined room ${roomId}`);
-//     io.to(roomId).emit("user-joined", { userId: socket.id });
-//   });
+  socket.on("message", (message) => {
+    console.log(`💬 Message in room ${message.channelId}: ${message.content}`);
+    io.to(message.channelId).emit("message", message);
+  });
 
-//   socket.on("leaveRoom", (roomId) => {
-//     socket.leave(roomId);
-//     console.log(`🚪 ${socket.id} left room ${roomId}`);
-//     io.to(roomId).emit("user-left", { userId: socket.id });
-//   });
+  socket.on("disconnect", (reason) => {
+    console.log(`🔴 ${socket.id} disconnected`, 'reason=', reason);
+    io.emit("user-disconnected", { userId: socket.id });
+  });
+});
 
-//   socket.on("message", (message) => {
-//     console.log(`💬 Message in room ${message.channelId}: ${message.content}`);
-//     io.to(message.channelId).emit("message", message);
-//   });
+// Health check to verify server is reachable
+app.get('/health', (req, res) => {
+  res.json({ ok: true, time: Date.now() });
+});
 
-//   // ========== Map presence events ==========
-//   socket.on("map:join", ({ workspaceId, userId, name, x, y }) => {
-//     if (!workspaceId || !userId) return;
-//     const room = `map:${workspaceId}`;
-//     socket.join(room);
+const PORT = process.env.PORT || 8001;
 
-//     if (!workspaces.has(workspaceId)) workspaces.set(workspaceId, new Map());
-//     const members = workspaces.get(workspaceId);
-//     const avatar = { userId, name: name || "User", x: Number(x) || 0, y: Number(y) || 0 };
-//     members.set(userId, avatar);
-//     socket.data.memberships.add(`${workspaceId}::${userId}`);
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[server] Port ${PORT} is already in use. Set PORT to a free port and retry.`);
+  } else {
+    console.error('[server] Error:', err);
+  }
+  process.exit(1);
+});
 
-//   console.log(`🗺️  map:join ${workspaceId} <- ${userId} (${socket.id}) at`, { x: avatar.x, y: avatar.y, total: members.size, members: Array.from(members.keys()) });
-
-//     // Ack to the joining client
-//     socket.emit("map:join:ack", { ok: true, userId, workspaceId });
-
-//     // Send current state to the joiner
-//   const snapshot = Array.from(members.values());
-//   console.log(`📤 map:state to joiner ${userId} size=${snapshot.length}`);
-//   socket.emit("map:state", { avatars: snapshot });
-
-//     // Notify others in the room
-//     socket.to(room).emit("map:joined", avatar);
-
-//     // Also broadcast a fresh snapshot to everyone for robustness
-//     console.log(`📣 broadcast map:state room=${room} size=${snapshot.length}`);
-//     io.to(room).emit("map:state", { avatars: snapshot });
-//   });
-
-//   socket.on("map:state:request", ({ workspaceId }) => {
-//     const members = workspaces.get(workspaceId) || new Map();
-//     console.log(`📦 map:state:request for ${workspaceId} by ${socket.id} -> ${members.size} avatars`, Array.from(members.keys()));
-//     socket.emit("map:state", { avatars: Array.from(members.values()) });
-//   });
-
-//   socket.on("map:update", ({ workspaceId, userId, x, y }) => {
-//     if (!workspaceId || !userId) return;
-//     const members = workspaces.get(workspaceId);
-//     if (!members) return;
-//     const avatar = members.get(userId);
-//     if (!avatar) return;
-//     avatar.x = Number(x) || 0;
-//     avatar.y = Number(y) || 0;
-//     io.to(`map:${workspaceId}`).emit("map:updated", { userId, x: avatar.x, y: avatar.y });
-//     if (Math.random() < 0.02) {
-//       console.log(`↻ map:update broadcast sample ${workspaceId} user=${userId} x=${avatar.x} y=${avatar.y}`);
-//     }
-//   });
-
-//   socket.on("map:leave", ({ workspaceId, userId }) => {
-//     if (!workspaceId || !userId) return;
-//     const members = workspaces.get(workspaceId);
-//     if (members && members.has(userId)) {
-//       members.delete(userId);
-//       console.log(`👋 map:leave ${workspaceId} <- ${userId} remaining=${members.size}`);
-//       const room = `map:${workspaceId}`;
-//       io.to(room).emit("map:left", { userId });
-//       // Broadcast updated snapshot after removal
-//       io.to(room).emit("map:state", { avatars: Array.from(members.values()) });
-//       if (members.size === 0) workspaces.delete(workspaceId);
-//     }
-//     socket.leave(`map:${workspaceId}`);
-//     socket.data.memberships.delete(`${workspaceId}::${userId}`);
-//   });
-
-//   // Diagnostics
-//   socket.conn.on("packet", (packet) => {
-//     if (packet.type === "ping") return;
-//     if (packet.type === "pong") return;
-//     // Uncomment to trace packets: console.debug("📦 packet", packet.type, packet.data?.[0]);
-//   });
-//   socket.conn.on("close", (reason) => {
-//     console.warn("🔻 transport closed:", reason);
-//   });
-//   socket.conn.on("error", (err) => {
-//     console.error("⛔ transport error:", err?.message || err);
-//   });
-
-//   // Cleanup on disconnect
-//   socket.on("disconnect", (reason) => {
-//     console.log(`🔴 ${socket.id} disconnected:`, reason);
-//     // Remove all memberships associated with this socket
-//     for (const key of socket.data.memberships) {
-//       const [workspaceId, userId] = key.split("::");
-//       const members = workspaces.get(workspaceId);
-//       if (members && members.has(userId)) {
-//         members.delete(userId);
-//         io.to(`map:${workspaceId}`).emit("map:left", { userId });
-//         if (members.size === 0) workspaces.delete(workspaceId);
-//       }
-//     }
-//   });
-// });
-
-// // Debug REST endpoint to inspect presence state
-// app.get("/debug/workspaces", (req, res) => {
-//   const summary = {};
-//   for (const [wid, members] of workspaces.entries()) {
-//     summary[wid] = Array.from(members.values());
-//   }
-//   res.json({ workspaces: summary, socketCount: io.engine.clientsCount });
-// });
-
-// // Periodic snapshot logging (every 15s)
-// setInterval(() => {
-//   const counts = Array.from(workspaces.entries()).map(([wid, members]) => `${wid}:${members.size}`);
-//   console.log("🕒 presence snapshot", counts.join(" | ") || "(none)");
-// }, 15000);
-
-// // Optional stub for /maps to prevent 404 noise during development
-// app.post('/maps', (req, res) => {
-//   console.log('[maps] received payload', req.body);
-//   res.json({ ok: true, received: true });
-// });
-
-// const PORT = process.env.PORT || 8001;
-// server.listen(PORT, () => {
-//   console.log(`🚀 Realtime server running on port ${PORT}`);
-// });
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});*/

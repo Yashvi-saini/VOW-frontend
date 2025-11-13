@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createWorkspace } from "../../api/authApi"; // adjust path as needed
+import { createWorkspace } from "../../api/authApi"; 
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice"; // normalized path
 const CreateWorkspace = ({ onCreated }) => {
@@ -19,11 +19,12 @@ const CreateWorkspace = ({ onCreated }) => {
   const { workspace } = response.data; // token is set as HttpOnly cookie
       const workspaceId = workspace._id || workspace.id;
       const inviteCode = workspace.inviteCode;
+    const managerId = workspace.manager || workspace.managerId || workspace.ownerId || null;
 console.log("Checking token for:", workspaceId);
       localStorage.setItem("workspaceId", workspaceId);
       localStorage.setItem("inviteCode", inviteCode);
   console.log("Dispatching workspace context:", { workspaceId });
-  dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null }));
+  dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null, workspaceManagerId: managerId }));
       alert("Workspace created successfully!");
       setWorkspaceName("");
       setEmails("");

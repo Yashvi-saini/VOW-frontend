@@ -22,7 +22,6 @@ import TermsAndConditions from "./components/terms and conditions";
 
 
 const App = () => {
-
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const { signupPending, forgotRequested: rdxForgot } = useSelector((state) => state.user || {});
   const forgotRequested = rdxForgot || !!localStorage.getItem("forgotRequested");
@@ -35,12 +34,13 @@ const App = () => {
     <Router>
       <RouteWatcher />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-       
-        
+
+
         <Route
           path="/verify-otp"
           element={
@@ -61,6 +61,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/reset-password"
           element={
@@ -72,6 +73,7 @@ const App = () => {
             </FlowProtectedRoute>
           }
         />
+
         <Route
           path="/reset-success"
           element={
@@ -83,6 +85,7 @@ const App = () => {
             </FlowProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -91,6 +94,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/map"
           element={

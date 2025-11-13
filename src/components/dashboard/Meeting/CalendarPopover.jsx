@@ -11,7 +11,7 @@ function TimeField({ value, onChange }) {
   const set = (k, v) => onChange({ ...value, [k]: v });
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
       <input
         type="number"
         min={1}
@@ -20,7 +20,7 @@ function TimeField({ value, onChange }) {
         onChange={(e) =>
           set("h", pad2(Math.min(12, Math.max(1, +e.target.value || 1))))
         }
-        className="w-16 h-10 rounded-[12px] border border-[#E5E7EB] px-2 text-center text-sm"
+        className="w-12 h-10 rounded-xl border border-[#E5E7EB] text-center text-sm"
       />
       <span className="text-lg text-gray-500">:</span>
       <input
@@ -31,14 +31,14 @@ function TimeField({ value, onChange }) {
         onChange={(e) =>
           set("m", pad2(Math.min(59, Math.max(0, +e.target.value || 0))))
         }
-        className="w-16 h-10 rounded-[12px] border border-[#E5E7EB] px-2 text-center text-sm"
+  className="w-12 h-10 rounded-xl border border-[#E5E7EB] text-center text-sm"
       />
-      <div className="inline-flex rounded-[12px] overflow-hidden border border-[#E5E7EB] bg-white">
+  <div className="flex flex-col  rounded-xl overflow-hidden border border-[#E5E7EB] bg-white">
         {["AM", "PM"].map((m) => (
           <button
             key={m}
             onClick={() => set("mer", m)}
-            className={`px-3 py-2 text-sm transition-colors ${
+            className={`px-3 py-1 text-sm transition-colors ${
               value.mer === m
                 ? "bg-[#6D28D9] text-white"
                 : "text-[#374151] hover:bg-gray-50"
@@ -124,10 +124,10 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed -top-6 inset-0 z-50">
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="absolute right-10 top-28 w-[360px] rounded-[12px] border border-[#E5E7EB] bg-white shadow-[0_0_20px_0_rgba(0,0,0,0.08)]">
+  <div className="absolute right-4 top-24 w-[360px] max-w-[92vw] rounded-xl border border-[#E5E7EB] bg-white shadow-[0_0_20px_0_rgba(0,0,0,0.08)]">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <div className="text-sm text-[#111827] font-medium">Select date:</div>
           <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
             </button>
             <button
               onClick={gotoToday}
-              className="text-xs rounded-[8px] border border-[#E5E7EB] px-2 py-1 hover:bg-gray-50"
+              className="text-xs rounded-lg border border-[#E5E7EB] px-2 py-1 hover:bg-gray-50"
             >
               Today
             </button>
@@ -147,9 +147,9 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm font-medium text-[#111827]">{viewYear}</div>
           <div className="flex items-center gap-2">
-            <button onClick={gotoPrev} className="rounded-[8px] border border-[#E5E7EB] px-2 py-1 text-sm hover:bg-gray-50">‹</button>
+            <button onClick={gotoPrev} className="rounded-lg border border-[#E5E7EB] px-2 py-1 text-sm hover:bg-gray-50">‹</button>
             <div className="text-sm">{monthNames[viewMonth]}</div>
-            <button onClick={gotoNext} className="rounded-[8px] border border-[#E5E7EB] px-2 py-1 text-sm hover:bg-gray-50">›</button>
+            <button onClick={gotoNext} className="rounded-lg border border-[#E5E7EB] px-2 py-1 text-sm hover:bg-gray-50">›</button>
           </div>
         </div>
 
@@ -174,18 +174,20 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
                 disabled={!d}
                 onClick={() => d && setSelectedDate(d)}
                 className={[
-                  "h-9 rounded-[12px] text-sm transition-colors",
+                  "h-9 rounded-xl text-sm transition-colors",
                   d ? "hover:bg-violet-50" : "cursor-default",
                   selected ? "bg-[#6D28D9] text-white hover:bg-[#6D28D9]" : "",
                   isToday && !selected ? "ring-1 ring-[#6D28D9]/60" : "",
                 ].join(" ")}
               >
                 {d ? d.getDate() : ""}
+                
               </button>
+             
             );
           })}
         </div>
-
+       
         <div className="px-4 pb-4">
           <div className="text-sm text-[#111827] mb-2">Select time:</div>
 
@@ -208,13 +210,13 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
           </div>
 
           {mode === "time" && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <TimeField value={time} onChange={setTime} />
             </div>
           )}
 
           {mode === "range" && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="flex flex-col">
                 <div className="text-xs text-gray-600 mb-1">Start</div>
                 <TimeField
@@ -239,26 +241,29 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
           <div className="mt-4 flex items-center justify-between">
             <button
               onClick={onClose}
-              className="rounded-[12px] border border-[#E5E7EB] px-4 py-2 text-sm hover:bg-gray-50"
+              className="rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
-              onClick={() =>
-                onDone({
-                  year: viewYear,
-                  month: viewMonth,
-                  date: selectedDate,
-                  mode,
-                  time,
-                  range,
-                  label: label(),
-                })
-              }
-              className="rounded-[12px] bg-[#6D28D9] text-white px-5 py-2 hover:bg-[#5B21B6]"
-            >
-              Done
-            </button>
+  onClick={() => {
+    const payload = {
+      year: viewYear,
+      month: viewMonth,
+      date: selectedDate,
+      mode,
+      time,
+      range,
+      label: label(),
+    };
+    console.log("[CalendarPopover] Selected date/time:", payload);
+    onDone(payload);
+  }}
+  className="rounded-xl bg-[#6D28D9] text-white px-5 py-2 hover:bg-[#5B21B6]"
+>
+  Done
+</button>
+
           </div>
         </div>
       </div>

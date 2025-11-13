@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CalendarPopover from "./CalendarPopover";
-import { useMembers } from "../../useMembers";
 import { useSelector, useDispatch } from "react-redux";
-import { createTeam, assignTeamLead, getTeams, scheduleMeeting } from "../../../api/authApi";
-import { setTeam, setTeamsList, setSelectedTeamId } from "../../chat/teamslices";
+import { getTeams, scheduleMeeting } from "../../../api/authApi";
+import { setSelectedTeamId, setTeamsList } from "../../chat/teamslices";
 
 const MeetingForm = ({ role }) => {
   // Force single audience option: "specific-teams"
@@ -12,20 +11,15 @@ const MeetingForm = ({ role }) => {
   const [form, setForm] = useState({ title: "", dateTime: "", agenda: "" });
   const dispatch = useDispatch();
   const workspaceId = useSelector(s => s.user.workspaceId);
-  const { members, loading: membersLoading, error: membersError } = useMembers(workspaceId);
-  // UI mode: create-team | select-team
-  const [mode, setMode] = useState("select-team");
-  const [teamMembers, setTeamMembers] = useState([]); // selected member objects (create mode)
-  const [supervisorId, setSupervisorId] = useState(null);
-  const [teamName, setTeamName] = useState("");
-  const [creating, setCreating] = useState(false);
+  // members not needed here; team selection only
+  // Only select-team now (create moved to chat modal)
   const [feedback, setFeedback] = useState("");
-  const [showMemberPicker, setShowMemberPicker] = useState(false);
   const teams = useSelector(s => s.team.teams);
   const selectedTeamId = useSelector(s => s.team.selectedTeamId);
   const [loadingTeams, setLoadingTeams] = useState(false);
   const [meetingSaving, setMeetingSaving] = useState(false);
   const [isConference, setIsConference] = useState(false);
+  const agendaRef = useRef(null);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarState, setCalendarState] = useState(null);
@@ -36,14 +30,7 @@ const MeetingForm = ({ role }) => {
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const toggleMember = (m) => {
-    setTeamMembers(prev => prev.some(x => x._id === m._id) ? prev.filter(x => x._id !== m._id) : [...prev, m]);
-  };
-
-  const handleMemberDoubleClick = (m) => {
-    setSupervisorId(m._id);
-    setFeedback(`Supervisor set: ${m.fullName || m.username || m._id}`);
-  };
+  // Removed local team creation handlers
 
   const refreshTeams = async () => {
     if (!workspaceId) return;
@@ -61,66 +48,39 @@ const MeetingForm = ({ role }) => {
 
   useEffect(() => { refreshTeams(); }, [workspaceId]);
 
-  const createTeamFlow = async () => {
-    if (!workspaceId) {
-      setFeedback("Workspace ID missing.");
-      return;
+  // Auto-resize agenda textarea similar to chat input (max 160px)
+  useEffect(() => {
+    if (agendaRef.current) {
+      agendaRef.current.style.height = "auto";
+      agendaRef.current.style.height = `${Math.min(agendaRef.current.scrollHeight, 160)}px`;
     }
-    if (!teamName.trim()) {
-      setFeedback("Enter a team name.");
-      return;
-    }
-    if (teamMembers.length === 0) {
-      setFeedback("Select at least one member.");
-      return;
-    }
-    if (!supervisorId) {
-      setFeedback("Double-click a member to set supervisor before creating.");
-      return;
-    }
-    try {
-      setCreating(true); setFeedback("");
-      const payload = {
-        name: teamName.trim(),
-        memberIds: teamMembers.map(m => m._id),
-        superviser: supervisorId,
-      };
-      const res = await createTeam(workspaceId, payload);
-      const team = res?.data?.team;
-      if (res?.data?.success && team?._id) {
-        dispatch(setTeam(team));
-        // Add new team to list and select it
-        dispatch(setTeamsList([team, ...teams]));
-        dispatch(setSelectedTeamId(team._id));
-        setFeedback("Team created. Assigning supervisor...");
-        try {
-          await assignTeamLead(workspaceId, team._id, supervisorId);
-          setFeedback("Team and supervisor assigned successfully.");
-        } catch (e) {
-          console.warn("Supervisor assignment failed", e);
-          setFeedback("Team created but supervisor assignment failed.");
-        }
-        // Keep selection & name visible or clear? We'll clear create form but keep new team selected.
-        setTeamName("");
-        setTeamMembers([]);
-        setSupervisorId(null);
-        setMode("select-team");
-      } else {
-        setFeedback(res?.data?.message || "Failed to create team.");
-      }
-    } catch (err) {
-      setFeedback("Error creating team. Try again.");
-    } finally {
-      setCreating(false);
-    }
-  };
+  }, [form.agenda]);
 
+  // Removed createTeamFlow; creation handled in chat modal
+
+  // Build ISO strings preserving the user's local wall-clock time with timezone offset
+  // Example (IST): 2025-11-11 07:00 -> "2025-11-11T07:00:00+05:30"
   const buildDateTimes = () => {
     if (!calendarState?.date) return { startTime: null, endTime: null };
     const baseDate = calendarState.date;
     const year = baseDate.getFullYear();
     const month = baseDate.getMonth();
     const day = baseDate.getDate();
+    const pad = (n) => String(n).padStart(2, '0');
+    const toLocalOffsetISO = (d) => {
+      const y = d.getFullYear();
+      const mo = pad(d.getMonth() + 1);
+      const da = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mm = pad(d.getMinutes());
+      const ss = pad(d.getSeconds());
+      const tzMin = -d.getTimezoneOffset(); // minutes east of UTC
+      const sign = tzMin >= 0 ? '+' : '-';
+      const abs = Math.abs(tzMin);
+      const tzh = pad(Math.floor(abs / 60));
+      const tzm = pad(abs % 60);
+      return `${y}-${mo}-${da}T${hh}:${mm}:${ss}${sign}${tzh}:${tzm}`;
+    };
     const to24 = (h, mer) => {
       let hour = parseInt(h, 10);
       if (mer === 'PM' && hour !== 12) hour += 12;
@@ -134,7 +94,7 @@ const MeetingForm = ({ role }) => {
       const em = parseInt(calendarState.range.em, 10);
       const start = new Date(year, month, day, sh, sm, 0);
       const end = new Date(year, month, day, eh, em, 0);
-      return { startTime: start.toISOString(), endTime: end.toISOString() };
+      return { startTime: toLocalOffsetISO(start), endTime: toLocalOffsetISO(end) };
     }
     if (calendarState.mode === 'time') {
       const hour = to24(calendarState.time.h, calendarState.time.mer);
@@ -142,12 +102,12 @@ const MeetingForm = ({ role }) => {
       const start = new Date(year, month, day, hour, minute, 0);
       // default 1 hour
       const end = new Date(start.getTime() + 60 * 60 * 1000);
-      return { startTime: start.toISOString(), endTime: end.toISOString() };
+      return { startTime: toLocalOffsetISO(start), endTime: toLocalOffsetISO(end) };
     }
     // all day
     const startDay = new Date(year, month, day, 0, 0, 0);
     const endDay = new Date(year, month, day, 23, 59, 59);
-    return { startTime: startDay.toISOString(), endTime: endDay.toISOString() };
+    return { startTime: toLocalOffsetISO(startDay), endTime: toLocalOffsetISO(endDay) };
   };
 
   const onSubmit = async (e) => {
@@ -164,10 +124,10 @@ const MeetingForm = ({ role }) => {
       const startLocal = new Date(startTime);
       const endLocal = new Date(endTime);
       console.log('[meeting] Scheduling meeting with times', {
-        start_iso: startTime,
-        end_iso: endTime,
-        start_local: startLocal.toString(),
-        end_local: endLocal.toString(),
+        start_sent: startTime,
+        end_sent: endTime,
+        parsed_start_local: startLocal.toString(),
+        parsed_end_local: endLocal.toString(),
         conference: isConference,
         selectedTeamId,
         calendarMode: calendarState?.mode,
@@ -201,6 +161,8 @@ const MeetingForm = ({ role }) => {
     }
   };
 
+  // Renaming UI is intentionally not available in Meeting form.
+
   return (
     <div className="w-full">
       {/* Header */}
@@ -229,7 +191,7 @@ const MeetingForm = ({ role }) => {
           />
         </div>
 
-        {/* Audience Mode: create/select teams and conference toggle */}
+        {/* Audience: select existing team or conference */}
         <div className="border border-[#BFA2E1] rounded-2xl bg-[#EFE7F6] p-4 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-black">Teams</h2>
@@ -246,93 +208,15 @@ const MeetingForm = ({ role }) => {
             </div>
           </div>
           {!isConference && (
-            <>
-              <div className="inline-flex rounded-full bg-white p-1 self-start shadow-sm border border-[#D6C5E9]">
-                {['select-team','create-team'].map(mo => (
-                  <button
-                    key={mo}
-                    type="button"
-                    onClick={() => { setMode(mo); setFeedback(''); }}
-                    className={`px-4 py-1.5 text-sm rounded-full transition-colors ${mode===mo ? 'bg-[#5C0EA4] text-white' : 'text-[#5C0EA4] hover:bg-[#E9DFF6]'}`}
-                  >
-                    {mo === 'select-team' ? 'Select Team' : 'Create Team'}
-                  </button>
-                ))}
-              </div>
-              {mode === 'create-team' && (
-                <>
-                  <div>
-                    <label className="block font-semibold text-black mb-2">Team Name</label>
-                    <input
-                      type="text"
-                      value={teamName}
-                      onChange={(e) => setTeamName(e.target.value)}
-                      placeholder="Enter team name"
-                      className={inputBase}
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-black">Members</h3>
-                      <button
-                        type="button"
-                        onClick={() => setShowMemberPicker(s => !s)}
-                        className="text-xs bg-[#5C0EA4] text-white px-3 py-1 rounded hover:bg-[#4A0C85]"
-                      >{showMemberPicker ? 'Hide' : 'Show'} Member List</button>
-                    </div>
-                    {showMemberPicker && (
-                      <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
-                        {membersLoading && <p className="text-sm">Loading members...</p>}
-                        {membersError && <p className="text-sm text-red-600">Failed to load members.</p>}
-                        {!membersLoading && !membersError && members.map(m => {
-                          const selected = teamMembers.some(x => x._id === m._id);
-                          const isSupervisor = supervisorId === m._id;
-                          return (
-                            <div
-                              key={m._id}
-                              onClick={() => toggleMember(m)}
-                              onDoubleClick={() => handleMemberDoubleClick(m)}
-                              className={`flex items-center justify-between cursor-pointer px-3 py-1 rounded text-sm border ${selected ? 'bg-white border-[#5C0EA4]' : 'bg-[#E6D9F3] border-transparent'} hover:bg-white transition`}
-                              title={isSupervisor ? 'Supervisor' : 'Click to select; double-click to set supervisor'}
-                            >
-                              <span className="truncate">{m.fullName || m.username || m._id}</span>
-                              <div className="flex items-center gap-2">
-                                {isSupervisor && <span className="text-[10px] text-white bg-[#5C0EA4] px-2 py-0.5 rounded">Supervisor</span>}
-                                {selected && !isSupervisor && <span className="text-[10px] text-[#5C0EA4]">Selected</span>}
-                              </div>
-                            </div>
-                          );
-                        })}
-                        {(!membersLoading && members.length === 0) && <p className="text-sm">No members in workspace.</p>}
-                      </div>
-                    )}
-                    <p className="text-[11px] text-[#707070] mt-1">Double-click a member to set as supervisor.</p>
-                    {supervisorId && <p className="text-[11px] text-[#5C0EA4] mt-1">Supervisor selected.</p>}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {teamMembers.map(m => (
-                      <span key={m._id} className="text-[11px] bg-[#5C0EA4] text-white px-2 py-1 rounded">
-                        {(m.fullName || m.username || m._id).slice(0,20)}{supervisorId===m._id?' (Lead)':''}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      disabled={creating}
-                      onClick={createTeamFlow}
-                      className={`px-5 py-2 rounded-lg text-white text-sm font-medium ${creating ? 'bg-[#7D629E]' : 'bg-[#5C0EA4] hover:bg-[#4A0C85]'}`}
-                    >
-                      {creating ? 'Creating...' : 'Create Team'}
-                    </button>
-                    {feedback && <span className="text-xs text-[#5C0EA4]">{feedback}</span>}
-                  </div>
-                </>
-              )}
-              {mode === 'select-team' && (
-                <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-black">Select a Team</h3>
+                    <h3
+                      className="font-semibold text-black cursor-pointer select-none"
+                      title="Click to load latest teams"
+                      onClick={refreshTeams}
+                    >
+                      Select a Team
+                    </h3>
                     <button type="button" onClick={refreshTeams} className="text-[10px] px-2 py-1 rounded bg-white border border-[#D6C5E9] hover:bg-[#F3EEF9]">Refresh</button>
                   </div>
                   {loadingTeams && <p className="text-sm">Loading teams...</p>}
@@ -355,9 +239,7 @@ const MeetingForm = ({ role }) => {
                   {selectedTeamId && (
                     <p className="text-[11px] text-[#5C0EA4]">Selected team: {teams.find(x => x._id===selectedTeamId)?.name}</p>
                   )}
-                </div>
-              )}
-            </>
+            </div>
           )}
           {isConference && <p className="text-[11px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>}
         </div>
@@ -409,9 +291,10 @@ const MeetingForm = ({ role }) => {
           <textarea
             name="agenda"
             placeholder="Add agenda or notes"
-            className={`${inputBase} py-3 min-h-24 resize-y`}
+            className={`${inputBase} w-full px-2.5 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40`}
             value={form.agenda}
             onChange={onChange}
+            ref={agendaRef}
           />
         </div>
 
