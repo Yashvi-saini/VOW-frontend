@@ -83,8 +83,9 @@ const ProfileCard = ({ profile }) => {
             <span className="font-medium text-gray-700">Gender:</span>{profile.gender}
           </p>
           <p>
-            <span className="font-medium text-gray-700">DOB:</span>{profile.dob}
-          </p>
+  <span className="font-medium text-gray-700">DOB:</span>
+  {profile.dob?.split("T")[0]}
+</p>
         </div>
       </div>
 

@@ -63,13 +63,45 @@ const FileTransfer = () => {
 
 
   const handleView = async (fileId) => {
-    // Simple view functionality - you can enhance this as needed
-    setToast({ 
-      show: true, 
-      type: 'info', 
-      message: 'Opening file...' 
-    });
-    setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
+    try {
+      const file = files.find(f => getFileId(f) === fileId);
+      if (!file) {
+        setToast({ 
+          show: true, 
+          type: 'error', 
+          message: 'File not found' 
+        });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
+        return;
+      }
+
+      // If file has a URL, open it directly
+      if (file.url || file.fileUrl || file.s3Url) {
+        const fileUrl = file.url || file.fileUrl || file.s3Url;
+        window.open(fileUrl, '_blank');
+        setToast({ 
+          show: true, 
+          type: 'success', 
+          message: 'Opening file in new tab' 
+        });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
+      } else {
+        setToast({ 
+          show: true, 
+          type: 'info', 
+          message: 'File preview not available' 
+        });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
+      }
+    } catch (error) {
+      console.error('Error viewing file:', error);
+      setToast({ 
+        show: true, 
+        type: 'error', 
+        message: 'Failed to open file' 
+      });
+      setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
+    }
   };
 
   const handleDeleteClick = (fileId, fileName) => {
@@ -290,7 +322,7 @@ const FileTransfer = () => {
       
       {/* Search and Upload Section (Header lives in Topbar) */}
       <div className="bg-white pb-4 border-b border-gray-200">
-        <div className="flex items-center justify-between gap-4 pt-10">
+        <div className="flex items-center justify-between gap-4 pt-10 flex-col lg:flex-row">
           {/* Search Bar */}
           <div className="flex-1 bg-white flex justify-between w-full px-4 py-2 border border-[#AC92CB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
             <input
@@ -307,7 +339,7 @@ const FileTransfer = () => {
           <div className="flex items-center gap-3">
             {/* Share Workspace Button */}
             <div
-              className="p-2 hover:bg-[#F5F1FB] rounded transition-colors flex gap-4 border border-[#AC92CB] rounded-2xl gap-5 px-3"
+              className="p-2 hover:bg-[#F5F1FB] transition-colors flex gap-5 border border-[#AC92CB] rounded-2xl px-3"
          
               title="Share Workspace"
             >
@@ -320,13 +352,13 @@ const FileTransfer = () => {
             {/* More Options Menu */}
             <div className="relative more-menu-container">
               <div 
-                className="p-2 hover:bg-[#F5F1FB] rounded transition-colors flex items-center gap-2 border border-[#AC92CB] rounded-2xl cursor-pointer px-4"
+                className="p-2 hover:bg-[#F5F1FB] transition-colors flex items-center gap-2 border border-[#AC92CB] rounded-2xl cursor-pointer px-4"
                 onClick={handleMoreMenu}
                 title="More Options"
               >
                 <img src={menu} alt="Menu" className="w-6 h-6" />
                 <p className='text-[#AC92CB]'>Sort by</p>
-                <img src={down} alt="Dropdown" />
+                <img src={down} alt="Dropdown" className="w-4 h-4" />
               </div>
               
               {/* Dropdown Menu */}
@@ -371,8 +403,8 @@ const FileTransfer = () => {
           </div>
         ) : filteredFiles.length === 0 ? (
           /* Empty State */
-          <div className="h-full flex flex-col items-center justify-center text-center p-8">
-            <div className="mb-6">
+          <div className="h-full flex flex-col items-center justify-center text-center p-8  ">
+            <div className="mb-9">
               <img src={emptyFolderIcon} alt="Empty folder" className="h-24 w-24 mx-auto opacity-50" />
             </div>
             <h3 className="text-xl font-medium text-gray-600 mb-2">No Shared Files Yet</h3>

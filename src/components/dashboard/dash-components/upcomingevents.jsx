@@ -4,22 +4,44 @@ import EventCard from "../dash-components/EventCard";
 
 export default function UpcomingEvents() {
   const [selectedDate, setSelectedDate] = useState(new Date());
- const [weekAnchor, setWeekAnchor] = React.useState(new Date()); 
+  const [weekAnchor, setWeekAnchor] = useState(new Date());
+
   useEffect(() => {
     console.log("Selected date:", selectedDate.toISOString().split("T")[0]);
   }, [selectedDate]);
 
   return (
-    <div className=" w-[590px] py-8 px-6 bg-[radial-gradient(circle_at_center,_rgba(239,230,246,1)_40%,_rgba(225,208,238,0.9)_70%)] rounded-2xl ">
-      <h2 className="text-2xl font-bold mb-4">Upcoming Meetings</h2>
-      <WeekCalendar
-      currentDate={weekAnchor}
-      selectedDate={selectedDate}
-      onDateSelect={setSelectedDate}
-      onWeekChange={setWeekAnchor}
-    />
+    <div
+  className="
+    w-full
+    min-w-[300px]
+    max-w-[400px] lg:max-w-[38vw]
+    flex flex-col gap-6
+    p-6 sm:p-8
+    rounded-2xl gradient
+    transition-all duration-300
+    mx-auto lg:mx-0
+  "
+>
+      {/* Header */}
+      <h2 className="text-xl sm:text-2xl font-bold text-[#3A0A7E]">
+        Upcoming Meetings
+      </h2>
 
-      <EventCard selectedDate={selectedDate} />
+      {/* Week Calendar */}
+      <div className="overflow-x-auto">
+        <WeekCalendar
+          currentDate={weekAnchor}
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+          onWeekChange={setWeekAnchor}
+        />
+      </div>
+
+      {/* Events */}
+      <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+        <EventCard selectedDate={selectedDate} />
+      </div>
     </div>
   );
 }

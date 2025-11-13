@@ -9,9 +9,20 @@ import gridIcon from "../../assets/grid.svg";
 import helpIcon from "../../assets/dashhelp.svg";
 import contactIcon from "../../assets/dashphone.svg";
 import userIcon from "../../assets/dashuser.svg";
+import closeIcon from "../../assets/cross.svg"; // ✅ Add a close icon (use any "X" SVG from your assets)
 import { useSelector } from "react-redux";
 
-const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWorkspace, isSidebarOpen, setIsSidebarOpen }) => {
+import { useNavigate } from "react-router-dom";
+
+const Sidebar = ({
+  activeSection,
+  setActiveSection,
+  onCreateWorkspace,
+  onJoinWorkspace,
+  isSidebarOpen,
+  setIsSidebarOpen,
+  onNeedHelp,
+}) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: gridIcon },
     { id: "notification", label: "Notification", icon: notificationIcon },
@@ -28,93 +39,128 @@ const Sidebar = ({ activeSection, setActiveSection, onCreateWorkspace, onJoinWor
     setActiveSection(id);
     setIsSidebarOpen(false); // Close sidebar on mobile after selection
   };
+const navigate = useNavigate();
 
   return (
     <>
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        ></div>
-      )}
-
-      <aside 
+      {/* Sidebar */}
+      <aside
         className={`
-          fixed md:static inset-y-0 left-0 z-50
-          w-[340px] h-[900px] bg-[#240A44] text-white flex flex-col p-5.5 pt-4.5
+          fixed lg:static inset-y-0 left-0 z-50
+          lg:min-h-[110vh]
+          w-[340px]  bg-[#240A44] text-white flex flex-col p-5.5 pt-4.5
           transform transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-      <div className="flex-1 flex flex-col">
-        {/* Logo */}
-        <div className="flex items-center gap-1 mb-8">
-          <img src={logo} alt="logo" className="w-15 h-10" />
-          <p className="text-4xl pb-3 font-semibold text-[#F9F6FC]">vow</p>
+        {/* ✅ Top section with logo + close icon */}
+        <div className="flex items-center justify-between mb-8 relative">
+          <div className="flex items-center gap-1">
+            <img src={logo} alt="logo" className="w-12.5 h-10" />
+            <p className="text-4xl pb-3 font-semibold text-[#F9F6FC]">vow</p>
+          </div>
+
+          {/* ❌ Close icon — only visible on small screens */}
+          <button
+            className="lg:hidden absolute right-0 top-1 p-2 hover:bg-white/10 rounded-md"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <img src={closeIcon} alt="Close" className="w-5 h-5 invert" />
+          </button>
         </div>
 
-        {/* Profile */}
-        <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-2 py-2 mb-8 mt-1">
-          <div className="flex items-center gap-3">
-            <img src={avatar ? avatar : userIcon} alt="Avatar" className="w-10 h-10 rounded-full" />
-            <div>
-              <p className="text-white h-5 font-semibold text-[18px] leading-6">{fullName || "Guest"}</p>
-              <p className="text-[14px] text-[#B9B0C8]">{email || "No Email"}</p>
+        <div className="flex-1 flex flex-col overflow-y-auto hide-scrollbar">
+          {/* Profile */}
+          <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-2 py-2 mb-8 mt-1">
+            <div className="flex items-center gap-3">
+              <img
+                src={avatar ? avatar : userIcon}
+                alt="Avatar"
+                className="w-9 h-9 rounded-full"
+              />
+              <div>
+                <p className="text-white text-[16px] font-semibold leading-6">
+                  {fullName || "Guest"}
+                </p>
+                <p className="text-[12px] text-[#B9B0C8]">{email || "No Email"}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Workspace Buttons */}
-        <div className="flex flex-col gap-4 mb-8">
-          <button
-            onClick={onCreateWorkspace}
-            className="flex w-full h-10 items-center justify-center gap-4 px-4 rounded-xl bg-[#5E9BFF] text-white hover:brightness-110 transition"
-          >
-            <img src={createIcon} alt="Create" className="w-6 h-6 shrink-0 filter brightness-0 invert" />
-            <span className="text-[16px] leading-6">Create Workspace</span>
-          </button>
-
-          <button
-            onClick={onJoinWorkspace}
-            className="flex w-full h-10 items-center justify-center gap-4 px-4 rounded-xl bg-[#5E9BFF] text-white hover:brightness-110 transition"
-          >
-            <img src={keyIcon} alt="Join" className="w-6 h-6 shrink-0 filter brightness-0 invert" />
-            <span className="text-[16px] leading-6">Join Workspace</span>
-          </button>
-        </div>
-
-        {/* Navigation Menu */}
-        <nav className="flex flex-col gap-2 mt-4">
-          {menuItems.map((item) => (
+          {/* Workspace Buttons */}
+          <div className="flex flex-col gap-4 mb-8">
             <button
-              key={item.id}
-              onClick={() => handleMenuClick(item.id)}
-              className={`flex items-center gap-3.5 px-3 py-2 rounded-xl transition-all ${
-                activeSection === item.id
-                  ? "bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-white font-medium"
-                  : "hover:bg-[#3a0060] text-gray-200"
-              }`}
+              onClick={onCreateWorkspace}
+              className="flex w-full h-10 items-center justify-center gap-4 px-4 rounded-xl bg-[#5E9BFF] text-white hover:brightness-110 transition"
             >
-              <img src={item.icon} alt={item.label} className="w-6 h-6 filter brightness-0 invert" />
-              <span className="text-[22px] font-normal">{item.label}</span>
+              <img
+                src={createIcon}
+                alt="Create"
+                className="w-6 h-6 shrink-0 filter brightness-0 invert"
+              />
+              <span className="text-[16px] leading-6">Create Workspace</span>
             </button>
-          ))}
-        </nav>
-      </div>
 
-      {/* Bottom Section */}
-      <div className="border-t border-[#450B7B] pt-4 space-y-2">
-        <button className="flex items-center gap-3 text-left px-3 py-2 rounded-xl hover:bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-gray-200 transition-all w-full">
-          <img src={helpIcon} alt="Help" className="w-6 h-6 filter brightness-0 invert" />
-          <span className="text-[22px] font-normal">Need Help</span>
-        </button>
-        <button className="flex items-center gap-3 text-left px-3 py-2 rounded-xl hover:bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-gray-200 transition-all w-full">
-          <img src={contactIcon} alt="Contact" className="w-6 h-6 filter brightness-0 invert" />
-          <span className="text-[22px] font-normal">Contact Us</span>
-        </button>
-      </div>
-    </aside>
+            <button
+              onClick={onJoinWorkspace}
+              className="flex w-full h-10 items-center justify-center gap-4 px-4 rounded-xl bg-[#5E9BFF] text-white hover:brightness-110 transition"
+            >
+              <img
+                src={keyIcon}
+                alt="Join"
+                className="w-5 h-5 shrink-0 filter brightness-0 invert"
+              />
+              <span className="text-[16px] leading-6">Join Workspace</span>
+            </button>
+          </div>
+
+          {/* Navigation Menu */}
+          <nav className="flex flex-col gap-2 mt-4">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleMenuClick(item.id)}
+                className={`flex items-center gap-3.5 px-2 py-2 transition-all ${
+                  activeSection === item.id
+                    ? "bg-[#37086A] rounded-[0_14px_14px_0] text-white font-medium border-l-4 border-[#AC92CB]"
+                    : "hover:bg-[#3a0060] rounded-[0_14px_14px_0] text-gray-200"
+                }`}
+              >
+                <img
+                  src={item.icon}
+                  alt={item.label}
+                  className="w-6 h-6 filter brightness-0 invert"
+                />
+                <span className="text-[20px] font-normal">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="border-t border-[#450B7B] pt-4 space-y-2">
+          <button 
+            onClick={onNeedHelp}
+            className="flex items-center gap-3 text-left px-3 py-2 rounded-xl hover:bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-gray-200 transition-all w-full"
+          >
+            <img
+              src={helpIcon}
+              alt="Help"
+              className="w-6 h-6 filter brightness-0 invert"
+            />
+            <span className="text-[20px] font-normal">Need Help</span>
+          </button>
+          <button className="flex items-center gap-3 text-left px-3 py-2 rounded-xl hover:bg-[linear-gradient(90deg,#8231CC_0%,#29064A_83.93%)] text-gray-200 transition-all w-full">
+            <img
+              src={contactIcon}
+              alt="Contact"
+              className="w-6 h-6 filter brightness-0 invert"
+            />
+            <span className="text-[20px] font-normal">Contact Us</span>
+          </button>
+        </div>
+      </aside>
     </>
   );
 };
