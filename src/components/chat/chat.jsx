@@ -242,6 +242,11 @@ const Chat = ({ username, roomId, remoteUserId }) => {
         />
 
         <div className="flex-1 relative overflow-hidden">
+          {showMap && <Map />}
+          {showTeamBuilder && <TeamBuilder />}
+          {showMeeting && <ManagerMeeting />}
+          {showVideoConference && <VideoConference />}
+          
           {!showMap && !showTeamBuilder && !showMeeting && !showVideoConference && (
             <div className="flex flex-col h-full min-h-0">
               <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide min-h-0">

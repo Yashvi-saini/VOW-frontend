@@ -14,7 +14,15 @@ import { usePlayerMovementCamera } from "./map-components/usePlayerMovementCamer
 import { useClickToMove } from "./map-components/useClickToMove.js";
 import { useDispatch, useSelector } from "react-redux";
 import { setIdentity, replaceAvatars, upsertAvatar, updateAvatarPosition } from "./presenceSlice";
-// import socket, { SOCKET_URL } from "../chat/socket.jsx";
+import mapSocket, {
+  joinMapPresence,
+  updateMapPosition,
+  leaveMapPresence,
+  requestMapState,
+  setupMapListeners,
+  removeMapListeners,
+  getMapSocketStatus
+} from "./mapSocket.jsx";
 import AvatarsLayer from "./AvatarsLayer.jsx";
 
 const Map = () => {
@@ -127,12 +135,55 @@ const Map = () => {
   // ========== Presence wiring ==========
   // Join presence on mount
   useEffect(() => {
-    console.log("[map] mount: initializing presence");
-    console.log("[map] socket target:", SOCKET_URL, "connected?", socket.connected, "id:", socket.id);
-    // Resolve workspaceId from Redux (fallback to default if absent)
-    const resolvedWorkspaceId = workspaceIdFromRedux || "default-workspace";
-    workspaceIdRef.current = resolvedWorkspaceId;
-    console.log("[map] workspaceId (redux->used):", workspaceIdFromRedux, "->", resolvedWorkspaceId);
+    console.log("╔════════════════════════════════════════════════════════╗");
+    console.log("║  🗺️  MAP COMPONENT MOUNTING                            ║");
+    console.log("╚════════════════════════════════════════════════════════╝");
+    console.log("👤 Username:", username);
+    console.log("🏢 Workspace ID (from Redux):", workspaceIdFromRedux);
+    
+    // Check socket status immediately
+    console.log("🔌 Socket Status Check:");
+    console.log("   - Connected:", mapSocket.connected);
+    console.log("   - ID:", mapSocket.id);
+    console.log("   - Disconnected:", mapSocket.disconnected);
+    
+    // Get socket status
+    getMapSocketStatus();
+    
+    // If socket is not connected, wait for it
+    if (!mapSocket.connected) {
+      console.log("⏳ Socket not ready yet, waiting for connection...");
+      
+      const connectHandler = () => {
+        console.log("✅ Socket connected! ID:", mapSocket.id);
+        console.log("🚀 Now initializing map presence...");
+        initializePresence();
+      };
+      
+      mapSocket.once("connect", connectHandler);
+      
+      // Also try to connect if socket exists but is disconnected
+      if (mapSocket.disconnected && typeof mapSocket.connect === 'function') {
+        console.log("🔄 Attempting to reconnect socket...");
+        mapSocket.connect();
+      }
+      
+      return () => {
+        mapSocket.off("connect", connectHandler);
+      };
+    }
+    
+    // Socket already connected, initialize immediately
+    console.log("✅ Socket already connected, initializing presence");
+    initializePresence();
+    
+    function initializePresence() {
+      console.log("📋 Initializing map presence...");
+      
+      // Resolve workspaceId from Redux (fallback to default if absent)
+      const resolvedWorkspaceId = workspaceIdFromRedux || "default-workspace";
+      workspaceIdRef.current = resolvedWorkspaceId;
+      console.log("📋 Resolved Workspace ID:", resolvedWorkspaceId);
 
     // Ensure we have a stable selfId; prefer socket.id when connected
     const ensureSelfId = () => {
@@ -144,52 +195,55 @@ const Map = () => {
           if (!tid) {
             tid = (crypto?.randomUUID ? crypto.randomUUID() : `tab-${Math.random().toString(36).slice(2)}`);
             sessionStorage.setItem(key, tid);
+            console.log("🆔 Generated new tab ID:", tid);
+          } else {
+            console.log("🆔 Retrieved existing tab ID:", tid);
           }
           tabIdRef.current = tid;
-        } catch {
+        } catch (e) {
+          console.warn("⚠️  SessionStorage not available, using fallback");
           tabIdRef.current = `tab-${Math.random().toString(36).slice(2)}`;
         }
       }
       // Use socket.id if available; else use tabId
-      const candidate = (socket.id && socket.connected) ? socket.id : tabIdRef.current;
+      const candidate = (mapSocket.id && mapSocket.connected) ? mapSocket.id : tabIdRef.current;
       selfIdRef.current = candidate;
+      console.log("🆔 Self ID:", selfIdRef.current, "(socket:", mapSocket.id, "tab:", tabIdRef.current, ")");
       return selfIdRef.current;
     };
+    
     const selfId = ensureSelfId();
     dispatch(setIdentity({ selfId, workspaceId: resolvedWorkspaceId }));
-    console.log("[map] identity set:", { selfId, workspaceId: resolvedWorkspaceId, tabId: tabIdRef.current, socketId: socket.id });
+    console.log("✅ Identity set in Redux");
+    console.log("────────────────────────────────────────────────────────");
 
-    function onState({ avatars }) {
-      console.log("[map] map:state received count=", avatars?.length ?? 0, avatars);
-      dispatch(replaceAvatars(avatars));
-    }
-    function onJoined(avatar) {
-      console.log("[map] map:joined received:", avatar);
-      dispatch(upsertAvatar(avatar));
-    }
-    function onUpdated({ userId, x, y }) {
-      // Avoid log spam; sample
-      if (Math.random() < 0.05) {
-        console.log("[map] map:updated received:", { userId, x, y });
+    // Setup event listeners
+    const callbacks = {
+      onState: (data) => {
+        console.log("[MAP] Dispatching replaceAvatars with", data.avatars?.length || 0, "avatars");
+        dispatch(replaceAvatars(data.avatars));
+      },
+      onJoined: (avatar) => {
+        console.log("[MAP] Dispatching upsertAvatar for", avatar.name);
+        dispatch(upsertAvatar(avatar));
+      },
+      onJoinAck: (ack) => {
+        console.log("[MAP] Join acknowledged, success:", ack.success);
+      },
+      onUpdated: ({ userId, x, y }) => {
+        // Reduce log spam
+        if (Math.random() < 0.02) {
+          console.log("[MAP] Position update:", userId, "at", x?.toFixed(2), y?.toFixed(2));
+        }
+        dispatch(updateAvatarPosition({ userId, x, y }));
+      },
+      onLeft: ({ userId }) => {
+        console.log("[MAP] User left:", userId);
+        dispatch({ type: 'presence/removeAvatar', payload: userId });
       }
-      dispatch(updateAvatarPosition({ userId, x, y }));
-    }
-    function onLeft({ userId }) {
-      console.log("[map] map:left received user=", userId);
-      // reuse replaceAvatars? add a remove action later if needed
-      dispatch({ type: 'presence/removeAvatar', payload: userId });
-    }
+    };
 
-    socket.on("map:state", onState);
-    socket.on("map:joined", onJoined);
-    socket.on("map:join:ack", (ack) => {
-      console.log("[map] join ack:", ack);
-    });
-    socket.on("map:left", (payload) => {
-      console.log("[map] map:left received:", payload);
-    });
-    socket.on("map:updated", onUpdated);
-    socket.on("map:left", onLeft);
+    setupMapListeners(callbacks);
 
     // Helper to emit join (used on connect and on mount)
     const emitJoin = () => {
@@ -197,43 +251,49 @@ const Map = () => {
       const joinPayload = {
         workspaceId: workspaceIdRef.current,
         userId: sid,
-        name: username || "You",
+        name: username || "Anonymous",
         x: positionRef.current.x,
         y: positionRef.current.y,
       };
-      console.log("[map] emitting map:join", joinPayload);
-      socket.emit("map:join", joinPayload);
-      // Ask for full state after a short delay to ensure we didn't miss initial state
+      console.log("[MAP] Emitting join with payload:", joinPayload);
+      joinMapPresence(joinPayload);
+      
+      // Request full state after delay
       setTimeout(() => {
-        console.log("[map] requesting map:state explicitly (delayed)");
-        socket.emit("map:state:request", { workspaceId: workspaceIdRef.current });
+        console.log("[MAP] Requesting full state (delayed)");
+        requestMapState({ workspaceId: workspaceIdRef.current });
       }, 800);
     };
 
-    // If already connected, join immediately; else wait for connect
-    if (socket.connected) emitJoin();
-    const onConnect = () => {
-      console.log("[map] socket connected, joining presence");
-      emitJoin();
-    };
+    // Emit join now that socket is connected
+    console.log("[MAP] Socket is connected, joining immediately");
+    emitJoin();
+    
     const onReconnect = () => {
-      console.log("[map] socket reconnected, re-joining presence");
+      console.log("[MAP] Socket reconnected event - re-joining presence");
       emitJoin();
     };
-    socket.on("connect", onConnect);
-    socket.on("reconnect", onReconnect);
+    
+    mapSocket.on("reconnect", onReconnect);
 
     // Leave on unmount
     return () => {
-      socket.emit("map:leave", { workspaceId: workspaceIdRef.current, userId: selfIdRef.current });
-      socket.off("map:state", onState);
-      socket.off("map:joined", onJoined);
-      socket.off("map:updated", onUpdated);
-      socket.off("map:left", onLeft);
-  socket.off("map:join:ack");
-      socket.off("connect", onConnect);
-      socket.off("reconnect", onReconnect);
+      console.log("╔════════════════════════════════════════════════════════╗");
+      console.log("║  🗺️  MAP COMPONENT UNMOUNTING                          ║");
+      console.log("╚════════════════════════════════════════════════════════╝");
+      
+      leaveMapPresence({ 
+        workspaceId: workspaceIdRef.current, 
+        userId: selfIdRef.current 
+      });
+      
+      removeMapListeners();
+      mapSocket.off("reconnect", onReconnect);
+      
+      console.log("✅ Cleanup complete");
+      console.log("────────────────────────────────────────────────────────");
     };
+    }
   }, [dispatch, username, workspaceIdFromRedux]);
 
   // Throttle local position updates ~16Hz
@@ -241,16 +301,18 @@ const Map = () => {
     const lastSentRef = { x: null, y: null };
     const interval = setInterval(() => {
       const selfId = selfIdRef.current;
-      if (!selfId) return;
+      if (!selfId || !mapSocket.connected) return;
+      
       const workspaceId = workspaceIdRef.current;
       const { x, y } = positionRef.current;
       const dx = lastSentRef.x == null ? 999 : Math.abs(x - lastSentRef.x);
       const dy = lastSentRef.y == null ? 999 : Math.abs(y - lastSentRef.y);
+      
       if (dx > 0.05 || dy > 0.05 || Math.random() < 0.02) {
-        console.debug("[map] emitting map:update", { x: x.toFixed(2), y: y.toFixed(2) });
+        lastSentRef.x = x; 
+        lastSentRef.y = y;
+        updateMapPosition({ workspaceId, userId: selfId, x, y });
       }
-      lastSentRef.x = x; lastSentRef.y = y;
-      socket.emit("map:update", { workspaceId, userId: selfId, x, y });
     }, 60);
     return () => clearInterval(interval);
   }, []);
