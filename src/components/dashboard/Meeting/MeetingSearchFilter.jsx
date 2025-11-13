@@ -1,7 +1,7 @@
 import React from "react";
 import { Search } from "lucide-react";
 import down from "../../../assets/purpledown.svg";
-import filter from "../../../assets/filter.svg";    
+import filter from "../../../assets/Filter.svg";    
 const MeetingSearchFilter = ({ searchTerm = "", onSearchChange }) => {
   return (
     <div className="flex flex-row gap-1 w-full sm:gap-3 items-center justify-between px-2 py-1  mb-2 sm:px-4 ">
