@@ -133,3 +133,19 @@ export const getAllMeetings = () => {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+// Direct Messages API
+export const getDirectMessages = (workspaceId, user1, user2, params = {}) => {
+  const token = localStorage.getItem("accessToken");
+  const queryParams = new URLSearchParams(params).toString();
+  return api.get(`/dm/${workspaceId}/${user1}/${user2}${queryParams ? `?${queryParams}` : ''}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const deleteDirectMessage = (messageId) => {
+  const token = localStorage.getItem("accessToken");
+  return api.delete(`/dm/${messageId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};

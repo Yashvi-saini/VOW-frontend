@@ -15,7 +15,9 @@ const Sidebar = ({
   onVirtualSpaceClick,
   onChatClick,
   onVideoConferenceClick,
-  onShowMap, // optional legacy prop
+  onShowMap, 
+  onStartDM,
+  unreadDMs = {},
 }) => {
   const [active, setActive] = useState('virtual');
 
@@ -25,7 +27,7 @@ const Sidebar = ({
   const collectRooms = () => {
     try {
       if (typeof window !== 'undefined' && typeof window.getMapRooms === 'function') {
-        const ids = window.getMapRooms(true); // include corridor
+        const ids = window.getMapRooms(true); 
         console.log('[sidebar] collected rooms via helper:', ids);
         return ids;
       }
@@ -77,10 +79,10 @@ const navigate = useNavigate();
 
   const handleVirtualSpaceClick = async () => {
     setActive('virtual');
-    // Show the map in the main view
+    
     onVirtualSpaceClick?.();
     onShowMap?.();
-    // Wait for the map to mount/update before collecting rooms
+    
     await new Promise((resolve) =>
       requestAnimationFrame(() => setTimeout(resolve, 0))
     );
@@ -168,7 +170,7 @@ const navigate = useNavigate();
           </button>
         </nav>
         <TeamSection title="Team" onChannelSelect={onChannelSelect} />
-        <MembersSection onSelectChannel={onChannelSelect} onOpenChat={onChatClick} />
+        <MembersSection onSelectChannel={onChannelSelect} onOpenChat={onChatClick} onStartDM={onStartDM} unreadDMs={unreadDMs} />
       </div>
 
       {/* Settings at bottom */}
