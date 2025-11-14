@@ -8,6 +8,7 @@ import mic from '../../assets/mic.svg';
 import videocam from '../../assets/videocam.svg';
 import leaveMeet from '../../assets/leavemeet.svg';
 import EmojiSelector from './emojipicker.jsx';
+import useSfuVideoCall from './useSfuVideoCall.js';
 
 const VideoConference = () => {
   const [isCallActive, setIsCallActive] = useState(false);
@@ -27,18 +28,32 @@ const VideoConference = () => {
   
   const localVideoRef = useRef(null);
   const workspaceName = useSelector((state) => state.user.workspaceName);
+  const profile = useSelector((state) => state.user.profile);
+
+  const {
+    roomId,
+    participantId,
+    localStream,
+    remoteStreams,
+    join,
+    leave,
+    toggleMute: toggleMuteHook,
+    toggleVideo: toggleVideoHook,
+  } = useSfuVideoCall();
 
   // attach stream to video whenever it changes
+  useEffect(() => {
+    // adopt hook's localStream into component stream state
+    if (localStream !== stream) setStream(localStream || null);
+  }, [localStream]);
+
   useEffect(() => {
     if (!localVideoRef.current) return;
     if (stream) {
       try {
         localVideoRef.current.srcObject = stream;
-        // Some browsers need an explicit play()
         localVideoRef.current.play?.().catch(() => {});
-      } catch (e) {
-        console.warn('Failed to attach stream to video element', e);
-      }
+      } catch {}
     } else {
       localVideoRef.current.srcObject = null;
     }
@@ -99,45 +114,31 @@ const VideoConference = () => {
         alert('No camera or microphone found on this device.');
         return;
       }
-
-      // Prefer basic-but-compatible constraints
-      const baseConstraints = {
-        video: hasCam ? { facingMode: 'user' } : false,
-        audio: hasMic ? { echoCancellation: true, noiseSuppression: true } : false,
-      };
-
-      let mediaStream;
-      try {
-        mediaStream = await tryGetUserMedia(baseConstraints);
-      } catch (e1) {
-        console.warn('getUserMedia failed with base constraints, retrying with simplest true/true', e1);
-        // Retry with simplest possible constraints
-        try {
-          mediaStream = await tryGetUserMedia({ video: !!hasCam, audio: !!hasMic });
-        } catch (e2) {
-          // Last resort: try audio-only or video-only if one of them exists
-          if (hasMic) {
-            try {
-              mediaStream = await tryGetUserMedia({ audio: true });
-            } catch (e3) {
-              console.error('Audio-only getUserMedia failed', e3);
-            }
-          }
-          if (!mediaStream && hasCam) {
-            try {
-              mediaStream = await tryGetUserMedia({ video: true });
-            } catch (e4) {
-              console.error('Video-only getUserMedia failed', e4);
-            }
-          }
-          if (!mediaStream) throw e2;
-        }
-      }
-
-      setStream(mediaStream);
+      const id = (callTitle && callTitle.trim()) || Math.random().toString(36).slice(2, 8);
+      await join(id, profile?.username || 'Me');
       setIsCallActive(true);
     } catch (error) {
-      console.error('Error accessing camera/microphone:', error);
+      console.error('[VideoConference] getUserMedia/join error:', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        stack: error?.stack,
+      });
+      // Provide granular diagnostics in the UI console
+      if (navigator.permissions) {
+        try {
+          const camPerm = await navigator.permissions.query({ name: 'camera' }).catch(() => null);
+          const micPerm = await navigator.permissions.query({ name: 'microphone' }).catch(() => null);
+          console.log('[VideoConference] permissions:', {
+            camera: camPerm?.state,
+            microphone: micPerm?.state,
+          });
+        } catch {}
+      }
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        console.log('[VideoConference] enumerated devices:', devices.map(d => ({ kind: d.kind, label: d.label, deviceId: d.deviceId.slice(0,8)+'…' })));
+      } catch {}
       if (error?.message === 'insecure-context') {
         alert('Camera/mic require a secure context. Use HTTPS in production, or run on localhost during development.');
         return;
@@ -148,13 +149,7 @@ const VideoConference = () => {
   };
 
   const endCall = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = null;
-    }
+    leave();
     setIsCallActive(false);
     setIsMuted(false);
     setIsVideoOff(false);
@@ -162,56 +157,13 @@ const VideoConference = () => {
   };
 
   const toggleMute = () => {
-    if (stream) {
-      const audioTrack = stream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = isMuted;
-        setIsMuted(!isMuted);
-      }
-    }
-  };
-
-  // Stop only the video tracks; keep audio running
-  const stopLocalVideo = () => {
-    if (!stream) return;
-    stream.getVideoTracks().forEach((t) => t.stop());
-  };
-
-  const startLocalVideo = async () => {
-    try {
-      const vStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const newVideoTrack = vStream.getVideoTracks()[0];
-      if (!newVideoTrack) return;
-
-      // build a new combined stream to avoid ended tracks lingering
-      const audioTracks = stream ? stream.getAudioTracks() : [];
-      const newStream = new MediaStream([
-        ...audioTracks,
-        newVideoTrack,
-      ]);
-      setStream(newStream);
-    } catch (e) {
-      console.error('Failed to start local video', e);
-      alert('Could not start camera. Please check permissions or close other apps using the camera.');
-    }
+    toggleMuteHook();
+    setIsMuted((v) => !v);
   };
 
   const toggleVideo = async () => {
-    if (!stream) return;
-    // if currently ON -> turn OFF by stopping the track (turns off camera LED on most devices)
-    if (!isVideoOff) {
-      stopLocalVideo();
-      // keep the stream but without active video track
-      const audioTracks = stream.getAudioTracks();
-      const newStream = new MediaStream([...audioTracks]);
-      setStream(newStream);
-      setIsVideoOff(true);
-      return;
-    }
-
-    // currently OFF -> try to (re)start video
-    await startLocalVideo();
-    setIsVideoOff(false);
+    await toggleVideoHook();
+    setIsVideoOff((v) => !v);
   };
 
   useEffect(() => {
@@ -281,7 +233,18 @@ const VideoConference = () => {
                 />
               </div>
               <button
-                onClick={startCall}
+                onClick={async () => {
+                  if (!joinInput.trim()) return alert('Enter meeting ID');
+                  try {
+                    ensureSecureContext();
+                    await join(joinInput.trim(), profile?.username || 'Me');
+                    setIsCallActive(true);
+                  } catch (e) {
+                    console.error('[VideoConference] join existing call failed:', e);
+                    const msg = classifyGumError(e);
+                    alert(`Unable to join call. ${msg}`);
+                  }
+                }}
                 className="bg-[#5E9BFF]  text-white font-medium py-2 px-8 rounded-md"
               >
                 Join Now
@@ -329,18 +292,20 @@ const VideoConference = () => {
                 )}
               </div>
 
-              {/* Other participants */}
-              {participants.slice(0, 3).map((participant) => (
-                <div key={participant.id} className="relative bg-gray-800 rounded-xl overflow-hidden">
-                  <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                    <div className="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center">
-                      <span className="text-2xl font-bold text-white">
-                        {participant.name.charAt(0)}
-                      </span>
-                    </div>
-                  </div>
+              {/* Remote participants */}
+              {Array.from(remoteStreams.entries()).map(([peerId, mediaStream]) => (
+                <div key={peerId} className="relative bg-gray-800 rounded-xl overflow-hidden">
+                  <video
+                    ref={(el) => {
+                      if (!el) return;
+                      if (el.srcObject !== mediaStream) el.srcObject = mediaStream;
+                      el.autoplay = true;
+                      el.playsInline = true;
+                    }}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 px-3 py-1 rounded-lg">
-                    <span className="text-sm font-medium text-white">{participant.name}</span>
+                    <span className="text-sm font-medium text-white">Peer {peerId.slice(0, 6)}</span>
                   </div>
                 </div>
               ))}
@@ -360,7 +325,6 @@ const VideoConference = () => {
               >
                 <img src={mic} alt="mic" className="w-6 h-6" />
               </button>
-
               {/* Video */}
               <button
                 onClick={toggleVideo}
@@ -389,6 +353,11 @@ const VideoConference = () => {
                 Leave Meet
               </button>
             </div>
+            {roomId && (
+              <div className="mt-3 text-center text-white/80 text-sm">
+                Call ID: <span className="font-mono">{roomId}</span>
+              </div>
+            )}
           </div>
         </div>
       )}

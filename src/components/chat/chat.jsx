@@ -242,7 +242,9 @@ const Chat = ({ username, roomId, remoteUserId }) => {
         />
 
         <div className="flex-1 relative overflow-hidden">
-          {!showMap && !showTeamBuilder && !showMeeting && !showVideoConference && (
+        { showVideoConference ? (
+          <VideoConference />
+        ): !showMap && ! showTeamBuilder && ! showMeeting ? (
             <div className="flex flex-col h-full min-h-0">
               <div className="relative flex-1 overflow-y-auto space-y-4 scrollbar-hide min-h-0">
                 <InfoBar
@@ -264,7 +266,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
                 setAttachments={setAttachments}
               />
             </div>
-          )}
+          ): null }
           <style>{`
             .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
             .scrollbar-hide::-webkit-scrollbar { display: none; }
