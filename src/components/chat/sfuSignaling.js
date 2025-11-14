@@ -1,4 +1,11 @@
 import { SOCKET_URL } from "../../config.js";
+const MSG = {
+  JOIN: "join",
+  LEAVE: "leave",
+  OFFER: "offer",
+  ANSWER: "answer",
+  ICE: "ice-candidate",
+};
 
 export class SfuSignalingClient {
   constructor(token = null) {
@@ -15,9 +22,6 @@ export class SfuSignalingClient {
     this._heartbeatInterval = null;
   }
 
-  // --------------------------
-  // Event Handling
-  // --------------------------
   on(type, fn) {
     if (!this.handlers.has(type)) this.handlers.set(type, new Set());
     this.handlers.get(type).add(fn);
@@ -32,21 +36,15 @@ export class SfuSignalingClient {
   emit(type, payload) {
     if (!this.handlers.has(type)) return;
     for (const fn of this.handlers.get(type)) {
-      try {
-        fn(payload);
-      } catch (err) {
-        console.error("[Signaling:handler-error]", err);
+      try { fn(payload); } catch (err) {
+        console.error("[Signaling handler error]", err);
       }
     }
   }
 
-  // --------------------------
-  // Build WebSocket URL (fixed)
-  // --------------------------
   _buildWsUrl() {
     let base = SOCKET_URL.trim();
 
-    // Force WSS for HTTPS apps
     if (base.startsWith("https://")) base = base.replace("https://", "wss://");
     else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
     else if (!base.startsWith("ws")) base = "wss://" + base;
@@ -63,14 +61,9 @@ export class SfuSignalingClient {
     return url;
   }
 
-  // --------------------------
-  // Connect to SFU Signaling
-  // --------------------------
   connect() {
     return new Promise((resolve, reject) => {
       const url = this._buildWsUrl();
-
-      console.log("[SFU] Connecting:", url);
 
       try {
         this.ws = new WebSocket(url);
@@ -80,13 +73,10 @@ export class SfuSignalingClient {
       }
 
       this.ws.onopen = () => {
-        console.log("[SFU] Connected (WS OPEN)");
+        console.log("[SFU] Connected");
         this.connected = true;
-        this._retryCount = 0;
         this.emit("open");
 
-        // Heartbeat every 25 seconds
-        if (this._heartbeatInterval) clearInterval(this._heartbeatInterval);
         this._heartbeatInterval = setInterval(() => {
           if (this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(JSON.stringify({ type: "PING" }));
@@ -96,77 +86,44 @@ export class SfuSignalingClient {
         resolve();
       };
 
-      this.ws.onerror = (err) => {
-        console.error("[SFU] WS error:", err);
-      };
-
-      this.ws.onclose = (ev) => {
-        console.warn("[SFU] WS closed:", ev.code, ev.reason);
-        this.connected = false;
-
-        if (this._heartbeatInterval) {
-          clearInterval(this._heartbeatInterval);
-          this._heartbeatInterval = null;
-        }
-
-        if (!this._closing) {
-          this._retryCount++;
-          if (this._retryCount <= this._maxRetries) {
-            const delay = this._baseDelay * Math.pow(1.5, this._retryCount);
-            console.log(`[SFU] Reconnecting in ${Math.round(delay)}ms...`);
-            setTimeout(() => this.connect(), delay);
-          }
-        }
-      };
-
       this.ws.onmessage = (msg) => {
         try {
-          const data =
-            typeof msg.data === "string" ? JSON.parse(msg.data) : msg.data;
+          const data = typeof msg.data === "string"
+            ? JSON.parse(msg.data)
+            : msg.data;
 
-          if (data?.type) {
-            this.emit(data.type, data);
-          }
-          this.emit("message", data);
+          console.log("[SIGNALING MESSAGE RECEIVED]", data);
+
+          if (data?.type) this.emit(data.type, data);
         } catch (err) {
           console.warn("[SFU] Parse error:", err);
         }
       };
+
+      this.ws.onerror = (err) => {
+        console.error("[SFU] WS error:", err);
+      };
+
+      this.ws.onclose = () => {
+        console.warn("[SFU] WS closed");
+        this.connected = false;
+      };
     });
   }
 
-  // --------------------------
-  // Close connection
-  // --------------------------
-  close() {
-    this._closing = true;
-    if (this._heartbeatInterval) {
-      clearInterval(this._heartbeatInterval);
-      this._heartbeatInterval = null;
-    }
-    try {
-      this.ws?.close();
-    } catch {}
-  }
-
-  // --------------------------
-  // Send primitives
-  // --------------------------
   send(obj) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn("[SFU] send() ignored - WS NOT OPEN");
+      console.warn("[SFU] Cannot send, WS not open");
       return;
     }
     this.ws.send(JSON.stringify(obj));
   }
 
-  // --------------------------
-  // Signaling Helpers
-  // --------------------------
-
+  // FIXED: EXACT MATCH WITH BACKEND TYPES
+ 
   join(roomId, participantName) {
     this.send({
-      type: "JOIN",
+      type: MSG.JOIN,
       roomId,
       data: { participantName },
     });
@@ -174,7 +131,7 @@ export class SfuSignalingClient {
 
   leave(roomId, participantId) {
     this.send({
-      type: "LEAVE",
+      type: MSG.LEAVE,
       roomId,
       participantId,
     });
@@ -182,7 +139,7 @@ export class SfuSignalingClient {
 
   sendOffer(roomId, from, to, sdp) {
     this.send({
-      type: "OFFER",
+      type: MSG.OFFER,
       roomId,
       participantId: from,
       targetParticipantId: to,
@@ -192,7 +149,7 @@ export class SfuSignalingClient {
 
   sendAnswer(roomId, from, to, sdp) {
     this.send({
-      type: "ANSWER",
+      type: MSG.ANSWER,
       roomId,
       participantId: from,
       targetParticipantId: to,
@@ -202,7 +159,7 @@ export class SfuSignalingClient {
 
   sendIceCandidate(roomId, from, to, candidate) {
     this.send({
-      type: "ICE_CANDIDATE",
+      type: MSG.ICE,
       roomId,
       participantId: from,
       targetParticipantId: to,
@@ -212,3 +169,4 @@ export class SfuSignalingClient {
 }
 
 export default SfuSignalingClient;
+
