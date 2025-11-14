@@ -15,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 import vector from "../assets/vector.svg";
 import img from "../assets/Rectangle 9.svg";
 import demoVideo from "../assets/demovideo.mp4";
-import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import api from '../api/axiosConfig';
 import { setUserProfile } from '../components/userslice';

@@ -124,11 +124,11 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
   if (!open) return null;
 
   return (
-    <div className="fixed -top-6 inset-0 z-50">
-      <div className="absolute inset-0" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/20" onClick={onClose} />
 
-  <div className="absolute right-4 top-24 w-[360px] max-w-[92vw] rounded-xl border border-[#E5E7EB] bg-white shadow-[0_0_20px_0_rgba(0,0,0,0.08)]">
-        <div className="flex items-center justify-between px-4 py-3 border-b">
+  <div className="relative w-full max-w-[360px] max-h-[90vh] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white shadow-[0_0_20px_0_rgba(0,0,0,0.08)]">
+        <div className="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
           <div className="text-sm text-[#111827] font-medium">Select date:</div>
           <div className="flex items-center gap-2">
             <button onClick={() => setSelectedDate(null)} className="text-xs text-red-500">
@@ -238,7 +238,7 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
             </div>
           )}
 
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between sticky bottom-0 bg-white pt-4 border-t border-[#E5E7EB]">
             <button
               onClick={onClose}
               className="rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm hover:bg-gray-50"

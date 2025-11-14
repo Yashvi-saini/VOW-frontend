@@ -20,6 +20,8 @@ const MeetingForm = ({ role }) => {
   const [meetingSaving, setMeetingSaving] = useState(false);
   const [isConference, setIsConference] = useState(false);
   const agendaRef = useRef(null);
+const [titleError, setTitleError] = useState("");
+const [agendaError, setAgendaError] = useState("");
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarState, setCalendarState] = useState(null);
@@ -110,64 +112,91 @@ const MeetingForm = ({ role }) => {
     return { startTime: toLocalOffsetISO(startDay), endTime: toLocalOffsetISO(endDay) };
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setFeedback("");
-    if (!workspaceId) { setFeedback("Workspace ID missing"); return; }
-    if (!form.title.trim()) { setFeedback("Enter meeting title"); return; }
-    if (!calendarState) { setFeedback("Select date & time"); return; }
-    const { startTime, endTime } = buildDateTimes();
-    if (!startTime || !endTime) { setFeedback("Invalid date/time selection"); return; }
-    if (!isConference && !selectedTeamId) { setFeedback("Select a team or mark as conference"); return; }
-    // Console detailed date/time info
-    try {
-      const startLocal = new Date(startTime);
-      const endLocal = new Date(endTime);
-      console.log('[meeting] Scheduling meeting with times', {
-        start_sent: startTime,
-        end_sent: endTime,
-        parsed_start_local: startLocal.toString(),
-        parsed_end_local: endLocal.toString(),
-        conference: isConference,
-        selectedTeamId,
-        calendarMode: calendarState?.mode,
-        rawCalendar: calendarState,
-      });
-    } catch (logErr) {
-      console.warn('[meeting] Failed logging meeting times', logErr);
-    }
-    const body = {
-      title: form.title.trim(),
-      description: form.agenda || "",
-      startTime,
-      endTime,
-      teamId: isConference ? undefined : selectedTeamId,
-      isConference,
-    };
-    try {
-      setMeetingSaving(true);
-      const res = await scheduleMeeting(workspaceId, body);
-      if (res?.data?.success) {
-        setFeedback("Meeting scheduled successfully.");
-        // Optionally reset form
-        // setForm({ title: "", dateTime: "", agenda: "" });
-      } else {
-        setFeedback(res?.data?.message || "Failed to schedule meeting.");
-      }
-    } catch (err) {
-      setFeedback("Error scheduling meeting.");
-    } finally {
-      setMeetingSaving(false);
-    }
+ const onSubmit = async (e) => {
+e.preventDefault();
+  setFeedback("");
+  setTitleError("");
+  setAgendaError("");
+  if (!workspaceId) {
+    return setFeedback("Workspace ID missing");
+  }
+  if (!form.title.trim()) {
+    return setFeedback("Enter meeting title");
+  }
+  if (!calendarState) {
+    return setFeedback("Select date & time");
+  }
+ if (form.title.trim().length < 4) {
+    setTitleError("Minimum 4 characters required.");
+    return;
+  }
+  if (form.title.trim().length > 15) {
+    setTitleError("Maximum 15 characters allowed.");
+    return;
+  }
+
+  // Custom agenda validation
+  if (form.agenda.trim().length < 10) {
+    setAgendaError("Minimum 10 characters required.");
+    return;
+  }
+
+  const { startTime, endTime } = buildDateTimes();
+  if (!startTime || !endTime) {
+    return setFeedback("Invalid date/time selection");
+  }
+  if (!isConference && !selectedTeamId) {
+    return setFeedback("Select a team or mark as conference");
+  }
+
+  const body = {
+    title: form.title.trim(),
+    description: form.agenda || "",
+    startTime,
+    endTime,
+    teamId: isConference ? undefined : selectedTeamId,
+    isConference,
   };
+
+  try {
+    setMeetingSaving(true);
+
+    const res = await scheduleMeeting(workspaceId, body);
+
+    if (res?.data?.success) {
+      setFeedback("Meeting scheduled successfully.");
+    } 
+    else {
+      // 🔥 Show backend message EXACTLY
+      setFeedback(res?.data?.msg || res?.data?.message || "Failed to schedule meeting.");
+    }
+
+  } catch (err) {
+    console.warn("Meeting error:", err);
+
+    // 🔥 Prefer backend error msg
+    const backendMsg =
+      err?.response?.data?.msg ||
+      err?.response?.data?.message ||
+      err?.message;
+
+    setFeedback(backendMsg || "Error scheduling meeting.");
+  } finally {
+    setTimeout(() => {
+      setMeetingSaving(false);
+    }, 1000);
+    
+  }
+};
+
 
   // Renaming UI is intentionally not available in Meeting form.
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-[36px] leading-[43px] font-bold text-black">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl lg:text-[36px] leading-tight font-bold text-black">
           Schedule a Meeting
         </h1>
 
@@ -175,13 +204,14 @@ const MeetingForm = ({ role }) => {
       </div>
 
       {/* Form */}
-      <form onSubmit={onSubmit} className="flex flex-col gap-10 max-w-[588px]">
+      <form onSubmit={onSubmit} className="flex flex-col gap-6 sm:gap-8 lg:gap-10 max-w-full sm:max-w-[588px] pb-8">
         {/* Title */}
         <div>
-          <label className="block font-semibold text-black mb-2 text-[24px]">
+          <label className="block font-semibold text-black mb-2 text-lg sm:text-xl lg:text-[24px]">
             Meeting Title
           </label>
           <input
+          
             type="text"
             name="title"
             placeholder="Give your meeting a clear name"
@@ -189,12 +219,15 @@ const MeetingForm = ({ role }) => {
             value={form.title}
             onChange={onChange}
           />
+          {titleError && (
+            <p className="text-red-600 text-sm mt-1">{titleError}</p>
+          )}
         </div>
 
         {/* Audience: select existing team or conference */}
-        <div className="border border-[#BFA2E1] rounded-2xl bg-[#EFE7F6] p-4 flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-black">Teams</h2>
+        <div className="border border-[#BFA2E1] rounded-2xl bg-[#EFE7F6] p-3 sm:p-4 flex flex-col gap-3 sm:gap-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-base sm:text-lg font-semibold text-black">Teams</h2>
             <div className="flex items-center gap-2 text-[11px]">
               <label className="inline-flex items-center gap-1 cursor-pointer">
                 <input
@@ -203,7 +236,7 @@ const MeetingForm = ({ role }) => {
                   onChange={(e) => setIsConference(e.target.checked)}
                   className="accent-[#5C0EA4]"
                 />
-                <span className="text-[#5C0EA4] font-medium">Conference (all workspace)</span>
+                <span className="text-[#5C0EA4] font-medium text-[15px]">Conference (all workspace)</span>
               </label>
             </div>
           </div>
@@ -229,7 +262,7 @@ const MeetingForm = ({ role }) => {
                         className={`px-3 py-2 rounded cursor-pointer text-sm border ${selectedTeamId===t._id ? 'bg-[#5C0EA4] text-white border-[#5C0EA4]' : 'bg-[#E6D9F3] text-[#2D2940] border-transparent hover:bg-white'}`}
                         title={t.name}
                       >
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center ">
                           <span className="truncate max-w-[200px]">{t.name}</span>
                           {selectedTeamId===t._id && <span className="text-[10px] font-medium">Selected</span>}
                         </div>
@@ -237,16 +270,16 @@ const MeetingForm = ({ role }) => {
                     ))}
                   </div>
                   {selectedTeamId && (
-                    <p className="text-[11px] text-[#5C0EA4]">Selected team: {teams.find(x => x._id===selectedTeamId)?.name}</p>
+                    <p className="text-[14px] text-[#5C0EA4]">Selected team: {teams.find(x => x._id===selectedTeamId)?.name}</p>
                   )}
             </div>
           )}
-          {isConference && <p className="text-[11px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>}
+          {isConference && <p className="text-[14px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>}
         </div>
 
         {/* Date & Time */}
         <div className="relative">
-          <label className="block font-semibold text-black text-[24px] mb-2">
+          <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
             Date & Time
           </label>
           <button
@@ -285,17 +318,23 @@ const MeetingForm = ({ role }) => {
 
         {/* Agenda */}
         <div>
-          <label className="block font-semibold text-black text-[24px] mb-2">
+          <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
             Agenda / Description
           </label>
           <textarea
             name="agenda"
-            placeholder="Add agenda or notes"
+           placeholder="Add agenda or notes"
             className={`${inputBase} w-full px-2.5 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40`}
             value={form.agenda}
             onChange={onChange}
             ref={agendaRef}
           />
+          {agendaError ? (
+  <p className="text-red-600 text-sm mt-1">{agendaError}</p>
+) : (
+  <p className="text-sm mt-1 opacity-0">{" "}</p>
+)}
+
         </div>
 
         {/* Meeting submit (independent of team creation) */}
@@ -303,11 +342,21 @@ const MeetingForm = ({ role }) => {
           <button
             type="submit"
             disabled={meetingSaving}
-            className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg text-white ${meetingSaving ? 'bg-[#7A91D6]' : 'bg-[#4C6FFF] hover:bg-[#3A57E8]'}`}
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white font-medium transition-colors ${meetingSaving ? 'bg-[#7A91D6] cursor-not-allowed' : 'bg-[#4C6FFF] hover:bg-[#3A57E8]'}`}
           >
-            {meetingSaving ? 'Saving...' : 'Save Meeting'}
+            {meetingSaving ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </>
+            ) : (
+              'Save Meeting'
+            )}
           </button>
-          {feedback && <span className="text-[11px] text-[#5C0EA4]">{feedback}</span>}
+          {feedback && <span className="text-[20px] text-[#5C0EA4]">{feedback}</span>}
         </div>
       </form>
     </div>

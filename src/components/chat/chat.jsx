@@ -241,7 +241,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
           onCallClick={handleCallClick}
         />
 
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-y-auto">
           {showMap && <Map />}
           {showTeamBuilder && <TeamBuilder />}
           {showMeeting && <ManagerMeeting />}
