@@ -9,7 +9,8 @@ import CrossIcon from "../assets/X.png";
 import Background from "../components/background.jsx";
 import { registerUser } from "../api/authApi";
 import { useDispatch, useSelector } from "react-redux";
-import { setProfileNeeded, setSignupDone, startSignupFlow } from "../components/userslice";
+import { setSignupDone, startSignupFlow } from "../components/userslice";
+import logo from "../assets/logo.svg"
 export default function Signup() {
   const [enter, setEnter] = useState(false);
   useEffect(() => {
@@ -39,14 +40,15 @@ export default function Signup() {
   const [routeOverlayOpaque, setRouteOverlayOpaque] = useState(initialEntryOverlay);
 // Redirect only after this submit completes (avoid persisted-flag surprises)
 const signupDone = useSelector((state) => state.user.signupDone);
-const isProfileNeeded = useSelector((state) => state.user.isProfileNeeded);
+const [termsError, setTermsError] = useState(false);
+
 const [afterSubmit, setAfterSubmit] = useState(false);
 useEffect(() => {
-  if (afterSubmit && signupDone && isProfileNeeded) {
+  if (afterSubmit && signupDone ) {
     navigate("/verify-otp", { state: { email, mode: "signup" } });
     setAfterSubmit(false);
   }
-}, [afterSubmit, signupDone, isProfileNeeded, email, navigate]);
+}, [afterSubmit, signupDone,  email, navigate]);
   // Fade out the entry overlay once on mount if coming from Home
   useEffect(() => {
     if (initialEntryOverlay) {
@@ -75,6 +77,7 @@ const isUsernameMaxLength = trimmedUsername.length <= 20;
 const isUsernameValidChars = /^[a-zA-Z0-9._]+$/.test(trimmedUsername);
 const noConsecutiveSpecials = !/[\._]{2,}/.test(trimmedUsername);
 const validStartEnd = /^[a-zA-Z0-9].*[a-zA-Z0-9]$/.test(trimmedUsername);
+
 
 // Final combined username validity
 const isUsernameValid =
@@ -122,72 +125,79 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   /******** */
   // Submit handler
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Show required errors for empty fields and stop early
-    const emptyFlags = {
-      username: trimmedUsername === "",
-      email: trimmedEmail === "",
-      password: (password || "").trim() === "",
-    };
-    setRequiredErrs(emptyFlags);
-    if (emptyFlags.username || emptyFlags.email || emptyFlags.password) return;
-
-    if (!isFormValid) return;
-
-    setLoading(true);
-    setServerMsg("");
-    setUsernameExists(false);
-    setEmailExists(false);
-
-    const payload = { 
-  username: trimmedUsername, // use trimmed version
-  email: email.trim(), 
-  password 
-};
-
-
-    try {
-      const res = await registerUser(payload);
-      const data = res.data;
-
-      if (data.success) {
-        setServerMsg("");
-        // 1) flip Redux flags
-        dispatch(setSignupDone(true));
-        dispatch(setProfileNeeded(true));
-        // 2) set OTP flow so /verify-otp guard allows entry
-        dispatch(startSignupFlow(trimmedEmail));
-        // 2b) set session fallbacks to ensure OTP has email/mode even on reload
-        sessionStorage.setItem("pendingEmail", trimmedEmail);
-        sessionStorage.setItem("pendingMode", "signup");
-        // 3) defer navigation until Redux state is visible in this component
-        setAfterSubmit(true);
-        localStorage.setItem("isLoggedIn", "false");
-
-      }
-    } catch (err) {
-      // ✅ If server responded (e.g., 400, 409, etc.)
-      if (err.response) {
-        const msg = err.response.data?.msg?.toLowerCase() || "";
-
-        if (msg.includes("username already taken")) {
-          setUsernameExists(true);
-        }
-        if (msg.includes("user already exists")) {
-          setuserexists(true);
-        }
-
-        // ✅ Show backend message instead of generic server error
-        setServerMsg(err.response.data.msg || "Registration failed");
-      } else {
-  
-        setServerMsg("Network or server error. Please try again later.");
-      }
-    } finally {
-      setLoading(false);
-    }
+  // Required field errors
+  const emptyFlags = {
+    username: trimmedUsername === "",
+    email: trimmedEmail === "",
+    password: (password || "").trim() === "",
   };
+
+  setRequiredErrs(emptyFlags);
+
+  // NEW → validate terms BEFORE any return
+  if (!termsAccepted) {
+    setTermsError(true);
+  }
+
+  // Stop if anything missing
+  if (
+    emptyFlags.username ||
+    emptyFlags.email ||
+    emptyFlags.password ||
+    !termsAccepted
+  ) {
+    return;
+  }
+
+  if (!isFormValid) return;
+
+  // Prevent double submit
+  if (loading) return;
+  setLoading(true);
+
+  setServerMsg("");
+  setUsernameExists(false);
+  setEmailExists(false);
+
+  const payload = {
+    username: trimmedUsername,
+    email: email.trim(),
+    password,
+  };
+
+  try {
+    const res = await registerUser(payload);
+    const data = res.data;
+
+    if (data.success) {
+      setServerMsg("");
+
+      dispatch(setSignupDone(true));
+      dispatch(startSignupFlow(trimmedEmail));
+
+      sessionStorage.setItem("pendingEmail", trimmedEmail);
+      sessionStorage.setItem("pendingMode", "signup");
+
+      setAfterSubmit(true);
+      localStorage.setItem("isLoggedIn", "false");
+    }
+  } catch (err) {
+    if (err.response) {
+      const msg = err.response.data?.msg?.toLowerCase() || "";
+
+      if (msg.includes("username already taken")) setUsernameExists(true);
+      if (msg.includes("email already in use")) setuserexists(true);
+
+      setServerMsg(err.response.data.msg || "Registration failed");
+    } else {
+      setServerMsg("Network or server error. Please try again later.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return (
@@ -216,7 +226,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
         <div className="px-6 sm:px-15">
           <div className="flex justify-center mb-4">
-            <img src="/logo.svg" alt="Logo" className="h-[30px] w-11" />
+            <img src={logo} alt="Logo" className="h-[30px] w-11" />
           </div>
 
           <h2
@@ -413,27 +423,36 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
             {/* Terms */}
             <div className="flex items-start gap-2 mb-[clamp(12px,2vh,24px)]">
-              <input
-                type="checkbox"
-                id="terms"
-                className="mt-1.5 cursor-pointer size-4"
-                checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-              />
-              <label
-                htmlFor="terms"
-                className="text-[clamp(13px,2.1vh,16px)] leading-relaxed text-black"
-              >
-                I have read and agree with the{" "}
-                <a href="/TermsAndConditions" className="text-[#213659] underline">
-                  terms and conditions
-                </a>
-              </label>
-            </div>
+  <input
+    type="checkbox"
+    id="terms"
+    className="mt-1.5 cursor-pointer size-4"
+    checked={termsAccepted}
+    onChange={(e) => {
+      setTermsAccepted(e.target.checked);
+      if (e.target.checked) setTermsError(false); // clear error
+    }}
+  />
+  <label
+    htmlFor="terms"
+    className="text-[clamp(13px,2.1vh,16px)] leading-relaxed text-black"
+  >
+    I have read and agree with the{" "}
+    <a href="/TermsAndConditions" className="text-[#213659] underline">
+      terms and conditions
+    </a>
+  </label>
+</div>
+{termsError && (
+  <p className="text-red-500 text-sm -mt-2 mb-2">
+    Kindly accept terms and conditions
+  </p>
+)}
 
             {/* Submit */}
             <button
               type="submit"
+              disabled={loading}
              className="w-full rounded-lg font-normal h-[clamp(44px,6vh,48px)] text-[clamp(16px,2.2vh,20px)] transition bg-[#450B7B] text-white hover:bg-[#5d11a3]"
             >
               {loading ? "Signing up..." : "Sign up"}

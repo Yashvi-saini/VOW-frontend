@@ -50,15 +50,24 @@ console.log("Checking token for:", workspaceId);
 
         {/* Workspace Name */}
         <div>
-          <label className="block text-[24px] font-semibold mb-2 text-black">Workspace Name</label>
-          <input
-            type="text"
-            value={workspaceName}
-            onChange={(e) => setWorkspaceName(e.target.value)}
-            placeholder="e.g. Design Studio, Growth Team, Marketing Hub"
-            className="border border-[#707070] rounded-lg px-4 py-3 w-full focus:outline-none focus:border-[#5E9BFF] focus:ring-2 focus:ring-[#5E9BFF]/20 text-[#707070] bg-[#EFE7F6] font-normal"
-          />
-        </div>
+  <label className="block text-[24px] font-semibold mb-2 text-black">
+    Workspace Name
+  </label>
+  <input
+    type="text"
+    value={workspaceName}
+    onChange={(e) => setWorkspaceName(e.target.value)}
+    placeholder="e.g. Design Studio, Growth Team, Marketing Hub"
+    maxLength={20} // ✅ limit to 20 characters
+    className="border border-[#707070] rounded-lg px-4 py-3 w-full 
+               focus:outline-none focus:border-[#5E9BFF] focus:ring-2 
+               focus:ring-[#5E9BFF]/20 text-[#707070] bg-[#EFE7F6] font-normal"
+  />
+  <p className="text-sm text-gray-500 mt-1">
+    {workspaceName.length}/20 characters
+  </p>
+</div>
+
 
         {/* Logo Picker (UI only) */}
         <div>

@@ -1,62 +1,209 @@
-import React from 'react';
+import React, { useState } from "react";
+import ChevronDown from "../../../assets/down.svg";
+import Share2 from "../../../assets/shareicon.svg";
+import Download from "../../../assets/download.png";
+import DeleteIcon from "../../../assets/delete.svg";
 
 const FilesTable = ({
   files,
   onView,
   onDelete,
+  onShare,
+  onDownload,
   getDisplayName,
   getUploadedBy,
   getFileId,
   getFileDate,
   formatDate,
 }) => {
+  const [openFileId, setOpenFileId] = useState(null);
+  const [selectedFileId, setSelectedFileId] = useState(null);
+
+  const toggleFile = (id) => {
+    setOpenFileId((prev) => (prev === id ? null : id));
+    setSelectedFileId(id); // Set the selected file when clicked
+  };
+
+  const handleShare = (fileId, fileName) => {
+    if (onShare) {
+      onShare(fileId, fileName);
+    }
+  };
+
+  const handleDownload = (fileId, fileName) => {
+    if (onDownload) {
+      onDownload(fileId, fileName);
+    }
+  };
+
+  const handleDelete = (fileId, fileName) => {
+    if (onDelete) {
+      onDelete(fileId, fileName);
+    }
+  };
+
+  // Get the currently selected file
+  const getSelectedFile = () => {
+    return files.find(file => getFileId(file) === selectedFileId);
+  };
+
+  // Clear selection
+  const clearSelection = () => {
+    setSelectedFileId(null);
+  };
+
   return (
-    <div className="h-full overflow-auto">
-      {/* Table Header */}
-      <div className="bg-purple-700 text-white px-4 py-3 grid grid-cols-12 gap-4 text-sm font-medium">
-        <div className="col-span-4">File Name</div>
-        <div className="col-span-3">Uploaded By</div>
-        <div className="col-span-3">Date</div>
-        <div className="col-span-2 text-center">Action</div>
+    <div className="mt-8 w-full">
+
+      {/* ▶ Desktop Header */}
+      <div className="hidden md:grid grid-cols-12 bg-[#5C0EA4] text-white px-6 py-3 rounded-xl items-center">
+        <div className="col-span-5 text-left font-medium">File Name</div>
+        <div className="col-span-3 text-center font-medium">Uploaded By</div>
+        <div className="col-span-3 text-center font-medium">Time</div>
+        <div className="col-span-1 text-center font-medium">Actions</div>
       </div>
 
-      {/* Table Body */}
-      <div className="bg-white">
-        {files.map((file, index) => (
-          <div
-            key={getFileId(file) || index}
-            className="px-4 py-3 grid grid-cols-12 gap-4 text-sm border-b border-gray-100 hover:bg-gray-50 transition-colors"
-          >
-            <div className="col-span-4 flex items-center">
-              <svg className="h-5 w-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="text-gray-900 truncate">{getDisplayName(file)}</span>
-            </div>
-            <div className="col-span-3 text-gray-600 truncate">{getUploadedBy(file)}</div>
-            <div className="col-span-3 text-gray-600">{getFileDate(file) ? formatDate(getFileDate(file)) : '-'}</div>
-            <div className="col-span-2 flex items-center justify-center gap-2">
-              {file?.url ? (
-                <a href={file.url} target="_blank" rel="noreferrer" className="text-blue-500 hover:text-blue-700 font-medium">
-                  View
-                </a>
-              ) : (
-                <button onClick={() => onView(getFileId(file))} className="text-blue-500 hover:text-blue-700 font-medium">
-                  View
-                </button>
-              )}
-              <button
-                onClick={() => onDelete(getFileId(file), getDisplayName(file))}
-                className="text-red-500 hover:text-red-700 ml-2"
-                title="Delete file"
+      {/* ▶ Table Body */}
+      <div className="bg-white rounded-lg mt-2 overflow-y-auto max-h-[500px] hide-scrollbar">
+        {files.map((file, index) => {
+          const fileId = getFileId(file);
+          const isOpen = openFileId === fileId;
+
+          return (
+            <div
+              key={fileId || index}
+              className={`border-b border-gray-200 rounded-lg my-2 shadow-sm bg-white z-10 ${
+                isOpen ? "ring-1 ring-[#5C0EA4]/30" : ""
+              }`}
+            >
+              {/* ▶ Desktop Row */}
+              <div 
+                className="hidden md:grid grid-cols-12 items-center px-6 py-4 hover:bg-gray-50"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+                
+                {/* File Name */}
+                <div className="col-span-5 flex items-center gap-3">
+                  <svg
+                    className="h-5 w-5 text-blue-500 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <span className="font-medium text-[16px] truncate">
+                    {getDisplayName(file)}
+                  </span>
+                </div>
+
+                {/* Uploaded By */}
+                <div className="col-span-3 text-center text-gray-600 truncate px-2">
+                  {getUploadedBy(file)}
+                </div>
+
+                {/* Time */}
+                <div className="col-span-3 text-center text-gray-600 truncate px-2">
+                  {getFileDate(file) ? formatDate(getFileDate(file)) : "-"}
+                </div>
+
+                {/* Actions - Fixed to prevent shrinking */}
+                <div className="col-span-1 flex justify-center items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onView(fileId);
+                    }}
+                    className="text-[#5C0EA4] hover:text-blue-700 font-medium px-3 py-1 rounded hover:bg-purple-50 whitespace-nowrap"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(fileId, getDisplayName(file));
+                    }}
+                    className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50 flex-shrink-0"
+                    title="Delete"
+                  >
+                    <img src={DeleteIcon} className="w-6 h-6" alt="delete" />
+                  </button>
+                </div>
+              </div>
+
+              {/* ▶ Mobile Row */}
+              <div 
+                className="md:hidden flex justify-between items-center px-4 py-3 cursor-pointer"
+                onClick={() => toggleFile(fileId)}
+              >
+                
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <svg
+                    className="h-5 w-5 text-blue-500 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-[16px] truncate">
+                      {getDisplayName(file)}
+                    </div>
+                    <div className="text-sm text-gray-500 truncate">
+                      {getUploadedBy(file)} • {getFileDate(file) ? formatDate(getFileDate(file)) : "-"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isOpen ? (
+                    <img src={ChevronDown} className="w-5 h-5 rotate-180" alt="up" />
+                  ) : (
+                    <img src={ChevronDown} className="w-5 h-5" alt="down" />
+                  )}
+                </div>
+              </div>
+
+              {/* ▶ Mobile Expanded Section */}
+              {isOpen && (
+                <div className="md:hidden bg-[#F8FAFF] px-4 py-3 rounded-b-lg shadow-inner">
+                  {/* Action buttons for mobile */}
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      className="flex items-center gap-2 bg-[#5C0EA4] text-white px-4 py-2 rounded-lg shadow-sm hover:bg-[#4a0b85] flex-1 justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onView(fileId);
+                      }}
+                    >
+                      View
+                    </button>
+
+                    <button
+                      className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm hover:bg-red-50 border border-red-200"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(fileId, getDisplayName(file));
+                      }}
+                    >
+                      <img src={DeleteIcon} className="w-6 h-6" alt="delete" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

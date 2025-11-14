@@ -4,8 +4,11 @@ import { getAllFiles, deleteFile } from '../../api/file';
 import emptyFolderIcon from '../../assets/emptyfolder.svg';
 import DeleteModal from '../common/DeleteModal';
 import Toast from '../common/Toast';
+import filter from "../../assets/Filter.svg";
+import menu from "../../assets/menu_open.svg";
 import FilesTable from './dash-components/FilesTable';
-
+import search from "../../assets/search.svg";
+import down from "../../assets/purpledown.svg";
 const FileTransfer = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,13 +63,45 @@ const FileTransfer = () => {
 
 
   const handleView = async (fileId) => {
-    // Simple view functionality - you can enhance this as needed
-    setToast({ 
-      show: true, 
-      type: 'info', 
-      message: 'Opening file...' 
-    });
-    setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
+    try {
+      const file = files.find(f => getFileId(f) === fileId);
+      if (!file) {
+        setToast({ 
+          show: true, 
+          type: 'error', 
+          message: 'File not found' 
+        });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
+        return;
+      }
+
+      // If file has a URL, open it directly
+      if (file.url || file.fileUrl || file.s3Url) {
+        const fileUrl = file.url || file.fileUrl || file.s3Url;
+        window.open(fileUrl, '_blank');
+        setToast({ 
+          show: true, 
+          type: 'success', 
+          message: 'Opening file in new tab' 
+        });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
+      } else {
+        setToast({ 
+          show: true, 
+          type: 'info', 
+          message: 'File preview not available' 
+        });
+        setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
+      }
+    } catch (error) {
+      console.error('Error viewing file:', error);
+      setToast({ 
+        show: true, 
+        type: 'error', 
+        message: 'Failed to open file' 
+      });
+      setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
+    }
   };
 
   const handleDeleteClick = (fileId, fileName) => {
@@ -279,58 +314,52 @@ const FileTransfer = () => {
   };
 
   return (
-  <div className="relative h-full flex flex-col bg-gray-50">
+  <div className="relative h-full min-h-0 flex flex-col bg-white px-10">
       {/* Blur overlay for content area when share dialog is open */}
       {showShareDialog && (
         <div className="absolute inset-0 backdrop-blur-sm bg-white/20 z-40 pointer-events-none"></div>
       )}
       
       {/* Search and Upload Section (Header lives in Topbar) */}
-      <div className="bg-white p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between gap-4">
+      <div className="bg-white pb-4 border-b border-gray-200">
+        <div className="flex items-center justify-between gap-4 pt-10 flex-col lg:flex-row">
           {/* Search Bar */}
-          <div className="flex-1 relative">
+          <div className="flex-1 bg-white flex justify-between w-full px-4 py-2 border border-[#AC92CB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
             <input
               type="text"
-              placeholder="Search by file name, software, tag, or keyword"
+              placeholder="Search by file name, software, tag, or keyword "
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full border-none focus:outline-none"
             />
-            <svg
-              className="absolute right-3 top-2.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <img src={search} alt="Search" className=" w-5 h-5 pt-1 text-gray-400" />
           </div>
 
           {/* Action Icons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {/* Share Workspace Button */}
-            <button 
-              className="p-2 hover:bg-gray-100 rounded transition-colors"
-              onClick={handleShareWorkspace}
+            <div
+              className="p-2 hover:bg-[#F5F1FB] transition-colors flex gap-5 border border-[#AC92CB] rounded-2xl px-3"
+         
               title="Share Workspace"
             >
-              <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
-            </button>
+               <img src={filter} alt="Filter" className='w-6 h-6' />
+               <p className='text-[#AC92CB] text-[16px]'>Filter</p>
+              <img src={down} alt="Dropdown" className='w-3 h-3 mt-2' />
+             
             
+            </div>
             {/* More Options Menu */}
             <div className="relative more-menu-container">
-              <button 
-                className="p-2 hover:bg-gray-100 rounded transition-colors"
+              <div 
+                className="p-2 hover:bg-[#F5F1FB] transition-colors flex items-center gap-2 border border-[#AC92CB] rounded-2xl cursor-pointer px-4"
                 onClick={handleMoreMenu}
                 title="More Options"
               >
-                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                </svg>
-              </button>
+                <img src={menu} alt="Menu" className="w-6 h-6" />
+                <p className='text-[#AC92CB]'>Sort by</p>
+                <img src={down} alt="Dropdown" className="w-4 h-4" />
+              </div>
               
               {/* Dropdown Menu */}
               {showMoreMenu && (
@@ -366,16 +395,16 @@ const FileTransfer = () => {
         </div>
       </div>
 
-      {/* Files Content */}
-      <div className="flex-1 overflow-hidden">
+  {/* Files Content */}
+  <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
           </div>
         ) : filteredFiles.length === 0 ? (
           /* Empty State */
-          <div className="h-full flex flex-col items-center justify-center text-center p-8">
-            <div className="mb-6">
+          <div className="h-full flex flex-col items-center justify-center text-center p-8  ">
+            <div className="mb-9">
               <img src={emptyFolderIcon} alt="Empty folder" className="h-24 w-24 mx-auto opacity-50" />
             </div>
             <h3 className="text-xl font-medium text-gray-600 mb-2">No Shared Files Yet</h3>

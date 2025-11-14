@@ -18,7 +18,7 @@ const AvatarsLayer = () => {
   // Sync interpolation targets when avatar set changes
   useEffect(() => {
     const ids = Object.keys(avatars || {});
-    console.log('[avatars] remote list update (excluding self)', ids);
+    console.log('[avatars] remote list update (excluding self)', ids, 'selfId=', selfId);
     // Remove stale ids
     Object.keys(interpRef.current).forEach(id => {
       if (!avatars[id]) delete interpRef.current[id];

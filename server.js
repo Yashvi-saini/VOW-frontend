@@ -2,8 +2,9 @@
 import http from "http";
 import { Server } from "socket.io";
 
-const app = express();
-const server = http.createServer(app);
+// const app = express();
+// const server = http.createServer(app);
+// app.use(express.json());
 
 const io = new Server(server, {
   cors: {

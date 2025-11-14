@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { joinWorkspace } from "../../api/authApi.js";
@@ -10,6 +10,24 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
   const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const modalRef = useRef(null);
+
+  // Scrolls main div so modal is vertically centered in the viewport
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      setTimeout(() => {
+        const rect = modalRef.current.getBoundingClientRect();
+        const scrollTop =
+          window.scrollY +
+          rect.top -
+          (window.innerHeight - rect.height) / 2;
+        window.scrollTo({
+          top: Math.max(scrollTop, 0),
+          behavior: "smooth",
+        });
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleJoin = async () => {
     if (!inviteCode.trim()) {
@@ -19,7 +37,7 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
 
     setLoading(true);
     setError("");
-    
+
     try {
       const response = await joinWorkspace(inviteCode);
       const { workspace } = response.data;
@@ -27,11 +45,13 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
 
       localStorage.setItem("workspaceId", _id);
       localStorage.setItem("inviteCode", code);
-      dispatch(setWorkspaceContext({ 
-        workspaceId: _id, 
-        workspaceToken: null,
-        workspaceName: workspaceName 
-      }));
+      dispatch(
+        setWorkspaceContext({
+          workspaceId: _id,
+          workspaceToken: null,
+          workspaceName,
+        })
+      );
 
       alert(`Joined workspace: ${workspaceName}`);
       onClose();
@@ -53,29 +73,26 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
 
   return (
     <>
-      <div 
-        className="w-[772px] relative p-8"
-        style={{
-          borderRadius: '16px',
-          background: '#EFE7F6',
-          boxShadow: '0 0 8px 0 rgba(17, 17, 26, 0.10), 0 1px 0 0 rgba(17, 17, 26, 0.05), 0 -23px 25px 0 rgba(191, 162, 225, 0.17) inset, 0 -36px 30px 0 rgba(204, 180, 227, 0.15) inset, 0 -79px 40px 0 rgba(204, 180, 227, 0.10) inset, 0 2px 1px 0 rgba(204, 180, 227, 0.06), 0 4px 2px 0 rgba(204, 180, 227, 0.09), 0 8px 4px 0 rgba(204, 180, 227, 0.09), 0 16px 8px 0 rgba(204, 180, 227, 0.09), 0 32px 16px 0 rgba(204, 180, 227, 0.09)'
-        }}
+      <div
+        ref={modalRef}
+        className="relative bg-[#EFE7F6] gradient rounded-2xl mx-auto my-24 w-[90%] sm:w-[600px] lg:w-[772px] p-6 sm:p-8 transition-all duration-300"
+        
       >
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-2 right-4 text-[#000000]  text-3xl font-bold"
+          className="absolute top-3 right-4 text-[#000000] text-3xl font-bold"
         >
           ×
         </button>
 
-        <h2 className="text-[36px] font-bold text-center mb-8 text-[#000000]">
+        <h2 className="text-[28px] sm:text-[36px] font-bold text-center mb-8 text-[#000000]">
           Join a New Workspace
         </h2>
 
         {/* Workspace ID Input */}
         <div className="mb-6">
-          <label className="block text-[24px] font-semibold mb-3 text-[#000000]">
+          <label className="block text-[20px] sm:text-[24px] font-semibold mb-3 text-[#000000]">
             Workspace Id
           </label>
           <input
@@ -86,29 +103,31 @@ const JoinWorkspaceModal = ({ isOpen, onClose }) => {
               setError("");
             }}
             placeholder="Enter the unique id to join its workspace"
-            className={`border rounded-lg px-4 py-3 w-full focus:outline-none text-[#585858] font-normal text-[16px] bg-[#EFE7F6] ${
+            className={`border rounded-lg px-4 py-3 w-full text-[#585858] font-normal text-[16px] bg-[#EFE7F6] focus:outline-none transition ${
               error
                 ? "border-[#CC0404] focus:border-[#CC0404] focus:ring-2 focus:ring-[#CC0404]"
-                : "border-[#BFA2E1] focus:border-[#5E9BFF]  "
+                : "border-[#BFA2E1] focus:border-[#5E9BFF] focus:ring-2 focus:ring-[#5E9BFF]/20"
             }`}
           />
           {error && (
-            <p className="text-[#CC0404] text-[16px] mt-2">{error}</p>
+            <p className="text-[#CC0404] text-[14px] sm:text-[16px] mt-2">
+              {error}
+            </p>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-center gap-4 mt-8">
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
           <button
             onClick={handleClose}
-            className="px-8 py-3 rounded-lg border text-[20px] border-[#CCB4E3] text-[#450B7B]  font-normal w-[220px] h-[44px] bg-[#FFF] "
+            className="rounded-lg border border-[#CCB4E3] text-[#450B7B] font-normal w-full sm:w-[220px] h-[44px] text-[18px] bg-white hover:bg-[#f8f8f8] transition"
           >
             Cancel
           </button>
           <button
             onClick={handleJoin}
             disabled={loading}
-            className="px-8 py-3 rounded-lg bg-[#5E9BFF] text-[20px] text-white hover:bg-[#4A8CE0] transition font-medium disabled:opacity-50 w-[220px] h-[44px]"
+            className="rounded-lg bg-[#5E9BFF] text-white font-medium w-full sm:w-[220px] h-[44px] text-[18px] hover:bg-[#4A8CE0] disabled:opacity-50 transition"
           >
             {loading ? "Joining..." : "Join"}
           </button>

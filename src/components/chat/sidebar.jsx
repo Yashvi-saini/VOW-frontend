@@ -7,7 +7,7 @@ import logo from "../../assets/logo.png";
 import settingsIcon from "../../assets/settings.svg";
 import TeamSection from "../chat/TeamSection.jsx";
 import MembersSection from "../chat/MembersSection.jsx";
-
+import { useNavigate } from "react-router-dom";
 const Sidebar = ({
   onChannelSelect,
   onCreateTeam,
@@ -40,7 +40,7 @@ const Sidebar = ({
       return [];
     }
   };
-
+const navigate = useNavigate();
   const postLayout = async (rooms) => {
     const payload = {
       name: 'Office Layout - Ground Floor',
@@ -108,13 +108,19 @@ const Sidebar = ({
   };
 
   return (
-    <aside className="w-[290px] h-full bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
+    <aside className="max-w-[320px] max-h-[900x] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#3D1B5F]">
-        <div className="flex items-center gap-2">
-          <img src={logo} alt="VOW Logo" className="w-8 h-8" />
-          <h2 className="text-xl font-bold text-white tracking-wide">VOW</h2>
-        </div>
+        <button
+  onClick={() => navigate(-1)}
+  className="flex items-center gap-2 group cursor-pointer"
+>
+  <img src={logo} alt="VOW Logo" className="w-8 h-8" />
+  <h2 className="text-xl font-bold text-white tracking-wide group-hover:opacity-80 transition">
+    VOW
+  </h2>
+</button>
+
       </div>
 
       {/* Navigation */}

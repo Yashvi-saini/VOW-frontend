@@ -63,18 +63,23 @@ const ResetPassword = () => {
   }, [navigate]);
 
   const handleReset = async (e) => {
-    e.preventDefault();
-    setError("");
+     e.preventDefault();
+  setError("");
 
-    if (!isPasswordValid) {
-      setError("Please meet all password requirements before continuing.");
-      return;
-    }
+  if (!password || !confirm) {
+    setError("Please fill in all fields.");
+    return;
+  }
 
-    if (password !== confirm) {
-      setError("Passwords do not match");
-      return;
-    }
+  if (!isPasswordValid) {
+    setError("Please meet all password requirements before continuing.");
+    return;
+  }
+
+  if (password !== confirm) {
+    setError("Passwords do not match");
+    return;
+  }
 
     setLoading(true);
 
@@ -91,7 +96,10 @@ const ResetPassword = () => {
       console.error("Reset password error:", err);
       setError("Network or server error. Please try again.");
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+         setLoading(false);
+      }, 2000);
+     
     }
   };
 
@@ -132,7 +140,9 @@ const ResetPassword = () => {
       type={showPassword ? "text" : "password"}
       placeholder="Enter new password"
       value={password}
-      onChange={(e) => setPassword(e.target.value)}
+      onChange={(e) => {setPassword(e.target.value);
+        setError("");
+      }}
       onFocus={() => setPasswordFocused(true)}
       onBlur={() => setPasswordFocused(false)}
       className={`w-full rounded-md px-3 py-2 text-sm transition-all focus:outline-none border
@@ -144,7 +154,7 @@ const ResetPassword = () => {
             : "border-purple-700 bg-[#F5F1FB]"
         }
       `}
-      required
+    
     />
     <img
       src={
@@ -174,7 +184,9 @@ const ResetPassword = () => {
       type={showConfirm ? "text" : "password"}
       placeholder="Enter password again"
       value={confirm}
-      onChange={(e) => setConfirm(e.target.value)}
+      onChange={(e) => {setConfirm(e.target.value);
+        setError("");
+      }}
       onFocus={() => setConfirmFocused(true)}
       onBlur={() => setConfirmFocused(false)}
       className={`w-full border rounded-md px-3 py-2 text-sm transition-all focus:outline-none
@@ -188,7 +200,6 @@ const ResetPassword = () => {
             : "border-red-500 bg-[#FDEDEC]"
         }
       `}
-      required
     />
     <img
       src={

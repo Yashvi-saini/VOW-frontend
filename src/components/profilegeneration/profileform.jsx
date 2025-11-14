@@ -119,7 +119,7 @@ const [preview,setPreview]= useState(null);
       className="w-[570px] h-[689px] bg-[#FAFAFA] px-[40px] py-[20px] rounded-2xl shadow-lg flex flex-col justify-center"
     >
       <div
-        className="absolute top-[20px] left-[20px] cursor-pointer"
+        className="absolute top-5 left-5 cursor-pointer"
         onClick={() => navigate(-1)}
       >
        <img
@@ -129,10 +129,10 @@ const [preview,setPreview]= useState(null);
         />
        </div>
         {/* Header */}
-        <div className="text-[#0E1219] text-[32px] font-semibold leading-[48px] w-[414px] h-[48px] text-center ml-[50px] mr-[60px] mb-[2px]">
+        <div className="text-[#0E1219] text-[32px] font-semibold leading-12 w-[414px] h-12 text-center ml-[50px] mr-[60px] mb-[2px]">
           Create Your VOW Profile
         </div>
-        <div className="text-[#707070] text-[16px] font-normal leading-[24px] w-[414px] h-[48px] text-center ml-[50px] mr-[60px] mb-[10px]">
+        <div className="text-[#707070] text-[16px] font-normal leading-6 w-[414px] h-12 text-center ml-[50px] mr-[60px] mb-[10px]">
           Let’s personalize your experience. Start by filling in your details
           below.
         </div>
@@ -151,11 +151,12 @@ const [preview,setPreview]= useState(null);
             type="text"
             name="fullName"
             value={formData.fullName}
+            maxLength={30}
             onChange={handleChange}
             placeholder="Use your real or professional name"
             className="w-[414px] border border-[#707070] rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
           />
-          <p className="text-xs text-red-500 min-h-[16px] mt-1">
+          <p className="text-xs text-red-500 min-h-4 mt-1">
             {errors.fullName || ""}
           </p>
         </div>

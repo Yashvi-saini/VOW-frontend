@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "../api/authApi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background.jsx";
+import logo from "../assets/logo.svg";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
@@ -29,10 +30,7 @@ const ForgotPassword = () => {
     if (data.success) {
       setServerMsg("");
       localStorage.setItem("forgotRequested", "true");
-      setTimeout(
-        () => navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } }),
-        1200
-      );
+      navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } })
     } else {
       setServerMsg(` ${data.msg || "Failed to send OTP"}`);
     }
@@ -44,7 +42,9 @@ const ForgotPassword = () => {
       setServerMsg(" Network or server error.");
     }
   } finally {
-    setLoading(false);
+    setTimeout(() => {
+         setLoading(false);
+      }, 2000);
   }
 };
 
@@ -71,7 +71,7 @@ const ForgotPassword = () => {
         <div className="px-6 sm:px-10 pb-10">
           {/* Logo */}
           <div className="flex justify-center mt-1">
-            <img src="./logo.svg" alt="Logo" className="h-[35px] w-[51px]" />
+            <img src={logo} alt="Logo" className="h-[35px] w-[51px]" />
           </div>
 
           {/* Heading */}

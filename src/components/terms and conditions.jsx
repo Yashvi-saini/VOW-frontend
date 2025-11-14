@@ -15,9 +15,9 @@ export default function TermsAndConditions() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 p-6 sm:p-12">
+    <div className="min-h-screen bg-[#F9F6FC] text-gray-800 p-6 sm:p-12">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center mb-6 text-indigo-700">
+        <h1 className="text-3xl sm:text-4xl font-bold text-center mb-6 text-[#5C0EA4]">
           Terms & Conditions
         </h1>
         <p className="text-center mb-8 text-gray-600">
@@ -28,7 +28,7 @@ export default function TermsAndConditions() {
         {/* Table of Contents */}
         <div className="mb-10 border border-gray-200 rounded-lg p-4 bg-gray-100">
           <h2 className="text-xl font-semibold mb-3">Table of Contents</h2>
-          <ul className="list-decimal list-inside space-y-2 text-indigo-600">
+          <ul className="list-decimal list-inside space-y-2 text-[#558CE6]">
             {sections.map((section) => (
               <li key={section.id}>
                 <button
@@ -43,9 +43,9 @@ export default function TermsAndConditions() {
         </div>
 
         {/* Terms Content */}
-        <div className="space-y-10">
+        <div className="space-y-10 text-[#4774BF] ">
           <section id="introduction">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold">
               1. Introduction
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -57,7 +57,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="account">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               2. Account Registration & Responsibilities
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -69,7 +69,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="usage">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               3. Platform Usage Guidelines
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -80,7 +80,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="privacy">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               4. Privacy & Data Protection
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -91,7 +91,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="content">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               5. User Content & Intellectual Property
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -102,7 +102,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="payments">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold">
               6. Payments & Subscriptions
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -112,7 +112,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="termination">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               7. Termination Policy
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -122,7 +122,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="liability">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               8. Limitation of Liability
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -133,7 +133,7 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="changes">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               9. Changes to Terms
             </h2>
             <p className="text-gray-700 leading-relaxed">
@@ -144,16 +144,16 @@ export default function TermsAndConditions() {
           </section>
 
           <section id="contact">
-            <h2 className="text-2xl font-semibold text-indigo-700 mb-3">
+            <h2 className="text-2xl font-semibold ">
               10. Contact Information
             </h2>
             <p className="text-gray-700 leading-relaxed">
               For questions about these Terms, please contact us at{" "}
               <a
-                href="mailto:support@vow-org.me"
+                href="mailto:vow.org8000@gmail.com"
                 className="text-indigo-600 underline"
               >
-                support@vow-org.me
+                vow.org8000@gmail.com
               </a>
               .
             </p>
