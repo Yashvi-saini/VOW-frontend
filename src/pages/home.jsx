@@ -15,11 +15,34 @@ import { useNavigate } from 'react-router-dom';
 import vector from "../assets/vector.svg";
 import img from "../assets/Rectangle 9.svg";
 import demoVideo from "../assets/demovideo.mp4";
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import api from '../api/axiosConfig';
+import { setUserProfile } from '../components/userslice';
 
-// Animated "Collaborate" heading with sequenced image highlights
 const CollaborateAnimation = ({ className = "" }) => {
   const [step, setStep] = useState(0);
+  const dispatch =  useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const getCurrentUser = await api.get(`me/info`);
+        console.log('Fetch Current User Response:', getCurrentUser);
+        if(getCurrentUser.data && getCurrentUser.data.success)
+        {   
+          console.log("I am redirecting")
+            dispatch(setUserProfile(getCurrentUser.data.data));
+            navigate('/dashboard');
+        }
+        
+        console.log('Current User:', getCurrentUser.data);
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+
+    fetchCurrentUser();     
     const id = setInterval(() => setStep((s) => (s + 1) % 6), 1200);
     return () => clearInterval(id);
   }, []);

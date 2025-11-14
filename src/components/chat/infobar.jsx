@@ -30,15 +30,10 @@ const InfoBar = ({ channelName = 'Team 1', memberCount = 0, onlineCount = 0, onS
           <p className="text-2xl pt-0.5 truncate max-w-40" title={channelName}>{channelName}</p>
         </div>
         <div className="flex items-center gap-5 mr-3">
-          <button type="button" className="w-5" title="Pinned">
-            <img src={pin} alt="pin" className="w-4" />
-          </button>
           <button type="button" onClick={toggleSearch} title="Search messages" className="w-5">
             <img src={search} alt="search" className="w-4" />
           </button>
-          <button type="button" className="w-5" title="Close">
-            <img src={cross} alt="close" className="w-3" />
-          </button>
+         
         </div>
       </div>
       {showSearch && (

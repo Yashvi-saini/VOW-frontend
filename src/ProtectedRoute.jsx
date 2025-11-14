@@ -1,4 +1,5 @@
-import React from "react";
+// components/ProtectedRoute.js
+import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
 const isAuthenticated = () => {
@@ -9,6 +10,7 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 

@@ -62,18 +62,7 @@ const TopBar = ({ title = "Dashboard", onMenuClick }) => {
         </div>
 
         {/* Search icon (mobile) */}
-        <button
-          ref={searchButtonRef}
-          onClick={() => setIsSearchOpen(!isSearchOpen)}
-          className="lg:hidden p-2 hover:bg-[#3a0060] rounded transition-colors"
-          aria-label="Toggle search"
-        >
-          <img
-            src={searchIcon}
-            alt="search"
-            className={`w-5 h-5 opacity-80 ${isSearchOpen ? "hidden" : ""}`}
-          />
-        </button>
+        
       </div>
 
       {/* Mobile Search Box */}

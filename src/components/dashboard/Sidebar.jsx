@@ -39,7 +39,7 @@ const Sidebar = ({
     setActiveSection(id);
     setIsSidebarOpen(false); // Close sidebar on mobile after selection
   };
-const navigate = useNavigate();
+
 
   return (
     <>
@@ -74,7 +74,11 @@ const navigate = useNavigate();
           {/* Profile */}
           <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-2 py-2 mb-8 mt-1">
             <div className="flex items-center gap-3">
-              <img
+              <img  onClick={(e)=>{
+                e.preventDefault();
+                 setActiveSection("profile");
+
+              }}
                 src={avatar ? avatar : userIcon}
                 alt="Avatar"
                 className="w-9 h-9 rounded-full"

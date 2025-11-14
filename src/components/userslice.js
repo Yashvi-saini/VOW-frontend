@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  userId: null, 
   username: null,
   email: null,
   avatar: null,
@@ -65,6 +66,10 @@ const userSlice = createSlice({
       state.pendingEmail = action.payload || null;
       state.pendingMode = "signup";
     },
+    setUserId: (state, action) => {
+  state.userId = action.payload;
+},
+
     clearSignupFlow: (state) => {
       state.signupPending = false;
       if (state.pendingMode === "signup") {
@@ -88,6 +93,7 @@ const userSlice = createSlice({
 });
 
 export const {
+  setUserId,
   setUsername,
   setUserProfile,
   setUserAvatar,

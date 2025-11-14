@@ -7,33 +7,25 @@ export const resendOtp = (data) => api.post("auth/resend", data);
 export const forgotPassword = (data) => api.post("auth/forgetpassword", data);
 export const resetPassword = (newPassword) => api.post("auth/updatepassword", { newPassword });
 export const verifyResetOtp = (data) => api.post("auth/verifyresetotp", data);
-
+export const refreshTokens = () => api.post("auth/refresh"); 
 export const createWorkspace = (data) => {
   // Server will set workspaceToken_<id> as HttpOnly cookie
   return api.post("workspaces/create", data);
 };
 
 export const joinWorkspace = (inviteCode) => {
-  const token = localStorage.getItem("accessToken");
-  return api.post("workspaces/join", { inviteCode }, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+ 
+  return api.post("workspaces/join", { inviteCode }, );
 };
 
 export const getJoinedWorkspaces = () => {
-  const token = localStorage.getItem("accessToken");
-  return api.get("/workspaces/details", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  return api.get("/workspaces/details");
 };
 
 export const rejoinWorkspace = (workspaceId) => {
   // Use user access token to authenticate; server refreshes workspace cookie
-  const accessToken = localStorage.getItem("accessToken");
-  if (!accessToken) throw new Error("Missing access token. Please log in again.");
-  return api.get(`/workspaces/${workspaceId}/rejoin`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+
+  return api.get(`/workspaces/${workspaceId}/rejoin`, );
 };
 
 export const deleteWorkspace = (workspaceId) => {

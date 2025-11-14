@@ -1,11 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// Each remote avatar: { userId, name, x, y, targetX, targetY, lastUpdate }
-// We keep targetX/targetY for interpolation; the rendered position can lerp toward target.
 const initialState = {
+  avatars: {},
   selfId: null,
   workspaceId: null,
-  avatars: {}, // userId -> avatar state
 };
 
 const presenceSlice = createSlice({
@@ -17,39 +15,59 @@ const presenceSlice = createSlice({
       state.selfId = selfId;
       state.workspaceId = workspaceId;
     },
+    
     replaceAvatars(state, action) {
-      const list = action.payload || [];
-      const map = {};
-      list.forEach(a => {
-        map[a.userId] = { ...a, targetX: a.x, targetY: a.y };
+      state.avatars = {};
+      const avatars = action.payload;
+      avatars.forEach(avatar => {
+        if (avatar.userId !== state.selfId) {
+          state.avatars[avatar.userId] = {
+            userId: avatar.userId,
+            name: avatar.name,
+            x: avatar.x || 50,
+            y: avatar.y || 50,
+            targetX: avatar.x || 50,
+            targetY: avatar.y || 50,
+            lastUpdate: Date.now()
+          };
+        }
       });
-      state.avatars = map;
     },
+    
     upsertAvatar(state, action) {
-      const a = action.payload;
-      const existing = state.avatars[a.userId];
-      state.avatars[a.userId] = {
-        userId: a.userId,
-        name: a.name || a.userId,
-        x: existing?.x ?? a.x,
-        y: existing?.y ?? a.y,
-        targetX: a.x,
-        targetY: a.y,
-        lastUpdate: Date.now(),
+      const avatar = action.payload;
+      if (avatar.userId === state.selfId) return;
+      
+      const existing = state.avatars[avatar.userId];
+      state.avatars[avatar.userId] = {
+        userId: avatar.userId,
+        name: avatar.name,
+        x: existing?.x || avatar.x || 50,
+        y: existing?.y || avatar.y || 50,
+        targetX: avatar.x || 50,
+        targetY: avatar.y || 50,
+        lastUpdate: Date.now()
       };
     },
+    
     updateAvatarPosition(state, action) {
       const { userId, x, y } = action.payload;
-      const existing = state.avatars[userId];
-      if (!existing) return;
-      existing.targetX = x;
-      existing.targetY = y;
-      existing.lastUpdate = Date.now();
+      if (userId === state.selfId) return;
+      
+      const avatar = state.avatars[userId];
+      if (avatar) {
+        avatar.targetX = x;
+        avatar.targetY = y;
+        avatar.lastUpdate = Date.now();
+      }
     },
+    
     removeAvatar(state, action) {
-      delete state.avatars[action.payload];
+      const userId = action.payload;
+      delete state.avatars[userId];
     },
-    clearPresence(state) {
+    
+    clearAvatars(state) {
       state.avatars = {};
     }
   }
@@ -61,7 +79,7 @@ export const {
   upsertAvatar,
   updateAvatarPosition,
   removeAvatar,
-  clearPresence
+  clearAvatars
 } = presenceSlice.actions;
 
 export default presenceSlice.reducer;

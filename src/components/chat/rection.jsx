@@ -1,100 +1,60 @@
-import React, { useState, useEffect, useRef } from "react";
-import EmojiPicker from "emoji-picker-react";
+import React, { useState, useRef } from "react";
 
 const QUICK_EMOJIS = ["❤️", "😂", "👍", "😮", "😢", "👏"];
 
 const MessageReactions = ({ msgIndex, reactions, onAddReaction, onRemoveReaction, children }) => {
   const [quickReactionsVisible, setQuickReactionsVisible] = useState(false);
-  const [pickerVisible, setPickerVisible] = useState(false);
-  const pickerRef = useRef(null);
+  const containerRef = useRef(null);
 
-  // 🟡 Close picker when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
-        setPickerVisible(false);
-      }
-    };
-    if (pickerVisible) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [pickerVisible]);
-
-  // Hover handler
-const handleMouseEnter = () => {
-  if (!pickerVisible) {        // <-- only show quick reactions if picker is not open
+  const handleMouseEnter = () => {
     setQuickReactionsVisible(true);
-  }
-};
+  };
 
-const handleMouseLeave = () => {
-  if (!pickerVisible) {
+  const handleMouseLeave = () => {
     setQuickReactionsVisible(false);
-  }
-};
-
+  };
 
   return (
     <div
-  onMouseEnter={handleMouseEnter}
-  onMouseLeave={handleMouseLeave}
-  className="relative bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-sm w-full cursor-pointer transition-all duration-200"
->
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="relative bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-sm w-full cursor-pointer transition-all duration-200"
+    >
       {/* Quick Reactions */}
       <div
-        className={`absolute -top-8 left-25 flex space-x-1 z-50 transform transition-all duration-300 ${
-          quickReactionsVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+        className={`absolute flex space-x-1 z-40 transform transition-all duration-300 ${
+          quickReactionsVisible
+            ? "opacity-100 translate-y-0" 
+            : "opacity-0 -translate-y-2 pointer-events-none"
         }`}
+        style={{
+          top: '-2rem',
+          left: '50%',
+          transform: quickReactionsVisible
+            ? 'translateX(-50%) translateY(0)' 
+            : 'translateX(-50%) translateY(-2px)',
+        }}
       >
-        {QUICK_EMOJIS.map((emoji) => (
-          <button
-            key={emoji}
-            onClick={() => onAddReaction(msgIndex, emoji)}
-            className="bg-white p-1 rounded-full shadow-sm hover:scale-110 transition-transform"
-          >
-            {emoji}
-          </button>
-        ))}
-
-        {/* Full Picker Toggle */}
-        <button
-  onClick={() => {
-    setPickerVisible(!pickerVisible);
-    setQuickReactionsVisible(false);  // hide quick reactions
-  }}
-  className="bg-white p-1 rounded-full shadow-sm hover:scale-110 transition-transform text-lg"
->
-  ➕
-</button>
-      </div>
-
-      {/* Full Emoji Picker */}
-      {pickerVisible && (
-        <div ref={pickerRef} className="absolute top-20 left-90 z-50"
-        style={{ overflow: "visible" }}
-        >
-          
-          <EmojiPicker
-            onEmojiClick={(emojiData) => {
-              onAddReaction(msgIndex, emojiData.emoji);
-              setPickerVisible(false);
-            }}
-            previewConfig={{ showPreview: false }}
-            searchDisabled
-            height={400}
-            width={300}
-          />
-          
+        <div className="flex space-x-1 bg-white rounded-full shadow-sm px-2 py-1 border border-gray-200">
+          {QUICK_EMOJIS.map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => onAddReaction(msgIndex, emoji)}
+              className="p-1 hover:scale-110 transition-transform text-sm"
+            >
+              {emoji}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Render message content */}
       <div>{children}</div>
 
       {/* Reactions */}
       {reactions?.length > 0 && (
-        <div className="flex flex-wrap space-x-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-2">
           {reactions.map((r) => (
             <div
               key={r.emoji}
@@ -111,4 +71,3 @@ const handleMouseLeave = () => {
 };
 
 export default MessageReactions;
-

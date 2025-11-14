@@ -1,260 +1,163 @@
+// mapSocket.jsx
 import { io } from "socket.io-client";
-import chatSocket from "../chat/socket.jsx";
-
-// Use the same socket instance as chat (already connected and working)
-const mapSocket = chatSocket;
 
 const BACKEND_URL = "https://vow-org.me";
 
-console.log("════════════════════════════════════════════════════════");
-console.log("🗺️  MAP SOCKET INITIALIZATION");
-console.log("════════════════════════════════════════════════════════");
-console.log("📍 Backend URL:", BACKEND_URL);
-console.log("⏰ Timestamp:", new Date().toISOString());
-console.log("🔌 Using existing chat socket instance");
-console.log("📊 Socket state:", {
-  connected: mapSocket.connected,
-  id: mapSocket.id,
+// Read JWT from cookie or localStorage
+const getAuthToken = () => {
+  return (
+    localStorage.getItem("authToken") ||
+    document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1]
+  );
+};
+
+console.log("════════ MAP SOCKET INITIALIZING ════════");
+console.log("Backend:", BACKEND_URL);
+console.log("Time:", new Date().toISOString());
+
+// Create standalone socket instance for map
+const mapSocket = io(BACKEND_URL, {
+  path: "/socket.io",
+  transports: ["polling"], // server requires polling
+  upgrade: false,
+  withCredentials: true, // sends HttpOnly JWT cookie
+  auth: { token: getAuthToken() }, // optional (cookie already enough)
+  autoConnect: false, // connect manually
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: 5,
 });
-console.log("════════════════════════════════════════════════════════");
 
-// ============================================================
-// CONNECTION EVENT HANDLERS WITH DETAILED LOGGING
-// Note: Using shared socket with chat, so connection events 
-// are already handled by chat/socket.jsx
-// ============================================================
+console.log("Map socket instance created");
 
-// Additional map-specific connection logging
-if (mapSocket.connected) {
-  console.log("✅ Socket already connected with ID:", mapSocket.id);
-} else {
-  console.log("⏳ Waiting for socket to connect...");
-  mapSocket.once("connect", () => {
-    console.log("╔════════════════════════════════════════════════════════╗");
-    console.log("║  ✅ MAP SOCKET READY                                   ║");
-    console.log("╚════════════════════════════════════════════════════════╝");
-    console.log("🔌 Socket ID:", mapSocket.id);
-    console.log("🌐 Transport:", mapSocket.io.engine.transport.name);
-    console.log("────────────────────────────────────────────────────────");
-  });
-}
+// --------------------------------------------
+// Connection event logging
+// --------------------------------------------
+mapSocket.on("connect", () => {
+  console.log("════════ MAP SOCKET CONNECTED ════════");
+  console.log("ID:", mapSocket.id);
+  console.log("Transport:", mapSocket.io.engine.transport.name);
+});
 
-// ============================================================
-// MAP-SPECIFIC EVENT HANDLERS WITH DETAILED LOGGING
-// ============================================================
+mapSocket.on("connect_error", (err) => {
+  console.error("❌ MAP SOCKET connect_error:", err.message);
+});
 
-/**
- * Join the map presence for a workspace
- * @param {Object} payload - { workspaceId, userId, name, x, y }
- */
-export const joinMapPresence = (payload) => {
-  console.log("┌────────────────────────────────────────────────────────┐");
-  console.log("│  📤 SENDING: map:join                                  │");
-  console.log("└────────────────────────────────────────────────────────┘");
-  console.log("📦 Payload:", JSON.stringify(payload, null, 2));
-  console.log("🔌 Socket ID:", mapSocket.id);
-  console.log("✅ Connected:", mapSocket.connected);
-  console.log("────────────────────────────────────────────────────────");
-  
-  if (!mapSocket.connected) {
-    console.warn("⚠️  Socket not connected! Join will be queued.");
+mapSocket.on("disconnect", (reason) => {
+  console.warn("⚠️ MAP SOCKET DISCONNECTED:", reason);
+  if (reason === "io server disconnect") {
+    mapSocket.connect(); // auto reconnect
   }
-  
-  mapSocket.emit("map:join", payload);
+});
+
+// --------------------------------------------
+// CLIENT → SERVER EMITS
+// --------------------------------------------
+
+// JOIN (no userId/workspaceId)
+export const joinMapPresence = ({ name, x, y }) => {
+  const payload = {
+    displayName: name || "User",
+    x,
+    y,
+  };
+  console.log("📤 emit join", payload);
+  mapSocket.emit("join", payload);
 };
 
-/**
- * Update avatar position
- * @param {Object} payload - { workspaceId, userId, x, y }
- */
-export const updateMapPosition = (payload) => {
-  // Don't log every position update to avoid spam
-  if (Math.random() < 0.01) { // Log ~1% of updates
-    console.log("📍 Position update:", {
-      userId: payload.userId,
-      x: payload.x?.toFixed(2),
-      y: payload.y?.toFixed(2)
-    });
-  }
-  mapSocket.emit("map:update", payload);
+// MOVE (no userId/workspaceId)
+export const updateMapPosition = ({ x, y }) => {
+  mapSocket.emit("move", { x, y });
 };
 
-/**
- * Leave map presence
- * @param {Object} payload - { workspaceId, userId }
- */
-export const leaveMapPresence = (payload) => {
-  console.log("┌────────────────────────────────────────────────────────┐");
-  console.log("│  📤 SENDING: map:leave                                 │");
-  console.log("└────────────────────────────────────────────────────────┘");
-  console.log("📦 Payload:", JSON.stringify(payload, null, 2));
-  console.log("────────────────────────────────────────────────────────");
-  
-  mapSocket.emit("map:leave", payload);
+// LEAVE (no payload)
+export const leaveMapPresence = () => {
+  console.log("📤 emit leave");
+  mapSocket.emit("leave");
 };
 
-/**
- * Request current state
- * @param {Object} payload - { workspaceId }
- */
-export const requestMapState = (payload) => {
-  console.log("┌────────────────────────────────────────────────────────┐");
-  console.log("│  📤 SENDING: map:state:request                         │");
-  console.log("└────────────────────────────────────────────────────────┘");
-  console.log("📦 Payload:", JSON.stringify(payload, null, 2));
-  console.log("────────────────────────────────────────────────────────");
-  
-  mapSocket.emit("map:state:request", payload);
-};
+// --------------------------------------------
+// SERVER → CLIENT LISTENERS SETUP
+// --------------------------------------------
+export const setupMapListeners = (cb = {}) => {
+  console.log("🎧 Setting up map listeners");
 
-// ============================================================
-// INCOMING EVENT LISTENERS
-// ============================================================
+  // Remove possible duplicate listeners
+  mapSocket.off("user-joined");
+  mapSocket.off("user-moved");
+  mapSocket.off("user-left");
+  mapSocket.off("join-ack");
+  mapSocket.off("presence-sync");
 
-/**
- * Setup map event listeners
- * @param {Object} callbacks - Object with callback functions
- */
-export const setupMapListeners = (callbacks = {}) => {
-  console.log("┌────────────────────────────────────────────────────────┐");
-  console.log("│  🎧 SETTING UP MAP EVENT LISTENERS                     │");
-  console.log("└────────────────────────────────────────────────────────┘");
-  console.log("📋 Callbacks registered:", Object.keys(callbacks).join(", "));
-  console.log("────────────────────────────────────────────────────────");
+  // JOIN-ACK
+  mapSocket.on("join-ack", (data) => {
+    console.log("📥 join-ack", data);
+    cb.onJoinAck && cb.onJoinAck(data);
 
-  // Map state (full list of avatars)
-  mapSocket.on("map:state", (data) => {
-    console.log("┌────────────────────────────────────────────────────────┐");
-    console.log("│  📥 RECEIVED: map:state                                │");
-    console.log("└────────────────────────────────────────────────────────┘");
-    console.log("👥 Total avatars:", data.avatars?.length || 0);
-    console.log("📦 Data:", JSON.stringify(data, null, 2));
-    console.log("────────────────────────────────────────────────────────");
-    
-    if (callbacks.onState) {
-      callbacks.onState(data);
+    // Load existing users into state
+    if (data.existingUsers && cb.onState) {
+      cb.onState({ avatars: data.existingUsers });
     }
   });
 
-  // User joined
-  mapSocket.on("map:joined", (avatar) => {
-    console.log("┌────────────────────────────────────────────────────────┐");
-    console.log("│  📥 RECEIVED: map:joined                               │");
-    console.log("└────────────────────────────────────────────────────────┘");
-    console.log("👤 User:", avatar.name);
-    console.log("🆔 User ID:", avatar.userId);
-    console.log("📍 Position:", `(${avatar.x?.toFixed(2)}, ${avatar.y?.toFixed(2)})`);
-    console.log("────────────────────────────────────────────────────────");
-    
-    if (callbacks.onJoined) {
-      callbacks.onJoined(avatar);
-    }
+  // FULL SYNC (server broadcasts)
+  mapSocket.on("presence-sync", (avatars) => {
+    console.log("📥 presence-sync", avatars);
+    cb.onState && cb.onState({ avatars });
   });
 
-  // Join acknowledgment
-  mapSocket.on("map:join:ack", (ack) => {
-    console.log("┌────────────────────────────────────────────────────────┐");
-    console.log("│  📥 RECEIVED: map:join:ack                             |");
-    console.log("└────────────────────────────────────────────────────────┘");
-    console.log("✅ Join acknowledged");
-    console.log("📦 Data:", JSON.stringify(ack, null, 2));
-    console.log("────────────────────────────────────────────────────────");
-    
-    if (callbacks.onJoinAck) {
-      callbacks.onJoinAck(ack);
-    }
+  // USER JOINED
+  mapSocket.on("user-joined", (data) => {
+    console.log("📥 user-joined", data);
+    cb.onJoined && cb.onJoined(data);
   });
 
-  // Position updated
-  mapSocket.on("map:updated", (data) => {
-    // Sample logging to avoid spam
-    if (Math.random() < 0.01) {
-      console.log("📥 Position update received:", {
-        userId: data.userId,
-        x: data.x?.toFixed(2),
-        y: data.y?.toFixed(2)
-      });
-    }
-    
-    if (callbacks.onUpdated) {
-      callbacks.onUpdated(data);
-    }
+  // USER MOVED
+  mapSocket.on("user-moved", (data) => {
+    cb.onUpdated && cb.onUpdated(data);
   });
 
-  // User left
-  mapSocket.on("map:left", (data) => {
-    console.log("┌────────────────────────────────────────────────────────┐");
-    console.log("│  📥 RECEIVED: map:left                                 │");
-    console.log("└────────────────────────────────────────────────────────┘");
-    console.log("👤 User ID:", data.userId);
-    console.log("────────────────────────────────────────────────────────");
-    
-    if (callbacks.onLeft) {
-      callbacks.onLeft(data);
-    }
+  // USER LEFT
+  mapSocket.on("user-left", (data) => {
+    console.log("📥 user-left", data);
+    cb.onLeft && cb.onLeft(data);
   });
 };
 
-/**
- * Remove all map event listeners
- */
+// Remove all listeners
 export const removeMapListeners = () => {
-  console.log("┌────────────────────────────────────────────────────────┐");
-  console.log("│  🔇 REMOVING MAP EVENT LISTENERS                       │");
-  console.log("└────────────────────────────────────────────────────────┘");
-  
-  mapSocket.off("map:state");
-  mapSocket.off("map:joined");
-  mapSocket.off("map:join:ack");
-  mapSocket.off("map:updated");
-  mapSocket.off("map:left");
-  
-  console.log("✅ All map listeners removed");
-  console.log("────────────────────────────────────────────────────────");
+  console.log("🔇 Removing map listeners");
+
+  mapSocket.off("user-joined");
+  mapSocket.off("user-moved");
+  mapSocket.off("user-left");
+  mapSocket.off("join-ack");
+  mapSocket.off("presence-sync");
 };
 
-/**
- * Get connection status
- */
+// Status logging
 export const getMapSocketStatus = () => {
   const status = {
     connected: mapSocket.connected,
-    disconnected: mapSocket.disconnected,
     id: mapSocket.id,
-    transport: mapSocket.io?.engine?.transport?.name || "unknown",
-    url: BACKEND_URL,
-    timestamp: new Date().toISOString()
+    transport: mapSocket.io.engine.transport.name,
+    timestamp: new Date().toISOString(),
   };
-  
-  console.log("┌────────────────────────────────────────────────────────┐");
-  console.log("│  📊 MAP SOCKET STATUS                                  │");
-  console.log("└────────────────────────────────────────────────────────┘");
   console.table(status);
-  console.log("────────────────────────────────────────────────────────");
-  
   return status;
 };
 
-/**
- * Manually connect the socket
- */
+// Manual connect/disconnect helpers
 export const connectMapSocket = () => {
-  console.log("🔌 Manually connecting map socket...");
-  if (!mapSocket.connected) {
-    mapSocket.connect();
-  } else {
-    console.log("✅ Already connected");
-  }
+  if (!mapSocket.connected) mapSocket.connect();
 };
-
-/**
- * Manually disconnect the socket
- */
 export const disconnectMapSocket = () => {
-  console.log("⚠️  Cannot disconnect - using shared socket with chat");
-  console.log("💡 Socket is shared between chat and map features");
+  if (mapSocket.connected) mapSocket.disconnect();
 };
 
-// Export socket instance and URL
-export { mapSocket, BACKEND_URL };
+export { mapSocket };
 export default mapSocket;

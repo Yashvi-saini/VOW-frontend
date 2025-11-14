@@ -5,11 +5,12 @@ import Eye from "../assets/Eye.png";
 import EyeOff from "../assets/blue eye off.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserProfile, clearWorkspaceContext } from "../components/userslice";
+import { setUserProfile, clearWorkspaceContext, setUserId } from "../components/userslice";
 import { loginUser } from "../api/authApi";
 import { getProfileInfo } from "../api/profileapi";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background";
+import socket from "../components/chat/socket";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
@@ -21,9 +22,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false); // NEW
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const { isProfileNeeded } = useSelector((state) => state.user);
-const profile = useSelector((state) => state.user.profile);
+  const profile = useSelector((state) => state.user.profile);
 
 const isLoggedI = localStorage.getItem("isLogged") === "true";
 const valid=localStorage.getItem("valid")!=="true";
@@ -44,7 +44,6 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIdentifierError("");
     setPasswordError("");
 
@@ -61,9 +60,11 @@ useEffect(() => {
     try {
       const res = await loginUser({ identifier: trimmedIdentifier, password });
       console.log("Login response:", res);
+      
       if (res.status === 200 && res.data.success) {
         // Handle "Remember Me"
         const { accessToken, refreshToken, user } = res.data;
+        dispatch(setUserId(res.data.user._id));
        try {
             const profileRes = await getProfileInfo();
             if (profileRes.status === 200 && profileRes.data.success) {
@@ -86,6 +87,13 @@ useEffect(() => {
         }
         localStorage.setItem("isLoggedIn", "true");
          localStorage.setItem("isLogged", "true");
+        
+        // Connect socket after successful login
+        if (!socket.connected) {
+          socket.connect();
+          console.log("✅ Socket connected after login");
+        }
+        
         // Update Redux user profile for UI components (Topbar/Sidebar)
         console.log("Dispatching profile:", {
           username: user?.username,
@@ -95,10 +103,6 @@ useEffect(() => {
         });
           
           // If login response doesn’t include profile, fetch it
-          
-        
-
-
 
         if (isProfileNeeded) {
           navigate("/profile");
@@ -235,7 +239,6 @@ useEffect(() => {
                     : "border-gray-300 focus:ring-[#558CE6]"
                 }`}
               />
-              {/* Show eye icon only when: no error OR (error exists but password has text) */}
               {(!passwordError || password) && (
                 <button
                   type="button"
