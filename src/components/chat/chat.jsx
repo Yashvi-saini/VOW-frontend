@@ -20,11 +20,13 @@ import socket, { joinDMWorkspace, sendDirectMessage, onReceiveDirectMessage, off
 import { createLayout } from "../../api/layoutApi.js";
 import ChatLayout from "./ChatLayout.jsx";
 import { getDirectMessages } from "../../api/authApi.js";
+import { useMembers } from "../useMembers.js";
 
 const Chat = ({ username, roomId, remoteUserId }) => {
   const workspaceName = useSelector((state) => state.user.workspaceName);
   const profile = useSelector((state) => state.user.profile);
   const workspaceId = useSelector((state) => state.user.workspaceId);
+  const { members } = useMembers(workspaceId);
 
   const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [messages, setMessages] = useState([]);
@@ -569,6 +571,7 @@ const sendMessage = async () => {
                 handleEmojiSelect={handleEmojiSelect}
                 attachments={attachments}
                 setAttachments={setAttachments}
+                members={members}
               />
             </div>
           ): null }
