@@ -558,7 +558,7 @@ const sendMessage = async () => {
                   memberCount={0}
                   onlineCount={0}
                 />
-                <MessageList messages={displayedMessages} username={username} onDeleteMessage={handleDeleteMessage} />
+                <MessageList messages={displayedMessages} username={username} onDeleteMessage={handleDeleteMessage} currentUserId={profile?._id} />
               </div>
               <InputBox
                 messageInput={messageInput}

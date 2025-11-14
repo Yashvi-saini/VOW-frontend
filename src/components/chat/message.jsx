@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import MessageReactions from "./rection.jsx";
 
-const MessageList = ({ messages, username, onDeleteMessage }) => {
+const MessageList = ({ messages, username, onDeleteMessage, currentUserId }) => {
   const bottomRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
 
@@ -138,8 +138,8 @@ const MessageList = ({ messages, username, onDeleteMessage }) => {
     </div>
   </div>
   
-  {/* Delete button - only show on hover and if user can delete */}
-  {msg._id && onDeleteMessage && (
+  {/* Delete button - only show for messages sent by current user */}
+  {msg._id && onDeleteMessage && currentUserId && msg.sender?._id === currentUserId && (
     <button
       onClick={() => onDeleteMessage(msg._id)}
       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
