@@ -135,7 +135,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
 
         if (tempIndex !== -1) {
           const updated = [...prev];
-          updated[tempIndex] = msg; // replace temp with server message
+          updated[tempIndex] = msg; 
           return updated;
         }
 
@@ -162,37 +162,35 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   }, [activeRoomId]);
 
   // --- Send message ---
-  const sendMessage = async () => {
-    if (messageInput.trim() === "" && attachments.length === 0) return;
+const sendMessage = async () => {
+  if (messageInput.trim() === "" && attachments.length === 0) return;
 
-    const tempId = Math.random().toString(36).substring(2, 9);
-    const selfId = profile?._id;
-    const message = {
-      tempId,
-      channelId: activeRoomId,
-      content: messageInput,
-      attachments,
-      sender: {
-        _id: selfId,
-        username: profile?.username,
-        avatar: profile?.avatar || "/default-avatar.png",
-      },
-      createdAt: new Date().toISOString(),
-    };
+  const tempId = Math.random().toString(36).substring(2, 9);
+  const selfId = profile?._id;
 
-    // --- Optimistic update
-    setMessages((prev) => [...prev, message]);
-    socketRef.current.emit("send_message", message);
-
-    try {
-      await sendMessageToChannel(activeRoomId, message.content, message.attachments);
-    } catch (err) {
-      console.error("Failed to save message:", err);
-    }
-
-    setMessageInput("");
-    setAttachments([]);
+  const message = {
+    tempId,
+    channelId: activeRoomId,
+    content: messageInput,
+    attachments,
+    sender: {
+      _id: selfId,
+      username: profile?.username,
+      avatar: profile?.avatar || "/default-avatar.png",
+    },
+    createdAt: new Date().toISOString(),
   };
+
+  // Optimistic UI message
+  setMessages((prev) => [...prev, message]);
+
+  // Send only via socket
+  socketRef.current.emit("send_message", message);
+
+  setMessageInput("");
+  setAttachments([]);
+};
+
 
   // --- Filter messages by search ---
   const displayedMessages = searchQuery.trim()
