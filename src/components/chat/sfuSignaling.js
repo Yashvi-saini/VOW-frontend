@@ -1,25 +1,11 @@
 import { SOCKET_URL } from "../../config.js";
-const MSG = {
-  JOIN: "join",
-  LEAVE: "leave",
-  OFFER: "offer",
-  ANSWER: "answer",
-  ICE: "ice-candidate",
-};
 
 export class SfuSignalingClient {
   constructor(token = null) {
     this.ws = null;
     this.connected = false;
-
     this.handlers = new Map();
     this.token = token;
-
-    this._closing = false;
-    this._retryCount = 0;
-    this._maxRetries = 8;
-    this._baseDelay = 800;
-    this._heartbeatInterval = null;
   }
 
   on(type, fn) {
@@ -35,111 +21,72 @@ export class SfuSignalingClient {
 
   emit(type, payload) {
     if (!this.handlers.has(type)) return;
-    for (const fn of this.handlers.get(type)) {
-      try { fn(payload); } catch (err) {
-        console.error("[Signaling handler error]", err);
-      }
-    }
+    for (const fn of this.handlers.get(type)) fn(payload);
   }
 
   _buildWsUrl() {
     let base = SOCKET_URL.trim();
-
     if (base.startsWith("https://")) base = base.replace("https://", "wss://");
     else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
     else if (!base.startsWith("ws")) base = "wss://" + base;
 
-    base = base.replace(/\/+$/, "");
-
-    let url = `${base}/signaling`;
-
-    if (this.token) {
-      url += `?token=${encodeURIComponent(this.token)}`;
-    }
-
-    console.log("[SFU] WS URL =", url);
-    return url;
+    return base.replace(/\/+$/, "") + "/signaling";
   }
 
   connect() {
     return new Promise((resolve, reject) => {
       const url = this._buildWsUrl();
-
-      try {
-        this.ws = new WebSocket(url);
-      } catch (err) {
-        console.error("[SFU] Constructor error", err);
-        return reject(err);
-      }
+      this.ws = new WebSocket(url);
 
       this.ws.onopen = () => {
         console.log("[SFU] Connected");
         this.connected = true;
         this.emit("open");
-
-        this._heartbeatInterval = setInterval(() => {
-          if (this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({ type: "PING" }));
-          }
-        }, 25000);
-
         resolve();
       };
 
       this.ws.onmessage = (msg) => {
+        let data;
         try {
-          const data = typeof msg.data === "string"
-            ? JSON.parse(msg.data)
-            : msg.data;
-
-          console.log("[SIGNALING MESSAGE RECEIVED]", data);
-
-          if (data?.type) this.emit(data.type, data);
-        } catch (err) {
-          console.warn("[SFU] Parse error:", err);
+          data = JSON.parse(msg.data);
+        } catch {
+          return console.warn("Invalid JSON");
         }
+
+        console.log("[SIGNALING MESSAGE RECEIVED]", data);
+        if (data?.type) this.emit(data.type, data);
       };
 
-      this.ws.onerror = (err) => {
-        console.error("[SFU] WS error:", err);
-      };
-
-      this.ws.onclose = () => {
-        console.warn("[SFU] WS closed");
-        this.connected = false;
-      };
+      this.ws.onerror = reject;
     });
   }
 
   send(obj) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn("[SFU] Cannot send, WS not open");
-      return;
-    }
-    this.ws.send(JSON.stringify(obj));
+    if (this.ws?.readyState === WebSocket.OPEN)
+      this.ws.send(JSON.stringify(obj));
   }
 
-  // FIXED: EXACT MATCH WITH BACKEND TYPES
- 
+  // FIXED: MUST include participantId as empty string
   join(roomId, participantName) {
     this.send({
-      type: MSG.JOIN,
+      type: "join",
       roomId,
+      participantId: "",
       data: { participantName },
     });
   }
 
   leave(roomId, participantId) {
     this.send({
-      type: MSG.LEAVE,
+      type: "leave",
       roomId,
-      participantId,
+      participantId: participantId || "",
     });
   }
 
   sendOffer(roomId, from, to, sdp) {
     this.send({
-      type: MSG.OFFER,
+      type: "offer",
       roomId,
       participantId: from,
       targetParticipantId: to,
@@ -149,7 +96,7 @@ export class SfuSignalingClient {
 
   sendAnswer(roomId, from, to, sdp) {
     this.send({
-      type: MSG.ANSWER,
+      type: "answer",
       roomId,
       participantId: from,
       targetParticipantId: to,
@@ -159,7 +106,7 @@ export class SfuSignalingClient {
 
   sendIceCandidate(roomId, from, to, candidate) {
     this.send({
-      type: MSG.ICE,
+      type: "ice-candidate",
       roomId,
       participantId: from,
       targetParticipantId: to,
