@@ -5,11 +5,10 @@ export class SfuSignalingClient {
     this.ws = null;
     this.connected = false;
     this.handlers = new Map();
-
     this.token = token;
 
+    // store assigned participant id here once server returns room-state
     this.participantId = null;
-    this.currentRoomId = null;
   }
 
   on(type, fn) {
@@ -46,22 +45,23 @@ export class SfuSignalingClient {
         try {
           data = JSON.parse(msg.data);
         } catch (e) {
-          console.warn("Invalid JSON incoming", e);
+          console.warn("Invalid message", e);
           return;
         }
-
         console.log("[SIGNALING MESSAGE RECEIVED]", data);
 
-        if (data.type === "room-state") {
+        // auto-capture participantId from server-sent room-state
+        if (data.type === "room-state" && data.participantId) {
           this.participantId = data.participantId;
-          this.currentRoomId = data.roomId;
           console.log("[SFU] assigned participantId:", this.participantId);
         }
 
         if (data.type) this.emit(data.type, data);
       };
 
-      this.ws.onerror = (err) => console.warn("[SFU] WS Error", err);
+      this.ws.onerror = (err) => {
+        console.warn("[SFU] ws error", err);
+      };
 
       this.ws.onclose = () => {
         this.connected = false;
@@ -73,39 +73,36 @@ export class SfuSignalingClient {
   send(obj) {
     if (!obj || typeof obj !== "object") return;
 
-    if (!obj.roomId && this.currentRoomId) obj.roomId = this.currentRoomId;
+    // if participantId isn't explicitly provided and we have it, inject it
     if (!("participantId" in obj) && this.participantId) {
       obj.participantId = this.participantId;
     }
-
-    console.log("[SFU OUTGOING]", obj);
 
     try {
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify(obj));
       } else {
-        console.warn("[SFU] WS not open — cannot send", obj);
+        console.warn("[SFU] ws not open — cannot send", obj);
       }
     } catch (err) {
-      console.error("[SFU] send error", err);
+      console.error("[SFU] send error", err, obj);
     }
   }
-
   join(roomId, participantName) {
-    this.currentRoomId = roomId;
-
-    this.send({
+    const payload = {
       type: "join",
       roomId,
+
       data: { participantName },
-    });
+    };
+    this.send(payload);
   }
 
   leave(roomId, pid) {
     this.send({
       type: "leave",
       roomId,
-      participantId: pid || this.participantId,
+      participantId: pid || this.participantId || undefined,
     });
   }
 
@@ -113,9 +110,12 @@ export class SfuSignalingClient {
     this.send({
       type: "offer",
       roomId,
-      participantId: from || this.participantId,
+      participantId: from || this.participantId || undefined,
       targetParticipantId: to,
-      data: { sdp: sdpObj.sdp, type: "offer" },
+      data: {
+        sdp: sdpObj.sdp,
+        type: "offer",
+      },
     });
   }
 
@@ -123,22 +123,25 @@ export class SfuSignalingClient {
     this.send({
       type: "answer",
       roomId,
-      participantId: from || this.participantId,
+      participantId: from || this.participantId || undefined,
       targetParticipantId: to,
-      data: { sdp: sdpObj.sdp, type: "answer" },
+      data: {
+        sdp: sdpObj.sdp,
+        type: "answer",
+      },
     });
   }
 
-  sendIceCandidate(roomId, from, to, cand) {
+  sendIceCandidate(roomId, from, to, candidate) {
     this.send({
       type: "ice-candidate",
       roomId,
-      participantId: from || this.participantId,
+      participantId: from || this.participantId || undefined,
       targetParticipantId: to,
       data: {
-        candidate: cand.candidate,
-        sdpMid: cand.sdpMid,
-        sdpMLineIndex: cand.sdpMLineIndex,
+        candidate: candidate.candidate,
+        sdpMid: candidate.sdpMid,
+        sdpMLineIndex: candidate.sdpMLineIndex,
       },
     });
   }
