@@ -1,214 +1,141 @@
+// sfuSignaling.js
 import { SOCKET_URL } from "../../config.js";
 
-export class SfuSignalingClient {
+export default class SfuSignalingClient {
   constructor(token = null) {
     this.ws = null;
     this.connected = false;
-
     this.handlers = new Map();
     this.token = token;
-
-    this._closing = false;
-    this._retryCount = 0;
-    this._maxRetries = 8;
-    this._baseDelay = 800;
-    this._heartbeatInterval = null;
+    this.participantId = null;
   }
 
-  // --------------------------
-  // Event Handling
-  // --------------------------
   on(type, fn) {
     if (!this.handlers.has(type)) this.handlers.set(type, new Set());
     this.handlers.get(type).add(fn);
-    return () => this.off(type, fn);
   }
 
-  off(type, fn) {
+  emit(type, data) {
     if (!this.handlers.has(type)) return;
-    this.handlers.get(type).delete(fn);
+    this.handlers.get(type).forEach((fn) => fn(data));
   }
 
-  emit(type, payload) {
-    if (!this.handlers.has(type)) return;
-    for (const fn of this.handlers.get(type)) {
-      try {
-        fn(payload);
-      } catch (err) {
-        console.error("[Signaling:handler-error]", err);
-      }
-    }
-  }
-
-  // --------------------------
-  // Build WebSocket URL (fixed)
-  // --------------------------
   _buildWsUrl() {
     let base = SOCKET_URL.trim();
-
-    // Force WSS for HTTPS apps
     if (base.startsWith("https://")) base = base.replace("https://", "wss://");
     else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
     else if (!base.startsWith("ws")) base = "wss://" + base;
-
-    base = base.replace(/\/+$/, "");
-
-    let url = `${base}/signaling`;
-
-    if (this.token) {
-      url += `?token=${encodeURIComponent(this.token)}`;
-    }
-
-    console.log("[SFU] WS URL =", url);
-    return url;
+    return base.replace(/\/+$/, "") + "/signaling";
   }
 
-  // --------------------------
-  // Connect to SFU Signaling
-  // --------------------------
   connect() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const url = this._buildWsUrl();
-
-      console.log("[SFU] Connecting:", url);
-
-      try {
-        this.ws = new WebSocket(url);
-      } catch (err) {
-        console.error("[SFU] Constructor error", err);
-        return reject(err);
-      }
+      this.ws = new WebSocket(url);
 
       this.ws.onopen = () => {
-        console.log("[SFU] Connected (WS OPEN)");
+        console.log("[SFU] Connected");
         this.connected = true;
-        this._retryCount = 0;
-        this.emit("open");
-
-        // Heartbeat every 25 seconds
-        if (this._heartbeatInterval) clearInterval(this._heartbeatInterval);
-        this._heartbeatInterval = setInterval(() => {
-          if (this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({ type: "PING" }));
-          }
-        }, 25000);
-
         resolve();
       };
 
-      this.ws.onerror = (err) => {
-        console.error("[SFU] WS error:", err);
-      };
-
-      this.ws.onclose = (ev) => {
-        console.warn("[SFU] WS closed:", ev.code, ev.reason);
-        this.connected = false;
-
-        if (this._heartbeatInterval) {
-          clearInterval(this._heartbeatInterval);
-          this._heartbeatInterval = null;
-        }
-
-        if (!this._closing) {
-          this._retryCount++;
-          if (this._retryCount <= this._maxRetries) {
-            const delay = this._baseDelay * Math.pow(1.5, this._retryCount);
-            console.log(`[SFU] Reconnecting in ${Math.round(delay)}ms...`);
-            setTimeout(() => this.connect(), delay);
-          }
-        }
-      };
-
       this.ws.onmessage = (msg) => {
+        let data = null;
         try {
-          const data =
-            typeof msg.data === "string" ? JSON.parse(msg.data) : msg.data;
-
-          if (data?.type) {
-            this.emit(data.type, data);
-          }
-          this.emit("message", data);
-        } catch (err) {
-          console.warn("[SFU] Parse error:", err);
+          data = JSON.parse(msg.data);
+        } catch (e) {
+          console.warn("Invalid JSON", e);
+          return;
         }
+
+        console.log("[SIGNALING MESSAGE RECEIVED]", data);
+
+        if (data.type === "room-state" && data.participantId) {
+          this.participantId = data.participantId;
+          console.log("[SFU] assigned participantId:", this.participantId);
+        }
+
+        if (data.type) this.emit(data.type, data);
       };
+
+      this.ws.onerror = (e) => console.warn("[SFU] ws error", e);
+      this.ws.onclose = () => console.log("[SFU] ws closed");
     });
   }
 
-  // --------------------------
-  // Close connection
-  // --------------------------
-  close() {
-    this._closing = true;
-    if (this._heartbeatInterval) {
-      clearInterval(this._heartbeatInterval);
-      this._heartbeatInterval = null;
-    }
-    try {
-      this.ws?.close();
-    } catch {}
-  }
-
-  // --------------------------
-  // Send primitives
-  // --------------------------
   send(obj) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn("[SFU] send() ignored - WS NOT OPEN");
-      return;
+    if (!obj || typeof obj !== "object") return;
+
+    if (!obj.participantId && this.participantId)
+      obj.participantId = this.participantId;
+
+    try {
+      console.log("[SFU OUT] ->", obj);
+      this.ws?.readyState === WebSocket.OPEN && this.ws.send(JSON.stringify(obj));
+    } catch (e) {
+      console.error("[SFU] send error", e, obj);
     }
-    this.ws.send(JSON.stringify(obj));
   }
 
-  // --------------------------
-  // Signaling Helpers
-  // --------------------------
-
-  join(roomId, participantName) {
+  join(roomId, name) {
     this.send({
-      type: "JOIN",
+      type: "join",
       roomId,
-      data: { participantName },
+      data: { participantName: name }
     });
   }
 
-  leave(roomId, participantId) {
+  leave(roomId, pid) {
     this.send({
-      type: "LEAVE",
+      type: "leave",
       roomId,
-      participantId,
+      participantId: pid || this.participantId
     });
   }
 
+  // -----------------------------
+  // FIXED: CORRECT SDP FORMAT
+  // -----------------------------
   sendOffer(roomId, from, to, sdp) {
     this.send({
-      type: "OFFER",
+      type: "offer",
       roomId,
       participantId: from,
       targetParticipantId: to,
-      data: { sdp },
+      data: {
+        type: sdp.type,
+        sdp: sdp.sdp
+      }
     });
   }
 
   sendAnswer(roomId, from, to, sdp) {
     this.send({
-      type: "ANSWER",
+      type: "answer",
       roomId,
       participantId: from,
       targetParticipantId: to,
-      data: { sdp },
+      data: {
+        type: sdp.type,
+        sdp: sdp.sdp
+      }
     });
   }
 
   sendIceCandidate(roomId, from, to, candidate) {
     this.send({
-      type: "ICE_CANDIDATE",
+      type: "ice-candidate",
       roomId,
       participantId: from,
       targetParticipantId: to,
-      data: { candidate },
+      data: {
+        candidate: candidate.candidate,
+        sdpMid: candidate.sdpMid,
+        sdpMLineIndex: candidate.sdpMLineIndex
+      }
     });
   }
 }
 
-export default SfuSignalingClient;
+
+
