@@ -176,37 +176,37 @@ const ProfileSettings = ({ onClose }) => {
   if (loading) return null;
 
   return (
-    <div className="max-w-3xl mx-auto relative">
-      <h2 className="text-center text-[20px] font-semibold text-[#2B2B2B] mb-6">Profile Settings</h2>
-      <div className="flex gap-8">
+    <div className="max-w-3xl mx-auto relative px-4 sm:px-6">
+      <h2 className="text-center text-lg sm:text-xl font-semibold text-[#2B2B2B] mb-4 sm:mb-6">Profile Settings</h2>
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
         {/* Avatar */}
-        <div className="shrink-0 flex flex-col items-center gap-3">
-          <img src={avatarSrc} alt="avatar" className="w-24 h-24 rounded-full object-cover border" />
+        <div className="shrink-0 flex flex-col items-center gap-3 w-full sm:w-auto sm:items-start">
+          <img src={avatarSrc} alt="avatar" className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border" />
           <label className="px-3 py-1.5 rounded-lg bg-[#450B7B] text-white text-xs cursor-pointer hover:brightness-110 transition">
             {uploading ? "Uploading..." : "Upload Photo"}
             <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploading} className="hidden" />
           </label>
-          {uploadError && <p className="text-[10px] text-red-500 w-24 text-center">{uploadError}</p>}
+          {uploadError && <p className="text-[10px] text-red-500 max-w-[120px] text-center sm:text-left">{uploadError}</p>}
         </div>
         {/* Form */}
-        <div className="flex-1 space-y-4 bg-white/60 p-4 rounded-xl border">
+        <div className="flex-1 w-full space-y-3 sm:space-y-4 bg-white/60 p-4 sm:p-6 rounded-xl border">
           <div>
-            <label className="block text-sm text-[#2B2B2B] mb-1">Fullname</label>
-            <input name="fullName" value={form.fullName} onChange={handleChange} className="w-full h-10 border rounded-lg px-3 bg-white" placeholder="Editable text" />
+            <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Fullname</label>
+            <input name="fullName" value={form.fullName} onChange={handleChange} className="w-full h-9 sm:h-10 border rounded-lg px-3 bg-white text-sm" placeholder="Editable text" />
           </div>
           <div>
-            <label className="block text-sm text-[#2B2B2B] mb-1">Email id</label>
-            <input value={form.email} disabled className="w-full h-10 border rounded-lg px-3 bg-gray-100 text-gray-500" />
+            <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Email id</label>
+            <input value={form.email} disabled className="w-full h-9 sm:h-10 border rounded-lg px-3 bg-gray-100 text-gray-500 text-sm" />
           </div>
           <div>
-            <label className="block text-sm text-[#2B2B2B] mb-1">Gender</label>
-            <div className="flex items-center gap-6 text-sm">
+            <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Gender</label>
+            <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
               {[
                 { k: "male", l: "Male" },
                 { k: "female", l: "Female" },
                 { k: "other", l: "Other" },
               ].map((g) => (
-                <label key={g.k} className="flex items-center gap-2">
+                <label key={g.k} className="flex items-center gap-1.5 sm:gap-2">
                   <input type="radio" name="gender" value={g.k} checked={form.gender === g.k} onChange={handleChange} />
                   <span>{g.l}</span>
                 </label>
@@ -214,24 +214,24 @@ const ProfileSettings = ({ onClose }) => {
             </div>
           </div>
           <div>
-            <label className="block text-sm text-[#2B2B2B] mb-1">Date of Birth</label>
+            <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Date of Birth</label>
             <input
               type="date"
               name="dob"
               value={form.dob || ""}
               onChange={handleChange}
-              className="w-full h-10 border rounded-lg px-3 bg-white"
+              className="w-full h-9 sm:h-10 border rounded-lg px-3 bg-white text-sm"
             />
             <p className="text-[10px] text-[#707070] mt-1">Format: YYYY-MM-DD</p>
           </div>
           <div>
-            <label className="block text-sm text-[#2B2B2B] mb-1">Organization Name</label>
-            <input name="organisation" value={form.organisation} onChange={handleChange} className="w-full h-10 border rounded-lg px-3 bg-white" placeholder="Editable text" />
+            <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Organization Name</label>
+            <input name="organisation" value={form.organisation} onChange={handleChange} className="w-full h-9 sm:h-10 border rounded-lg px-3 bg-white text-sm" placeholder="Editable text" />
           </div>
           {error ? <p className="text-xs text-red-500">{error}</p> : null}
-          <div className="flex gap-3 pt-2">
-            <button onClick={handleLogout} className="px-4 py-2 rounded-lg border bg-white text-[#450B7B] border-[#CCB4E3]">Log out</button>
-            <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg bg-[#5E9BFF] text-white disabled:opacity-70">{saving ? "Saving..." : "Save Changes"}</button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
+            <button onClick={handleLogout} className="w-full sm:w-auto px-4 py-2 rounded-lg border bg-white text-[#450B7B] border-[#CCB4E3] text-sm sm:text-base">Log out</button>
+            <button onClick={handleSave} disabled={saving} className="w-full sm:w-auto px-4 py-2 rounded-lg bg-[#5E9BFF] text-white disabled:opacity-70 text-sm sm:text-base">{saving ? "Saving..." : "Save Changes"}</button>
           </div>
         </div>
       </div>
