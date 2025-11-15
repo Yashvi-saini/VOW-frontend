@@ -3,15 +3,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-/**
- * GeminiChat (robust debug version)
- *
- * - Logs the API key (so you can verify it's loaded)
- * - Tries multiple model names (fallbacks) and picks the first that works
- * - Shows clear console errors
- *
- * Keep this temporarily while debugging; remove extra logs when fixed.
- */
 const BASE_PROMPT = `
 You are an AI assistant for **VOW (Virtual Organised World)** - a collaborative workspace platform.
 
@@ -70,13 +61,12 @@ const CANDIDATE_MODELS = [
   "gemini-2.5-flash-lite",
   "gemini-1.5-flash",
   "gemini-1.5-pro",
-  "text-bison-001", // older names sometimes available
+  "text-bison-001",
   "chat-bison-001",
 ];
 
 const genAI = (() => {
   try {
-    // ensure you pass the API key **string** directly
     const k = import.meta.env.VITE_GEMINI_API_KEY;
     return new GoogleGenerativeAI(k);
   } catch (err) {

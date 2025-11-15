@@ -338,7 +338,7 @@ const FileTransfer = () => {
           {/* Action Icons */}
           <div className="flex items-center gap-3">
             {/* Share Workspace Button */}
-            <div
+            {/* <div
               className="p-2 hover:bg-[#F5F1FB] transition-colors flex gap-5 border border-[#AC92CB] rounded-2xl px-3"
          
               title="Share Workspace"
@@ -348,17 +348,15 @@ const FileTransfer = () => {
               <img src={down} alt="Dropdown" className='w-3 h-3 mt-2' />
              
             
-            </div>
+            </div> */}
             {/* More Options Menu */}
             <div className="relative more-menu-container">
               <div 
-                className="p-2 hover:bg-[#F5F1FB] transition-colors flex items-center gap-2 border border-[#AC92CB] rounded-2xl cursor-pointer px-4"
+                className="p-2 hover:bg-[#F5F1FB] transition-colors  flex items-center gap-2 border border-[#AC92CB] rounded-2xl cursor-pointer px-4"
                 onClick={handleMoreMenu}
                 title="More Options"
               >
-                <img src={menu} alt="Menu" className="w-6 h-6" />
-                <p className='text-[#AC92CB]'>Sort by</p>
-                <img src={down} alt="Dropdown" className="w-4 h-4" />
+               more options
               </div>
               
               {/* Dropdown Menu */}

@@ -5,7 +5,7 @@ import calendarIcon from "../../../assets/today.svg";
 import timeIcon from "../../../assets/today.svg";
 import userIcon from "../../../assets/icon.svg";
 
-const MeetingRow = ({ avatar, title, date, time, organiser, description, onDelete, meetingId }) => {
+const MeetingRow = ({  title, date, time, organiser, description, onDelete, meetingId }) => {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -33,7 +33,7 @@ const MeetingRow = ({ avatar, title, date, time, organiser, description, onDelet
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-3">
-          <img src={avatar} alt="avatar" className="w-8 h-8 rounded-full" />
+          {/* <img src={avatar} alt="avatar" className="w-8 h-8 rounded-full" /> */}
           <div>
             <div className="font-medium text-gray-800">{title}</div>
             <div className="text-gray-500 text-xs sm:hidden">{description}</div>

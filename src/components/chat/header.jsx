@@ -8,7 +8,7 @@ const Header = ({ title = "Chat", onCallClick }) => {
   return (
     <header className="bg-[#200539] border-b border-[#BCBCBC] p-3 flex justify-between items-center">
       <h3 className="text-2xl font-semibold text-white">{title}</h3>
-      <div className="flex gap-2">
+      {/* <div className="flex gap-2">
         <img
           src={user}
           alt="User"
@@ -30,7 +30,7 @@ const Header = ({ title = "Chat", onCallClick }) => {
           alt="Video"
           className="border -2 border-[#9982B4] px-2 py-2 rounded-xl"
         />
-      </div>
+      </div> */}
     </header>
   );
 };

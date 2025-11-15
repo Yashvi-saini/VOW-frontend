@@ -17,9 +17,14 @@ const InputBox = ({
   handleEmojiSelect,
   attachments,
   setAttachments,
+  members = [],
 }) => {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [showMentionDropdown, setShowMentionDropdown] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionPosition, setMentionPosition] = useState(0);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   
   // Get workspace info from Redux store
   const userState = useSelector((state) => state.user);
@@ -87,25 +92,132 @@ const InputBox = ({
     setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
   };
 
+  // Filter members based on mention query
+  const filteredMembers = mentionQuery
+    ? members.filter(m => 
+        (m.fullName?.toLowerCase().includes(mentionQuery.toLowerCase()) || 
+         m.username?.toLowerCase().includes(mentionQuery.toLowerCase()))
+      )
+    : members;
+
+  // Handle @ symbol detection and mention dropdown
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    
+    setMessageInput(value);
+    
+    // Find last @ before cursor
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+    
+    if (lastAtIndex !== -1) {
+      // Check if there's a space between @ and cursor
+      const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
+      if (!textAfterAt.includes(' ')) {
+        setMentionQuery(textAfterAt);
+        setMentionPosition(lastAtIndex);
+        setShowMentionDropdown(true);
+        setSelectedMentionIndex(0);
+        return;
+      }
+    }
+    
+    setShowMentionDropdown(false);
+  };
+
+  // Handle member selection from dropdown
+  const selectMention = (member) => {
+    const memberName = member.fullName || member.username || 'User';
+    const beforeMention = messageInput.substring(0, mentionPosition);
+    const afterMention = messageInput.substring(mentionPosition + mentionQuery.length + 1);
+    const newValue = `${beforeMention}@${memberName} ${afterMention}`;
+    
+    setMessageInput(newValue);
+    setShowMentionDropdown(false);
+    setMentionQuery('');
+    
+    // Focus back on textarea
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      const newCursorPos = mentionPosition + memberName.length + 2;
+      setTimeout(() => {
+        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+      }, 0);
+    }
+  };
+
+  // Handle keyboard navigation in mention dropdown
+  const handleKeyDown = (e) => {
+    if (showMentionDropdown && filteredMembers.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedMentionIndex((prev) => 
+          prev < filteredMembers.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedMentionIndex((prev) => 
+          prev > 0 ? prev - 1 : filteredMembers.length - 1
+        );
+      } else if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        selectMention(filteredMembers[selectedMentionIndex]);
+        return;
+      } else if (e.key === 'Escape') {
+        setShowMentionDropdown(false);
+        return;
+      }
+    }
+    
+    if (e.key === 'Enter' && !e.shiftKey && !showMentionDropdown) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   return (
-    <footer className="border-[#BCBCBC] p-4 w-full max-w-full">
+    <footer className="border-[#BCBCBC] p-4 w-full max-w-full relative">
       <div className="flex items-end border-2 rounded-2xl w-full max-w-full pr-4 py-2">
         {/* Left section: Textarea + icons */}
         <div className="flex flex-col w-full">
           <textarea
             className="w-full px-2.5 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40"
-            placeholder="Write a message..."
+            placeholder="Write a message... (type @ to mention)"
             ref={textareaRef}
             value={messageInput}
-            onChange={(e) => setMessageInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
             rows={1}
           />
+          {/* Mention Dropdown */}
+          {showMentionDropdown && filteredMembers.length > 0 && (
+            <div className="absolute bottom-full left-2 mb-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto w-64 z-50">
+              {filteredMembers.map((member, index) => (
+                <div
+                  key={member._id}
+                  onClick={() => selectMention(member)}
+                  className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${
+                    index === selectedMentionIndex
+                      ? 'bg-[#5C0EA4] text-white'
+                      : 'hover:bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  <span className="inline-block w-2 h-2 rounded-full bg-[#2DB3FF]"></span>
+                  <span className="text-sm font-medium">
+                    {member.fullName || member.username || 'User'}
+                  </span>
+                  {member.role && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded ml-auto ${
+                      index === selectedMentionIndex ? 'bg-white/20' : 'bg-gray-200'
+                    }`}>
+                      {member.role}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
           {/* Attachment previews */}
           {attachments && attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 px-2">
@@ -151,7 +263,29 @@ const InputBox = ({
               boundaryRef={mainRef}
               onSelect={handleEmojiSelect}
             />
-            <img src={battherate} alt="mention" className="cursor-pointer" />
+            <img 
+              src={battherate} 
+              alt="mention" 
+              className="cursor-pointer hover:opacity-80" 
+              onClick={() => {
+                const cursorPos = textareaRef.current?.selectionStart || messageInput.length;
+                const newValue = messageInput.substring(0, cursorPos) + '@' + messageInput.substring(cursorPos);
+                setMessageInput(newValue);
+                if (textareaRef.current) {
+                  textareaRef.current.focus();
+                  setTimeout(() => {
+                    textareaRef.current.setSelectionRange(cursorPos + 1, cursorPos + 1);
+                    // Trigger mention detection
+                    handleInputChange({ 
+                      target: { 
+                        value: newValue, 
+                        selectionStart: cursorPos + 1 
+                      } 
+                    });
+                  }, 0);
+                }
+              }}
+            />
             <img 
               src={share} 
               alt="attach files" 

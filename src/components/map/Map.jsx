@@ -136,36 +136,64 @@ const Map = () => {
     console.log("🌍 MAP MOUNT — Initializing socket & presence");
     console.log("User:", username, "UserId:", userId);
 
-    // Always connect map socket first
+    let hasJoined = false; // Guard to prevent duplicate joins
+    let cleanedUp = false;
+
+    // Ensure we leave any existing session first
+    if (mapSocket.connected) {
+      console.log("🔄 Socket already connected, leaving previous session");
+      leaveMapPresence();
+    }
+
+    // Always connect map socket
     connectMapSocket();
 
     // After connection → join
     const onConnected = () => {
+      if (hasJoined || cleanedUp) {
+        console.log("⚠️ Already joined or cleaned up, skipping duplicate join");
+        return;
+      }
+      
       console.log("🔌 Map socket connected, sending join");
 
       dispatch(setIdentity({ selfId: userId }));
 
-      joinMapPresence({
-        name: username || "Anonymous",
-        x: positionRef.current.x,
-        y: positionRef.current.y,
-      });
+      // Small delay to ensure server processed any previous leave
+      setTimeout(() => {
+        if (!cleanedUp) {
+          joinMapPresence({
+            name: username || "Anonymous",
+            x: positionRef.current.x,
+            y: positionRef.current.y,
+          });
+          hasJoined = true;
+        }
+      }, 100);
     };
 
-    mapSocket.once("connect", onConnected);
+    // Check if already connected
+    if (mapSocket.connected) {
+      onConnected();
+    } else {
+      mapSocket.once("connect", onConnected);
+    }
 
     // Setup map listeners
     setupMapListeners({
       onState: (data) => {
+        console.log("📥 Received state with avatars:", data.avatars);
         dispatch(replaceAvatars(data.avatars));
       },
       onJoined: (avatar) => {
+        console.log("📥 User joined:", avatar);
         dispatch(upsertAvatar(avatar));
       },
       onUpdated: ({ userId, x, y }) => {
         dispatch(updateAvatarPosition({ userId, x, y }));
       },
       onLeft: ({ userId }) => {
+        console.log("📥 User left:", userId);
         dispatch({ type: "presence/removeAvatar", payload: userId });
       },
     });
@@ -173,8 +201,9 @@ const Map = () => {
     // Cleanup on unmount
     return () => {
       console.log("🌍 MAP UNMOUNT — Cleaning up");
-
-      leaveMapPresence(); // no payload
+      cleanedUp = true;
+      
+      leaveMapPresence();
       removeMapListeners();
       mapSocket.off("connect", onConnected);
     };

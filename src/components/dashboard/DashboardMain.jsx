@@ -32,7 +32,7 @@ const DashboardMain = () => {
         </div>
 
         {/* Stats / Summary Cards */}
-        <div
+        {/* <div
           className="
             flex flex-row lg:flex-col
             w-full lg:w-[38%]
@@ -40,9 +40,9 @@ const DashboardMain = () => {
             rounded-xl 
             min-h-[100px]
           "
-        >
+        > */}
           {/* Card 1 */}
-          <div
+          {/* <div
             className="
               flex flex-col justify-between
               py-4 px-4 lg:py-1 lg:pl-6 lg:pr-2
@@ -65,10 +65,10 @@ const DashboardMain = () => {
               <h3 className="font-medium">File Shared Today</h3>
               <p className="text-[24px] lg:text-[32px] font-semibold">12</p>
             </div>
-          </div>
+          </div> */}
 
           {/* Card 2 */}
-          <div
+          {/* <div
             className="
               flex flex-col justify-between
            py-4 px-4 lg:py-1 lg:pl-6 lg:pr-2
@@ -91,10 +91,10 @@ const DashboardMain = () => {
               <h3 className="font-medium">Unread Messages</h3>
               <p className="text-[24px] lg:text-[32px] font-semibold">12</p>
             </div>
-          </div>
+          </div> */}
 
           {/* Card 3 */}
-          <div
+          {/* <div
             className="
               flex flex-col justify-between
               py-4 px-4 lg:py-5 lg:px-6
@@ -111,8 +111,8 @@ const DashboardMain = () => {
               <h3 className="font-medium">Time Spent</h3>
               <p className="text-[24px] lg:text-[32px] font-semibold">3 hr 30 min</p>
             </div>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   );

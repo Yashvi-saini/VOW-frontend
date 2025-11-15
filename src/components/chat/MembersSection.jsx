@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import socket from "./socket.jsx";
 import down from "../../assets/down.svg";
-import add from "../../assets/add.svg"; // reserved if later adding invite
 import right from "../../assets/right arrow.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { useMembers } from "../useMembers";
@@ -9,24 +8,24 @@ import { setUserProfile } from "../userslice";
 import { getProfileInfo } from "../../api/profileapi";
 import { getWorkspaceForUsers } from "../../api/authApi";
 
-const MembersSection = ({ onSelectChannel, onOpenChat }) => {
+const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {} }) => {
 
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
   const { workspaceId, profile } = userState;
   const { members, loading, error, fetchMembers } = useMembers(workspaceId);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  // Derive a stable self userId from available fields to avoid undefined during early render.
+
   const storedId = (() => {
     try { return localStorage.getItem('selfUserId'); } catch (_) { return null; }
   })();
   const selfUserId = profile?._id || profile?.id || userState.userId || userState.id || storedId || null;
 
-  // If we don't have a self id yet, try to fetch profile once.
+
   React.useEffect(() => {
     let cancelled = false;
     const primeProfile = async () => {
-      if (selfUserId) return; // already have it
+      if (selfUserId) return; 
       try {
         const res = await getProfileInfo();
         const data = res?.data?.data;
@@ -46,15 +45,15 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
     return () => { cancelled = true; };
   }, [selfUserId, dispatch]);
   const toggle = () => setIsCollapsed((p) => !p);
-  const pcRef = useRef(null); // single peer connection per active chat
+  const pcRef = useRef(null); 
   const localStreamRef = useRef(null);
-  const [activePeer, setActivePeer] = useState(null); // target userId
-  const [callStatus, setCallStatus] = useState("idle"); // idle | calling | ringing | in-call | ended | error
+  const [activePeer, setActivePeer] = useState(null); 
+  const [callStatus, setCallStatus] = useState("idle"); 
 
-  // Remote audio playback for incoming media
+  
   const remoteAudioRef = useRef(null);
 
-  // Join a personal signaling room named by our user id
+
   React.useEffect(() => {
     console.log('[p2p] effect: mount/join selfUserId=', selfUserId);
     if (!selfUserId) {
@@ -150,7 +149,7 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
     }
     setActivePeer(targetUserId);
     setCallStatus("calling");
-    // Ensure a direct workspace/channel exists via API; prefer server-provided id
+   
     let channelId = null;
     try {
       const res = await getWorkspaceForUsers(selfUserId, targetUserId);
@@ -162,7 +161,7 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
         || data.workspace?._id
         || null;
       if (!channelId) {
-        // Fallback to deterministic synthetic id for UI continuity
+        
         channelId = [selfUserId, targetUserId].sort().join("-");
         console.warn('[p2p] using synthetic DM channel id; server did not return a channelId');
       } else {
@@ -193,11 +192,11 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
     }
   };
 
-  // Socket signaling listeners
+ 
   React.useEffect(() => {
     if (!socket) return;
     const onIncoming = async ({ from, fromUserId, offer }) => {
-      // Ignore if it's our own
+     
       if (fromUserId === selfUserId) { console.log('[p2p] incoming-call ignored (from self)'); return; }
       console.log('[p2p] incoming-call from=', fromUserId, 'offer present=', !!offer);
       setActivePeer(fromUserId);
@@ -310,23 +309,36 @@ const MembersSection = ({ onSelectChannel, onOpenChat }) => {
             {members.map((m) => {
               const isSelf = m._id === selfUserId;
               const isActive = activePeer === m._id && ["calling","ringing","in-call"].includes(callStatus);
+              const unreadCount = unreadDMs[m._id] || 0;
               if (!m._id) {
                 console.warn('[p2p] member missing _id', m);
               }
               return (
                 <div
                   key={m._id}
-                  className={`flex items-center justify-between text-white px-4 py-2 cursor-${isSelf ? 'default' : 'pointer'} ${isActive ? 'bg-[#3A0E70]' : 'bg-[#200539] hover:bg-[#2A0C52]'}`}
-                  onClick={() => {
-                    console.log('[p2p] member row clicked raw object=', m);
-                    if (!isSelf) initiatePeerChat(m._id);
-                  }}
+                  className={`flex items-center justify-between text-white px-4 py-2 ${isActive ? 'bg-[#3A0E70]' : 'bg-[#200539] hover:bg-[#2A0C52]'}`}
                 >
                   <div className="flex items-center gap-2">
                     <span className="inline-block w-3 h-3 rounded-full bg-[#2DB3FF]"></span>
                     <h4 className="text-[#BCBCBC] text-base">{m.fullName || m.username}{isSelf ? ' (You)' : ''}</h4>
+                    {unreadCount > 0 && (
+                      <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
+                    {!isSelf && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStartDM?.(m._id, m.username || m.fullName);
+                        }}
+                        className="text-[10px] bg-[#5E9BFF] hover:bg-[#4A8AEE] px-2 py-0.5 rounded font-medium"
+                      >
+                        DM
+                      </button>
+                    )}
                     {isActive && (
                       <button
                         onClick={(e) => { e.stopPropagation(); endActiveCall(); }}

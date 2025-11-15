@@ -24,17 +24,6 @@ const FilesTable = ({
     setSelectedFileId(id); // Set the selected file when clicked
   };
 
-  const handleShare = (fileId, fileName) => {
-    if (onShare) {
-      onShare(fileId, fileName);
-    }
-  };
-
-  const handleDownload = (fileId, fileName) => {
-    if (onDownload) {
-      onDownload(fileId, fileName);
-    }
-  };
 
   const handleDelete = (fileId, fileName) => {
     if (onDelete) {
@@ -42,15 +31,7 @@ const FilesTable = ({
     }
   };
 
-  // Get the currently selected file
-  const getSelectedFile = () => {
-    return files.find(file => getFileId(file) === selectedFileId);
-  };
 
-  // Clear selection
-  const clearSelection = () => {
-    setSelectedFileId(null);
-  };
 
   return (
     <div className="mt-8 w-full">

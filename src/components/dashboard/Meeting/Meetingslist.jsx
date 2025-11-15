@@ -108,7 +108,7 @@ const MeetingList = ({ meetings = [], loading = false, error = null, onRefresh }
           <MeetingRow
             key={meeting._id || meeting.id || index}
             meetingId={meeting._id || meeting.id}
-            avatar={getAvatar(meeting, index)}
+            // avatar={getAvatar(meeting, index)}
             title={meeting.title || 'Untitled Meeting'}
             date={formatDate(meeting.startTime)}
             time={formatTime(meeting.startTime, meeting.endTime)}

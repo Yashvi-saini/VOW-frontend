@@ -42,13 +42,16 @@ export default function MemberMultiSelect({
         >
           <div className="flex flex-wrap gap-1 items-center text-[#111827]">
             {value.length === 0 && <span className="text-[#707070]">Select members</span>}
-            {value.slice(0,3).map(id => {
+            {/* {value.slice(0,3).map(id => {
               const mm = members.find(x => x._id === id);
               return <span key={id} className="text-xs bg-[#5C0EA4] text-white px-2 py-1 rounded">{(mm?.fullName || mm?.username || id).slice(0,16)}</span>;
-            })}
-            {value.length > 3 && <span className="text-xs text-[#5C0EA4]">+{value.length - 3} more</span>}
+            })} */}
+            {/* {value.length > 3 && <span className="text-xs text-[#5C0EA4]">+{value.length - 3} more</span>} */}
           </div>
+          
+          select members
           <svg className={`w-4 h-4 text-[#5C0EA4] transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+          
             <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" />
           </svg>
         </button>

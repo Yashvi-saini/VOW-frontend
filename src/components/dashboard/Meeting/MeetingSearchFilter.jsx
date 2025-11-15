@@ -19,11 +19,11 @@ const MeetingSearchFilter = ({ searchTerm = "", onSearchChange }) => {
       </div>
 
       {/* Filter Button */}
-      <button className="flex items-center gap-1 sm:gap-4 border border-gray-300 text-gray-600 text-sm px-2.5 py-2.5 rounded-full ml-4 hover:bg-gray-50 transition">
+      {/* <button className="flex items-center gap-1 sm:gap-4 border border-gray-300 text-gray-600 text-sm px-2.5 py-2.5 rounded-full ml-4 hover:bg-gray-50 transition">
         <img src={filter} alt="Filter" className="w-4 h-4" />
         <span>Filter</span>
         <img src={down} alt="Dropdown" className="w-4 h-4" />
-      </button>
+      </button> */}
     </div>
   );
 };
