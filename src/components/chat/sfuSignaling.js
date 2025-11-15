@@ -1,13 +1,12 @@
+// sfuSignaling.js
 import { SOCKET_URL } from "../../config.js";
 
-export class SfuSignalingClient {
+export default class SfuSignalingClient {
   constructor(token = null) {
     this.ws = null;
     this.connected = false;
     this.handlers = new Map();
     this.token = token;
-
-    // store assigned participant id here once server returns room-state
     this.participantId = null;
   }
 
@@ -41,16 +40,16 @@ export class SfuSignalingClient {
       };
 
       this.ws.onmessage = (msg) => {
-        let data;
+        let data = null;
         try {
           data = JSON.parse(msg.data);
         } catch (e) {
-          console.warn("Invalid message", e);
+          console.warn("Invalid JSON", e);
           return;
         }
+
         console.log("[SIGNALING MESSAGE RECEIVED]", data);
 
-        // auto-capture participantId from server-sent room-state
         if (data.type === "room-state" && data.participantId) {
           this.participantId = data.participantId;
           console.log("[SFU] assigned participantId:", this.participantId);
@@ -59,76 +58,67 @@ export class SfuSignalingClient {
         if (data.type) this.emit(data.type, data);
       };
 
-      this.ws.onerror = (err) => {
-        console.warn("[SFU] ws error", err);
-      };
-
-      this.ws.onclose = () => {
-        this.connected = false;
-        console.log("[SFU] ws closed");
-      };
+      this.ws.onerror = (e) => console.warn("[SFU] ws error", e);
+      this.ws.onclose = () => console.log("[SFU] ws closed");
     });
   }
 
   send(obj) {
     if (!obj || typeof obj !== "object") return;
 
-    // if participantId isn't explicitly provided and we have it, inject it
-    if (!("participantId" in obj) && this.participantId) {
+    if (!obj.participantId && this.participantId)
       obj.participantId = this.participantId;
-    }
 
     try {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify(obj));
-      } else {
-        console.warn("[SFU] ws not open — cannot send", obj);
-      }
-    } catch (err) {
-      console.error("[SFU] send error", err, obj);
+      console.log("[SFU OUT] ->", obj);
+      this.ws?.readyState === WebSocket.OPEN && this.ws.send(JSON.stringify(obj));
+    } catch (e) {
+      console.error("[SFU] send error", e, obj);
     }
   }
-  join(roomId, participantName) {
-    const payload = {
+
+  join(roomId, name) {
+    this.send({
       type: "join",
       roomId,
-
-      data: { participantName },
-    };
-    this.send(payload);
+      data: { participantName: name }
+    });
   }
 
   leave(roomId, pid) {
     this.send({
       type: "leave",
       roomId,
-      participantId: pid || this.participantId || undefined,
+      participantId: pid || this.participantId
     });
   }
 
-  sendOffer(roomId, from, to, sdpObj) {
+  // -----------------------------
+  // FIXED: CORRECT SDP FORMAT
+  // -----------------------------
+  sendOffer(roomId, from, to, sdp) {
     this.send({
       type: "offer",
       roomId,
-      participantId: from || this.participantId || undefined,
+      participantId: from,
       targetParticipantId: to,
       data: {
-        sdp: sdpObj.sdp,
-        type: "offer",
-      },
+        type: sdp.type,
+        sdp: sdp.sdp
+      }
     });
   }
 
-  sendAnswer(roomId, from, to, sdpObj) {
+  sendAnswer(roomId, from, to, sdp) {
     this.send({
       type: "answer",
       roomId,
-      participantId: from || this.participantId || undefined,
+      participantId: from,
       targetParticipantId: to,
       data: {
-        sdp: sdpObj.sdp,
-        type: "answer",
-      },
+        type: sdp.type,
+        sdp: sdp.sdp
+      }
     });
   }
 
@@ -136,18 +126,16 @@ export class SfuSignalingClient {
     this.send({
       type: "ice-candidate",
       roomId,
-      participantId: from || this.participantId || undefined,
+      participantId: from,
       targetParticipantId: to,
       data: {
         candidate: candidate.candidate,
         sdpMid: candidate.sdpMid,
-        sdpMLineIndex: candidate.sdpMLineIndex,
-      },
+        sdpMLineIndex: candidate.sdpMLineIndex
+      }
     });
   }
 }
-
-export default SfuSignalingClient;
 
 
 

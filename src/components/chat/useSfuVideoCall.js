@@ -1,12 +1,11 @@
+// useSfuVideoCall.js
 import { useCallback, useEffect, useRef, useState } from "react";
-import SfuSignalingClient from "./sfuSignaling.js"; 
+import SfuSignalingClient from "./sfuSignaling.js";
 
 export const useSfuVideoCall = () => {
   const signalingRef = useRef(null);
   const handlersRegisteredRef = useRef(false);
-
-  const peersRef = useRef(new Map()); 
-  const [peersState, setPeersState] = useState(new Map());
+  const peersRef = useRef(new Map());
 
   const [roomId, setRoomId] = useState(null);
   const [participantId, setParticipantId] = useState(null);
@@ -24,270 +23,140 @@ export const useSfuVideoCall = () => {
 
   const ensureLocalMedia = useCallback(async () => {
     if (localStream) return localStream;
-    const stream = await navigator.mediaDevices.getUserMedia({
+    const s = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true,
     });
-    setLocalStream(stream);
-    return stream;
+    setLocalStream(s);
+    return s;
   }, [localStream]);
 
- 
-  const syncPeersState = useCallback(() => {
-    setPeersState(new Map(peersRef.current));
-  }, []);
+  const createPeer = useCallback((peerId) => {
+    if (peersRef.current.has(peerId)) return peersRef.current.get(peerId);
 
-  const createPeer = useCallback(
-    (peerId) => {
-   
-      const existing = peersRef.current.get(peerId);
-      if (existing) return existing;
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    });
 
-      const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      });
-
-      pc.onicecandidate = (e) => {
-        if (e.candidate) {
-          try {
-            signalingRef.current?.sendIceCandidate(
-              roomId,
-              participantId,
-              peerId,
-              e.candidate
-            );
-          } catch (err) {
-            console.warn("[HOOK] sendIceCandidate failed", err);
-          }
-        }
-      };
-
-      pc.ontrack = (e) => {
-        // first stream is typical
-        const stream = e.streams && e.streams[0] ? e.streams[0] : null;
-        if (stream) {
-          setRemoteStreams((prev) => {
-            const m = new Map(prev);
-            m.set(peerId, stream);
-            return m;
-          });
-        }
-      };
-
-      // When connection state changes log it (debug)
-      pc.onconnectionstatechange = () => {
-        console.log(`[HOOK] pc(${peerId}) connectionState`, pc.connectionState);
-      };
-
-      peersRef.current.set(peerId, pc);
-      syncPeersState();
-      return pc;
-    },
-    [roomId, participantId, syncPeersState]
-  );
-
-  // register signaling handlers only once per hook lifecycle
-  const registerHandlersOnce = useCallback(
-    (s, ridRef) => {
-      if (handlersRegisteredRef.current) return;
-      handlersRegisteredRef.current = true;
-
-      s.on("room-state", async (msg) => {
-        console.log("[HOOK] Got room-state", msg);
-        const myId = msg.participantId;
-        if (myId) {
-          setParticipantId(myId);
-          // store in signaling client if it doesn't auto store
-          if (!s.participantId) s.participantId = myId;
-        }
-
-        // enable publishing
-        s.send({
-          type: "start-publish",
-          roomId: msg.roomId || ridRef.current,
-          participantId: myId,
-        });
-
-        // create offers to existing participants (except self)
-        const media = await ensureLocalMedia();
-        const others = (msg.data && msg.data.participants) || [];
-        for (const p of others) {
-          if (!p || p.id === myId) continue;
-          const pc = createPeer(p.id);
-
-          // add local tracks only if sender not already added
-          const senders = pc.getSenders().map((s) => s.track).filter(Boolean);
-          const tracksToAdd = media.getTracks().filter((t) => !senders.includes(t));
-          tracksToAdd.forEach((t) => pc.addTrack(t, media));
-
-          try {
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            s.sendOffer(msg.roomId || ridRef.current, myId, p.id, offer);
-          } catch (err) {
-            console.error("[HOOK] createOffer/sendOffer failed for", p.id, err);
-          }
-        }
-      });
-
-      s.on("participant-joined", (msg) => {
-        console.log("[HOOK] NEW peer joined", msg.participantId);
- 
-      });
-
-      s.on("offer", async (msg) => {
-        console.log("[HOOK] OFFER received", msg);
-        try {
-          const from = msg.participantId;
-          if (!from) {
-            console.warn("[HOOK] offer missing from participantId");
-            return;
-          }
-
-          const media = await ensureLocalMedia();
-          const pc = peersRef.current.get(from) || createPeer(from);
-
-          // add local tracks only once:
-          const senders = pc.getSenders().map((s) => s.track).filter(Boolean);
-          const tracksToAdd = media.getTracks().filter((t) => !senders.includes(t));
-          tracksToAdd.forEach((t) => pc.addTrack(t, media));
-
-          // msg.data.sdp is expected to be a raw SDP string
-          const remoteDesc = {
-            type: "offer",
-            sdp: msg.data && msg.data.sdp ? msg.data.sdp : msg.data,
-          };
-          await pc.setRemoteDescription(remoteDesc);
-
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-
-          // send answer back
-          signalingRef.current.sendAnswer(
-            msg.roomId || roomId,
-            participantId,
-            from,
-            answer
-          );
-        } catch (err) {
-          console.error("[HOOK] offer handler error", err);
-        }
-      });
-
-      s.on("answer", async (msg) => {
-        console.log("[HOOK] ANSWER received", msg);
-        try {
-          const from = msg.participantId;
-          const pc = peersRef.current.get(from);
-          if (!pc) {
-            console.warn("[HOOK] answer for unknown pc", from);
-            return;
-          }
-          const remoteDesc = {
-            type: "answer",
-            sdp: msg.data && msg.data.sdp ? msg.data.sdp : msg.data,
-          };
-          await pc.setRemoteDescription(remoteDesc);
-        } catch (err) {
-          console.error("[HOOK] answer handler error", err);
-        }
-      });
-
-      s.on("ice-candidate", (msg) => {
-        try {
-          const from = msg.participantId;
-          const pc = peersRef.current.get(from);
-          if (!pc) {
-            console.warn("[HOOK] ice-candidate for unknown pc", from);
-            return;
-          }
-          const d = msg.data || {};
-          
-          const candidateObj = {
-            candidate: d.candidate,
-            sdpMid: d.sdpMid,
-            sdpMLineIndex: d.sdpMLineIndex,
-          };
-          
-          pc.addIceCandidate(candidateObj).catch((e) => {
-            console.warn("[HOOK] addIceCandidate failed", e);
-          });
-        } catch (err) {
-          console.error("[HOOK] ice-candidate handler error", err);
-        }
-      });
-
-      s.on("error", (err) => {
-        console.warn("[SFU] signaling error", err);
-      });
-    },
-    [createPeer, ensureLocalMedia, participantId, roomId]
-  );
-
-  const join = useCallback(
-    async (rid, name) => {
-      const s = await ensureSignaling();
-    
-      setRoomId(rid);
-      const ridRef = { current: rid }; 
-  
-      registerHandlersOnce(s, ridRef);
-      await ensureLocalMedia();
-      s.join(rid, name);
-
-    },
-    [ensureSignaling, ensureLocalMedia, registerHandlersOnce]
-  );
-
-  const leave = useCallback(() => {
-    // send leave if possible
-    try {
-      if (signalingRef.current && roomId && participantId) {
-        signalingRef.current.leave(roomId, participantId);
-        signalingRef.current.send({
-          type: "stop-publish",
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        signalingRef.current.sendIceCandidate(
           roomId,
           participantId,
-        });
+          peerId,
+          e.candidate
+        );
       }
-    } catch (err) {
-      console.warn("[HOOK] leave signaling failed", err);
-    }
+    };
 
-    // close peer connections
-    peersRef.current.forEach((pc) => {
-      try {
-        pc.getSenders().forEach((s) => {
-          try {
-            if (s.track) s.track.stop?.();
-          } catch {}
-        });
-        pc.close();
-      } catch {}
+    pc.ontrack = (e) => {
+      const stream = e.streams?.[0] || new MediaStream([e.track]);
+      setRemoteStreams((prev) => {
+        const m = new Map(prev);
+        m.set(peerId, stream);
+        return m;
+      });
+    };
+
+    pc.onconnectionstatechange = () => {
+      console.log("PC state:", peerId, pc.connectionState);
+    };
+
+    peersRef.current.set(peerId, pc);
+    return pc;
+  }, [roomId, participantId]);
+
+  const registerHandlers = useCallback((s) => {
+    if (handlersRegisteredRef.current) return;
+    handlersRegisteredRef.current = true;
+
+    s.on("room-state", async (msg) => {
+      console.log("[HOOK] room-state", msg);
+
+      setParticipantId(msg.participantId);
+      s.participantId = msg.participantId;
+
+      s.send({
+        type: "start-publish",
+        roomId: msg.roomId,
+        participantId: msg.participantId,
+      });
+
+      const media = await ensureLocalMedia();
+
+      for (const p of msg.data.participants) {
+        if (p.id === msg.participantId) continue;
+
+        const pc = createPeer(p.id);
+
+        media.getTracks().forEach((t) => pc.addTrack(t, media));
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+
+        signalingRef.current.sendOffer(msg.roomId, msg.participantId, p.id, offer);
+      }
     });
-    peersRef.current.clear();
-    syncPeersState();
 
+    s.on("offer", async (msg) => {
+      const from = msg.participantId;
+      const pc = createPeer(from);
+
+      const media = await ensureLocalMedia();
+      media.getTracks().forEach((t) => pc.addTrack(t, media));
+
+      await pc.setRemoteDescription({
+        type: msg.data.type,
+        sdp: msg.data.sdp
+      });
+
+      const ans = await pc.createAnswer();
+      await pc.setLocalDescription(ans);
+
+      signalingRef.current.sendAnswer(msg.roomId, participantId, from, ans);
+    });
+
+    s.on("answer", async (msg) => {
+      const pc = peersRef.current.get(msg.participantId);
+      await pc?.setRemoteDescription({
+        type: msg.data.type,
+        sdp: msg.data.sdp,
+      });
+    });
+
+    s.on("ice-candidate", (msg) => {
+      const pc = peersRef.current.get(msg.participantId);
+      if (!pc) return;
+
+      pc.addIceCandidate({
+        candidate: msg.data.candidate,
+        sdpMid: msg.data.sdpMid,
+        sdpMLineIndex: msg.data.sdpMLineIndex,
+      });
+    });
+  }, [createPeer, ensureLocalMedia, participantId]);
+
+  const join = useCallback(async (rid, name) => {
+    setRoomId(rid);
+
+    const s = await ensureSignaling();
+    registerHandlers(s);
+
+    await ensureLocalMedia();
+    s.join(rid, name);
+  }, [ensureSignaling, registerHandlers, ensureLocalMedia]);
+
+  const leave = () => {
+    peersRef.current.forEach((pc) => pc.close());
+    peersRef.current.clear();
     setRemoteStreams(new Map());
-    if (localStream) {
+
+    if (localStream)
       localStream.getTracks().forEach((t) => t.stop());
-    }
-    setLocalStream(null);
+
     setRoomId(null);
     setParticipantId(null);
-    handlersRegisteredRef.current = false;
-   
-    try {
-    
-      signalingRef.current = null;
-    } catch {}
-  }, [localStream, syncPeersState, roomId, participantId]);
-  useEffect(() => {
-    return () => {
-      leave();
-    };
- 
-  }, []);
+  };
 
   return {
     roomId,
@@ -296,14 +165,6 @@ export const useSfuVideoCall = () => {
     remoteStreams,
     join,
     leave,
-    toggleMute: () => {
-      localStream?.getAudioTracks().forEach((t) => (t.enabled = !t.enabled));
-    },
-    toggleVideo: () => {
-      const v = localStream?.getVideoTracks()[0];
-      if (v) v.enabled = !v.enabled;
-    },
-    _peersMap: peersRef.current,
   };
 };
 
