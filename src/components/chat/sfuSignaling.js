@@ -11,17 +11,11 @@ export class SfuSignalingClient {
   on(type, fn) {
     if (!this.handlers.has(type)) this.handlers.set(type, new Set());
     this.handlers.get(type).add(fn);
-    return () => this.off(type, fn);
   }
 
-  off(type, fn) {
+  emit(type, data) {
     if (!this.handlers.has(type)) return;
-    this.handlers.get(type).delete(fn);
-  }
-
-  emit(type, payload) {
-    if (!this.handlers.has(type)) return;
-    for (const fn of this.handlers.get(type)) fn(payload);
+    this.handlers.get(type).forEach((fn) => fn(data));
   }
 
   _buildWsUrl() {
@@ -29,19 +23,17 @@ export class SfuSignalingClient {
     if (base.startsWith("https://")) base = base.replace("https://", "wss://");
     else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
     else if (!base.startsWith("ws")) base = "wss://" + base;
-
     return base.replace(/\/+$/, "") + "/signaling";
   }
 
   connect() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const url = this._buildWsUrl();
       this.ws = new WebSocket(url);
 
       this.ws.onopen = () => {
         console.log("[SFU] Connected");
         this.connected = true;
-        this.emit("open");
         resolve();
       };
 
@@ -49,58 +41,69 @@ export class SfuSignalingClient {
         let data;
         try {
           data = JSON.parse(msg.data);
-        } catch {
-          return console.warn("Invalid JSON");
+        } catch (e) {
+          console.warn("Invalid message", e);
+          return;
         }
-
         console.log("[SIGNALING MESSAGE RECEIVED]", data);
-        if (data?.type) this.emit(data.type, data);
+        if (data.type) this.emit(data.type, data);
       };
-
-      this.ws.onerror = reject;
     });
   }
 
   send(obj) {
-    if (this.ws?.readyState === WebSocket.OPEN)
+    if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(obj));
+    }
   }
 
-  // FIXED: MUST include participantId as empty string
+  // -----------------------------------------
+  // FIXED: JOIN REQUIRES participantId STRING
+  // -----------------------------------------
   join(roomId, participantName) {
     this.send({
       type: "join",
       roomId,
-      participantId: "",
+      participantId: "", // REQUIRED
       data: { participantName },
     });
   }
 
-  leave(roomId, participantId) {
+  leave(roomId, pid) {
     this.send({
       type: "leave",
       roomId,
-      participantId: participantId || "",
+      participantId: pid || "",
     });
   }
 
-  sendOffer(roomId, from, to, sdp) {
+  // -----------------------------------------
+  // FIXED: SDP MUST BE FLATTENED
+  // -----------------------------------------
+
+  sendOffer(roomId, from, to, sdpObj) {
     this.send({
       type: "offer",
       roomId,
       participantId: from,
       targetParticipantId: to,
-      data: { sdp },
+      data: {
+        sdp: sdpObj.sdp,
+        type: "offer",
+      },
     });
   }
 
-  sendAnswer(roomId, from, to, sdp) {
+  sendAnswer(roomId, from, to, sdpObj) {
     this.send({
       type: "answer",
       roomId,
       participantId: from,
       targetParticipantId: to,
-      data: { sdp },
+      data: {
+        sdp: sdpObj.sdp,
+        type: "answer",
+      },
     });
   }
 
@@ -110,10 +113,15 @@ export class SfuSignalingClient {
       roomId,
       participantId: from,
       targetParticipantId: to,
-      data: { candidate },
+      data: {
+        candidate: candidate.candidate,
+        sdpMid: candidate.sdpMid,
+        sdpMLineIndex: candidate.sdpMLineIndex,
+      },
     });
   }
 }
 
 export default SfuSignalingClient;
+
 

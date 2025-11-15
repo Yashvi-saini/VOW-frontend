@@ -1,35 +1,28 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { SfuSignalingClient } from "./sfuSignaling.js";
 
 export const useSfuVideoCall = () => {
-
   const signalingRef = useRef(null);
+  const peers = useRef(new Map());
+
   const [roomId, setRoomId] = useState(null);
   const [participantId, setParticipantId] = useState(null);
 
   const [localStream, setLocalStream] = useState(null);
-
-  const peersRef = useRef(new Map());
   const [remoteStreams, setRemoteStreams] = useState(new Map());
 
-  // ----------------------------------------
-  // SIGNALING INIT
-  // ----------------------------------------
+  // SIGNALING
 
   const ensureSignaling = useCallback(async () => {
     if (signalingRef.current) return signalingRef.current;
-
     const s = new SfuSignalingClient();
     await s.connect();
     signalingRef.current = s;
-
     return s;
   }, []);
 
-  // ----------------------------------------
   // LOCAL MEDIA
-  // ----------------------------------------
-
+ 
   const ensureLocalMedia = useCallback(async () => {
     if (localStream) return localStream;
 
@@ -42,26 +35,31 @@ export const useSfuVideoCall = () => {
     return stream;
   }, [localStream]);
 
-  // ----------------------------------------
-  // GET OR CREATE PEER
-  // ----------------------------------------
+
+  // PEER CONNECTION
+
 
   const getOrCreatePc = useCallback(
     (peerId) => {
-      if (peersRef.current.has(peerId)) return peersRef.current.get(peerId);
+      if (peers.current.has(peerId)) return peers.current.get(peerId);
 
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
 
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          signalingRef.current.sendIceCandidate(roomId, participantId, peerId, event.candidate);
+      pc.onicecandidate = (e) => {
+        if (e.candidate) {
+          signalingRef.current.sendIceCandidate(
+            roomId,
+            participantId,
+            peerId,
+            e.candidate
+          );
         }
       };
 
-      pc.ontrack = (event) => {
-        const stream = event.streams[0];
+      pc.ontrack = (e) => {
+        const stream = e.streams[0];
         setRemoteStreams((prev) => {
           const updated = new Map(prev);
           updated.set(peerId, stream);
@@ -69,28 +67,23 @@ export const useSfuVideoCall = () => {
         });
       };
 
-      peersRef.current.set(peerId, pc);
+      peers.current.set(peerId, pc);
       return pc;
     },
     [roomId, participantId]
   );
 
-  // ----------------------------------------
-  // JOIN
-  // ----------------------------------------
+  // JOIN ROOM
+
 
   const join = useCallback(
-    async (rid, displayName) => {
+    async (rid, name) => {
       const s = await ensureSignaling();
-      await ensureLocalMedia();
+      const stream = await ensureLocalMedia();
 
       setRoomId(rid);
 
-      // ----------------------------
-      // FIXED EVENT NAMES (lowercase)
-      // ----------------------------
-
-      // ROOM STATE
+      // room state
       s.on("room-state", async (msg) => {
         setParticipantId(msg.participantId);
 
@@ -98,11 +91,8 @@ export const useSfuVideoCall = () => {
           (p) => p.id !== msg.participantId
         );
 
-        const stream = await ensureLocalMedia();
-
         for (const p of others) {
           const pc = getOrCreatePc(p.id);
-
           stream.getTracks().forEach((t) => pc.addTrack(t, stream));
 
           const offer = await pc.createOffer();
@@ -112,66 +102,68 @@ export const useSfuVideoCall = () => {
         }
       });
 
-      // Participant joined (optional handling)
-      s.on("participant-joined", (msg) => {
-        console.log("NEW participant joined:", msg.participantId);
-      });
-
       // OFFER
       s.on("offer", async (msg) => {
         const pc = getOrCreatePc(msg.participantId);
-        const stream = await ensureLocalMedia();
-
         stream.getTracks().forEach((t) => pc.addTrack(t, stream));
 
-        await pc.setRemoteDescription(msg.data.sdp);
+        await pc.setRemoteDescription({
+          type: "offer",
+          sdp: msg.data.sdp,
+        });
 
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
+        const ans = await pc.createAnswer();
+        await pc.setLocalDescription(ans);
 
-        signalingRef.current.sendAnswer(rid, participantId, msg.participantId, answer);
+        signalingRef.current.sendAnswer(
+          rid,
+          participantId,
+          msg.participantId,
+          ans
+        );
       });
 
       // ANSWER
       s.on("answer", async (msg) => {
-        const pc = peersRef.current.get(msg.participantId);
+        const pc = peers.current.get(msg.participantId);
         if (pc) {
-          await pc.setRemoteDescription(msg.data.sdp);
+          await pc.setRemoteDescription({
+            type: "answer",
+            sdp: msg.data.sdp,
+          });
         }
       });
 
-      // ICE CANDIDATE
+      // ICE
       s.on("ice-candidate", async (msg) => {
-        const pc = peersRef.current.get(msg.participantId);
+        const pc = peers.current.get(msg.participantId);
         if (pc) {
           try {
-            await pc.addIceCandidate(msg.data.candidate);
+            await pc.addIceCandidate({
+              candidate: msg.data.candidate,
+              sdpMid: msg.data.sdpMid,
+              sdpMLineIndex: msg.data.sdpMLineIndex,
+            });
           } catch (e) {
-            console.warn("ICE add error", e);
+            console.warn("ICE Error:", e);
           }
         }
       });
 
-      // NOW SEND JOIN (with empty participantId, required by backend)
-      s.join(rid, displayName);
+      s.join(rid, name);
     },
     [ensureSignaling, ensureLocalMedia, getOrCreatePc, participantId]
   );
 
-  // ----------------------------------------
-  // LEAVE CALL
-  // ----------------------------------------
+  // LEAVE ROOM
 
   const leave = () => {
-    const s = signalingRef.current;
-    if (s && roomId && participantId) s.leave(roomId, participantId);
-
-    peersRef.current.forEach((pc) => pc.close());
-    peersRef.current.clear();
-
     if (localStream) {
       localStream.getTracks().forEach((t) => t.stop());
     }
+
+    peers.current.forEach((pc) => pc.close());
+    peers.current.clear();
 
     setRemoteStreams(new Map());
     setLocalStream(null);
@@ -186,10 +178,6 @@ export const useSfuVideoCall = () => {
     remoteStreams,
     join,
     leave,
-    toggleMute: () =>
-      localStream?.getAudioTracks().forEach((t) => (t.enabled = !t.enabled)),
-    toggleVideo: () =>
-      localStream?.getVideoTracks().forEach((t) => (t.enabled = !t.enabled)),
   };
 };
 
