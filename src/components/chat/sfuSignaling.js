@@ -6,6 +6,9 @@ export class SfuSignalingClient {
     this.connected = false;
     this.handlers = new Map();
     this.token = token;
+
+    // store assigned participant id here once server returns room-state
+    this.participantId = null;
   }
 
   on(type, fn) {
@@ -46,46 +49,68 @@ export class SfuSignalingClient {
           return;
         }
         console.log("[SIGNALING MESSAGE RECEIVED]", data);
+
+        // auto-capture participantId from server-sent room-state
+        if (data.type === "room-state" && data.participantId) {
+          this.participantId = data.participantId;
+          console.log("[SFU] assigned participantId:", this.participantId);
+        }
+
         if (data.type) this.emit(data.type, data);
+      };
+
+      this.ws.onerror = (err) => {
+        console.warn("[SFU] ws error", err);
+      };
+
+      this.ws.onclose = () => {
+        this.connected = false;
+        console.log("[SFU] ws closed");
       };
     });
   }
 
   send(obj) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(obj));
+    if (!obj || typeof obj !== "object") return;
+
+    // if participantId isn't explicitly provided and we have it, inject it
+    if (!("participantId" in obj) && this.participantId) {
+      obj.participantId = this.participantId;
+    }
+
+    try {
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify(obj));
+      } else {
+        console.warn("[SFU] ws not open — cannot send", obj);
+      }
+    } catch (err) {
+      console.error("[SFU] send error", err, obj);
     }
   }
-
-  // -----------------------------------------
-  // FIXED: JOIN REQUIRES participantId STRING
-  // -----------------------------------------
   join(roomId, participantName) {
-    this.send({
+    const payload = {
       type: "join",
       roomId,
-      participantId: "", // REQUIRED
+
       data: { participantName },
-    });
+    };
+    this.send(payload);
   }
 
   leave(roomId, pid) {
     this.send({
       type: "leave",
       roomId,
-      participantId: pid || "",
+      participantId: pid || this.participantId || undefined,
     });
   }
-
-  // -----------------------------------------
-  // FIXED: SDP MUST BE FLATTENED
-  // -----------------------------------------
 
   sendOffer(roomId, from, to, sdpObj) {
     this.send({
       type: "offer",
       roomId,
-      participantId: from,
+      participantId: from || this.participantId || undefined,
       targetParticipantId: to,
       data: {
         sdp: sdpObj.sdp,
@@ -98,7 +123,7 @@ export class SfuSignalingClient {
     this.send({
       type: "answer",
       roomId,
-      participantId: from,
+      participantId: from || this.participantId || undefined,
       targetParticipantId: to,
       data: {
         sdp: sdpObj.sdp,
@@ -111,7 +136,7 @@ export class SfuSignalingClient {
     this.send({
       type: "ice-candidate",
       roomId,
-      participantId: from,
+      participantId: from || this.participantId || undefined,
       targetParticipantId: to,
       data: {
         candidate: candidate.candidate,
@@ -123,5 +148,6 @@ export class SfuSignalingClient {
 }
 
 export default SfuSignalingClient;
+
 
 
