@@ -13,7 +13,9 @@ import greenImg from "../assets/green.svg";
 import pinkImg from "../assets/pink.svg";
 import { useNavigate } from 'react-router-dom';
 import vector from "../assets/vector.svg";
-import img from "../assets/Rectangle 9.svg";
+import img from "../assets/img1.jpg";
+import img2 from "../assets/img2.jpg";
+import img3 from "../assets/img3.jpg";
 import demoVideo from "../assets/demovideo.mp4";
 import { useDispatch } from 'react-redux';
 import api from '../api/axiosConfig';
@@ -104,12 +106,27 @@ const Home = () => {
           </div>
         </div>
 
-        <img src={notes} alt="" className="md:block pointer-events-none select-none absolute right-0 top-25 w-35 md:top-50 sm:w-30 md:w-50" />
-        <img src={notes} alt="" className="md:block pointer-events-none select-none absolute left-0 top-10 w-35 sm:w-30 md:w-50 -scale-x-100" />
-        <img src={notes} alt="" className="md:block pointer-events-none select-none absolute left-1/2 top-148 -translate-x-1/2 -translate-y-1/2 w-35 md:left-[25vw] sm:w-30 md:w-50" />
+       <div className='absolute right-0 top-25 md:top-50 w-35 sm:w-30 md:w-50'> 
+          <img src={notes} alt="" className="md:block pointer-events-none select-none w-full" />
+          <p className='absolute inset-0 flex items-center justify-center text-center text-xs sm:text-sm md:text-base font-medium text-[#2B2B2B] px-4 md:px-6 leading-relaxed'> 
+            Communicate Instantly with Video, Voice and Chat
+          </p>
+        </div>
+        <div className='absolute left-0 top-10 w-35 sm:w-30 md:w-50'>
+          <img src={notes} alt="" className="md:block pointer-events-none select-none w-full -scale-x-100" />
+          <p className='absolute inset-0 flex items-center justify-center text-center text-xs sm:text-sm md:text-base font-medium text-[#2B2B2B] px-4 md:px-6 leading-relaxed'>
+            Recreate Real Presence and Team Connection Online
+          </p>
+        </div>
+        <div className='absolute left-1/2 top-148 -translate-x-1/2 -translate-y-1/2 w-35 md:left-[25vw] sm:w-30 md:w-50'>
+          <img src={notes} alt="" className="md:block pointer-events-none select-none w-full" />
+          <p className='absolute inset-0 flex items-center justify-center text-center text-xs sm:text-sm md:text-base font-medium text-[#2B2B2B] px-4 md:px-6 leading-relaxed'>
+            Move between Rooms and Conversation Effortlessly
+          </p>
+        </div>
         <img src={img} className="md:block pointer-events-none select-none absolute left-15 top-130 -translate-x-1/2 -translate-y-1/2 sm:top-120 md:left-[70vw] md:top-[8em] w-20 sm:w-10 md:w-35" />
-        <img src={img} className="md:block pointer-events-none select-none absolute left-12 top-70 -translate-x-1/2 -translate-y-1/2 w-20 md:top-90 md:left-[6vw] sm:w-10 md:w-25" />
-        <img src={img} className="md:block pointer-events-none select-none absolute -right-5 top-90 -translate-x-1/2 -translate-y-1/2 w-20 md:left-[75vw] md:top-[33em] sm:w-10 md:w-30" />
+        <img src={img2} className="md:block pointer-events-none select-none absolute left-12 top-70 -translate-x-1/2 -translate-y-1/2 w-20 md:top-90 md:left-[6vw] sm:w-10 md:w-25" />
+        <img src={img3} className="md:block pointer-events-none select-none absolute -right-5 top-90 -translate-x-1/2 -translate-y-1/2 w-20 md:left-[75vw] md:top-[33em] sm:w-10 md:w-30" />
       </section>
 
       {/* FEATURE CARDS */}
@@ -128,9 +145,7 @@ const Home = () => {
           <div className='w-full max-w-2xl'>
           <h3 className='text-[24px] sm:text-[32px] font-medium mb-3'> Managers-Lead with visibility</h3>
           <p className='text-[16px] sm:text-xl font-normal mb-6'>Create and manage digital offices, assign roles, and customize rooms to fit your organization’s structure.<br/>Monitor performance, schedule meetings, and track every project — all from one dashboard.</p>
-           <button className="flex text-xl bg-[#5E9BFF] text-white px-5 py-2 rounded-lg cursor-pointer" onClick={goToSignupWithOverlay}>
-             Join as Manager<img src={arrow} alt="arrow" className='pl-3'  />
-           </button>
+           
            </div>
            <div className='flex flex-col justify-center h-full sm:h-60'>
           <div className="relative w-full max-w-24 h-30 overflow-hidden pt-5">
@@ -146,9 +161,7 @@ const Home = () => {
           <div className='w-full max-w-2xl'>
           <h3 className='text-[24px] sm:text-[32px] font-medium mb-3'> Supervisor — Guide with Insight</h3>
           <p className='text-[16px] sm:text-xl font-normal mb-6'>Stay on top of your team’s activity and progress with real-time insights.<br/>Assign individual tasks, monitor workspace attendance, and give feedback instantly — all while keeping communication open.</p>
-           <button className="flex text-xl bg-[#5E9BFF] text-white px-5 py-2 rounded-lg cursor-pointer" onClick={goToSignupWithOverlay}>
-             Join as Supervisor <img src={arrow} alt="arrow" className='pl-3'  />
-           </button>
+           
            </div>
            <div className='flex flex-col justify-center h-full sm:h-50'>
           <div className="relative w-full max-w-24 h-30 overflow-hidden pt-5">
@@ -162,9 +175,7 @@ const Home = () => {
           <div className='w-full max-w-2xl'>
           <h3 className='text-[24px] sm:text-[32px] font-medium mb-3'> Team Member — Collaborate with Freedom</h3>
           <p className='text-[16px] sm:text-xl font-normal mb-6'>Join your virtual office from anywhere and connect with your team through real-time chat, video calls, or collaborative rooms.<br/>Share ideas, track progress, and contribute without missing the energy of a real workspace.</p>
-           <button className="flex text-xl bg-[#5E9BFF] text-white px-5 py-2 rounded-lg cursor-pointer" onClick={goToSignupWithOverlay}>
-             Join as Team Member<img src={arrow} alt="arrow" className='pl-3'  />
-           </button>
+           
            </div>
            <div className='flex flex-col justify-center h-full sm:h-57'>
           <div className="relative w-full max-w-24 h-30 overflow-hidden pt-5 ">

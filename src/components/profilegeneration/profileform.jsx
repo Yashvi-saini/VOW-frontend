@@ -116,35 +116,35 @@ const [preview,setPreview]= useState(null);
 
   return (
     <div
-      className="w-[570px] h-[689px] bg-[#FAFAFA] px-[40px] py-[20px] rounded-2xl shadow-lg flex flex-col justify-center"
+      className="w-full max-w-[570px] mx-auto bg-[#FAFAFA] px-4 sm:px-8 md:px-10 py-6 sm:py-8 rounded-2xl shadow-lg flex flex-col justify-center min-h-[500px]"
     >
       <div
-        className="absolute top-5 left-5 cursor-pointer"
+        className="absolute top-3 left-3 sm:top-5 sm:left-5 cursor-pointer"
         onClick={() => navigate(-1)}
       >
        <img
           src={backarrow}
           alt="Back"
-          className="w-6 h-6 hover:opacity-80 transition"
+          className="w-5 h-5 sm:w-6 sm:h-6 hover:opacity-80 transition"
         />
        </div>
         {/* Header */}
-        <div className="text-[#0E1219] text-[32px] font-semibold leading-12 w-[414px] h-12 text-center ml-[50px] mr-[60px] mb-[2px]">
+        <div className="text-[#0E1219] text-xl sm:text-2xl md:text-[32px] font-semibold leading-tight text-center mb-2 px-2">
           Create Your VOW Profile
         </div>
-        <div className="text-[#707070] text-[16px] font-normal leading-6 w-[414px] h-12 text-center ml-[50px] mr-[60px] mb-[10px]">
-          Let’s personalize your experience. Start by filling in your details
+        <div className="text-[#707070] text-sm sm:text-base font-normal leading-relaxed text-center mb-4 sm:mb-6 px-2">
+          Let's personalize your experience. Start by filling in your details
           below.
         </div>
 
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="flex flex-col gap-2 overflow-y-auto "
+        className="flex flex-col gap-3 sm:gap-4 overflow-y-auto px-2"
       >
         {/* Full Name */}
-        <div className="ml-[50px] mr-[60px]">
-          <label className="block text-sm font-medium text-[#1F2937] mb-1">
+        <div>
+          <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
             Full Name:
           </label>
           <input
@@ -154,7 +154,7 @@ const [preview,setPreview]= useState(null);
             maxLength={30}
             onChange={handleChange}
             placeholder="Use your real or professional name"
-            className="w-[414px] border border-[#707070] rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full border border-[#707070] rounded-lg p-2 sm:p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           />
           <p className="text-xs text-red-500 min-h-4 mt-1">
             {errors.fullName || ""}
@@ -162,11 +162,11 @@ const [preview,setPreview]= useState(null);
         </div>
 
         {/* Gender */}
-        <div className="ml-[50px] mr-[60px]">
-          <label className="block text-sm font-medium text-[#1F2937] mb-2">
+        <div>
+          <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-2">
             Gender:
           </label>
-          <div className="flex gap-24">
+          <div className="flex gap-4 sm:gap-8 md:gap-12 flex-wrap">
             {["Male", "Female", "Other"].map((g) => (
               <label key={g} className="flex items-center space-x-2">
                 <input
@@ -177,7 +177,7 @@ const [preview,setPreview]= useState(null);
                   onChange={handleChange}
                   className="text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="text-[#2B2B2B]">{g}</span>
+                <span className="text-[#2B2B2B] text-sm">{g}</span>
               </label>
             ))}
           </div>
@@ -187,8 +187,8 @@ const [preview,setPreview]= useState(null);
         </div>
 
         {/* Organisation */}
-        <div className="ml-[50px] mr-[60px]">
-          <label className="block text-sm font-medium text-[#1F2937] mb-1">
+        <div>
+          <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
             Organisation:
           </label>
           <input
@@ -197,7 +197,7 @@ const [preview,setPreview]= useState(null);
             value={formData.organisation}
             onChange={handleChange}
             placeholder="Enter your organisation name"
-            className="w-[414px] border border-[#707070] rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full border border-[#707070] rounded-lg p-2 sm:p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           />
           <p className="text-xs text-red-500 min-h-[16px] mt-1">
             {errors.organisation || ""}
@@ -205,8 +205,8 @@ const [preview,setPreview]= useState(null);
         </div>
 
         {/* DOB */}
-        <div className="ml-[50px] mr-[60px]">
-          <label className="block text-sm font-medium text-[#1F2937] mb-1">
+        <div>
+          <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
             Date of Birth:
           </label>
           <input
@@ -215,7 +215,7 @@ const [preview,setPreview]= useState(null);
             value={formData.dob}
             onChange={handleChange}
             max={new Date().toISOString().split("T")[0]}
-            className="w-[414px] border border-[#707070] rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full border border-[#707070] rounded-lg p-2 sm:p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           />
           <p className="text-xs text-red-500 min-h-[16px] mt-1">
             {errors.dob || ""}
@@ -226,7 +226,7 @@ const [preview,setPreview]= useState(null);
         <button
           type="submit"
           disabled={loading}
-          className={` text-white font-medium py-2.5 ml-[50px] w-[414px] mt-[32px] rounded-lg transition  ${
+          className={`text-white font-medium py-2 sm:py-2.5 w-full mt-4 sm:mt-6 rounded-lg transition text-sm sm:text-base ${
             loading
               ? "opacity-80"
               : "bg-[#450B7B]"
