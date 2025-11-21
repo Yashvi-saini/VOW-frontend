@@ -1,4 +1,3 @@
-// src/hooks/useCameraPanning.js
 import { useEffect } from "react";
 
 export function useCameraPanning({
