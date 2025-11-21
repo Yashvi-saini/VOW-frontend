@@ -268,7 +268,7 @@ const [actionType, setActionType] = useState(null);
         }
       } catch (err) {
         console.error("Failed to fetch messages:", err);
-        // Don't clear messages on error if we have cache
+       
         if (!(isDMMode && dmCacheRef.current[dmReceiverId])) {
           setMessages([]);
         }
@@ -285,69 +285,79 @@ const [actionType, setActionType] = useState(null);
       // Join workspace for DM
       joinDMWorkspace(workspaceId);
       
-      const onReceiveDM = (msg) => {
-        console.log("[DM] receive_dm:", msg);
-        
-        const senderId = msg.sender?._id || msg.sender;
-        const receiverId = msg.receiver?._id || msg.receiver;
-        const otherUserId = senderId === profile?._id ? receiverId : senderId;
-        
-        setMessages((prev) => {
-          // Check for duplicates by _id
-          if (prev.some((m) => m._id === msg._id)) {
-            console.log("[DM] skipped duplicate:", msg._id);
-            return prev;
-          }
-          
-          // Replace temp message - match by sender, content and recent timestamp (within 5 seconds)
-          const now = new Date(msg.createdAt).getTime();
-          const tempIndex = prev.findIndex(
-            (m) => {
-              if (!m.tempId || m._id) return false;
-              const isSameSender = m.sender?._id === msg.sender?._id;
-              const isSameContent = m.content?.trim() === msg.content?.trim();
-              const tempTime = new Date(m.createdAt).getTime();
-              const isRecent = Math.abs(now - tempTime) < 5000; // within 5 seconds
-              return isSameSender && isSameContent && isRecent;
-            }
-          );
-          
-          if (tempIndex !== -1) {
-            
-            const updated = [...prev];
-            updated[tempIndex] = msg;
-            // Update in-memory cache
-            if (otherUserId) {
-              dmCacheRef.current[otherUserId] = updated;
-            }
-            return updated;
-          }
-          
-          // Add new message
-          const updated = [...prev, msg];
-          
-          // Update in-memory cache
-          if (otherUserId) {
-            dmCacheRef.current[otherUserId] = updated;
-          }
-          
-          // Track unread if not in active DM
-          if (senderId !== profile?._id && dmReceiverId !== senderId) {
-            setUnreadDMs(prev => ({
-              ...prev,
-              [senderId]: (prev[senderId] || 0) + 1
-            }));
-          }
-          
-          setTimeout(() => {
-            mainRef.current?.scrollTo({
-              top: mainRef.current.scrollHeight,
-              behavior: "smooth",
-            });
-          }, 100);
-          return updated;
-        });
-      };
+const onReceiveDM = (msg) => {
+  console.log("[DM] receive_dm:", msg);
+
+  const senderId = msg.sender?._id || msg.sender;
+  const receiverId = msg.receiver?._id || msg.receiver;
+  const selfId = profile?._id;
+
+  // CHECK IF MESSAGE BELONGS TO ACTIVE DM
+  const isForActiveDM =
+    (senderId === selfId && receiverId === dmReceiverId) ||
+    (senderId === dmReceiverId && receiverId === selfId);
+
+  if (!isForActiveDM) {
+    console.log("[DM] Message from another user → Unread only");
+
+    // Add unread counter
+    if (senderId !== selfId) {
+      setUnreadDMs((prev) => ({
+        ...prev,
+        [senderId]: (prev[senderId] || 0) + 1,
+      }));
+    }
+
+    return; 
+  }
+
+  setMessages((prev) => {
+    // Avoid duplicates
+    if (prev.some((m) => m._id === msg._id)) {
+      console.log("[DM] Duplicate skipped:", msg._id);
+      return prev;
+    }
+    // optimistic temp message → real one arrives
+    const tempIndex = prev.findIndex((m) => {
+      if (!m.tempId) return false;
+
+      const sameSender = m.sender?._id === msg.sender?._id;
+      const sameContent = m.content?.trim() === msg.content?.trim();
+
+      const timeDiff = Math.abs(
+        new Date(m.createdAt).getTime() - new Date(msg.createdAt).getTime()
+      );
+
+      const isRecent = timeDiff < 5000; 
+
+      return sameSender && sameContent && isRecent;
+    });
+
+    if (tempIndex !== -1) {
+      const updated = [...prev];
+      updated[tempIndex] = msg;
+
+      // Update DM cache
+      dmCacheRef.current[dmReceiverId] = updated;
+
+      return updated;
+    }
+
+    const updated = [...prev, msg];
+    dmCacheRef.current[dmReceiverId] = updated;
+
+    return updated;
+  });
+
+  // Auto scroll
+  setTimeout(() => {
+    mainRef.current?.scrollTo({
+      top: mainRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, 100);
+};
+
 
       onReceiveDirectMessage(onReceiveDM);
       
