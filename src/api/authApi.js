@@ -76,6 +76,14 @@ export const getChannels = async (workspaceId) => {
   return api.get(`/channels/workspace/${workspaceId}`);
 };
 
+export const deleteChannelMessage = (messageId) => {
+  const token = localStorage.getItem("accessToken");
+
+  return api.delete(`/messages/message/${messageId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
 export const createTeam = (workspaceId, payload) => {
   return api.post(`/manager/team/create/${workspaceId}`, payload);
 };
