@@ -24,8 +24,8 @@ const mapSocket = io(BACKEND_URL, {
   transports: ["polling"], // server requires polling
   upgrade: false,
   withCredentials: true, // sends HttpOnly JWT cookie
-  auth: { token: getAuthToken() }, // optional (cookie already enough)
-  autoConnect: false, // connect manually
+  auth: { token: getAuthToken() }, // optional
+  autoConnect: false,
   reconnection: true,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
@@ -50,15 +50,13 @@ mapSocket.on("connect_error", (err) => {
 mapSocket.on("disconnect", (reason) => {
   console.warn("⚠️ MAP SOCKET DISCONNECTED:", reason);
   if (reason === "io server disconnect") {
-    mapSocket.connect(); // auto reconnect
+    mapSocket.connect();
   }
 });
 
 // --------------------------------------------
 // CLIENT → SERVER EMITS
 // --------------------------------------------
-
-// JOIN (no userId/workspaceId)
 export const joinMapPresence = ({ name, x, y }) => {
   const payload = {
     displayName: name || "User",
@@ -69,43 +67,45 @@ export const joinMapPresence = ({ name, x, y }) => {
   mapSocket.emit("join", payload);
 };
 
-// MOVE (no userId/workspaceId)
 export const updateMapPosition = ({ x, y }) => {
   mapSocket.emit("move", { x, y });
 };
 
-// LEAVE (no payload)
 export const leaveMapPresence = () => {
   console.log("📤 emit leave");
   mapSocket.emit("leave");
 };
 
 // --------------------------------------------
-// SERVER → CLIENT LISTENERS SETUP
+// SERVER → CLIENT LISTENERS SETUP (FIXED)
 // --------------------------------------------
 export const setupMapListeners = (cb = {}) => {
   console.log("🎧 Setting up map listeners");
 
-  // Remove possible duplicate listeners
+  // Remove old listeners
   mapSocket.off("user-joined");
   mapSocket.off("user-moved");
   mapSocket.off("user-left");
   mapSocket.off("join-ack");
   mapSocket.off("presence-sync");
 
-  // JOIN-ACK
+  // 🚨 IMPORTANT: Wait for join-ack before loading avatars
+  let identityReceived = false;
+
+  // JOIN-ACK → Set selfId first
   mapSocket.on("join-ack", (data) => {
     console.log("📥 join-ack", data);
+    identityReceived = true;
     cb.onJoinAck && cb.onJoinAck(data);
-
-    // Load existing users into state
-    if (data.existingUsers && cb.onState) {
-      cb.onState({ avatars: data.existingUsers });
-    }
   });
 
-  // FULL SYNC (server broadcasts)
+  // FULL SYNC (remote avatars)
   mapSocket.on("presence-sync", (avatars) => {
+    if (!identityReceived) {
+      console.log("⏳ Ignoring presence-sync: waiting for join-ack...");
+      return;
+    }
+
     console.log("📥 presence-sync", avatars);
     cb.onState && cb.onState({ avatars });
   });
@@ -128,7 +128,9 @@ export const setupMapListeners = (cb = {}) => {
   });
 };
 
+// --------------------------------------------
 // Remove all listeners
+// --------------------------------------------
 export const removeMapListeners = () => {
   console.log("🔇 Removing map listeners");
 
@@ -139,7 +141,9 @@ export const removeMapListeners = () => {
   mapSocket.off("presence-sync");
 };
 
-// Status logging
+// --------------------------------------------
+// Status helper
+// --------------------------------------------
 export const getMapSocketStatus = () => {
   const status = {
     connected: mapSocket.connected,
@@ -151,10 +155,11 @@ export const getMapSocketStatus = () => {
   return status;
 };
 
-// Manual connect/disconnect helpers
+// Manual connect/disconnect
 export const connectMapSocket = () => {
   if (!mapSocket.connected) mapSocket.connect();
 };
+
 export const disconnectMapSocket = () => {
   if (mapSocket.connected) mapSocket.disconnect();
 };

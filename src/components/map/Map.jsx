@@ -36,8 +36,9 @@ import AvatarsLayer from "./AvatarsLayer.jsx";
 
 const Map = () => {
   const dispatch = useDispatch();
-  const { username, avatar, userId } = useSelector((s) => s.user || {});
-
+  const { username, avatar } = useSelector((s) => s.user || {});
+  const { selfId } = useSelector((s) => s.presence || {});
+  const userPanningRef = useRef(false);
   // Local avatar state
   const [position, setPosition] = useState({ x: 60, y: 60 });
   const [clickMarker, setClickMarker] = useState(null);
@@ -63,7 +64,10 @@ const Map = () => {
   // Obstacle collector
   // ----------------------------------------------
   const handleObstaclesFromChild = useCallback((id, newObs) => {
-    obstaclesRef.current = Object.values({ ...obstaclesRef.current, [id]: newObs }).flat();
+    obstaclesRef.current = Object.values({
+      ...obstaclesRef.current,
+      [id]: newObs,
+    }).flat();
   }, []);
 
   // ----------------------------------------------
@@ -87,6 +91,7 @@ const Map = () => {
     followCameraRef,
     cameraPosRef,
     cameraTargetRef,
+    userPanningRef,
   });
 
   usePlayerMovementCamera({
@@ -132,82 +137,83 @@ const Map = () => {
   // ----------------------------------------------
   // INITIAL MOUNT — Connect Socket + Join
   // ----------------------------------------------
-  useEffect(() => {
-    console.log("🌍 MAP MOUNT — Initializing socket & presence");
-    console.log("User:", username, "UserId:", userId);
+ const selfIdRef = useRef(null);
+useEffect(() => {
+  selfIdRef.current = selfId;
+}, [selfId]);
 
-    let hasJoined = false; // Guard to prevent duplicate joins
-    let cleanedUp = false;
+useEffect(() => {
+  console.log("🌍 MAP MOUNT — Initializing socket & presence");
 
-    // Ensure we leave any existing session first
-    if (mapSocket.connected) {
-      console.log("🔄 Socket already connected, leaving previous session");
-      leaveMapPresence();
-    }
+  let hasJoined = false;
+  let cleanedUp = false;
 
-    // Always connect map socket
-    connectMapSocket();
+  if (mapSocket.connected) {
+    leaveMapPresence();
+  }
 
-    // After connection → join
-    const onConnected = () => {
-      if (hasJoined || cleanedUp) {
-        console.log("⚠️ Already joined or cleaned up, skipping duplicate join");
+  connectMapSocket();
+
+  const onConnected = () => {
+    if (hasJoined || cleanedUp) return;
+
+    setTimeout(() => {
+      if (!cleanedUp) {
+        joinMapPresence({
+          name: username || "Anonymous",
+          x: positionRef.current.x,
+          y: positionRef.current.y,
+        });
+        hasJoined = true;
+      }
+    }, 100);
+  };
+
+  if (mapSocket.connected) onConnected();
+  else mapSocket.once("connect", onConnected);
+
+  removeMapListeners();
+
+  setupMapListeners({
+    onJoinAck: (data) => {
+      dispatch(setIdentity({ selfId: data.userId }));
+    },
+
+    onState: (data) => {
+      if (!selfIdRef.current) {
+        console.log("⚠ ignoring presence-sync until selfId is ready");
         return;
       }
-      
-      console.log("🔌 Map socket connected, sending join");
+      if (!data.avatars?.length) return;
 
-      dispatch(setIdentity({ selfId: userId }));
+      dispatch(replaceAvatars(data.avatars));
+    },
 
-      // Small delay to ensure server processed any previous leave
-      setTimeout(() => {
-        if (!cleanedUp) {
-          joinMapPresence({
-            name: username || "Anonymous",
-            x: positionRef.current.x,
-            y: positionRef.current.y,
-          });
-          hasJoined = true;
-        }
-      }, 100);
-    };
-
-    // Check if already connected
-    if (mapSocket.connected) {
-      onConnected();
-    } else {
-      mapSocket.once("connect", onConnected);
-    }
-
-    // Setup map listeners
-    setupMapListeners({
-      onState: (data) => {
-        console.log("📥 Received state with avatars:", data.avatars);
-        dispatch(replaceAvatars(data.avatars));
-      },
-      onJoined: (avatar) => {
-        console.log("📥 User joined:", avatar);
+    onJoined: (avatar) => {
+      if (avatar.userId !== selfIdRef.current) {
         dispatch(upsertAvatar(avatar));
-      },
-      onUpdated: ({ userId, x, y }) => {
-        dispatch(updateAvatarPosition({ userId, x, y }));
-      },
-      onLeft: ({ userId }) => {
-        console.log("📥 User left:", userId);
-        dispatch({ type: "presence/removeAvatar", payload: userId });
-      },
-    });
+      }
+    },
 
-    // Cleanup on unmount
-    return () => {
-      console.log("🌍 MAP UNMOUNT — Cleaning up");
-      cleanedUp = true;
-      
-      leaveMapPresence();
-      removeMapListeners();
-      mapSocket.off("connect", onConnected);
-    };
-  }, []);
+    onUpdated: (data) => {
+      if (data.userId !== selfIdRef.current) {
+        dispatch(updateAvatarPosition(data));
+      }
+    },
+
+    onLeft: ({ userId }) => {
+      dispatch(removeAvatar(userId));
+    },
+  });
+
+  return () => {
+    cleanedUp = true;
+    leaveMapPresence();
+    removeMapListeners();
+    mapSocket.off("connect", onConnected);
+  };
+}, []);
+
 
   // ----------------------------------------------
   // SEND POSITION UPDATES (~16Hz)
