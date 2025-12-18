@@ -12,7 +12,7 @@ import CreateWorkspaceModal from "./CreateWorkspaceModal.jsx";
 import deleteicon from "../../assets/delete.svg";
 import Toast from "../common/Toast";
 
-const RejoinAndFetch = () => {
+const RejoinAndFetch = ({ refreshTrigger }) => {
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({
@@ -24,8 +24,8 @@ const RejoinAndFetch = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState(false);
-const [deleteTarget, setDeleteTarget] = useState(null);
-const popupRef = useRef(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const popupRef = useRef(null);
 
   const fetchWorkspaces = async () => {
     setLoading(true);
@@ -50,32 +50,32 @@ const popupRef = useRef(null);
 
   useEffect(() => {
     fetchWorkspaces();
-  }, []);
-useEffect(() => {
-  function handleClickOutside(e) {
-    if (deleteTarget && popupRef.current && !popupRef.current.contains(e.target)) {
+  }, [refreshTrigger]);
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (deleteTarget && popupRef.current && !popupRef.current.contains(e.target)) {
+        setDeleteTarget(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [deleteTarget]);
+
+  const handleDelete = async (workspaceId) => {
+    try {
+      await deleteWorkspace(workspaceId);
+      setWorkspaces(prev => prev.filter(ws => ws._id !== workspaceId));
+      setToast({ show: true, type: "success", message: "Workspace deleted" });
+    } catch (err) {
+      const serverMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.msg ||
+        "Failed to delete workspace";
+      setToast({ show: true, type: "error", message: serverMsg });
+    } finally {
       setDeleteTarget(null);
     }
-  }
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, [deleteTarget]);
-
-const handleDelete = async (workspaceId) => {
-  try {
-    await deleteWorkspace(workspaceId);
-    setWorkspaces(prev => prev.filter(ws => ws._id !== workspaceId));
-    setToast({ show: true, type: "success", message: "Workspace deleted" });
-  } catch (err) {
-    const serverMsg =
-      err?.response?.data?.message ||
-      err?.response?.data?.msg ||
-      "Failed to delete workspace";
-    setToast({ show: true, type: "error", message: serverMsg });
-  } finally {
-    setDeleteTarget(null);
-  }
-};
+  };
 
 
   const handleRejoin = async (wsOrId) => {
@@ -183,7 +183,7 @@ const handleDelete = async (workspaceId) => {
           <CreateWorkspaceModal
             isOpen={modalOpen}
             onClose={() => setModalOpen(false)}
-            onInvitesSent={fetchWorkspaces}
+            onWorkspaceCreated={fetchWorkspaces}
           />
         )}
       </>
@@ -260,21 +260,20 @@ const handleDelete = async (workspaceId) => {
                   handleRejoin(ws);
                 }}
                 disabled={rejoiningId === ws._id}
-                className={`min-w-[140px] bg-[#5E9BFF] text-white text-xl px-6 py-2.5  rounded-lg transition ${
-                  rejoiningId === ws._id ? "opacity-70 " : "hover:bg-[#4A8CE0]"
-                }`}
+                className={`min-w-[140px] bg-[#5E9BFF] text-white text-xl px-6 py-2.5  rounded-lg transition ${rejoiningId === ws._id ? "opacity-70 " : "hover:bg-[#4A8CE0]"
+                  }`}
               >
                 {rejoiningId === ws._id ? "Entering..." : "Enter Office"}
               </button>
               <button
-  onClick={(e) => {
-    e.stopPropagation();
-    setDeleteTarget(ws);
-  }}
-  className="absolute bottom-3 right-3 p-2 bg-white/80 rounded-full shadow hover:bg-white"
->
-  <img src={deleteicon} alt="delete" className="w-5 h-5" />
-</button>
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteTarget(ws);
+                }}
+                className="absolute bottom-3 right-3 p-2 bg-white/80 rounded-full shadow hover:bg-white"
+              >
+                <img src={deleteicon} alt="delete" className="w-5 h-5" />
+              </button>
             </div>
           ))}
         </div>
@@ -282,37 +281,37 @@ const handleDelete = async (workspaceId) => {
         <Toast show={toast.show} type={toast.type} message={toast.message} />
       </div>
       {deleteTarget && (
-  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-    <div
-      ref={popupRef}
-      className="bg-white rounded-xl p-6 w-[320px] shadow-xl animate-fadeIn"
-    >
-      <h3 className="text-lg font-bold text-[#0E1219] mb-2">
-        Delete Workspace?
-      </h3>
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div
+            ref={popupRef}
+            className="bg-white rounded-xl p-6 w-[320px] shadow-xl animate-fadeIn"
+          >
+            <h3 className="text-lg font-bold text-[#0E1219] mb-2">
+              Delete Workspace?
+            </h3>
 
-      <p className="text-sm text-gray-600 mb-4">
-        Are you sure you want to delete <b>{deleteTarget.workspaceName}</b>?
-      </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Are you sure you want to delete <b>{deleteTarget.workspaceName}</b>?
+            </p>
 
-      <div className="flex justify-end gap-3">
-        <button
-          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-          onClick={() => setDeleteTarget(null)}
-        >
-          Cancel
-        </button>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                onClick={() => setDeleteTarget(null)}
+              >
+                Cancel
+              </button>
 
-        <button
-          className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
-          onClick={() => handleDelete(deleteTarget._id)}
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <button
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+                onClick={() => handleDelete(deleteTarget._id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* ✅ Modal OUTSIDE the grid */}
@@ -320,7 +319,7 @@ const handleDelete = async (workspaceId) => {
         <CreateWorkspaceModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
-          onInvitesSent={fetchWorkspaces}
+          onWorkspaceCreated={fetchWorkspaces}
         />
       )}
     </>
