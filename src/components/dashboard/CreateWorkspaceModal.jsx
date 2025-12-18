@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice";
 import Toast from "../common/Toast";
 
-const CreateWorkspaceModal = ({ isOpen, onClose }) => {
+const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [emails, setEmails] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,14 +53,20 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       const response = await createWorkspace({ workspaceName, inviteEmails });
-  const { workspace } = response.data;
+      const { workspace } = response.data;
       const wsId = workspace._id || workspace.id;
       const wsInviteCode = workspace.inviteCode;
-  const managerId = workspace.manager || workspace.managerId || workspace.ownerId || null;
+      const managerId = workspace.manager || workspace.managerId || workspace.ownerId || null;
       localStorage.setItem("workspaceId", wsId);
       localStorage.setItem("inviteCode", wsInviteCode);
-  dispatch(setWorkspaceContext({ workspaceId: wsId, workspaceToken: null, workspaceName, workspaceManagerId: managerId }));
+      dispatch(setWorkspaceContext({ workspaceId: wsId, workspaceToken: null, workspaceName, workspaceManagerId: managerId }));
       setToast({ show: true, type: "success", message: `Workspace created. Invites: ${inviteEmails.length}. Code: ${wsInviteCode}` });
+
+      // Notify parent component to refresh workspace list
+      if (typeof onWorkspaceCreated === "function") {
+        onWorkspaceCreated({ workspace });
+      }
+
       setTimeout(() => handleClose(), 1500);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Workspace creation failed.";
