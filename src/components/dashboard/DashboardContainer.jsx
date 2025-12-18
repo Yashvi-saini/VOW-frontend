@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardMain from "../dashboard/DashboardMain";
 import DashboardNewUser from "./DashboardNewUser";
 
-const DashboardContainer = () => {
+const DashboardContainer = ({ refreshTrigger }) => {
   const [isNewUser, setIsNewUser] = useState(null);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const DashboardContainer = () => {
     return <div className="text-center mt-20 text-lg">Loading dashboard...</div>;
   }
 
-  return isNewUser ? <DashboardNewUser /> : <DashboardMain />;
+  return isNewUser ? <DashboardNewUser /> : <DashboardMain refreshTrigger={refreshTrigger} />;
 };
 
 export default DashboardContainer;

@@ -20,16 +20,22 @@ const Dashboard = () => {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showGeminiChat, setShowGeminiChat] = useState(false);
+  const [workspaceRefreshTrigger, setWorkspaceRefreshTrigger] = useState(0);
+
+  const handleWorkspaceCreated = () => {
+    // Increment the trigger to force refresh of workspace list
+    setWorkspaceRefreshTrigger(prev => prev + 1);
+  };
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":
-        return <DashboardContainer />;
+        return <DashboardContainer refreshTrigger={workspaceRefreshTrigger} />;
       case "search":
         return <SearchSection />;
       case "notification":
         return <NotificationSection />;
       case "events":
-        return <MeetingPage/>;
+        return <MeetingPage />;
       case "create team":
         return <TeamBuilder />;
       case "files":
@@ -37,22 +43,22 @@ const Dashboard = () => {
       case "profile":
         return <ProfileSettings onClose={() => setActiveSection("dashboard")} />;
       default:
-        return <DashboardContainer />;
+        return <DashboardContainer refreshTrigger={workspaceRefreshTrigger} />;
     }
   };
 
   return (
     <div className="flex min-h-screen w-full bg-[#F8F6FC] font-poppins hide-scrollbar overflow-x-hidden ">
-      <Sidebar 
-        activeSection={activeSection} 
+      <Sidebar
+        activeSection={activeSection}
         setActiveSection={setActiveSection}
         onCreateWorkspace={() => setIsCreateModalOpen(true)}
         onJoinWorkspace={() => setIsJoinModalOpen(true)}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
-         onNeedHelp={() => setShowGeminiChat(true)}
+        onNeedHelp={() => setShowGeminiChat(true)}
       />
-      
+
       {/* Full-screen blur overlay when sidebar is open on mobile */}
       {isSidebarOpen && (
         <div
@@ -60,16 +66,16 @@ const Dashboard = () => {
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      
+
       {/* Gemini Chat Modal */}
       {showGeminiChat && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
           <GeminiChat onClose={() => setShowGeminiChat(false)} />
         </div>
       )}
-      
+
       <div className="flex-1 flex flex-col w-full min-w-0 relative min-h-screen">
-        <TopBar 
+        <TopBar
           title={{
             dashboard: "Dashboard",
             search: "Search",
@@ -92,30 +98,31 @@ const Dashboard = () => {
 
       {/* Modal overlays positioned fixed to cover entire screen including topbar */}
       {isCreateModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{
             background: 'rgba(14, 18, 25, 0.30)',
             backdropFilter: 'blur(4px)'
           }}
         >
-          <CreateWorkspaceModal 
-            isOpen={isCreateModalOpen} 
-            onClose={() => setIsCreateModalOpen(false)} 
+          <CreateWorkspaceModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onWorkspaceCreated={handleWorkspaceCreated}
           />
         </div>
       )}
       {isJoinModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           style={{
             background: 'rgba(14, 18, 25, 0.30)',
             backdropFilter: 'blur(4px)'
           }}
         >
-          <JoinWorkspaceModal 
-            isOpen={isJoinModalOpen} 
-            onClose={() => setIsJoinModalOpen(false)} 
+          <JoinWorkspaceModal
+            isOpen={isJoinModalOpen}
+            onClose={() => setIsJoinModalOpen(false)}
           />
         </div>
       )}

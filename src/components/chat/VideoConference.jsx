@@ -47,8 +47,16 @@ const VideoConference = () => {
 
   useEffect(() => {
     if (!localVideoRef.current) return;
-    localVideoRef.current.srcObject = stream || null;
-    localVideoRef.current.play?.().catch(() => {});
+    if (localVideoRef.current.srcObject !== stream) {
+      localVideoRef.current.srcObject = stream || null;
+      if (stream) {
+        console.log("[VideoConference] Local stream set, tracks:", 
+          stream.getTracks().map(t => `${t.kind}:${t.enabled}:${t.readyState}`));
+        localVideoRef.current.play?.().catch((err) => {
+          console.error("[VideoConference] Error playing local video:", err);
+        });
+      }
+    }
   }, [stream]);
 
  
@@ -228,12 +236,32 @@ const VideoConference = () => {
                     autoPlay
                     playsInline
                     ref={(el) => {
-                      if (el && el.srcObject !== mediaStream) el.srcObject = mediaStream;
+                      if (el && el.srcObject !== mediaStream) {
+                        el.srcObject = mediaStream;
+                        console.log("[VideoConference] Remote video element attached for peer:", peerId, 
+                          "tracks:", mediaStream.getTracks().map(t => `${t.kind}:${t.enabled}:${t.readyState}`));
+                        el.play().catch(err => {
+                          console.error("[VideoConference] Error playing remote video:", peerId, err);
+                        });
+                      }
                     }}
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                    Peer: {peerId.slice(0, 8)}
+                  </div>
                 </div>
               ))}
+
+              {/* Waiting for peers placeholder */}
+              {remoteStreams.size === 0 && (
+                <div className="relative bg-gray-700 rounded-xl overflow-hidden flex items-center justify-center">
+                  <div className="text-white/60 text-center">
+                    <div className="text-2xl mb-2"></div>
+                    <div className="text-sm">Waiting for others to join...</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

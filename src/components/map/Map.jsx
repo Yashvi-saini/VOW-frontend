@@ -57,7 +57,7 @@ const Map = () => {
   const followCameraRef = useRef(true);
   const keysPressed = useRef({});
   const moveToTargetRef = useRef(null);
-
+const userPanningRef = useRef(false);
   const avatarSize = 65;
 
   // ----------------------------------------------

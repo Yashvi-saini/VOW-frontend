@@ -88,7 +88,6 @@ const [actionType, setActionType] = useState(null);
           setShowTeamBuilder(false);
           setShowMeeting(false);
           setShowVideoConference(false);
-          // Messages will be fetched from server via useEffect below
         }
       } catch (err) {
         console.error('[DM] Failed to restore DM state:', err);
@@ -161,42 +160,46 @@ const [actionType, setActionType] = useState(null);
     
     // Load from cache if available (don't clear on refresh)
     if (dmCacheRef.current[receiverId] && dmCacheRef.current[receiverId].length > 0) {
-      console.log("[DM] Loading", dmCacheRef.current[receiverId].length, "cached messages for", receiverName);
       setMessages(dmCacheRef.current[receiverId]);
     } else {
-      console.log("[DM] No cache for", receiverName, "- keeping current messages until fetch completes");
-      // Don't clear messages - let fetch handle it
     }
     
     console.log("[DM] Starting DM with:", receiverName, receiverId);
   };
 
   const handleDeleteMessage = async (messageId) => {
-    try {
-      if (isDMMode) {
-        // Delete DM
-        const { deleteDirectMessage } = await import("../../api/authApi.js");
-        await deleteDirectMessage(messageId);
-        console.log("[DM] Deleted message:", messageId);
-      } else {
-        // Delete channel message (if API exists)
-        console.log("[Channel] Delete message:", messageId);
-      }
-      
-      // Remove from local state
-      setMessages(prev => {
-        const updated = prev.filter(m => m._id !== messageId);
-        // Update in-memory cache if in DM mode
-        if (isDMMode && dmReceiverId) {
-          dmCacheRef.current[dmReceiverId] = updated;
-        }
-        return updated;
-      });
-    } catch (err) {
-      console.error("Failed to delete message:", err);
-      alert("Failed to delete message");
+  try {
+    if (isDMMode) {
+      // ---- Direct Message Delete ----
+      const { deleteDirectMessage } = await import("../../api/authApi.js");
+      await deleteDirectMessage(messageId);
+      console.log("[DM] Deleted message:", messageId);
+
+    } else {
+      // ---- Channel Message Delete ----
+      const { deleteChannelMessage } = await import("../../api/authApi.js");
+      await deleteChannelMessage(messageId);
+      console.log("[Channel] Deleted message:", messageId);
     }
-  };
+
+    // ---- Remove from UI instantly ----
+    setMessages((prev) => {
+      const updated = prev.filter((m) => m._id !== messageId);
+
+      // update DM cache
+      if (isDMMode && dmReceiverId) {
+        dmCacheRef.current[dmReceiverId] = updated;
+      }
+
+      return updated;
+    });
+
+  } catch (err) {
+    console.error("Failed to delete message:", err);
+    alert("Failed to delete message");
+  }
+};
+
 
   // --- Auto-resize textarea ---
   useEffect(() => {
@@ -226,19 +229,9 @@ const [actionType, setActionType] = useState(null);
             return;
           }
           
-          console.log("[DM] ========== FETCHING MESSAGES ==========");
-          console.log("[DM] Params - workspaceId:", workspaceId, "selfId:", selfId, "receiverId:", dmReceiverId);
-          console.log("[DM] API URL will be: /dm/" + workspaceId + "/" + selfId + "/" + dmReceiverId);
-          
+         
           try {
             const response = await getDirectMessages(workspaceId, selfId, dmReceiverId);
-            console.log("[DM] Raw API Response:", response);
-            console.log("[DM] Response data:", response?.data);
-            
-            // Check response structure
-            console.log("[DM] response.data type:", typeof response?.data);
-            console.log("[DM] response.data.messages:", response?.data?.messages);
-            console.log("[DM] Is response.data.messages an array?", Array.isArray(response?.data?.messages));
             
             let raw = [];
             if (response?.data?.messages && Array.isArray(response.data.messages)) {
@@ -249,25 +242,20 @@ const [actionType, setActionType] = useState(null);
               console.warn("[DM] Unexpected response structure:", response?.data);
             }
             
-            console.log("[DM] Parsed messages array length:", raw.length);
+           
             
             // Update in-memory cache and set messages
             if (raw.length > 0) {
               dmCacheRef.current[dmReceiverId] = raw;
               setMessages(raw);
-              console.log("[DM] ✅ Successfully loaded from server:", raw.length, "messages");
-              console.log("[DM] First message:", raw[0]);
-              console.log("[DM] Last message:", raw[raw.length - 1]);
+             
             } else {
-              console.warn("[DM] ⚠️ No messages returned from server");
-              setMessages([]);
+             setMessages([]);
             }
             
-            console.log("[DM] View state - isDMMode:", isDMMode, "showMap:", showMap, "showTeamBuilder:", showTeamBuilder, "showMeeting:", showMeeting, "showVideoConference:", showVideoConference);
-            console.log("[DM] ========================================");
           } catch (error) {
             console.error("[DM] Failed to fetch messages:", error);
-            // Keep existing messages on error
+            
           }
         } else if (activeRoomId && !isDMMode) {
           // Fetch channel messages
@@ -280,7 +268,7 @@ const [actionType, setActionType] = useState(null);
         }
       } catch (err) {
         console.error("Failed to fetch messages:", err);
-        // Don't clear messages on error if we have cache
+       
         if (!(isDMMode && dmCacheRef.current[dmReceiverId])) {
           setMessages([]);
         }
@@ -297,69 +285,79 @@ const [actionType, setActionType] = useState(null);
       // Join workspace for DM
       joinDMWorkspace(workspaceId);
       
-      const onReceiveDM = (msg) => {
-        console.log("[DM] receive_dm:", msg);
-        
-        const senderId = msg.sender?._id || msg.sender;
-        const receiverId = msg.receiver?._id || msg.receiver;
-        const otherUserId = senderId === profile?._id ? receiverId : senderId;
-        
-        setMessages((prev) => {
-          // Check for duplicates by _id
-          if (prev.some((m) => m._id === msg._id)) {
-            console.log("[DM] skipped duplicate:", msg._id);
-            return prev;
-          }
-          
-          // Replace temp message - match by sender, content and recent timestamp (within 5 seconds)
-          const now = new Date(msg.createdAt).getTime();
-          const tempIndex = prev.findIndex(
-            (m) => {
-              if (!m.tempId || m._id) return false;
-              const isSameSender = m.sender?._id === msg.sender?._id;
-              const isSameContent = m.content?.trim() === msg.content?.trim();
-              const tempTime = new Date(m.createdAt).getTime();
-              const isRecent = Math.abs(now - tempTime) < 5000; // within 5 seconds
-              return isSameSender && isSameContent && isRecent;
-            }
-          );
-          
-          if (tempIndex !== -1) {
-            console.log("[DM] Replacing temp message at index", tempIndex);
-            const updated = [...prev];
-            updated[tempIndex] = msg;
-            // Update in-memory cache
-            if (otherUserId) {
-              dmCacheRef.current[otherUserId] = updated;
-            }
-            return updated;
-          }
-          
-          // Add new message
-          const updated = [...prev, msg];
-          
-          // Update in-memory cache
-          if (otherUserId) {
-            dmCacheRef.current[otherUserId] = updated;
-          }
-          
-          // Track unread if not in active DM
-          if (senderId !== profile?._id && dmReceiverId !== senderId) {
-            setUnreadDMs(prev => ({
-              ...prev,
-              [senderId]: (prev[senderId] || 0) + 1
-            }));
-          }
-          
-          setTimeout(() => {
-            mainRef.current?.scrollTo({
-              top: mainRef.current.scrollHeight,
-              behavior: "smooth",
-            });
-          }, 100);
-          return updated;
-        });
-      };
+const onReceiveDM = (msg) => {
+  console.log("[DM] receive_dm:", msg);
+
+  const senderId = msg.sender?._id || msg.sender;
+  const receiverId = msg.receiver?._id || msg.receiver;
+  const selfId = profile?._id;
+
+  // CHECK IF MESSAGE BELONGS TO ACTIVE DM
+  const isForActiveDM =
+    (senderId === selfId && receiverId === dmReceiverId) ||
+    (senderId === dmReceiverId && receiverId === selfId);
+
+  if (!isForActiveDM) {
+    console.log("[DM] Message from another user → Unread only");
+
+    // Add unread counter
+    if (senderId !== selfId) {
+      setUnreadDMs((prev) => ({
+        ...prev,
+        [senderId]: (prev[senderId] || 0) + 1,
+      }));
+    }
+
+    return; 
+  }
+
+  setMessages((prev) => {
+    // Avoid duplicates
+    if (prev.some((m) => m._id === msg._id)) {
+      console.log("[DM] Duplicate skipped:", msg._id);
+      return prev;
+    }
+    // optimistic temp message → real one arrives
+    const tempIndex = prev.findIndex((m) => {
+      if (!m.tempId) return false;
+
+      const sameSender = m.sender?._id === msg.sender?._id;
+      const sameContent = m.content?.trim() === msg.content?.trim();
+
+      const timeDiff = Math.abs(
+        new Date(m.createdAt).getTime() - new Date(msg.createdAt).getTime()
+      );
+
+      const isRecent = timeDiff < 5000; 
+
+      return sameSender && sameContent && isRecent;
+    });
+
+    if (tempIndex !== -1) {
+      const updated = [...prev];
+      updated[tempIndex] = msg;
+
+      // Update DM cache
+      dmCacheRef.current[dmReceiverId] = updated;
+
+      return updated;
+    }
+
+    const updated = [...prev, msg];
+    dmCacheRef.current[dmReceiverId] = updated;
+
+    return updated;
+  });
+
+  // Auto scroll
+  setTimeout(() => {
+    mainRef.current?.scrollTo({
+      top: mainRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, 100);
+};
+
 
       onReceiveDirectMessage(onReceiveDM);
       
@@ -396,7 +394,7 @@ const [actionType, setActionType] = useState(null);
             return prev;
           }
 
-          // Replace temp message - match by sender, content and recent timestamp
+          // Replace temp message 
           const now = new Date(msg.createdAt).getTime();
           const tempIndex = prev.findIndex(
             (m) => {
@@ -410,7 +408,6 @@ const [actionType, setActionType] = useState(null);
           );
 
           if (tempIndex !== -1) {
-            console.log("[Channel] Replacing temp message at index", tempIndex);
             const updated = [...prev];
             updated[tempIndex] = msg; 
             return updated;
@@ -560,7 +557,7 @@ const sendMessage = async () => {
           onStartDM={handleStartDM}
           unreadDMs={unreadDMs}
 
-          /* ⭐ NEW: Modal trigger */
+          /* NEW: Modal trigger */
           onOpenMemberModal={(actionType) => {
             console.log("Open member modal:", actionType);
             setActionType(actionType);
@@ -639,8 +636,8 @@ const sendMessage = async () => {
       </main>
     </ChatLayout>
 
-    {/* ⭐ MODAL: Member MultiSelect Overlay */}
-    {/* ⭐ MODAL HANDLING */}
+    {/*  MODAL: Member MultiSelect Overlay */}
+   
 {showMemberModal && (
   <>
     {/* If user clicked "Create Team" */}
