@@ -3,11 +3,22 @@ A next-generation virtual workspace platform that enables distributed teams to *
 VOW enhances remote work culture through immersive virtual offices, interactive meeting environments, and seamless collaboration tools.
 
 ---
+
+## 🎥 Demo Video
+Experience the Virtual Organized World in action:
+
+<video src="src/assets/demovideo.mp4" width="100%" controls>
+  Your browser does not support the video tag.
+</video>
+
+---
+
 ## 🧩 Overview
 **VOW (Virtual Organized World)** replicates real-world office interactions within a digital environment.  
 With customizable virtual workspaces, real-time communication, collaborative tools, and built-in meeting systems, VOW is designed to elevate distributed teamwork.
 
 ---
+
 ## 📸 Preview
 <table>
   <tr>
@@ -23,16 +34,17 @@ With customizable virtual workspaces, real-time communication, collaborative too
 ---
 
 ## 📌 Table of Contents
-- [Overview](#overview)
-- [User Roles](#user-roles)
-- [Core Features](#core-features)
-- [Future Enhancements](#future-enhancements)
-- [Tech Stack](#tech-stack)
-- [Architecture Overview](#architecture-overview)
-- [Getting Started](#getting-started)
-- [Folder Structure](#folder-structure)
-- [Contributing](#contributing)
-- [License](#license)
+- [Overview](#-overview)
+- [Demo Video](#-demo-video)
+- [User Roles](#-user-roles)
+- [Core Features](#-core-features)
+- [System Architecture](#-system-architecture)
+- [System Design](#-system-design)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Folder Structure](#-folder-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
@@ -60,82 +72,102 @@ With customizable virtual workspaces, real-time communication, collaborative too
 ## ⭐ Core Features
 
 ### 🔐 Authentication
-- Secure email-based login/signup  
-- Password reset support  
-- Token-based authentication (JWT)  
-- Role-based access control  
-
----
+- Secure email-based login/signup with OTP verification.
+- JWT-based authentication with Refresh Token support.
+- Role-based access control (Manager, Supervisor, Team Member).
 
 ### 🏢 Virtual Office & Collaboration
-- **Customizable Workspaces**  
-  Build dynamic virtual office layouts with meeting rooms, lounges, and social areas.  
+- **Customizable Workspaces**: Dynamic layouts with meeting rooms and social areas.
+- **Real-time Spatiality**: Proximity-based visibility and movement using pathfinding algorithms.
+- **WebRTC Communication**: High-quality audio/video for an immersive experience.
+- **Messaging**: Direct & channel-based chat with file sharing and emoji support.
 
-- **Presence Tracking**  
-  Real-time visibility into who’s online, away, in a meeting, or available.  
-
-- **WebRTC Spatial Audio & Video**  
-  Proximity-based communication for an immersive office experience.  
-
-- **Screen Sharing & Document Collaboration**  
-  Present content and co-edit files in live sessions.  
-
-- **Room Navigation**  
-  Move between rooms and join teams effortlessly.  
+### 📅 Smart Meetings
+- Workspace-integrated scheduling for seamless transitions.
+- Automatic reminders and calendar syncing.
+- AI-powered summaries (powered by Google Gemini).
 
 ---
 
-### 📅 Meetings & Scheduling
-- Workspace-based meeting scheduling  
-- Calendar integrations (Google, Outlook)  
-- Smart reminders before sessions  
-- One-click join via room-based links  
+## 🏗 System Architecture
+
+VOW utilizes a high-concurrency architecture to manage real-time interactions across distributed teams.
+
+```mermaid
+graph TD
+    User((User/Client)) -->|React + Vite| WebApp[Frontend Web App]
+    WebApp -->|Redux Persist| LocalState[(Local State)]
+    WebApp -->|HTTP/REST| ExpressAPI[Node.js / Express Backend]
+    WebApp -->|WS/Socket.io| RealTime[Real-time Engine]
+    
+    subgraph Backend Services
+        ExpressAPI --> Auth[Auth Service / JWT]
+        ExpressAPI --> Workspace[Workspace Management]
+        ExpressAPI --> Gemini[AI Engine - Google Gemini]
+        RealTime --> Presence[Presence Tracking]
+        RealTime --> Chat[Messaging Service]
+        RealTime --> Rooms[Room Management]
+    end
+    
+    subgraph Data Layer
+        Auth --> DB[(MongoDB / NoSQL)]
+        Workspace --> DB
+        Chat --> DB
+    end
+```
 
 ---
 
-### 💬 Messaging System
-- Direct, group, and channel-based chat  
-- File sharing & attachments  
-- Real-time message sync via sockets  
+## ⚙ System Design
 
----
+### 1. Real-Time Sync Engine
+The heart of VOW is its Socket.io implementation. It handles:
+- **Presence**: Real-time "Who is online" and room occupancy tracking.
+- **Broadcast Events**: Immediate delivery of messages and workspace updates.
+- **Low Latency**: Optimized for real-time collaboration without lag.
 
-## 🔮 Future Enhancements
-- **AI Meeting Assistant**  
-  Auto-summarization, task extraction, follow-ups.
+### 2. Immersive Navigation
+VOW uses the `pathfinding` library to simulate realistic movements within the virtual office. This allows users to "walk" to desks or meeting rooms, triggering proximity-based interactions.
 
-- **Hybrid Mode**  
-  Bridge physical and virtual meeting spaces.
+### 3. AI Copilot (Gemini Integration)
+Integrated with **Google Gemini Pro**, VOW provides:
+- **Smart Recaps**: Automatically generates summaries of missed conversations or meetings.
+- **Contextual Assistance**: Quick answers within the chat interface using `@genai`.
 
-- **Workspace Monetization**  
-  Host paid sessions and community events.
-
-- **Gamified Recognition System**  
-  Reward active contributors and top performers.
+### 4. Modular Frontend Architecture
+Built with **React 19**, the frontend is highly modular:
+- **Feature-based folders**: `auth`, `dashboard`, `meetings` partitioned for scalability.
+- **State Management**: **Redux Toolkit** ensures a single source of truth for complex application states.
 
 ---
 
 ## 🛠 Tech Stack
 
 ### **Frontend**
-- React.js  
-- Tailwind CSS / Styled Components (optional UI layers)  
+- **Framework**: React 19 (Vite)
+- **State**: Redux Toolkit, Redux Persist
+- **Styles**: Tailwind CSS 4.0, Lucide Icons
+- **Real-time**: Socket.io-client
 
 ### **Backend**
-- Node.js + Express  
-- WebRTC for real-time audio & video  
-- MongoDB for data storage  
-- Socket.IO for live interactions  
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Intelligence**: Google Gemini API (@google/generative-ai)
+- **Communication**: Socket.io
+- **Utilities**: Pathfinding.js, Axios
 
----
+
+
 ##  Acknowledgement
 
 We would like to express our sincere appreciation to the technologies and communities that made **VOW – Virtual Organized World** possible:
 
-- **React.js** for providing a powerful, component-driven foundation for building an interactive and scalable user interface.  
-- **Tailwind CSS** for enabling rapid, modern, and highly customizable UI design with utility-first styling.  
-- **Open-source Community** for the countless libraries, tools, and resources that supported the functionality and performance of this project.
+- **React.js** for its component-driven excellence.
+- **Tailwind CSS** for rapid and modern UI prototyping.
+- **Google GenAI** for bridging the gap between virtual work and AI intelligence.
+- **Socket.io** for making real-time collaboration a reality.
 
-This project stands on the shoulders of these incredible technologies and contributors, and we gratefully acknowledge their impact.
+---
+© 2025 VOW - Virtual Organized World
 
 
