@@ -7,9 +7,11 @@ VOW enhances remote work culture through immersive virtual offices, interactive 
 ## 🎥 Demo Video
 Experience the Virtual Organized World in action:
 
-<video src="src/assets/demovideo.mp4" width="100%" controls>
-  Your browser does not support the video tag.
-</video>
+
+
+https://github.com/user-attachments/assets/12c1c38a-7fc0-458b-b54f-c4655f5b9b5e
+
+
 
 ---
 
