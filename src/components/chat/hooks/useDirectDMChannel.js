@@ -1,4 +1,4 @@
-import { getWorkspaceForUsers } from "../../../api/authApi";
+import { getWorkspaceForUsers } from "../../../api/workspaceApi";
 
 // Resolve or ensure a DM channel between two userIds
 // Returns the resolved channelId or a synthetic fallback (sorted pair)

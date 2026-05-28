@@ -16,36 +16,47 @@ import Dashboard from "./components/dashboard/dashboard.jsx";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Map from "./components/map/Map";
 import ChatApp from "./components/chat/chat";
-import { useSelector } from "react-redux";
-
 import TermsAndConditions from "./components/terms and conditions";
 
+import { useSelector } from "react-redux";
+import { isAuthenticated } from "./api/authApi"; 
 
 const App = () => {
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const { signupPending, forgotRequested: rdxForgot } = useSelector((state) => state.user || {});
-  const forgotRequested = rdxForgot || !!localStorage.getItem("forgotRequested");
+  const isLoggedIn = isAuthenticated();
 
-  // Allow verify-otp whenever a flow is active (signup or forgot), regardless of login
+  const { signupPending, forgotRequested: rdxForgot } =
+    useSelector((state) => state.user || {});
+
+  const forgotRequested =
+    rdxForgot || !!localStorage.getItem("forgotRequested");
+
+  // OTP flow logic
   const verifyCondition = !!signupPending || !!forgotRequested;
-  const verifyRedirectTo = forgotRequested ? "/forgot-password" : "/signup";
+  const verifyRedirectTo = forgotRequested
+    ? "/forgot-password"
+    : "/signup";
 
   return (
     <Router>
       <RouteWatcher />
+
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
+        <Route
+          path="/TermsAndConditions"
+          element={<TermsAndConditions />}
+        />
 
-
+        {/* OTP */}
         <Route
           path="/verify-otp"
           element={
             <FlowProtectedRoute
-              condition={true}
+              condition={verifyCondition}
               redirectTo={verifyRedirectTo}
             >
               <VerifyOtp />
@@ -53,16 +64,17 @@ const App = () => {
           }
         />
 
+        {/* Dashboard (Protected) */}
         <Route
           path="/dashboard"
           element={
-            
+            <ProtectedRoute>
               <Dashboard />
-            
+            </ProtectedRoute>
           }
         />
-        
 
+        {/* Reset Password */}
         <Route
           path="/reset-password"
           element={
@@ -75,6 +87,7 @@ const App = () => {
           }
         />
 
+        {/* Reset Success */}
         <Route
           path="/reset-success"
           element={
@@ -87,6 +100,7 @@ const App = () => {
           }
         />
 
+        {/* Profile */}
         <Route
           path="/profile"
           element={
@@ -96,26 +110,28 @@ const App = () => {
           }
         />
 
+        {/* Map */}
         <Route
           path="/map"
           element={
             <ProtectedRoute>
-                <FlowProtectedRoute
-                  // allow when session flag set by dashboard button
-                  condition={sessionStorage.getItem("allowMap") === "true"}
-                  redirectTo="/login"
-                >
-                  <Map />
-                </FlowProtectedRoute>
+              <FlowProtectedRoute
+                condition={sessionStorage.getItem("allowMap") === "true"}
+                redirectTo="/dashboard"
+              >
+                <Map />
+              </FlowProtectedRoute>
             </ProtectedRoute>
           }
         />
-        <Route path="/workspace/:workspaceId/chat" element={<ChatApp/>} />
+
+        {/* Chat (IMPORTANT FIX 🔥) */}
         <Route
-          path="/"
+          path="/workspace/:workspaceId/chat"
           element={
-            
-              <Home />
+            <ProtectedRoute>
+              <ChatApp />
+            </ProtectedRoute>
           }
         />
       </Routes>

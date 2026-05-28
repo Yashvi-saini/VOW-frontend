@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getAllMeetings } from "../../../api/meetingApi";
-import { getTeams } from "../../../api/authApi";
+import { getTeams } from "../../../api/teamApi";
 import MeetingSearchFilter from "./MeetingSearchFilter";
 import MeetingTabs from "./Meetingtab";
 import MeetingList from "./Meetingslist";

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import down from "../../assets/down.svg";
 import add from "../../assets/add.svg";
 import { useMembers } from "../../components/useMembers"; // adjust path as needed
-import { getChannels, getTeams, renameTeam, renameChannel } from "../../api/authApi";
+import { getChannels, getTeams, renameTeam, renameChannel } from "../../api/teamApi.js";
 import right from "../../assets/right arrow.svg"; 
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedTeamId, mapChannelTeam, mapChannelCreator } from "./teamslices";

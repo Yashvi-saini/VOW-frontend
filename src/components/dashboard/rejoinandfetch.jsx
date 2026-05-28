@@ -3,7 +3,7 @@ import {
   getJoinedWorkspaces,
   rejoinWorkspace,
   deleteWorkspace,
-} from "../../api/authApi";
+} from "../../api/workspaceApi.js";
 import CreateAndJoin from "./createandjoin";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";

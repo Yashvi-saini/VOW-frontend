@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllMeetings } from "../../../api/authApi";
+import { getAllMeetings } from "../../../api/meetingApi";
 
 const MeetingCards = ({ selectedDate }) => {
   const [meetings, setMeetings] = useState([]);

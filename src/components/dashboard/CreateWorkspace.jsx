@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createWorkspace } from "../../api/authApi"; 
+import { createWorkspace } from "../../api/workspaceApi"; 
 import { useDispatch } from "react-redux";
 import { setWorkspaceContext } from "../userslice"; // normalized path
 const CreateWorkspace = ({ onCreated }) => {

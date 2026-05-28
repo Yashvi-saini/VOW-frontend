@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMembers } from "../api/authApi";
+import { getMembers } from "../api/workspaceApi";
 
 // Fetch members for a given workspace using the scoped workspace token
 export const useMembers = (workspaceId) => {

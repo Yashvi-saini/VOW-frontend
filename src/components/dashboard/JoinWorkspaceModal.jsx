@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { joinWorkspace } from "../../api/authApi.js";
+import { joinWorkspace } from "../../api/workspaceApi.js";
 import { setWorkspaceContext } from "../userslice";
 
 const JoinWorkspaceModal = ({ isOpen, onClose }) => {

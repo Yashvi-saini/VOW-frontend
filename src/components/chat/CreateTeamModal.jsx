@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useMembers } from "../useMembers";
-import { createTeam, createChannel } from "../../api/authApi";
+import { createTeam } from "../../api/teamApi";
+import { createChannel } from "../../api/channelApi";
 import { setTeam, setSelectedTeamId, setTeamsList, mapChannelTeam, mapChannelCreator } from "./teamslices";
 import useOutsideClick from "../common/useOutsideClick";
 import ModalContainer from "../common/ModalContainer";
