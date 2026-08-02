@@ -13,7 +13,7 @@ import SupervisorSelect from "./SupervisorSelect";
 
 export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
   const dispatch = useDispatch();
-  const workspaceId = useSelector((s) => s.user.workspaceId);
+  const workspaceId = useSelector((s) => s.user?.workspaceId || s.workspace?.activeWorkspace?.workspaceId) || localStorage.getItem("workspaceId");
   const profile = useSelector((s) => s.user.profile);
   const teamsInStore = useSelector((s) => s.team?.teams || []);
   const { members, loading: membersLoading } = useMembers(workspaceId);
@@ -44,9 +44,8 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
 
   const validate = () => {
     if (!teamName.trim()) return 'Enter a team name';
-    if (memberIds.length === 0) return 'Select at least one member';
-    if (!supervisorId) return 'Select a supervisor';
-    if (!memberIds.includes(supervisorId)) return 'Supervisor must be a selected member';
+    if (memberIds.length === 0 && !selfId) return 'Select at least one member';
+    if (supervisorId && memberIds.length > 0 && !memberIds.includes(supervisorId)) return 'Supervisor must be a selected member';
     return null;
   };
 
@@ -57,17 +56,18 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
     if (!workspaceId) { setError('Workspace not found'); return; }
     try {
       setSaving(true);
-    // Ensure creator stays in memberIds
-    const finalMemberIds = selfId && !memberIds.includes(selfId) ? [selfId, ...memberIds] : memberIds;
-    const payload = { name: teamName.trim(), memberIds: finalMemberIds, superviser: supervisorId };
-  const resTeam = await createTeam(workspaceId, payload);
-  const team = resTeam?.data?.team || resTeam?.data;
+      // Ensure creator stays in memberIds
+      const finalMemberIds = selfId && !memberIds.includes(selfId) ? [selfId, ...memberIds] : (memberIds.length > 0 ? memberIds : (selfId ? [selfId] : []));
+      const finalSupervisor = supervisorId || (selfId && finalMemberIds.includes(selfId) ? selfId : finalMemberIds[0] || null);
+      const payload = { name: teamName.trim(), memberIds: finalMemberIds, superviser: finalSupervisor };
+      const resTeam = await createTeam(workspaceId, payload);
+      const team = resTeam?.data?.team || resTeam?.data;
       if (team?._id) {
         dispatch(setTeam(team));
         dispatch(setSelectedTeamId(team._id));
         dispatch(setTeamsList([team, ...teamsInStore]));
       }
-  const channelPayload = { name: teamName.trim(), type: 'text', workspaceId, members: finalMemberIds };
+      const channelPayload = { name: teamName.trim(), type: 'text', workspaceId, members: finalMemberIds };
       const resChannel = await createChannel(channelPayload);
       const channel = resChannel?.data || resChannel;
       // Pair channelId with teamId for future lookups
@@ -78,7 +78,7 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
       onChannelCreated?.(channel);
       onClose?.();
     } catch (e) {
-      setError(e?.response?.data?.message || e?.message || 'Failed to create team');
+      setError(e?.response?.data?.message || e?.response?.data?.msg || e?.message || 'Failed to create team');
     } finally {
       setSaving(false);
     }

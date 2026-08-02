@@ -7,6 +7,7 @@ import image from "../../assets/image.svg";
 import send from "../../assets/send.svg";
 import EmojiSelector from "../../components/chat/emojipicker.jsx";
 import { uploadFileToWorkspace } from "../../api/file";
+import socket from "./socket.jsx";
 
 const InputBox = ({
   messageInput,
@@ -18,8 +19,12 @@ const InputBox = ({
   attachments,
   setAttachments,
   members = [],
+  isDMMode,
+  dmReceiverId,
+  activeRoomId,
 }) => {
   const fileInputRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
@@ -106,6 +111,26 @@ const InputBox = ({
     const cursorPos = e.target.selectionStart;
     
     setMessageInput(value);
+
+    if (socket && socket.connected) {
+      const isDM = isDMMode || (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-"));
+      const targetReceiverId = dmReceiverId || (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-") ? activeRoomId.replace("dm-", "") : null);
+
+      if (isDM && targetReceiverId) {
+        socket.emit("dm_typing", targetReceiverId);
+      } else if (activeRoomId && typeof activeRoomId === "string" && !activeRoomId.startsWith("dm-")) {
+        socket.emit("typing", activeRoomId);
+      }
+
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        if (isDM && targetReceiverId) {
+          socket.emit("dm_stop_typing", targetReceiverId);
+        } else if (activeRoomId && typeof activeRoomId === "string" && !activeRoomId.startsWith("dm-")) {
+          socket.emit("stop_typing", activeRoomId);
+        }
+      }, 1500);
+    }
     
     // Find last @ before cursor
     const textBeforeCursor = value.substring(0, cursorPos);

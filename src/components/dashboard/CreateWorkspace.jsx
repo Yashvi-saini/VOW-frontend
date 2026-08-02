@@ -20,11 +20,9 @@ const CreateWorkspace = ({ onCreated }) => {
       const workspaceId = workspace._id || workspace.id;
       const inviteCode = workspace.inviteCode;
     const managerId = workspace.manager || workspace.managerId || workspace.ownerId || null;
-console.log("Checking token for:", workspaceId);
       localStorage.setItem("workspaceId", workspaceId);
       localStorage.setItem("inviteCode", inviteCode);
-  console.log("Dispatching workspace context:", { workspaceId });
-  dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null, workspaceManagerId: managerId }));
+      dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null, workspaceManagerId: managerId }));
       alert("Workspace created successfully!");
       setWorkspaceName("");
       setEmails("");

@@ -1,134 +1,82 @@
-import { io } from "socket.io-client";
+import socket, { connectSocket } from "../chat/socket.jsx";
 
-// ✅ use env instead of hardcoded
-const BACKEND_URL = import.meta.env.VITE_SOCKET_URL;
+export const mapSocket = socket;
 
-// ✅ always use correct key
-const getAuthToken = () => {
-  return localStorage.getItem("accessToken");
-};
-
-const mapSocket = io(BACKEND_URL, {
-  path: "/socket.io",
-
-  // keep polling if backend requires it
-  transports: ["polling"],
-  upgrade: false,
-
-  withCredentials: true,
-  autoConnect: false,
-
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: 5,
-});
-
-// --------------------------------------------
-// CONNECT (IMPORTANT FIX)
-// --------------------------------------------
 export const connectMapSocket = () => {
-  const token = getAuthToken();
-
-  // set token RIGHT BEFORE connect
-  mapSocket.auth = { token };
-
-  if (!mapSocket.connected) {
-    mapSocket.connect();
-  }
+  connectSocket();
 };
 
 export const disconnectMapSocket = () => {
-  if (mapSocket.connected) mapSocket.disconnect();
+  // Global socket managed by socket.jsx
 };
-
-// --------------------------------------------
-// LOGS
-// --------------------------------------------
-mapSocket.on("connect", () => {
-  console.log("MAP SOCKET CONNECTED:", mapSocket.id);
-  console.log("Transport:", mapSocket.io.engine.transport.name);
-});
-
-mapSocket.on("connect_error", (err) => {
-  console.error("MAP SOCKET connect_error:", err.message);
-});
-
-mapSocket.on("disconnect", (reason) => {
-  console.warn("MAP SOCKET DISCONNECTED:", reason);
-});
 
 // --------------------------------------------
 // CLIENT → SERVER
 // --------------------------------------------
-export const joinMapPresence = ({ name, x, y }) => {
-  mapSocket.emit("join", {
+export const joinMapPresence = ({ workspaceId, name, x, y }) => {
+  connectSocket();
+  socket.emit("join", {
+    workspaceId,
     displayName: name || "User",
     x,
     y,
   });
 };
 
-export const updateMapPosition = ({ x, y }) => {
-  mapSocket.emit("move", { x, y });
+export const updateMapPosition = ({ workspaceId, x, y, displayName, avatar }) => {
+  socket.emit("move", { workspaceId, x, y, displayName, avatar });
 };
 
-export const leaveMapPresence = () => {
-  mapSocket.emit("leave");
+export const leaveMapPresence = (workspaceId) => {
+  socket.emit("leave", { workspaceId });
 };
 
 // --------------------------------------------
 // SERVER → CLIENT
 // --------------------------------------------
 export const setupMapListeners = (cb = {}) => {
-  mapSocket.off("user-joined");
-  mapSocket.off("user-moved");
-  mapSocket.off("user-left");
-  mapSocket.off("join-ack");
-  mapSocket.off("presence-sync");
+  socket.off("user-joined");
+  socket.off("user-moved");
+  socket.off("user-left");
+  socket.off("join-ack");
+  socket.off("presence-sync");
 
-  let identityReceived = false;
-
-  mapSocket.on("join-ack", (data) => {
-    identityReceived = true;
+  socket.on("join-ack", (data) => {
     cb.onJoinAck && cb.onJoinAck(data);
   });
 
-  mapSocket.on("presence-sync", (avatars) => {
-    if (!identityReceived) return;
+  socket.on("presence-sync", (avatars) => {
     cb.onState && cb.onState({ avatars });
   });
 
-  mapSocket.on("user-joined", (data) => {
+  socket.on("user-joined", (data) => {
     cb.onJoined && cb.onJoined(data);
   });
 
-  mapSocket.on("user-moved", (data) => {
+  socket.on("user-moved", (data) => {
     cb.onUpdated && cb.onUpdated(data);
   });
 
-  mapSocket.on("user-left", (data) => {
+  socket.on("user-left", (data) => {
     cb.onLeft && cb.onLeft(data);
   });
 };
 
 export const removeMapListeners = () => {
-  mapSocket.off("user-joined");
-  mapSocket.off("user-moved");
-  mapSocket.off("user-left");
-  mapSocket.off("join-ack");
-  mapSocket.off("presence-sync");
+  socket.off("user-joined");
+  socket.off("user-moved");
+  socket.off("user-left");
+  socket.off("join-ack");
+  socket.off("presence-sync");
 };
 
-// --------------------------------------------
 export const getMapSocketStatus = () => {
   return {
-    connected: mapSocket.connected,
-    id: mapSocket.id,
-    transport: mapSocket.io.engine.transport.name,
+    connected: socket.connected,
+    id: socket.id,
+    transport: socket.io?.engine?.transport?.name || "websocket",
     timestamp: new Date().toISOString(),
   };
 };
 
-export { mapSocket };
-export default mapSocket;
+export default socket;

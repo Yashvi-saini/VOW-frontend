@@ -1,13 +1,68 @@
-import React from "react";
+import React, { useState } from "react";
 import keyIcon from "../../assets/Key.svg";
+import { joinWorkspace } from "../../api/workspaceApi.js";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setWorkspaceContext } from "../userslice";
 
-const DashboardNewUser = () => {
+const DashboardNewUser = ({ onCreate }) => {
+  const [inviteCode, setInviteCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const card =
-    "rounded-[16px] border border-[#8F7AA9] bg-[#EFE7F6]  p-6 flex flex-col items-center text-center gap-4 min-h-[200px]";
+    "rounded-[16px] border border-[#8F7AA9] bg-[#EFE7F6] p-6 flex flex-col items-center text-center gap-4 min-h-[200px]";
   const primaryBtn =
-    "bg-[#5E9BFF] hover:bg-[#4A8CE0] text-white px-6 py-2.5 rounded-lg transition border border-[#1F2937]";
+    "bg-[#5E9BFF] hover:bg-[#4A8CE0] text-white px-6 py-2.5 rounded-lg transition border border-[#1F2937] cursor-pointer";
   const secondaryBtn =
-    "bg-[#E0E7FF] hover:bg-[#C7D2FE] text-[#000] px-6 py-2.5 rounded-lg transition border border-[#1F2937]";
+    "bg-[#E0E7FF] hover:bg-[#C7D2FE] text-[#000] px-6 py-2.5 rounded-lg transition border border-[#1F2937] cursor-pointer";
+
+  const handleJoin = async () => {
+    const codeToJoin = inviteCode.trim();
+    if (!codeToJoin) {
+      setError("Please enter a workspace ID");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await joinWorkspace(codeToJoin);
+      const data = response.data;
+
+      if (!data.success && data.msg === "User is already a member") {
+        setError("You are already a member of this workspace");
+        return;
+      }
+
+      if (data.success && data.workspace) {
+        const { _id, inviteCode: code, workspaceName } = data.workspace;
+        localStorage.setItem("workspaceId", _id);
+        localStorage.setItem("inviteCode", code);
+        dispatch(
+          setWorkspaceContext({
+            workspaceId: _id,
+            workspaceToken: null,
+            workspaceName,
+          })
+        );
+        navigate(`/workspace/${_id}/chat`);
+      } else {
+        setError(data.message || data.msg || "Incorrect workspace ID");
+      }
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.msg ||
+        "Incorrect workspace ID";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative">
@@ -19,7 +74,7 @@ const DashboardNewUser = () => {
               <p className="text-[16px] text-[#000] opacity-80">
                 Perfect for new teams or fresh projects.
               </p>
-              <button className={primaryBtn}>Create</button>
+              <button type="button" onClick={onCreate} className={primaryBtn}>Create</button>
             </div>
 
             {/* Join Workspace */}
@@ -28,16 +83,34 @@ const DashboardNewUser = () => {
               <div className="relative w-full max-w-xs">
                 <input
                   type="text"
+                  value={inviteCode}
+                  onChange={(e) => {
+                    setInviteCode(e.target.value);
+                    setError("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleJoin();
+                  }}
                   placeholder="Enter the Workspace ID to join"
                   className="w-full h-10 rounded-lg border border-[#707070] bg-white pl-3 pr-10 text-sm text-[#0E1219] placeholder:text-[#707070] focus:outline-none focus:border-[#5E9BFF]"
                 />
                 <img
                   src={keyIcon}
                   alt="key"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-60"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-60 pointer-events-none"
                 />
               </div>
-              <button className={primaryBtn}>Join Now</button>
+              {error && (
+                <p className="text-[#CC0404] text-[13px] font-medium">{error}</p>
+              )}
+              <button
+                type="button"
+                onClick={handleJoin}
+                disabled={loading}
+                className={primaryBtn}
+              >
+                {loading ? "Joining..." : "Join Now"}
+              </button>
             </div>
           </div>
 
@@ -58,7 +131,7 @@ const DashboardNewUser = () => {
                   <br />
                   Now
                 </button>
-                <button className={secondaryBtn}>Create</button>
+                <button type="button" onClick={onCreate} className={secondaryBtn}>Create</button>
               </div>
             </div>
           </div>
@@ -69,4 +142,3 @@ const DashboardNewUser = () => {
 };
 
 export default DashboardNewUser;
-

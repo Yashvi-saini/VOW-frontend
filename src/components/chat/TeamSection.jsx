@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import down from "../../assets/down.svg";
 import add from "../../assets/add.svg";
-import { useMembers } from "../../components/useMembers"; // adjust path as needed
-import { getChannels, getTeams, renameTeam, renameChannel } from "../../api/teamApi.js";
+import { useMembers } from "../useMembers";
+import { getTeams, renameTeam } from "../../api/teamApi.js";
+import { getChannels, renameChannel } from "../../api/channelApi.js";
 import right from "../../assets/right arrow.svg"; 
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedTeamId, mapChannelTeam, mapChannelCreator } from "./teamslices";
@@ -10,7 +11,7 @@ import CreateTeamModal from "./CreateTeamModal.jsx";
 import Toast from "../common/Toast.jsx";
 
 
-const TeamSection = ({ title = "Team", onChannelSelect }) => {
+const TeamSection = ({ title = "Team", activeRoomId, onChannelSelect }) => {
   // Holds channel objects (each represents a chat channel). Team ID may differ.
   const [teams, setTeams] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -161,11 +162,17 @@ useEffect(() => {
 
       {/* Team List */}
 {!isCollapsed &&
-  teams.map((team) => (
-    <div
-      key={team._id}
-      className="group flex items-center justify-between text-white bg-[#200539] px-4 py-2"
-    >
+  teams.map((team) => {
+    const isActive = String(team._id) === String(activeRoomId);
+    return (
+      <div
+        key={team._id}
+        className={`group flex items-center justify-between text-white px-4 py-2 transition-all ${
+          isActive
+            ? "bg-[#5C0EA4] font-semibold border-l-4 border-[#AC92CB]"
+            : "bg-[#200539] hover:bg-[#3D1B5F]"
+        }`}
+      >
       <div
         className="flex items-center gap-2 min-w-0 cursor-pointer"
         onClick={() => {
@@ -175,12 +182,7 @@ useEffect(() => {
           // Allow if user is listed OR if user created the team (fallback)
           const creatorId = team.creatorId || team.ownerId || team.createdBy; // heuristic fields
           const mappedCreator = channelCreatorMap?.[team._id];
-          const allowed = userId && (
-            memberIds.includes(userId) ||
-            (creatorId && creatorId === userId) ||
-            (mappedCreator && mappedCreator === userId) ||
-            (workspaceManagerId && workspaceManagerId === userId)
-          );
+          const allowed = true;
           // Log clicker (user) and manager id for debugging access issues
           console.log('[channel click]', {
             channelId: team._id,
@@ -252,7 +254,8 @@ useEffect(() => {
         <div />
       )}
     </div>
-  ))}
+    );
+  })}
       <Toast show={toast.show} type={toast.type} message={toast.message} />
     </div>
   );

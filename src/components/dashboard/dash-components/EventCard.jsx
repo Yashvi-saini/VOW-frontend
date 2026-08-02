@@ -23,9 +23,6 @@ const MeetingCards = ({ selectedDate }) => {
   const formatDate = (date) => date.toISOString().split("T")[0];
 
   useEffect(() => {
-    if (selectedDate) {
-      console.log("Filtering meetings for:", formatDate(selectedDate));
-    }
   }, [selectedDate]);
 
   const now = new Date();
@@ -42,8 +39,6 @@ const MeetingCards = ({ selectedDate }) => {
         );
       })
     : meetings.filter((m) => new Date(m.endTime) > now); // if no date selected, show only upcoming
-
-  console.log("Filtered meetings:", filteredMeetings);
 
   if (loading) return <p className="p-4 text-gray-500">Loading meetings...</p>;
   if (filteredMeetings.length === 0)
