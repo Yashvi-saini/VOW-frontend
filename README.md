@@ -1,86 +1,179 @@
 # VOW (Virtual Organized World) - Frontend Web Application
 
-[![React Version](https://img.shields.io/badge/react-v19.1.1-blue.svg)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/vite-v7.1.10-purple.svg)](https://vitejs.dev/)
-[![Redux Toolkit](https://img.shields.io/badge/redux--toolkit-v2.9.2-violet.svg)](https://redux-toolkit.js.org/)
-[![Tailwind CSS](https://img.shields.io/badge/tailwindcss-v4.1.14-cyan.svg)](https://tailwindcss.com/)
-[![Socket.io Client](https://img.shields.io/badge/socket.io--client-v4.8.1-black.svg)](https://socket.io/)
-[![Cloudinary](https://img.shields.io/badge/cloudinary-v2.0-blue.svg)](https://cloudinary.com/)
-[![Google Gemini AI](https://img.shields.io/badge/google--genai-v1.29.0-orange.svg)](https://ai.google.dev/)
+[![React Version](https://img.shields.io/badge/React-v19.1.1-blue.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-v7.1.10-purple.svg)](https://vitejs.dev/)
+[![Redux Toolkit](https://img.shields.io/badge/Redux--Toolkit-v2.9.2-violet.svg)](https://redux-toolkit.js.org/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.1.14-cyan.svg)](https://tailwindcss.com/)
+[![Socket.io Client](https://img.shields.io/badge/Socket.io--Client-v4.8.1-black.svg)](https://socket.io/)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-v2.0-blue.svg)](https://cloudinary.com/)
+[![Google Gemini AI](https://img.shields.io/badge/Google--GenAI-v1.29.0-orange.svg)](https://ai.google.dev/)
+[![Backend Repository](https://img.shields.io/badge/Backend-VOW__backend-green.svg)](https://github.com/raj-krr/VOW_backend)
 [![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
 
-**VOW (Virtual Organized World)** is a next-generation real-time virtual workspace application designed to bring distributed remote teams together in an interactive 2D office environment. It provides real-time spatial avatar movement, automatic DM chat opening on avatar collision, persistent channel and direct text messaging, real-time unread badges, WebRTC SFU video/audio conferencing, workspace role governance, Cloudinary media storage with full-screen lightbox previews, and an integrated Google Gemini AI copilot.
+**VOW (Virtual Organized World)** is an interactive, real-time spatial web application designed for distributed remote teams. Built on React 19, Vite, Redux Toolkit, and Socket.io, the frontend provides a 2D spatial virtual office interface where team members navigate custom avatars, initiate spontaneous 1-on-1 chats upon avatar collision, collaborate in real-time text channels & DMs, participate in WebRTC SFU video/audio meetings, and query an integrated Google Gemini AI workspace copilot.
+
+> 🔗 **Repositories Ecosystem**:
+> - 🎨 **Frontend Repository (This Repo)**: [https://github.com/raj-krr/VOW](https://github.com/raj-krr/VOW)
+> - ⚙️ **Backend Repository**: [https://github.com/raj-krr/VOW_backend](https://github.com/raj-krr/VOW_backend)
 
 ---
 
-## ⚡ Key Highlights & Recent Features
+## 🎯 Full-Stack Context & Problem VOW Solves
 
-- 🎮 **2D Spatial Office & Avatar Collisions**: Smooth ~16Hz spatial avatar navigation. Walking up to and colliding with another team member's avatar on the 2D map automatically opens the Direct Message (DM) chat window.
-- 💬 **Unified Real-Time Messaging & Unread Badges**: Persistent team channels and Direct Messages (DMs) over a single unified WebSocket connection, complete with real-time unread message counters on workspace members.
-- 🖼️ **Cloudinary Media Uploads & Fullscreen Lightbox**: Instant Cloudinary file/avatar uploads with fail-safe inline fallbacks, high-resolution full-screen image lightbox previews, and direct media downloads.
-- 👥 **Workspace Presence & Self-Identification**: Live workspace member presence badges and clear self-identification tagged with `(You)` in member lists.
-- 🎥 **WebRTC SFU Video/Audio Meetings**: High-performance multi-party video and audio meeting rooms with screen-sharing capabilities.
+In conventional remote work setups, team members operate in static, disconnected browser tabs. Communication requires manual overhead: copying Zoom links, searching Slack handles, or sending calendar invites.
 
----
-
-## 📚 Complete Project Documentation
-
-The frontend repository is fully documented across dedicated technical guides in the [`docs/`](./docs) directory:
-
-| Document | Description |
-| :--- | :--- |
-| 🏗️ **[System Architecture](./docs/ARCHITECTURE.md)** | High-level topology, technical stack, subsystem breakdown, state persistence, and sequence flows. |
-| ⚡ **[Feature Catalog](./docs/FEATURES.md)** | Detailed functional specifications for Auth, Workspaces, 2D Spatial Office, Chat, SFU WebRTC, and Cloudinary Media. |
-| 🧩 **[Components & State](./docs/COMPONENTS_AND_STATE.md)** | Exhaustive taxonomy of pages, component trees, Redux Toolkit slices, custom hooks, and REST API services. |
-| 🚀 **[Suggestions & Improvements](./docs/SUGGESTIONS_AND_IMPROVEMENTS.md)** | Technical debt analysis, Canvas/WebGL migration roadmap, Vitest/Playwright testing strategy, and UX enhancements. |
-| 🛠️ **[Errors & Troubleshooting](./docs/ERRORS_AND_TROUBLESHOOTING.md)** | Catalog of runtime issues, WebRTC ICE troubleshooting, Redux rehydration traps, and WebSockets diagnostic runbooks. |
-| 💻 **[Development & Deployment](./docs/DEVELOPMENT_AND_DEPLOYMENT.md)** | Local setup guide, environment variable matrix, Vite configuration, Docker builds, and Vercel deployment. |
+### How VOW Fixes It (Full-Stack Solution):
+1. **Visual Co-Presence**: A live 2D virtual office grid map where team members see each other's avatars moving in real-time (~16Hz updates synchronized via WebSockets with the backend).
+2. **Frictionless Spontaneous DM Chat**: Walking your avatar into another teammate's avatar on the 2D grid **automatically opens a direct 1-on-1 chat window**, simulating walking over to a colleague's desk in a physical office.
+3. **Unified Workspace Interface**: Text channels, DMs, unread counters, WebRTC video conference rooms, Cloudinary media lightbox previews, and AI assistance all reside within a single responsive view.
+4. **Role Governance & Security**: Dual-token JWT architecture (Master Auth Token + Workspace Session Token) enforcing granular privileges for **Managers**, **Supervisors**, and **Team Members**.
 
 ---
 
-## 🎥 Demo & Previews
+## 🚀 Key Frontend Features
 
-### 📸 UI Screenshots
-<table>
-  <tr>
-    <td><img src="./public/pic2.png" width="380" alt="Landing Page"/></td>
-    <td><img src="./public/pic3.png" width="380" alt="Dashboard Hub"/></td>
-  </tr>
-  <tr>
-    <td><img src="./public/pic4.png" width="380" alt="2D Virtual Office Map"/></td>
-    <td><img src="./public/pic5.png" width="380" alt="WebRTC Video Conference & Chat"/></td>
-  </tr>
-</table>
+### 1. 🎮 2D Spatial Office & Avatar Collision Engine
+- **Spatial Avatar Navigation**: Smooth WASD / Arrow Key / Click-to-move spatial avatar controls synchronized at ~16Hz via WebSockets.
+- **Proximity Collision Triggers**: Automatic avatar collision detection triggering direct message (DM) window opening.
+- **Dynamic Tilemap & Layers**: Multi-layered canvas rendering (`AvatarsLayer`, tilemaps, furniture objects).
+- **Self-Identification**: Clear `(You)` tag and distinct highlight border around your own avatar.
+
+### 2. 💬 Real-Time Unified Chat System
+- **Channel & DM Navigation**: Seamless tab switching between persistent team channels and private 1-on-1 DMs.
+- **Real-Time Unread Counters**: Instant unread badges on workspace member items updated via Socket events (`unread_count_update`).
+- **Media Lightbox & File Attachments**: Cloudinary image upload handling, inline file attachments, and full-screen image lightbox modal (`fileapitester.jsx`).
+- **Emoji Picker & Reactions**: Full emoji selection (`emoji-picker-react`) and inline message reactions.
+
+### 3. 🎥 WebRTC SFU Video/Audio Huddles
+- **Multi-Party Conference**: Low-latency video and audio streams powered by SFU WebRTC signaling (`sfuSignaling.js`, `useSfuVideoCall.js`).
+- **Controls**: Mute microphone, toggle camera, and screen sharing controls.
+
+### 4. 🤖 Integrated Gemini AI Copilot
+- **AI Workspace Chat**: Interactive drawer (`geminichat.jsx`, `geminiservice.js`) leveraging Google Gemini API (`@google/genai`) to answer questions, summarize team channels, and assist with workflows.
+
+### 5. 🔐 Multi-Tenant Workspace & Role Views
+- **RBAC Responsive Panels**: Customized action drawers and controls for **Manager**, **Supervisor**, and **Team Member** roles.
+- **Invite Code & Team Builder**: Modal dialogs (`CreateTeamModal`, `SupervisorSelect`, `MemberMultiSelect`) for building workspace teams.
 
 ---
 
-## 👥 User Roles & Permissions
+## 🏗️ Full-Stack & Frontend Architecture
 
-- **Manager**: Creates and configures virtual workspaces, manages permissions, partitions teams/channels, and generates invite codes.
-- **Supervisor**: Monitors team channels, coordinates daily operations, assigns tasks, and tracks attendance analytics.
-- **Team Member**: Walks freely in the 2D office grid, joins voice/video rooms, participates in text chats, and shares files.
+### Full-Stack System Topology
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              VOW Frontend (React 19 + Vite)                            │
+│ ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────────────────┐ │
+│ │   2D Office Canvas   │  │    Redux Toolkit     │  │       Chat & Media Panel       │ │
+│ │  (Spatial Navigation)│  │ (State & Persistence)│  │ (ChatLayout / VideoConference) │ │
+│ └──────────┬───────────┘  └──────────┬───────────┘  └───────────────┬────────────────┘ │
+└────────────┼─────────────────────────┼──────────────────────────────┼──────────────────┘
+             │                         │                              │
+             │ REST API (Axios)        │ Socket.io & WebRTC           │ Cloudinary / AI
+             ▼                         ▼                              ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                         VOW Backend Server (Express 5 + TypeScript)                    │
+│ ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────────────────┐ │
+│ │   REST Controllers   │  │ Socket.io Handlers   │  │      WebRTC SFU Signaling      │ │
+│ │ (Auth, Workspace, DM)│  │(Presence, Spatial 16Hz)│ │     (Video / Audio Huddles)    │ │
+│ └──────────┬───────────┘  └──────────┬───────────┘  └───────────────┬────────────────┘ │
+└────────────┼─────────────────────────┼──────────────────────────────┼──────────────────┘
+             │                         │                              │
+             ▼                         ▼                              ▼
+ ┌───────────────────────┐   ┌───────────────────────┐   ┌───────────────────────────┐
+ │ MongoDB Atlas Database│   │ Cloudinary Media CDN  │   │  Google Gemini AI Service │
+ └───────────────────────┘   └───────────────────────┘   └───────────────────────────┘
+```
+
+### Frontend State Architecture (Redux Toolkit)
+
+- **`userSlice`**: Auth token, user profile data (name, email, avatar URL), authentication status.
+- **`workspaceSlice`**: Active workspace ID, workspace metadata, members list, user role within current workspace.
+- **`presenceSlice`**: Spatial positions `(x, y)` of all workspace members, online status, collision state events.
+- **`teamSlice`**: Active team channels, selected channel/DM target, message logs, typing indicators, unread counters.
+
+### Frontend Communication Layer (API & Sockets)
+- **`src/api/authApi.js`**: Login, Signup, OTP verification, Password Reset endpoints.
+- **`src/api/workspaceApi.js`**: Workspace creation, join via invite code, member listing.
+- **`src/components/chat/socket.jsx`**: Central Socket.io connection (`send_message`, `receive_message`, `unread_count_update`).
+- **`src/components/map/mapSocket.jsx`**: High-frequency spatial movement listener (`position_update`) broadcasting movements to `presenceSlice`.
+- **`src/components/chat/sfuSignaling.js`**: WebRTC SFU offer/answer exchange and ICE candidate signaling.
 
 ---
 
-## 🚀 Quick Start
+## 📁 Source Code Directory Layout
+
+```
+VOW/src/
+├── api/                       # Axios REST API Services
+│   ├── authApi.js             # Authentication endpoints
+│   ├── workspaceApi.js        # Workspace endpoints
+│   └── chatApi.js             # Channel & DM endpoints
+├── assets/                    # Static images, map tiles, and iconography
+├── components/
+│   ├── auth.js                # Auth helper utilities
+│   ├── chat/                  # Chat subsystem
+│   │   ├── ChatLayout.jsx     # Main chat wrapper & container
+│   │   ├── chat.jsx           # Active channel / DM window
+│   │   ├── input.jsx          # Text input, file upload button, emoji selector
+│   │   ├── message.jsx        # Individual chat message bubble & media preview
+│   │   ├── MembersSection.jsx # Member list with live presence & unread badges
+│   │   ├── VideoConference.jsx# WebRTC SFU video/audio call view
+│   │   ├── sfuSignaling.js    # WebRTC SFU signaling client
+│   │   └── useSfuVideoCall.js # Custom hook managing WebRTC media streams
+│   ├── map/                   # 2D Spatial Office map engine
+│   │   ├── Map.jsx            # Main interactive canvas container
+│   │   ├── AvatarsLayer.jsx   # Spatial avatar rendering & movement interpolation
+│   │   ├── mapSocket.jsx      # Spatial socket connection & position handler
+│   │   └── presenceSlice.js   # Redux slice storing avatar spatial coordinates
+│   ├── dashboard/             # Dashboard widgets & role panels
+│   └── common/                # Shared UI controls (Modals, Lightboxes, Buttons)
+├── pages/                     # Application Route Pages
+│   ├── home.jsx               # Landing page with hero banner & features
+│   ├── login.jsx              # User login page
+│   ├── signup.jsx             # User registration page
+│   ├── verifyotp.jsx          # Email OTP verification page
+│   ├── dashboard.jsx          # Core Virtual Workspace dashboard page
+│   └── resetpassword.jsx      # Password reset workflow page
+├── App.jsx                    # App router setup & protected routes
+└── main.jsx                   # Entrypoint with Redux Provider & PersistGate
+```
+
+---
+
+## 🚀 Quick Setup & Installation
 
 ### 1. Prerequisites
-- **Node.js**: v18.x or higher (v20.x recommended)
+- **Node.js**: v18.x or higher
 - **npm**: v9.x or higher
+- **Backend Service**: [VOW_backend](https://github.com/raj-krr/VOW_backend) running locally or hosted.
 
-### 2. Installation & Setup
+### 2. Installation
+
 ```bash
-# Clone the repository
+# Clone the frontend repository
 git clone https://github.com/raj-krr/VOW.git
 cd VOW
 
-# Install dependencies
+# Install npm dependencies
 npm install
 
-# Configure environment variables
+# Setup environment configuration
 cp .env.example .env
+```
 
-# Start development server
+### 3. Environment Configuration (`.env`)
+
+```env
+VITE_API_URL=http://localhost:5000
+VITE_SOCKET_URL=http://localhost:5000
+VITE_GEMINI_API_KEY=your_google_gemini_api_key
+```
+
+### 4. Run Development Server
+
+```bash
 npm run dev
 ```
 
@@ -88,15 +181,21 @@ Open `http://localhost:5173` in your browser.
 
 ---
 
-## 🛠️ Tech Stack Summary
+## ⚙️ Pairing With Backend Repository
 
-- **Core**: React 19, Vite, JavaScript (ESM)
-- **State Management**: Redux Toolkit, Redux Persist
-- **Styling**: Tailwind CSS 4, Lucide Icons, React Icons
-- **Real-Time Communication**: Socket.io Client (Unified Connection), WebRTC SFU Client
-- **Media & File Storage**: Cloudinary SDK, Native Lightbox Modal
+To run the complete VOW platform locally:
+
+1. Clone and launch the **Backend Repository**:
+   ```bash
+   git clone https://github.com/raj-krr/VOW_backend.git
+   cd VOW_backend
+   npm install
+   npm run dev
+   ```
+2. Ensure the backend is running at `http://localhost:5000`.
+3. Launch this frontend (`VOW`) repository on `http://localhost:5173`.
 
 ---
 
 ## 📄 License
-This project is licensed under the ISC License.
+Licensed under the [ISC License](LICENSE).
