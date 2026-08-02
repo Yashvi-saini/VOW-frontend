@@ -1,47 +1,44 @@
 import { useEffect, useRef } from "react";
-export const useVoiceCall = (SOCKET_URL) => {
-  const socketRef = useRef(null);
+import socket, { connectSocket } from "../chat/socket";
+
+export const useVoiceCall = () => {
   const peerConnectionRef = useRef(null);
   const localStreamRef = useRef(null);
   const remoteAudioRef = useRef(null);
 
   useEffect(() => {
-    if (!SOCKET_URL) return;
-    import("socket.io-client").then(({ io }) => {
-      socketRef.current = io(SOCKET_URL, {
-        transports: ["polling"],
-        withCredentials: true,
-      });
+    connectSocket();
 
-      socketRef.current.on("connect", () => {
-        console.log("[VoiceCall] Connected to signaling server");
-      });
+    const handleOffer = async ({ from, offer }) => {
+      console.log("[VoiceCall] Received offer from:", from);
+      await handleReceiveOffer(from, offer);
+    };
 
-      socketRef.current.on("offer", async ({ from, offer }) => {
-        console.log("[VoiceCall] Received offer from:", from);
-        await handleReceiveOffer(from, offer);
-      });
+    const handleAnswer = async ({ from, answer }) => {
+      console.log("[VoiceCall] Received answer from:", from);
+      await peerConnectionRef.current?.setRemoteDescription(answer);
+    };
 
-      socketRef.current.on("answer", async ({ from, answer }) => {
-        console.log("[VoiceCall] Received answer from:", from);
-        await peerConnectionRef.current?.setRemoteDescription(answer);
-      });
-
-      socketRef.current.on("ice-candidate", async ({ candidate }) => {
-        if (candidate && peerConnectionRef.current) {
-          try {
-            await peerConnectionRef.current.addIceCandidate(candidate);
-          } catch (err) {
-            console.error("[VoiceCall] Error adding ICE candidate:", err);
-          }
+    const handleIceCandidate = async ({ candidate }) => {
+      if (candidate && peerConnectionRef.current) {
+        try {
+          await peerConnectionRef.current.addIceCandidate(candidate);
+        } catch (err) {
+          console.error("[VoiceCall] Error adding ICE candidate:", err);
         }
-      });
-    });
+      }
+    };
+
+    socket.on("offer", handleOffer);
+    socket.on("answer", handleAnswer);
+    socket.on("ice-candidate", handleIceCandidate);
 
     return () => {
-      socketRef.current?.disconnect();
+      socket.off("offer", handleOffer);
+      socket.off("answer", handleAnswer);
+      socket.off("ice-candidate", handleIceCandidate);
     };
-  }, [SOCKET_URL]);
+  }, []);
 
   const setupPeerConnection = () => {
     const pc = new RTCPeerConnection({
@@ -50,7 +47,7 @@ export const useVoiceCall = (SOCKET_URL) => {
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        socketRef.current?.emit("ice-candidate", { candidate: event.candidate });
+        socket.emit("ice-candidate", { candidate: event.candidate });
       }
     };
 
@@ -82,7 +79,7 @@ export const useVoiceCall = (SOCKET_URL) => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      socketRef.current?.emit("offer", { to: remoteUserId, offer });
+      socket.emit("offer", { to: remoteUserId, offer });
     } catch (err) {
       console.error("[VoiceCall] Error starting call:", err);
     }
@@ -99,7 +96,7 @@ export const useVoiceCall = (SOCKET_URL) => {
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
-      socketRef.current?.emit("answer", { to: from, answer });
+      socket.emit("answer", { to: from, answer });
     } catch (err) {
       console.error("[VoiceCall] Error handling offer:", err);
     }

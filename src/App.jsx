@@ -27,14 +27,16 @@ const App = () => {
   const { signupPending, forgotRequested: rdxForgot } =
     useSelector((state) => state.user || {});
 
-  const forgotRequested =
-    rdxForgot || !!localStorage.getItem("forgotRequested");
+  const pendingMode = sessionStorage.getItem("pendingMode");
+  const isForgot =
+    rdxForgot ||
+    !!localStorage.getItem("forgotRequested") ||
+    pendingMode === "forgot";
 
   // OTP flow logic
-  const verifyCondition = !!signupPending || !!forgotRequested;
-  const verifyRedirectTo = forgotRequested
-    ? "/forgot-password"
-    : "/signup";
+  const verifyCondition =
+    !!signupPending || isForgot || !!localStorage.getItem("forgotOtpVerified");
+  const verifyRedirectTo = isForgot ? "/forgot-password" : "/signup";
 
   return (
     <Router>

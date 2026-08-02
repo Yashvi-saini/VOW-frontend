@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { forgotPassword } from "../api/authApi";
+import { startForgotFlow } from "./userslice";
 import arrow from "../assets/arrow.svg";
 import Background from "../components/background.jsx";
 import logo from "../assets/logo.svg";
@@ -11,6 +13,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [emailFocused,setEmailFocused]=useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
  const trimmedEmail = email.trim();
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
@@ -30,7 +33,10 @@ const ForgotPassword = () => {
     if (data.success) {
       setServerMsg("");
       localStorage.setItem("forgotRequested", "true");
-      navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } })
+      sessionStorage.setItem("pendingEmail", trimmedEmail);
+      sessionStorage.setItem("pendingMode", "forgot");
+      dispatch(startForgotFlow(trimmedEmail));
+      navigate("/verify-otp", { state: { email: trimmedEmail, mode: "forgot" } });
     } else {
       setServerMsg(` ${data.msg || "Failed to send OTP"}`);
     }

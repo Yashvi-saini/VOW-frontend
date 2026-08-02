@@ -5,9 +5,11 @@ import videocam from "../../assets/videocam.svg";
 import logo from "../../assets/logo.png";
 import settingsIcon from "../../assets/settings.svg";
 import ChatRoomSection from "../chat/ChatRoomSection.jsx";
+import TeamSection from "../chat/TeamSection.jsx";
 import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({
+  activeRoomId,
   onChannelSelect,
   onCreateTeam,
   onCreateMeeting,
@@ -40,37 +42,10 @@ const Sidebar = ({
     }
   };
 
-  const postLayout = async (rooms) => {
-    try {
-      const res = await fetch("https://vow-org.me/maps", {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: "Office Layout - Ground Floor",
-          layoutUrl:
-            "https://w7.pngwing.com/pngs/279/877/png-transparent-hyperlink-computer-icons-link-text-logo-number-thumbnail.png",
-          rooms,
-        }),
-      });
-
-      console.log("[sidebar] layout api:", await res.json());
-    } catch (err) {
-      console.error("[sidebar] layout create failed:", err);
-    }
-  };
-
-  const handleVirtualSpaceClick = async () => {
+  const handleVirtualSpaceClick = () => {
     setActive("virtual");
     onVirtualSpaceClick?.();
     onShowMap?.();
-
-    await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
-
-    const rooms = collectRooms();
-    if (rooms.length) postLayout(rooms);
   };
 
   const handleCreateMeetingClick = () => {
@@ -126,7 +101,7 @@ const Sidebar = ({
 
         {/* Create Team */}
         <button
-          onClick={() => onOpenMemberModal("team")}
+          onClick={() => onOpenMemberModal ? onOpenMemberModal("team") : onCreateTeam?.()}
           className="w-full h-11 flex items-center justify-center gap-2 
                      bg-[#5E9BFF] text-white rounded-xl hover:bg-[#4A8AE8] transition"
         >
@@ -183,10 +158,26 @@ const Sidebar = ({
           </button>
         </nav>
 
+        <TeamSection
+          title="Teams"
+          activeRoomId={activeRoomId}
+          onChannelSelect={(id) => {
+            setActive("chat");
+            onChannelSelect?.(id);
+          }}
+        />
+
         <ChatRoomSection
           title="Chat Room"
-          onChannelSelect={onChannelSelect}
-          onStartDM={onStartDM}
+          activeRoomId={activeRoomId}
+          onChannelSelect={(id) => {
+            setActive("chat");
+            onChannelSelect?.(id);
+          }}
+          onStartDM={(id, name) => {
+            setActive("dm");
+            onStartDM?.(id, name);
+          }}
           unreadDMs={unreadDMs}
         />
       </div>

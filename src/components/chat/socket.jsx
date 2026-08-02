@@ -1,22 +1,30 @@
 import { io } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
 
 const socket = io(SOCKET_URL, {
   path: "/socket.io",
-  transports: ["websocket"],
+  transports: ["websocket", "polling"],
   withCredentials: true,
-  autoConnect: false, // important
+  autoConnect: false,
   timeout: 20000,
 });
 
 // connect only after token is ready
 export const connectSocket = () => {
   const token = localStorage.getItem("accessToken");
-
-  socket.auth = { token };
-  socket.connect();
+  if (token) {
+    socket.auth = { token };
+  }
+  if (!socket.connected) {
+    socket.connect();
+  }
 };
+
+// Auto connect if token exists on load
+if (typeof window !== "undefined" && localStorage.getItem("accessToken")) {
+  connectSocket();
+}
 
 // optional disconnect helper
 export const disconnectSocket = () => {
@@ -37,12 +45,23 @@ socket.on("disconnect", (reason) => {
   console.log("[socket] disconnected:", reason);
 });
 
+// Backend error events
+socket.on("error", (msg) => {
+  console.error("[socket] Server error:", msg);
+});
+
+socket.on("unauthorized", (msg) => {
+  console.error("[socket] Unauthorized:", msg);
+});
+
 // DM functions
 export const joinDMWorkspace = (workspaceId) => {
+  connectSocket();
   socket.emit("join_workspace", workspaceId);
 };
 
 export const sendDirectMessage = (payload) => {
+  connectSocket();
   socket.emit("send_dm", payload);
 };
 

@@ -18,7 +18,8 @@ const ResetPassword = () => {
   const [inputFocused, setInputFocused] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email;
+  const fallbackEmail = sessionStorage.getItem("pendingEmail");
+  const email = location.state?.email || fallbackEmail;
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [confirmFocused, setConfirmFocused] = useState(false);
 
@@ -88,13 +89,15 @@ const ResetPassword = () => {
       if (res.status === 200 && res.data.success) {
         localStorage.setItem("resetDone", "true");
         localStorage.removeItem("forgotOtpVerified");
+        sessionStorage.removeItem("pendingEmail");
+        sessionStorage.removeItem("pendingMode");
         navigate("/reset-success");
       } else {
         setError(res.data.msg || "Failed to reset password");
       }
     } catch (err) {
       console.error("Reset password error:", err);
-      setError("Network or server error. Please try again.");
+      setError(err.response?.data?.msg || "Network or server error. Please try again.");
     } finally {
       setTimeout(() => {
          setLoading(false);

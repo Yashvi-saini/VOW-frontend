@@ -4,7 +4,7 @@ import { createTeam } from "../../api/teamApi";
 import { useSelector } from "react-redux";
 
 const TeamBuilder = () => {
- const workspaceId = useSelector((state) => state.user.workspaceId); 
+ const workspaceId = useSelector((state) => state.user?.workspaceId || state.workspace?.activeWorkspace?.workspaceId) || localStorage.getItem("workspaceId"); 
 const workspaceToken = useSelector((state) => state.user.workspaceToken);
  console.log("Workspace ID:", workspaceId);
  console.log("Workspace Token:", workspaceToken);

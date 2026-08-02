@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   fetchChannelMessages,
   getDirectMessages,
@@ -9,52 +9,139 @@ export const useChatMessages = ({
   isDMMode,
   dmReceiverId,
   workspaceId,
+  userId,
   profile,
 }) => {
   const [messages, setMessages] = useState([]);
+  const [visibleLimit, setVisibleLimit] = useState(50);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const dmCacheRef = useRef({});
 
   useEffect(() => {
-    if (!activeRoomId || !profile?._id || !workspaceId) return;
+    setVisibleLimit(50);
+    setMessages([]); // Clear previous room's messages immediately
+
+    if (!activeRoomId || !workspaceId) return;
+
+    let isSubscribed = true;
 
     const fetchMessages = async () => {
+      setLoadingMessages(true);
       try {
-        if (isDMMode && dmReceiverId) {
-          const selfId = profile._id;
+        const isDM =
+          isDMMode ||
+          (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-"));
+
+        if (isDM) {
+          // Resolve selfId — use Redux userId FIRST, then profile, then localStorage, then JWT
+          let selfId =
+            userId ||
+            profile?._id ||
+            profile?.id ||
+            profile?.userId ||
+            localStorage.getItem("userId") ||
+            localStorage.getItem("profileId");
+
+          if (!selfId) {
+            const token = localStorage.getItem("accessToken");
+            if (token) {
+              try {
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                selfId = payload.id || payload._id || payload.userId;
+              } catch (e) {}
+            }
+          }
+
+          // Resolve targetDmId
+          let targetDmId = dmReceiverId;
+          if (!targetDmId && typeof activeRoomId === "string" && activeRoomId.startsWith("dm-")) {
+            targetDmId = activeRoomId.replace("dm-", "");
+          }
+
+          console.log("[useChatMessages] DM fetch:", { selfId, targetDmId, workspaceId });
+
+          if (!targetDmId || !selfId) {
+            console.warn("[useChatMessages] Cannot fetch DMs: missing selfId or targetDmId");
+            if (isSubscribed) {
+              setMessages([]);
+              setLoadingMessages(false);
+            }
+            return;
+          }
 
           const response = await getDirectMessages(
             workspaceId,
             selfId,
-            dmReceiverId
+            targetDmId
           );
 
           let raw = [];
-
           if (Array.isArray(response?.data?.messages)) {
             raw = response.data.messages;
           } else if (Array.isArray(response?.data)) {
             raw = response.data;
           }
 
-          dmCacheRef.current[dmReceiverId] = raw;
-          setMessages(raw);
+          console.log("[useChatMessages] DM fetched:", raw.length, "messages");
+
+          if (isSubscribed) {
+            dmCacheRef.current[targetDmId] = raw;
+            setMessages(raw);
+          }
         } else {
+          // Channel messages
           const response = await fetchChannelMessages(activeRoomId);
 
           const raw = Array.isArray(response?.data)
             ? response.data
             : response?.data?.messages || [];
 
-          setMessages(raw);
+          if (isSubscribed) {
+            setMessages(raw);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch messages:", err);
-        setMessages([]);
+        if (isSubscribed) setMessages([]);
+      } finally {
+        if (isSubscribed) setLoadingMessages(false);
       }
     };
 
     fetchMessages();
-  }, [activeRoomId, isDMMode, dmReceiverId, workspaceId, profile?._id]);
 
-  return { messages, setMessages, dmCacheRef };
+    return () => {
+      isSubscribed = false;
+    };
+  }, [
+    activeRoomId,
+    isDMMode,
+    dmReceiverId,
+    workspaceId,
+    userId,
+    profile?._id,
+    profile?.id,
+  ]);
+
+  const loadMoreMessages = useCallback(() => {
+    setVisibleLimit((prev) => prev + 50);
+  }, []);
+
+  const visibleMessages = useMemo(() => {
+    if (!messages || messages.length === 0) return [];
+    if (messages.length <= visibleLimit) return messages;
+    return messages.slice(messages.length - visibleLimit);
+  }, [messages, visibleLimit]);
+
+  const hasMore = messages.length > visibleLimit;
+
+  return {
+    messages: visibleMessages,
+    allMessagesCount: messages.length,
+    setMessages,
+    dmCacheRef,
+    loadingMessages,
+    hasMore,
+    loadMoreMessages,
+  };
 };

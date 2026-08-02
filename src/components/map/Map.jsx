@@ -20,6 +20,7 @@ import {
   replaceAvatars,
   upsertAvatar,
   updateAvatarPosition,
+  removeAvatar,
 } from "./presenceSlice";
 
 import mapSocket, {
@@ -34,9 +35,17 @@ import mapSocket, {
 
 import AvatarsLayer from "./AvatarsLayer.jsx";
 
-const Map = () => {
+const Map = ({ onAvatarCollision }) => {
   const dispatch = useDispatch();
-  const { username, avatar } = useSelector((s) => s.user || {});
+  const userState = useSelector((s) => s.user || {});
+  const workspaceId = userState.workspaceId;
+  const username =
+    userState.fullName ||
+    userState.username ||
+    userState.profile?.fullName ||
+    userState.profile?.username ||
+    "User";
+  const avatar = userState.avatar || userState.profile?.avatar;
   const { selfId } = useSelector((s) => s.presence || {});
   const userPanningRef = useRef(false);
   // Local avatar state
@@ -136,36 +145,32 @@ const Map = () => {
   // ----------------------------------------------
   // INITIAL MOUNT — Connect Socket + Join
   // ----------------------------------------------
- const selfIdRef = useRef(null);
-useEffect(() => {
-  selfIdRef.current = selfId;
-}, [selfId]);
+  const currentUserId = userState.userId || userState.profile?._id || userState.profile?.id;
+  const selfIdRef = useRef(currentUserId);
+
+  useEffect(() => {
+    if (currentUserId) {
+      selfIdRef.current = String(currentUserId);
+      dispatch(setIdentity({ selfId: String(currentUserId), workspaceId }));
+    }
+  }, [currentUserId, workspaceId, dispatch]);
 
 useEffect(() => {
   console.log("🌍 MAP MOUNT — Initializing socket & presence");
 
-  let hasJoined = false;
   let cleanedUp = false;
-
-  if (mapSocket.connected) {
-    leaveMapPresence();
-  }
 
   connectMapSocket();
 
   const onConnected = () => {
-    if (hasJoined || cleanedUp) return;
+    if (cleanedUp) return;
 
-    setTimeout(() => {
-      if (!cleanedUp) {
-        joinMapPresence({
-          name: username || "Anonymous",
-          x: positionRef.current.x,
-          y: positionRef.current.y,
-        });
-        hasJoined = true;
-      }
-    }, 100);
+    joinMapPresence({
+      workspaceId,
+      name: username || "Anonymous",
+      x: positionRef.current.x,
+      y: positionRef.current.y,
+    });
   };
 
   if (mapSocket.connected) onConnected();
@@ -175,16 +180,14 @@ useEffect(() => {
 
   setupMapListeners({
     onJoinAck: (data) => {
-      dispatch(setIdentity({ selfId: data.userId }));
+      if (data?.userId) {
+        selfIdRef.current = data.userId;
+        dispatch(setIdentity({ selfId: data.userId }));
+      }
     },
 
     onState: (data) => {
-      if (!selfIdRef.current) {
-        console.log("⚠ ignoring presence-sync until selfId is ready");
-        return;
-      }
-      if (!data.avatars?.length) return;
-
+      if (!data?.avatars?.length) return;
       dispatch(replaceAvatars(data.avatars));
     },
 
@@ -207,11 +210,10 @@ useEffect(() => {
 
   return () => {
     cleanedUp = true;
-    leaveMapPresence();
     removeMapListeners();
     mapSocket.off("connect", onConnected);
   };
-}, []);
+}, [workspaceId, username]);
 
 
   // ----------------------------------------------
@@ -231,12 +233,53 @@ useEffect(() => {
       if (dx > 0.05 || dy > 0.05) {
         lastSent.x = x;
         lastSent.y = y;
-        updateMapPosition({ x, y });
+        updateMapPosition({ workspaceId, x, y, displayName: username, avatar });
       }
     }, 60);
 
     return () => clearInterval(interval);
+  }, [workspaceId]);
+
+  // ----------------------------------------------
+  // AVATAR COLLISION DETECTION WITH REMOTE PLAYERS
+  // ----------------------------------------------
+  const { avatars } = useSelector((s) => s.presence || {});
+  const mountTimeRef = useRef(Date.now());
+  const lastCollisionTimeRef = useRef(0);
+
+  useEffect(() => {
+    mountTimeRef.current = Date.now();
   }, []);
+
+  useEffect(() => {
+    if (!positionRef.current || !avatars) return;
+
+    const now = Date.now();
+
+    // 3-second grace period after map mounts to prevent instant collision on load
+    if (now - mountTimeRef.current < 3000) return;
+
+    // 5-second cooldown to prevent spamming DM open on continuous collision
+    if (now - lastCollisionTimeRef.current < 5000) return;
+
+    const px = positionRef.current.x;
+    const py = positionRef.current.y;
+    const COLLISION_DISTANCE = 3.0; // percentage distance threshold
+
+    const collidedUser = Object.values(avatars).find((a) => {
+      if (!a || !a.userId || String(a.userId) === String(selfIdRef.current)) return false;
+      const rx = a.x ?? a.targetX ?? 60;
+      const ry = a.y ?? a.targetY ?? 60;
+      const dist = Math.hypot(px - rx, py - ry);
+      return dist < COLLISION_DISTANCE;
+    });
+
+    if (collidedUser) {
+      lastCollisionTimeRef.current = now;
+      console.log(`[Map] 🤝 Collision with ${collidedUser.displayName} (${collidedUser.userId})! Opening DM...`);
+      onAvatarCollision?.(collidedUser.userId, collidedUser.displayName);
+    }
+  }, [position, avatars, onAvatarCollision]);
 
   // ----------------------------------------------
   // RENDER

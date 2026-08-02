@@ -23,9 +23,11 @@ const AvatarsLayer = () => {
     });
 
     // add new
-    Object.values(avatars).forEach(a => {
-      if (!interpRef.current[a.userId]) {
-        interpRef.current[a.userId] = { x: a.x, y: a.y };
+    Object.values(avatars || {}).forEach(a => {
+      if (a && a.userId && !interpRef.current[a.userId]) {
+        const startX = typeof a.x === 'number' && !isNaN(a.x) ? a.x : 60;
+        const startY = typeof a.y === 'number' && !isNaN(a.y) ? a.y : 60;
+        interpRef.current[a.userId] = { x: startX, y: startY };
       }
     });
 
@@ -37,18 +39,27 @@ const AvatarsLayer = () => {
       const dt = Math.max(0, now - lastFrameRef.current);
       const alpha = 1 - Math.exp(-SPEED_PER_SEC * (dt / 1000));
 
-      Object.values(avatars).forEach(a => {
-        if (a.userId === selfId) return;
-        const interp = interpRef.current[a.userId];
-        if (!interp) return;
+      Object.values(avatars || {}).forEach(a => {
+        if (!a || !a.userId || String(a.userId) === String(selfId)) return;
 
-        const dx = a.targetX - interp.x;
-        const dy = a.targetY - interp.y;
+        let interp = interpRef.current[a.userId];
+        if (!interp || isNaN(interp.x) || isNaN(interp.y)) {
+          const initX = typeof a.x === 'number' && !isNaN(a.x) ? a.x : 60;
+          const initY = typeof a.y === 'number' && !isNaN(a.y) ? a.y : 60;
+          interp = { x: initX, y: initY };
+          interpRef.current[a.userId] = interp;
+        }
+
+        const targetX = typeof a.targetX === 'number' && !isNaN(a.targetX) ? a.targetX : (a.x ?? 60);
+        const targetY = typeof a.targetY === 'number' && !isNaN(a.targetY) ? a.targetY : (a.y ?? 60);
+
+        const dx = targetX - interp.x;
+        const dy = targetY - interp.y;
         const dist = Math.hypot(dx, dy);
 
         if (dist > SNAP_DIST) {
-          interp.x = a.targetX;
-          interp.y = a.targetY;
+          interp.x = targetX;
+          interp.y = targetY;
         } else {
           interp.x += dx * alpha;
           interp.y += dy * alpha;
@@ -70,27 +81,43 @@ const AvatarsLayer = () => {
     return () => cancelAnimationFrame(rafRef.current);
   }, [avatars, selfId]);
 
+  const remoteUsers = Object.values(avatars || {}).filter(
+    a => a && a.userId && String(a.userId) !== String(selfId)
+  );
+
   return (
     <>
-      {Object.values(avatars)
-        .filter(a => a.userId !== selfId)
-        .map(a => (
+      {remoteUsers.map(a => {
+        const posX = interpRef.current[a.userId]?.x ?? a.x ?? 60;
+        const posY = interpRef.current[a.userId]?.y ?? a.y ?? 60;
+        const username = a.displayName || "User";
+
+        return (
           <div
             key={a.userId}
             ref={el => { if (el) domRefs.current[a.userId] = el; }}
+            className="flex flex-col items-center justify-center pointer-events-none"
             style={{
               position: 'absolute',
-              top: (interpRef.current[a.userId]?.y ?? a.y) + '%',
-              left: (interpRef.current[a.userId]?.x ?? a.x) + '%',
-              transform: 'translate(-50%, -50%)'
+              top: `${posY}%`,
+              left: `${posX}%`,
+              transform: 'translate(-50%, -50%)',
+              zIndex: 35,
             }}
           >
-            <Avatar size={55} name={a.displayName} />
-            <div className="text-xs text-white text-center mt-1 drop-shadow">
-              {a.displayName}
+            {/* Remote Avatar */}
+            <div className="relative group cursor-pointer pointer-events-auto flex flex-col items-center">
+              <Avatar size={60} image={a.avatar} name={username} />
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#200539] rounded-full shadow-md z-10" />
+            </div>
+
+            {/* Distinct Username Badge */}
+            <div className="mt-1 px-3 py-0.5 bg-[#200539] text-white font-bold text-xs rounded-full border border-[#AC92CB] shadow-xl whitespace-nowrap pointer-events-auto">
+              {username}
             </div>
           </div>
-      ))}
+        );
+      })}
     </>
   );
 };
