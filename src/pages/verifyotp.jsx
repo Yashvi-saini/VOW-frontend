@@ -19,27 +19,23 @@ const VerifyOtp = () => {
 const [anyInputFocused, setAnyInputFocused] = useState(false);
   const dispatch = useDispatch();
   const { signupPending, forgotRequested: rdxForgot, pendingEmail: rdxEmail, pendingMode: rdxMode } = useSelector((s) => s.user || {});
-  const email = location.state?.email;
-  const mode = location.state?.mode || "signup"; // 'signup' or 'forgot'
+  const fallbackEmail = sessionStorage.getItem("pendingEmail");
+  const fallbackMode = sessionStorage.getItem("pendingMode");
+  const email = location.state?.email || rdxEmail || fallbackEmail;
+  const mode = location.state?.mode || rdxMode || fallbackMode || "signup";
 
   // Block access and enforce flow preconditions
   useEffect(() => {
-    // session fallback set by signup/forgot flows
-    const fallbackEmail = sessionStorage.getItem("pendingEmail");
-    const fallbackMode = sessionStorage.getItem("pendingMode"); // "signup" or "forgot"
-    const effectiveEmail = email || rdxEmail || fallbackEmail;
-    const effectiveMode = mode || rdxMode || fallbackMode || "signup";
-
     const hasFlowFlag =
-      effectiveMode === "signup"
+      mode === "signup"
         ? !!signupPending
-        : !!rdxForgot || !!localStorage.getItem("forgotRequested");
+        : !!rdxForgot || !!localStorage.getItem("forgotRequested") || !!localStorage.getItem("forgotOtpVerified");
 
     // If no email or no flow flag, redirect explicitly to start of flow.
-    if (!effectiveEmail || !hasFlowFlag) {
-      navigate(effectiveMode === "signup" ? "/signup" : "/forgot-password", { replace: true });
+    if (!email || !hasFlowFlag) {
+      navigate(mode === "signup" ? "/signup" : "/forgot-password", { replace: true });
     }
-  }, [email, mode, navigate]);
+  }, [email, mode, signupPending, rdxForgot, navigate]);
 
   // Timer countdown
   useEffect(() => {
@@ -112,27 +108,22 @@ const handleKeyDown = (e, index) => {
       if (res.status === 200 && data.success) {
         setOtpError(false);
         setMessage("");
-        setTimeout(() => {
-          if (mode === "signup") {
-            localStorage.setItem("otpVerified", "true");
-            localStorage.setItem("valid", "true");
-            // Clear flow flags
-            dispatch(setSignupDone(false));
-            dispatch(clearSignupFlow());
-            sessionStorage.removeItem("pendingEmail");
-            sessionStorage.removeItem("pendingMode");
-            dispatch(setProfileNeeded(true)); // retain profile needed state
-            navigate("/login");
-          } else {
-            localStorage.setItem("forgotOtpVerified", "true");
-            localStorage.removeItem("forgotRequested");
-            dispatch(clearForgotFlow());
-            setTimeout(() => {
-                navigate("/reset-password", { state: { email, resetToken: data.resetToken } });
-            }, 200);
-          
-          }
-        }, 1500);
+        if (mode === "signup") {
+          localStorage.setItem("otpVerified", "true");
+          localStorage.setItem("valid", "true");
+          // Clear flow flags
+          dispatch(setSignupDone(false));
+          dispatch(clearSignupFlow());
+          sessionStorage.removeItem("pendingEmail");
+          sessionStorage.removeItem("pendingMode");
+          dispatch(setProfileNeeded(true)); // retain profile needed state
+          navigate("/login");
+        } else {
+          localStorage.setItem("forgotOtpVerified", "true");
+          navigate("/reset-password", { state: { email } });
+          localStorage.removeItem("forgotRequested");
+          dispatch(clearForgotFlow());
+        }
       } else {
         setOtpError(true);
         setMessage(data.msg || "Invalid OTP. Please try again.");

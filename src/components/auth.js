@@ -1,27 +1,50 @@
-// utils/auth.js
-// Helper function to get cookie by name
-export const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
+import api from "../api/axiosConfig";
+
+// ================= TOKEN =================
+
+// Get token from localStorage
+export const getToken = () => {
+  return localStorage.getItem("accessToken");
 };
 
-// Helper function to check if user is authenticated
+// Set token
+export const setToken = (token) => {
+  localStorage.setItem("accessToken", token);
+};
+
+// Remove token
+export const removeToken = () => {
+  localStorage.removeItem("accessToken");
+};
+
+// ================= AUTH CHECK =================
+
 export const isAuthenticated = () => {
-  return !!getCookie('accessToken');
+  return !!getToken();
 };
 
-// Helper function to logout
+// ================= LOGOUT =================
+
 export const logout = async () => {
   try {
     await api.post("auth/logout");
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
   } finally {
-    // Clear all client-side storage
-    localStorage.clear();
-    // Redirect to login
-    window.location.href = '/login';
+    removeToken();
+    window.location.href = "/login";
+  }
+};
+
+// ================= AXIOS HELPER =================
+
+// Attach token automatically
+export const attachTokenToAxios = () => {
+  const token = getToken();
+
+  if (token) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common["Authorization"];
   }
 };

@@ -1,15 +1,37 @@
 import { io } from "socket.io-client";
-import { SOCKET_URL } from "../../config.js";
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
 
 const socket = io(SOCKET_URL, {
-  path: "/socket.io",        
-  transports: ["polling"], 
+  path: "/socket.io",
+  transports: ["websocket", "polling"],
   withCredentials: true,
-  upgrade: true,            
-  autoConnect: true,
+  autoConnect: false,
   timeout: 20000,
 });
 
+// connect only after token is ready
+export const connectSocket = () => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    socket.auth = { token };
+  }
+  if (!socket.connected) {
+    socket.connect();
+  }
+};
+
+// Auto connect if token exists on load
+if (typeof window !== "undefined" && localStorage.getItem("accessToken")) {
+  connectSocket();
+}
+
+// optional disconnect helper
+export const disconnectSocket = () => {
+  if (socket.connected) socket.disconnect();
+};
+
+// logs
 socket.on("connect", () => {
   const t = socket.io.engine.transport?.name;
   console.log("[socket] connected:", socket.id, "transport=", t);
@@ -23,18 +45,28 @@ socket.on("disconnect", (reason) => {
   console.log("[socket] disconnected:", reason);
 });
 
-// DM Socket Events
+// Backend error events
+socket.on("error", (msg) => {
+  console.error("[socket] Server error:", msg);
+});
+
+socket.on("unauthorized", (msg) => {
+  console.error("[socket] Unauthorized:", msg);
+});
+
+// DM functions
 export const joinDMWorkspace = (workspaceId) => {
+  connectSocket();
   socket.emit("join_workspace", workspaceId);
-  console.log("[DM] joined workspace:", workspaceId);
 };
 
 export const sendDirectMessage = (payload) => {
+  connectSocket();
   socket.emit("send_dm", payload);
-  console.log("[DM] sent message:", payload);
 };
 
 export const onReceiveDirectMessage = (callback) => {
+  socket.off("receive_dm");
   socket.on("receive_dm", callback);
 };
 
@@ -42,23 +74,9 @@ export const offReceiveDirectMessage = () => {
   socket.off("receive_dm");
 };
 
-export const sendDMTyping = (receiverId) => {
-  socket.emit("dm_typing", receiverId);
-};
-
-export const sendDMStopTyping = (receiverId) => {
-  socket.emit("dm_stop_typing", receiverId);
-};
-
-export const onDMUserTyping = (callback) => {
-  socket.on("dm_user_typing", callback);
-};
-
-export const onDMUserStopTyping = (callback) => {
-  socket.on("dm_user_stop_typing", callback);
-};
-
+// DM deleted listener
 export const onDMDeleted = (callback) => {
+  socket.off("dm_deleted");
   socket.on("dm_deleted", callback);
 };
 

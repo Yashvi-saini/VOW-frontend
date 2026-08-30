@@ -1,12 +1,12 @@
-// sfuSignaling.js
-import { SOCKET_URL } from "../../config.js";
+
+const BASE_URL = import.meta.env.VITE_SOCKET_URL;
 
 export default class SfuSignalingClient {
   constructor(token = null) {
     this.ws = null;
     this.connected = false;
     this.handlers = new Map();
-    this.token = token;
+    this.token = token || localStorage.getItem("accessToken");
     this.participantId = null;
   }
 
@@ -21,59 +21,81 @@ export default class SfuSignalingClient {
   }
 
   _buildWsUrl() {
-    let base = SOCKET_URL.trim();
+    let base = BASE_URL?.trim();
+
+    if (!base) {
+      throw new Error("VITE_SOCKET_URL is not defined");
+    }
+
     if (base.startsWith("https://")) base = base.replace("https://", "wss://");
     else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
-    else if (!base.startsWith("ws")) base = "wss://" + base;
+    else if (!base.startsWith("ws")) base = "ws://" + base;
+
     return base.replace(/\/+$/, "") + "/signaling";
   }
 
   connect() {
-    return new Promise((resolve) => {
-      const url = this._buildWsUrl();
-      this.ws = new WebSocket(url);
+    return new Promise((resolve, reject) => {
+      try {
+        const url = this._buildWsUrl();
 
-      this.ws.onopen = () => {
-        console.log("[SFU] Connected");
-        this.connected = true;
-        resolve();
-      };
+        this.ws = new WebSocket(url);
 
-      this.ws.onmessage = (msg) => {
-        let data = null;
-        try {
-          data = JSON.parse(msg.data);
-        } catch (e) {
-          console.warn("Invalid JSON", e);
-          return;
-        }
+        this.ws.onopen = () => {
+          this.connected = true;
+          console.log("[SFU] Connected");
 
-        console.log("[SIGNALING MESSAGE RECEIVED]", data);
+          // send auth if needed
+          if (this.token) {
+            this.send({
+              type: "auth",
+              token: this.token,
+            });
+          }
 
-        if (data.type === "room-state" && data.participantId) {
-          this.participantId = data.participantId;
-          console.log("[SFU] assigned participantId:", this.participantId);
-        }
+          resolve();
+        };
 
-        if (data.type) this.emit(data.type, data);
-      };
+        this.ws.onmessage = (msg) => {
+          let data = null;
+          try {
+            data = JSON.parse(msg.data);
+          } catch (e) {
+            console.warn("Invalid JSON", e);
+            return;
+          }
 
-      this.ws.onerror = (e) => console.warn("[SFU] ws error", e);
-      this.ws.onclose = () => console.log("[SFU] ws closed");
+          if (data.type === "room-state" && data.participantId) {
+            this.participantId = data.participantId;
+          }
+
+          if (data.type) this.emit(data.type, data);
+        };
+
+        this.ws.onerror = (e) => {
+          console.warn("[SFU] ws error", e);
+          reject(e);
+        };
+
+        this.ws.onclose = () => {
+          this.connected = false;
+          console.log("[SFU] ws closed");
+        };
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 
   send(obj) {
     if (!obj || typeof obj !== "object") return;
 
-    if (!obj.participantId && this.participantId)
+    if (!obj.participantId && this.participantId) {
       obj.participantId = this.participantId;
+    }
 
-    try {
-      console.log("[SFU OUT] ->", obj);
-      this.ws?.readyState === WebSocket.OPEN && this.ws.send(JSON.stringify(obj));
-    } catch (e) {
-      console.error("[SFU] send error", e, obj);
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(obj));
     }
   }
 
@@ -81,7 +103,7 @@ export default class SfuSignalingClient {
     this.send({
       type: "join",
       roomId,
-      data: { participantName: name }
+      data: { participantName: name },
     });
   }
 
@@ -89,13 +111,10 @@ export default class SfuSignalingClient {
     this.send({
       type: "leave",
       roomId,
-      participantId: pid || this.participantId
+      participantId: pid || this.participantId,
     });
   }
 
-  // -----------------------------
-  // FIXED: CORRECT SDP FORMAT
-  // -----------------------------
   sendOffer(roomId, from, to, sdp) {
     this.send({
       type: "offer",
@@ -104,8 +123,8 @@ export default class SfuSignalingClient {
       targetParticipantId: to,
       data: {
         type: sdp.type,
-        sdp: sdp.sdp
-      }
+        sdp: sdp.sdp,
+      },
     });
   }
 
@@ -117,8 +136,8 @@ export default class SfuSignalingClient {
       targetParticipantId: to,
       data: {
         type: sdp.type,
-        sdp: sdp.sdp
-      }
+        sdp: sdp.sdp,
+      },
     });
   }
 
@@ -131,11 +150,8 @@ export default class SfuSignalingClient {
       data: {
         candidate: candidate.candidate,
         sdpMid: candidate.sdpMid,
-        sdpMLineIndex: candidate.sdpMLineIndex
-      }
+        sdpMLineIndex: candidate.sdpMLineIndex,
+      },
     });
   }
 }
-
-
-

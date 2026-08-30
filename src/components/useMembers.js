@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { getMembers } from "../api/authApi";
+import { useEffect, useState, useRef } from "react";
+import { getMembers } from "../api/workspaceApi";
+import socket, { connectSocket } from "./chat/socket";
 
 // Fetch members for a given workspace using the scoped workspace token
 export const useMembers = (workspaceId) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const onlineSetRef = useRef(new Set());
 
   const fetchMembers = async () => {
     try {
@@ -17,16 +19,15 @@ export const useMembers = (workspaceId) => {
       const response = await getMembers(workspaceId);
       if (response.data?.success) {
         const raw = response.data.members || [];
-        // Normalize IDs so downstream components can rely on _id.
-        const normalized = raw.map(m => {
-          // Prefer existing _id; else fall back to id or userId; keep original fields.
+        const normalized = raw.map((m) => {
           const stableId = m._id || m.id || m.userId || null;
-          if (!stableId) {
-            console.warn('[members] entry missing any id field', m);
-          }
-            return { ...m, _id: stableId };
+          const isOnline = onlineSetRef.current.has(String(stableId));
+          return { ...m, _id: stableId, online: isOnline };
         });
         setMembers(normalized);
+        if (socket && socket.connected) {
+          socket.emit("get_online_users");
+        }
       } else {
         throw new Error(response.data?.message || "Failed to fetch members");
       }
@@ -39,9 +40,59 @@ export const useMembers = (workspaceId) => {
   };
 
   useEffect(() => {
-    // refetch when workspaceId changes
     if (workspaceId) fetchMembers();
   }, [workspaceId]);
+
+  useEffect(() => {
+    connectSocket();
+
+    socket.emit("get_online_users");
+
+    const handleUserOnline = ({ userId }) => {
+      if (userId) {
+        onlineSetRef.current.add(String(userId));
+      }
+      setMembers((prev) =>
+        prev.map((m) =>
+          String(m._id) === String(userId) ? { ...m, online: true } : m
+        )
+      );
+    };
+
+    const handleUserOffline = ({ userId }) => {
+      if (userId) {
+        onlineSetRef.current.delete(String(userId));
+      }
+      setMembers((prev) =>
+        prev.map((m) =>
+          String(m._id) === String(userId) ? { ...m, online: false } : m
+        )
+      );
+    };
+
+    const handleOnlineList = (userList) => {
+      if (Array.isArray(userList)) {
+        const set = new Set(userList.map((id) => String(id)));
+        onlineSetRef.current = set;
+        setMembers((prev) =>
+          prev.map((m) => ({
+            ...m,
+            online: set.has(String(m._id)),
+          }))
+        );
+      }
+    };
+
+    socket.on("user_online", handleUserOnline);
+    socket.on("user_offline", handleUserOffline);
+    socket.on("online_users_list", handleOnlineList);
+
+    return () => {
+      socket.off("user_online", handleUserOnline);
+      socket.off("user_offline", handleUserOffline);
+      socket.off("online_users_list", handleOnlineList);
+    };
+  }, []);
 
   return { members, loading, error, fetchMembers };
 };

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchChannelMessages, sendMessageToChannel } from "../../../api/authApi";
+import { fetchChannelMessages, sendMessageToChannel } from "../../../api/channelApi.js";
 import socket from "../socket.jsx";
 
 // Encapsulates message history, socket join/leave, and sending

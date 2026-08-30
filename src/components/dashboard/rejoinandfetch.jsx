@@ -3,7 +3,7 @@ import {
   getJoinedWorkspaces,
   rejoinWorkspace,
   deleteWorkspace,
-} from "../../api/authApi";
+} from "../../api/workspaceApi.js";
 import CreateAndJoin from "./createandjoin";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -86,17 +86,12 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
         : workspaces.find((w) => w._id === wsOrId)?.workspaceName;
     try {
       setRejoiningId(workspaceId);
-      console.log("Rejoin requested for:", workspaceId);
       const response = await rejoinWorkspace(workspaceId);
       // Server refreshes HttpOnly cookie; no need to read token in JS
       const apiName =
         response?.data?.workspace?.workspaceName ||
         response?.data?.workspaceName;
       const resolvedName = apiName || fallbackName || null;
-      console.log("Dispatching workspace context:", {
-        workspaceId,
-        workspaceName: resolvedName,
-      });
       dispatch(
         setWorkspaceContext({
           workspaceId,
@@ -178,7 +173,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
   if (workspaces.length === 0) {
     return (
       <>
-        <CreateAndJoin onCreate={() => setModalOpen(true)} />
+        <CreateAndJoin onCreate={() => setModalOpen(true)} onWorkspaceJoined={fetchWorkspaces} />
         {modalOpen && (
           <CreateWorkspaceModal
             isOpen={modalOpen}

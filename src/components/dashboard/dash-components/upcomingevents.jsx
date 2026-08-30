@@ -7,7 +7,6 @@ export default function UpcomingEvents() {
   const [weekAnchor, setWeekAnchor] = useState(new Date());
 
   useEffect(() => {
-    console.log("Selected date:", selectedDate.toISOString().split("T")[0]);
   }, [selectedDate]);
 
   return (

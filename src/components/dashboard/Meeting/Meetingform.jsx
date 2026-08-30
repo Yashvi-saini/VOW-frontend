@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import CalendarPopover from "./CalendarPopover";
 import { useSelector, useDispatch } from "react-redux";
-import { getTeams, scheduleMeeting } from "../../../api/authApi";
+import { getTeams } from "../../../api/teamApi";
+import {  scheduleMeeting } from "../../../api/meetingApi";
 import { setSelectedTeamId, setTeamsList } from "../../chat/teamslices";
 
 const MeetingForm = ({ role }) => {
