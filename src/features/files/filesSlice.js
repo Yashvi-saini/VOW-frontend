@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getAllFiles, uploadFile as apiUploadFile, deleteFile as apiDeleteFile } from '../../api/file';
-
-// Helpers to normalize API differences
+import { getAllFiles, uploadFile as apiUploadFile, deleteFile as apiDeleteFile } from '../../api/file';
 const parseFiles = (filesData) => {
   const list = filesData?.files || filesData?.data || filesData || [];
   return Array.isArray(list) ? list : [];
@@ -19,7 +17,7 @@ export const fetchFiles = createAsyncThunk('files/fetchAll', async (_, { rejectW
 export const uploadFileThunk = createAsyncThunk('files/upload', async (file, { rejectWithValue }) => {
   try {
     const res = await apiUploadFile(file);
-    return res; // backend may return the file; we just pass it through
+    return res; 
   } catch (err) {
     return rejectWithValue(err?.message || 'Failed to upload file');
   }
@@ -63,11 +61,9 @@ const filesSlice = createSlice({
         state.error = null;
       })
       .addCase(uploadFileThunk.fulfilled, (state, action) => {
-        state.uploading = false;
-        // If API returns a file, push; otherwise caller can refetch
+        state.uploading = false;
         const f = action.payload;
-        if (f && typeof f === 'object') {
-          // Keep newest first
+        if (f && typeof f === 'object') {
           state.items = [f, ...state.items];
         }
       })

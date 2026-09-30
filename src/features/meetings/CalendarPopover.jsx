@@ -59,7 +59,7 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
   const [selectedDate, setSelectedDate] = useState(
     initial?.date ? new Date(initial.date) : null
   );
-  const [mode, setMode] = useState(initial?.mode ?? "time"); // all | time | range
+  const [mode, setMode] = useState(initial?.mode ?? "time"); 
   const [time, setTime] = useState(initial?.time ?? { h: "07", m: "00", mer: "AM" });
   const [range, setRange] = useState(
     initial?.range ?? { sh: "07", sm: "00", smer: "AM", eh: "09", em: "00", emer: "AM" }
@@ -103,21 +103,19 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
   const label = () => {
     if (!selectedDate) return "Select Date & Time";
     const d = `${monthNames[selectedDate.getMonth()].slice(0, 3)} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
-    const hourClean = (h) => {
-      // Accept strings like "01" "1" and ensure no leading zero for display
+    const hourClean = (h) => {
       const n = parseInt(h, 10);
       return isNaN(n) ? h : String(n);
     };
     const minClean = (m) => {
       const n = parseInt(m, 10);
-      if (isNaN(n)) return "00"; // default to 00
+      if (isNaN(n)) return "00"; 
       return String(n).padStart(2, "0");
     };
     if (mode === "all") return `${d} - All day`;
     if (mode === "time") {
       return `${d} at ${hourClean(time.h)}:${minClean(time.m)} ${time.mer}`;
-    }
-    // range
+    }
     return `${d}, ${hourClean(range.sh)}:${minClean(range.sm)} ${range.smer} - ${hourClean(range.eh)}:${minClean(range.em)} ${range.emer}`;
   };
 

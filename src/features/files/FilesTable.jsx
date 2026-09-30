@@ -21,9 +21,8 @@ const FilesTable = ({
 
   const toggleFile = (id) => {
     setOpenFileId((prev) => (prev === id ? null : id));
-    setSelectedFileId(id); // Set the selected file when clicked
+    setSelectedFileId(id); 
   };
-
 
   const handleDelete = (fileId, fileName) => {
     if (onDelete) {
@@ -31,12 +30,9 @@ const FilesTable = ({
     }
   };
 
-
-
   return (
     <div className="mt-8 w-full">
 
-      {/* ▶ Desktop Header */}
       <div className="hidden md:grid grid-cols-12 bg-[#5C0EA4] text-white px-6 py-3 rounded-xl items-center">
         <div className="col-span-5 text-left font-medium">File Name</div>
         <div className="col-span-3 text-center font-medium">Uploaded By</div>
@@ -44,7 +40,6 @@ const FilesTable = ({
         <div className="col-span-1 text-center font-medium">Actions</div>
       </div>
 
-      {/* ▶ Table Body */}
       <div className="bg-white rounded-lg mt-2 overflow-y-auto max-h-[500px] hide-scrollbar">
         {files.map((file, index) => {
           const fileId = getFileId(file);
@@ -57,12 +52,11 @@ const FilesTable = ({
                 isOpen ? "ring-1 ring-[#5C0EA4]/30" : ""
               }`}
             >
-              {/* ▶ Desktop Row */}
+              
               <div 
                 className="hidden md:grid grid-cols-12 items-center px-6 py-4 hover:bg-gray-50"
               >
-                
-                {/* File Name */}
+
                 <div className="col-span-5 flex items-center gap-3">
                   <svg
                     className="h-5 w-5 text-blue-500 shrink-0"
@@ -82,17 +76,14 @@ const FilesTable = ({
                   </span>
                 </div>
 
-                {/* Uploaded By */}
                 <div className="col-span-3 text-center text-gray-600 truncate px-2">
                   {getUploadedBy(file)}
                 </div>
 
-                {/* Time */}
                 <div className="col-span-3 text-center text-gray-600 truncate px-2">
                   {getFileDate(file) ? formatDate(getFileDate(file)) : "-"}
                 </div>
 
-                {/* Actions - Fixed to prevent shrinking */}
                 <div className="col-span-1 flex justify-center items-center gap-2">
                   <button
                     onClick={(e) => {
@@ -116,7 +107,6 @@ const FilesTable = ({
                 </div>
               </div>
 
-              {/* ▶ Mobile Row */}
               <div 
                 className="md:hidden flex justify-between items-center px-4 py-3 cursor-pointer"
                 onClick={() => toggleFile(fileId)}
@@ -155,10 +145,9 @@ const FilesTable = ({
                 </div>
               </div>
 
-              {/* ▶ Mobile Expanded Section */}
               {isOpen && (
                 <div className="md:hidden bg-[#F8FAFF] px-4 py-3 rounded-b-lg shadow-inner">
-                  {/* Action buttons for mobile */}
+                  
                   <div className="flex items-center justify-center gap-3">
                     <button
                       className="flex items-center gap-2 bg-[#5C0EA4] text-white px-4 py-2 rounded-lg shadow-sm hover:bg-[#4a0b85] flex-1 justify-center"

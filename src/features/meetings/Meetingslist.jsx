@@ -4,14 +4,11 @@ import MeetingHeader from "./meetingheader";
 import MeetingRow from "./Meetingrow";
 
 const MeetingList = ({ meetings = [], loading = false, error = null, onRefresh }) => {
-  const [deletingId, setDeletingId] = useState(null);
-
-  // Handle delete meeting
+  const [deletingId, setDeletingId] = useState(null);
   const handleDelete = async (meetingId) => {
     try {
       setDeletingId(meetingId);
-      await deleteMeeting(meetingId);
-      // Refresh the meeting list after successful deletion
+      await deleteMeeting(meetingId);
       if (onRefresh) {
         await onRefresh();
       }
@@ -21,9 +18,7 @@ const MeetingList = ({ meetings = [], loading = false, error = null, onRefresh }
     } finally {
       setDeletingId(null);
     }
-  };
-
-  // Format date helper
+  };
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
@@ -33,9 +28,7 @@ const MeetingList = ({ meetings = [], loading = false, error = null, onRefresh }
     } catch (err) {
       return 'Invalid date';
     }
-  };
-
-  // Format time helper
+  };
   const formatTime = (startTime, endTime) => {
     if (!startTime) return 'N/A';
     try {
@@ -50,17 +43,13 @@ const MeetingList = ({ meetings = [], loading = false, error = null, onRefresh }
     } catch (err) {
       return 'Invalid time';
     }
-  };
-
-  // Get organiser name
+  };
   const getOrganiser = (meeting) => {
     if (meeting.createdBy?.fullName) return meeting.createdBy.fullName;
     if (meeting.createdBy?.name) return meeting.createdBy.name;
     if (meeting.createdBy?.username) return meeting.createdBy.username;
     return 'Unknown';
-  };
-
-  // Get avatar (use a default or generate based on organiser name)
+  };
   const getAvatar = (meeting, index) => {
     const colors = ['red', 'yellow', 'blue', 'green', 'purple', 'pink'];
     const color = colors[index % colors.length];
@@ -107,8 +96,7 @@ const MeetingList = ({ meetings = [], loading = false, error = null, onRefresh }
         {meetings.map((meeting, index) => (
           <MeetingRow
             key={meeting._id || meeting.id || index}
-            meetingId={meeting._id || meeting.id}
-            // avatar={getAvatar(meeting, index)}
+            meetingId={meeting._id || meeting.id}
             title={meeting.title || 'Untitled Meeting'}
             date={formatDate(meeting.startTime)}
             time={formatTime(meeting.startTime, meeting.endTime)}

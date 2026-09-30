@@ -25,14 +25,10 @@ const MeetingPage = () => {
   const fetchMeetingsAndTeams = async () => {
     try {
       setLoading(true);
-      setError(null);
-      
-      // Fetch meetings
+      setError(null);
       const meetingsResponse = await getAllMeetings();
       const meetingsData = meetingsResponse.meetings || meetingsResponse.data || meetingsResponse || [];
-      setMeetings(Array.isArray(meetingsData) ? meetingsData : []);
-      
-      // Fetch teams to get supervisor IDs
+      setMeetings(Array.isArray(meetingsData) ? meetingsData : []);
       if (workspaceId) {
         try {
           const teamsResponse = await getTeams(workspaceId);
@@ -50,34 +46,24 @@ const MeetingPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Count meetings by creator role
+  };
   const getMeetingCounts = () => {
-    const total = meetings.length;
-    
-    // Get all supervisor IDs from teams
+    const total = meetings.length;
     const supervisorIds = teams
       .map(team => team.lead || team.superviser || team.supervisor)
       .filter(Boolean)
-      .map(id => typeof id === 'object' ? (id._id || id.id) : id);
-    
-    // Count meetings by supervisor
+      .map(id => typeof id === 'object' ? (id._id || id.id) : id);
     const bySupervisor = meetings.filter(m => {
       const creatorId = m.createdBy?._id || m.createdBy?.id || m.createdBy;
       return supervisorIds.includes(creatorId);
-    }).length;
-    
-    // Count meetings by manager (not supervisor, not regular user)
+    }).length;
     const byManager = meetings.filter(m => {
       const creatorId = m.createdBy?._id || m.createdBy?.id || m.createdBy;
       return !supervisorIds.includes(creatorId) && creatorId !== currentUserId;
     }).length;
 
     return { total, byManager, bySupervisor };
-  };
-
-  // Filter meetings based on search term
+  };
   const filteredMeetings = meetings.filter(meeting => {
     if (!searchTerm.trim()) return true;
     const search = searchTerm.toLowerCase();
@@ -90,17 +76,15 @@ const MeetingPage = () => {
 
   return (
     <div className="p-2 sm:p-6 bg-gray-50 min-h-screen">
-      {/* Search + Filter */}
+      
       <MeetingSearchFilter searchTerm={searchTerm} onSearchChange={setSearchTerm} />
 
-      {/* Info Tabs */}
       <MeetingTabs 
         total={counts.total}
         byManager={counts.byManager}
         bySupervisor={counts.bySupervisor}
       />
 
-      {/* Meeting List */}
       <MeetingList 
         meetings={filteredMeetings}
         loading={loading}
@@ -108,8 +92,6 @@ const MeetingPage = () => {
         onRefresh={fetchMeetingsAndTeams}
       />
 
-      {/* Pagination */}
-      {/* {filteredMeetings.length > 0 && <Pagination total={filteredMeetings.length} />} */}
     </div>
   );
 };

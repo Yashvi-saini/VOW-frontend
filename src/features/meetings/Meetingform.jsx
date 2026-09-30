@@ -5,15 +5,12 @@ import { getTeams } from "@/api/teamApi";
 import { scheduleMeeting } from "@/api/meetingApi";
 import { setSelectedTeamId, setTeamsList } from "@/components/chat/teamslices";
 
-const MeetingForm = ({ role }) => {
-  // Force single audience option: "specific-teams"
+const MeetingForm = ({ role }) => {
   const audienceOptions = [{ id: "specific-teams", label: "Select Teams" }];
   const [audience, setAudience] = useState("specific-teams");
   const [form, setForm] = useState({ title: "", dateTime: "", agenda: "" });
   const dispatch = useDispatch();
-  const workspaceId = useSelector(s => s.user.workspaceId);
-  // members not needed here; team selection only
-  // Only select-team now (create moved to chat modal)
+  const workspaceId = useSelector(s => s.user.workspaceId);
   const [feedback, setFeedback] = useState("");
   const teams = useSelector(s => s.team.teams);
   const selectedTeamId = useSelector(s => s.team.selectedTeamId);
@@ -31,9 +28,7 @@ const [agendaError, setAgendaError] = useState("");
     "w-full h-[51px] rounded-[10px] border border-[#BFA2E1] bg-[#EFE7F6] px-4 text-[#000] placeholder:text-[#707070] focus:outline-none focus:border-[#8231CC] focus:ring-1 focus:ring-[#8231CC]";
 
   const onChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-  // Removed local team creation handlers
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const refreshTeams = async () => {
     if (!workspaceId) return;
@@ -49,20 +44,13 @@ const [agendaError, setAgendaError] = useState("");
     }
   };
 
-  useEffect(() => { refreshTeams(); }, [workspaceId]);
-
-  // Auto-resize agenda textarea similar to chat input (max 160px)
+  useEffect(() => { refreshTeams(); }, [workspaceId]);
   useEffect(() => {
     if (agendaRef.current) {
       agendaRef.current.style.height = "auto";
       agendaRef.current.style.height = `${Math.min(agendaRef.current.scrollHeight, 160)}px`;
     }
-  }, [form.agenda]);
-
-  // Removed createTeamFlow; creation handled in chat modal
-
-  // Build ISO strings preserving the user's local wall-clock time with timezone offset
-  // Example (IST): 2025-11-11 07:00 -> "2025-11-11T07:00:00+05:30"
+  }, [form.agenda]);
   const buildDateTimes = () => {
     if (!calendarState?.date) return { startTime: null, endTime: null };
     const baseDate = calendarState.date;
@@ -77,7 +65,7 @@ const [agendaError, setAgendaError] = useState("");
       const hh = pad(d.getHours());
       const mm = pad(d.getMinutes());
       const ss = pad(d.getSeconds());
-      const tzMin = -d.getTimezoneOffset(); // minutes east of UTC
+      const tzMin = -d.getTimezoneOffset(); 
       const sign = tzMin >= 0 ? '+' : '-';
       const abs = Math.abs(tzMin);
       const tzh = pad(Math.floor(abs / 60));
@@ -102,12 +90,10 @@ const [agendaError, setAgendaError] = useState("");
     if (calendarState.mode === 'time') {
       const hour = to24(calendarState.time.h, calendarState.time.mer);
       const minute = parseInt(calendarState.time.m, 10);
-      const start = new Date(year, month, day, hour, minute, 0);
-      // default 1 hour
+      const start = new Date(year, month, day, hour, minute, 0);
       const end = new Date(start.getTime() + 60 * 60 * 1000);
       return { startTime: toLocalOffsetISO(start), endTime: toLocalOffsetISO(end) };
-    }
-    // all day
+    }
     const startDay = new Date(year, month, day, 0, 0, 0);
     const endDay = new Date(year, month, day, 23, 59, 59);
     return { startTime: toLocalOffsetISO(startDay), endTime: toLocalOffsetISO(endDay) };
@@ -134,9 +120,7 @@ e.preventDefault();
   if (form.title.trim().length > 15) {
     setTitleError("Maximum 15 characters allowed.");
     return;
-  }
-
-  // Custom agenda validation
+  }
   if (form.agenda.trim().length < 10) {
     setAgendaError("Minimum 10 characters required.");
     return;
@@ -167,15 +151,12 @@ e.preventDefault();
     if (res?.data?.success) {
       setFeedback("Meeting scheduled successfully.");
     } 
-    else {
-      // 🔥 Show backend message EXACTLY
+    else {
       setFeedback(res?.data?.msg || res?.data?.message || "Failed to schedule meeting.");
     }
 
   } catch (err) {
-    console.warn("Meeting error:", err);
-
-    // 🔥 Prefer backend error msg
+    console.warn("Meeting error:", err);
     const backendMsg =
       err?.response?.data?.msg ||
       err?.response?.data?.message ||
@@ -188,25 +169,20 @@ e.preventDefault();
     }, 1000);
     
   }
-};
-
-
-  // Renaming UI is intentionally not available in Meeting form.
+};
 
   return (
     <div className="w-full h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Header */}
+      
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl lg:text-[36px] leading-tight font-bold text-black">
           Schedule a Meeting
         </h1>
 
-        
       </div>
 
-      {/* Form */}
       <form onSubmit={onSubmit} className="flex flex-col gap-6 sm:gap-8 lg:gap-10 max-w-full sm:max-w-[588px] pb-8">
-        {/* Title */}
+        
         <div>
           <label className="block font-semibold text-black mb-2 text-lg sm:text-xl lg:text-[24px]">
             Meeting Title
@@ -225,7 +201,6 @@ e.preventDefault();
           )}
         </div>
 
-        {/* Audience: select existing team or conference */}
         <div className="border border-[#BFA2E1] rounded-2xl bg-[#EFE7F6] p-3 sm:p-4 flex flex-col gap-3 sm:gap-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-base sm:text-lg font-semibold text-black">Teams</h2>
@@ -278,7 +253,6 @@ e.preventDefault();
           {isConference && <p className="text-[14px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>}
         </div>
 
-        {/* Date & Time */}
         <div className="relative">
           <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
             Date & Time
@@ -297,8 +271,7 @@ e.preventDefault();
             onClose={() => setCalendarOpen(false)}
             onDone={(state) => {
               setCalendarState(state);
-              setForm((f) => ({ ...f, dateTime: state.label }));
-              // Log the raw selection and friendly label
+              setForm((f) => ({ ...f, dateTime: state.label }));
               try {
                 const date = state?.date;
                 console.log('[meeting] Calendar selection', {
@@ -317,7 +290,6 @@ e.preventDefault();
           />
         </div>
 
-        {/* Agenda */}
         <div>
           <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
             Agenda / Description
@@ -338,7 +310,6 @@ e.preventDefault();
 
         </div>
 
-        {/* Meeting submit (independent of team creation) */}
         <div className="pt-2 flex flex-col gap-2">
           <button
             type="submit"

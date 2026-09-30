@@ -16,17 +16,13 @@ const FileTransfer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState({ show: false, type: '', message: '' });
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
-  
-  // Get workspace info from Redux store
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const userState = useSelector((state) => state.user);
   const workspaceId = userState?.workspaceId;
 
   useEffect(() => {
     fetchFiles();
-  }, []);
-
-  // Close more menu when clicking outside
+  }, []);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showMoreMenu && !event.target.closest('.more-menu-container')) {
@@ -45,9 +41,7 @@ const FileTransfer = () => {
       setLoading(true);
       console.log('Fetching files...');
       const filesData = await getAllFiles();
-      console.log('Files response:', filesData);
-
-      // Handle different response structures
+      console.log('Files response:', filesData);
       const filesList = filesData.files || filesData.data || filesData || [];
       console.log('Parsed files list:', filesList);
 
@@ -60,8 +54,6 @@ const FileTransfer = () => {
     }
   };
 
-
-
   const handleView = async (fileId) => {
     try {
       const file = files.find(f => getFileId(f) === fileId);
@@ -73,9 +65,7 @@ const FileTransfer = () => {
         });
         setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
         return;
-      }
-
-      // If file has a URL, open it directly
+      }
       if (file.url || file.fileUrl || file.s3Url) {
         const fileUrl = file.url || file.fileUrl || file.s3Url;
         window.open(fileUrl, '_blank');
@@ -110,18 +100,12 @@ const FileTransfer = () => {
 
   const handleDeleteConfirm = async () => {
     const id = deleteModal.fileId;
-    const fileName = deleteModal.fileName;
-    
-    // Close modal immediately to remove overlay
-    setDeleteModal({ show: false, fileId: null, fileName: '' });
-    
-    // Optimistic UI: remove the file locally
+    const fileName = deleteModal.fileName;
+    setDeleteModal({ show: false, fileId: null, fileName: '' });
     setFiles((prev) => prev.filter((f) => (f?._id || f?.id || f?.s3FileId || f?.key || f?.uid) !== id));
 
     try {
-      await deleteFile(id);
-      
-      // Show success message
+      await deleteFile(id);
       setToast({ 
         show: true, 
         type: 'success', 
@@ -129,23 +113,17 @@ const FileTransfer = () => {
       });
       setTimeout(() => setToast((t) => ({ ...t, show: false })), 2000);
     } catch (error) {
-      console.error('Error deleting file:', error);
-      
-      // Show error message and refresh to get accurate state
+      console.error('Error deleting file:', error);
       const errorMessage = error.message || 'Delete failed';
       setToast({ show: true, type: 'error', message: errorMessage });
-      setTimeout(() => setToast((t) => ({ ...t, show: false })), 4000);
-      
-      // Refresh the file list to get accurate state
+      setTimeout(() => setToast((t) => ({ ...t, show: false })), 4000);
       fetchFiles();
     }
   };
 
   const handleDeleteCancel = () => {
     setDeleteModal({ show: false, fileId: null, fileName: '' });
-  };
-
-  // Share workspace files functionality
+  };
   const handleShareWorkspace = () => {
     if (!workspaceId) {
       setToast({ 
@@ -155,16 +133,12 @@ const FileTransfer = () => {
       });
       setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
       return;
-    }
-
-    // Show share dialog instead of immediately copying
+    }
     setShowShareDialog(true);
   };
 
   const handleCopyWorkspaceId = () => {
-    const workspaceName = userState?.workspaceName || 'Workspace';
-    
-    // Copy workspace ID to clipboard
+    const workspaceName = userState?.workspaceName || 'Workspace';
     navigator.clipboard.writeText(workspaceId).then(() => {
       setShowShareDialog(false);
       setToast({ 
@@ -173,14 +147,11 @@ const FileTransfer = () => {
         message: `${workspaceName} ID copied to clipboard!` 
       });
       setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
-    }).catch(() => {
-      // Fallback: show workspace ID in alert
+    }).catch(() => {
       setShowShareDialog(false);
       alert(`Copy this ${workspaceName} ID: ${workspaceId}`);
     });
-  };
-
-  // More menu functionality
+  };
   const handleMoreMenu = () => {
     setShowMoreMenu(!showMoreMenu);
   };
@@ -212,21 +183,17 @@ const FileTransfer = () => {
       });
       setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
       return;
-    }
-
-    // Create CSV content
+    }
     const csvContent = [
       'File Name,Uploaded By,Upload Date,File Size',
       ...filteredFiles.map(file => {
-        const name = getDisplayName(file).replace(/,/g, ';'); // Replace commas to avoid CSV issues
+        const name = getDisplayName(file).replace(/,/g, ';'); 
         const uploader = getUploadedBy(file).replace(/,/g, ';');
         const date = getFileDate(file) ? new Date(getFileDate(file)).toLocaleDateString() : 'Unknown';
         const size = file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Unknown';
         return `${name},${uploader},${date},${size}`;
       })
-    ].join('\n');
-
-    // Create and download CSV file
+    ].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -243,9 +210,7 @@ const FileTransfer = () => {
       message: 'File list exported successfully' 
     });
     setTimeout(() => setToast((t) => ({ ...t, show: false })), 3000);
-  };
-
-  // Helpers to normalize API differences
+  };
   const getDisplayName = (file) => file?.originalName || file?.filename || file?.name || 'File';
 
   const getUploadedBy = (file) =>
@@ -257,9 +222,7 @@ const FileTransfer = () => {
 
   const getFileId = (file) => file?._id || file?.id || file?.s3FileId || file?.key || file?.uid;
 
-  const getFileDate = (file) => file?.uploadedAt || file?.createdAt || file?.updatedAt || null;
-
-  // When search is empty, don't filter out items that lack specific fields
+  const getFileDate = (file) => file?.uploadedAt || file?.createdAt || file?.updatedAt || null;
   const filteredFiles = React.useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return files;
@@ -275,9 +238,7 @@ const FileTransfer = () => {
     
     try {
       const date = new Date(dateString);
-      const now = new Date();
-      
-      // Check if date is valid
+      const now = new Date();
       if (isNaN(date.getTime())) return 'Invalid date';
       
       const diffTime = now.getTime() - date.getTime();
@@ -285,23 +246,17 @@ const FileTransfer = () => {
       const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       const diffWeeks = Math.floor(diffDays / 7);
-      const diffMonths = Math.floor(diffDays / 30);
-
-      // Future dates
+      const diffMonths = Math.floor(diffDays / 30);
       if (diffTime < 0) {
         return date.toLocaleDateString();
-      }
-      
-      // Recent times
+      }
       if (diffMinutes < 1) return 'Just now';
       if (diffMinutes < 60) return `${diffMinutes}m ago`;
       if (diffHours < 24) return `${diffHours}h ago`;
       if (diffDays === 1) return 'Yesterday';
       if (diffDays < 7) return `${diffDays}d ago`;
       if (diffWeeks < 4) return `${diffWeeks}w ago`;
-      if (diffMonths < 12) return `${diffMonths}mo ago`;
-      
-      // Older dates - show actual date
+      if (diffMonths < 12) return `${diffMonths}mo ago`;
       return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -315,15 +270,14 @@ const FileTransfer = () => {
 
   return (
   <div className="relative h-full min-h-0 flex flex-col bg-white px-10">
-      {/* Blur overlay for content area when share dialog is open */}
+      
       {showShareDialog && (
         <div className="absolute inset-0 backdrop-blur-sm bg-white/20 z-40 pointer-events-none"></div>
       )}
-      
-      {/* Search and Upload Section (Header lives in Topbar) */}
+
       <div className="bg-white pb-4 border-b border-gray-200">
         <div className="flex items-center justify-between gap-4 pt-10 flex-col lg:flex-row">
-          {/* Search Bar */}
+          
           <div className="flex-1 bg-white flex justify-between w-full px-4 py-2 border border-[#AC92CB] rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
             <input
               type="text"
@@ -335,21 +289,8 @@ const FileTransfer = () => {
             <img src={search} alt="Search" className=" w-5 h-5 pt-1 text-gray-400" />
           </div>
 
-          {/* Action Icons */}
           <div className="flex items-center gap-3">
-            {/* Share Workspace Button */}
-            {/* <div
-              className="p-2 hover:bg-[#F5F1FB] transition-colors flex gap-5 border border-[#AC92CB] rounded-2xl px-3"
-         
-              title="Share Workspace"
-            >
-               <img src={filter} alt="Filter" className='w-6 h-6' />
-               <p className='text-[#AC92CB] text-[16px]'>Filter</p>
-              <img src={down} alt="Dropdown" className='w-3 h-3 mt-2' />
-             
-            
-            </div> */}
-            {/* More Options Menu */}
+
             <div className="relative more-menu-container">
               <div 
                 className="p-2 hover:bg-[#F5F1FB] transition-colors  flex items-center gap-2 border border-[#AC92CB] rounded-2xl cursor-pointer px-4"
@@ -358,8 +299,7 @@ const FileTransfer = () => {
               >
                more options
               </div>
-              
-              {/* Dropdown Menu */}
+
               {showMoreMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200">
                   <div className="py-1">
@@ -393,14 +333,13 @@ const FileTransfer = () => {
         </div>
       </div>
 
-  {/* Files Content */}
   <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="h-full flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
           </div>
         ) : filteredFiles.length === 0 ? (
-          /* Empty State */
+          
           <div className="h-full flex flex-col items-center justify-center text-center p-8  ">
             <div className="mb-9">
               <img src={emptyFolderIcon} alt="Empty folder" className="h-24 w-24 mx-auto opacity-50" />
@@ -429,7 +368,6 @@ const FileTransfer = () => {
         scopeSelector="main"
       />
 
-      {/* Toast notification */}
       {toast.show && (
         <div className="fixed bottom-6 right-6 z-50">
           <div
@@ -458,19 +396,17 @@ const FileTransfer = () => {
         </div>
       )}
 
-      {/* Share Workspace Dialog */}
       {showShareDialog && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          onClick={(e) => {
-            // Close dialog when clicking on overlay (not on the modal content)
+          onClick={(e) => {
             if (e.target === e.currentTarget) {
               setShowShareDialog(false);
             }
           }}
         >
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10 overflow-hidden">
-            {/* Header */}
+            
             <div className="bg-white px-6 py-4 border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-gray-900">Share Workspace</h3>
@@ -484,8 +420,7 @@ const FileTransfer = () => {
                 </button>
               </div>
             </div>
-            
-            {/* Content */}
+
             <div className="px-6 py-6">
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -517,8 +452,7 @@ const FileTransfer = () => {
                 Share this workspace ID with others to invite them to join your workspace.
               </p>
             </div>
-            
-            {/* Footer */}
+
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex gap-3 justify-end">
               <button
                 onClick={() => setShowShareDialog(false)}
