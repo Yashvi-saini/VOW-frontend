@@ -55,7 +55,18 @@ const ProfileCard = ({ profile }) => {
           className="w-28 h-28 rounded-full border-4 border-[#450B7B] object-cover shadow-md"
           onError={(e) => (e.target.src = defaultAvatars[genderKey])}
         />
-        
+        <label className="mt-3 text-sm text-[#450B7B] font-medium cursor-pointer hover:underline">
+          {uploading ? "Uploading..." : "upload custom photo"}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFilechange}
+            className="hidden"
+            disabled={uploading}
+          />
+        </label>
+      </div>
+
       <div className="mt-5 space-y-2">
         <h2 className="text-xl font-semibold text-gray-800">{profile.fullname}</h2>
         <p className="text-gray-500 text-sm">{profile.organisation}</p>

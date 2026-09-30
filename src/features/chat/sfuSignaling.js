@@ -35,9 +35,9 @@ export default class SfuSignalingClient {
         : "http://localhost:5000";
     }
 
-    if (base.startsWith("https://")) base = base.replace("https://", "wss:
-    else if (base.startsWith("http://")) base = base.replace("http://", "ws:
-    else if (!base.startsWith("ws:
+    if (base.startsWith("https://")) base = base.replace("https://", "wss://");
+    else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
+    else if (!base.startsWith("ws://") && !base.startsWith("wss://")) base = `wss://${base}`;
 
     base = base.replace(/\/+$/, "").replace(/\/signaling$/, "");
     return base + "/signaling";
