@@ -14,7 +14,7 @@ import {
   ResetPassword,
   ResetSuccess,
 } from "@/features/auth";
-import Dashboard from "@/components/dashboard/dashboard.jsx";
+import { Dashboard } from "@/features/dashboard";
 import ProfilePage from "@/pages/profile/ProfilePage";
 import Map from "@/components/map/Map";
 import ChatApp from "@/components/chat/chat";
