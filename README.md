@@ -1,4 +1,4 @@
-# VOW (Virtual Organized World) - Frontend Web Application
+# VOW (Virtual Organized World) -  Frontend Web Application
 
 [![React Version](https://img.shields.io/badge/React-v19.1.1-blue.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-v7.1.10-purple.svg)](https://vitejs.dev/)
