@@ -39,9 +39,7 @@ const Login = () => {
       navigate("/dashboard");
       localStorage.setItem("valid", "false");
     }
-  }, [isLoggedI, profile, navigate, valid]);
-
-  // Prefill identifier
+  }, [isLoggedI, profile, navigate, valid]);
   useEffect(() => {
     const savedIdentifier = localStorage.getItem("rememberedIdentifier");
     if (savedIdentifier) {
@@ -72,15 +70,11 @@ const Login = () => {
         password,
       });
 
-      console.log("Login response:", res);
-
-      // ✅ FIXED SUCCESS CHECK
+      console.log("Login response:", res);
       if (res.success) {
         const { user } = res;
 
-        dispatch(setUserId(user._id));
-
-        // Fetch profile
+        dispatch(setUserId(user._id));
         try {
           const profileRes = await getProfileInfo();
           if (profileRes.status === 200 && profileRes.data.success) {
@@ -99,9 +93,7 @@ const Login = () => {
         }
 
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("isLogged", "true");
-
-        // Socket connect
+        localStorage.setItem("isLogged", "true");
         if (!socket.connected) {
           socket.connect();
           console.log("✅ Socket connected after login");
@@ -140,8 +132,7 @@ const Login = () => {
       <Background />
       <div className="min-h-screen flex items-center justify-center px-4 font-poppins">
         <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 sm:px-20 relative">
-          
-          {/* Back Button */}
+
           <button
             className="absolute top-3 left-6 text-gray-900 text-3xl"
             onClick={() => navigate("/")}
@@ -149,7 +140,6 @@ const Login = () => {
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>
 
-          {/* Logo */}
           <div className="flex justify-center mb-6">
             <img src={logo} alt="Logo" className="h-8" />
           </div>
@@ -167,7 +157,6 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
 
-            {/* Identifier */}
             <div className="mb-4 relative">
               <label className="block text-sm font-medium text-gray-900 mb-1">
                 Username or Email:
@@ -191,7 +180,6 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Password */}
             <div className="mb-3 relative">
               <label className="block text-sm font-medium text-gray-900 mb-1">
                 Password:
@@ -214,7 +202,6 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Remember */}
             <div className="flex justify-between mb-6">
               <label className="flex items-center space-x-2">
                 <input
@@ -228,7 +215,6 @@ const Login = () => {
               <Link to="/forgot-password">Forgot password?</Link>
             </div>
 
-            {/* Button */}
             <button
               type="submit"
               disabled={loading}

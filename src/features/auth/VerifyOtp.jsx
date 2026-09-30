@@ -22,30 +22,22 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
   const fallbackEmail = sessionStorage.getItem("pendingEmail");
   const fallbackMode = sessionStorage.getItem("pendingMode");
   const email = location.state?.email || rdxEmail || fallbackEmail;
-  const mode = location.state?.mode || rdxMode || fallbackMode || "signup";
-
-  // Block access and enforce flow preconditions
+  const mode = location.state?.mode || rdxMode || fallbackMode || "signup";
   useEffect(() => {
     const hasFlowFlag =
       mode === "signup"
         ? !!signupPending
-        : !!rdxForgot || !!localStorage.getItem("forgotRequested") || !!localStorage.getItem("forgotOtpVerified");
-
-    // If no email or no flow flag, redirect explicitly to start of flow.
+        : !!rdxForgot || !!localStorage.getItem("forgotRequested") || !!localStorage.getItem("forgotOtpVerified");
     if (!email || !hasFlowFlag) {
       navigate(mode === "signup" ? "/signup" : "/forgot-password", { replace: true });
     }
-  }, [email, mode, signupPending, rdxForgot, navigate]);
-
-  // Timer countdown
+  }, [email, mode, signupPending, rdxForgot, navigate]);
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => setTimer(t => t - 1), 1000);
       return () => clearInterval(countdown);
     }
-  }, [timer]);
-
-  // Handle OTP input change
+  }, [timer]);
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
@@ -61,8 +53,7 @@ const [anyInputFocused, setAnyInputFocused] = useState(false);
   };
 
 const handleKeyDown = (e, index) => {
-  if (e.key === "Tab") {
-    // Stop default tabbing behavior
+  if (e.key === "Tab") {
     e.preventDefault();
     return;
   }
@@ -70,9 +61,7 @@ const handleKeyDown = (e, index) => {
   if (e.key === "Backspace" && !otp[index] && index > 0) {
     inputRefs.current[index - 1]?.focus();
   }
-};
-
-  // Verify OTP
+};
   const handleVerify = async (e) => {
     e.preventDefault();
     const code = otp.join("");
@@ -110,13 +99,12 @@ const handleKeyDown = (e, index) => {
         setMessage("");
         if (mode === "signup") {
           localStorage.setItem("otpVerified", "true");
-          localStorage.setItem("valid", "true");
-          // Clear flow flags
+          localStorage.setItem("valid", "true");
           dispatch(setSignupDone(false));
           dispatch(clearSignupFlow());
           sessionStorage.removeItem("pendingEmail");
           sessionStorage.removeItem("pendingMode");
-          dispatch(setProfileNeeded(true)); // retain profile needed state
+          dispatch(setProfileNeeded(true)); 
           navigate("/login");
         } else {
           localStorage.setItem("forgotOtpVerified", "true");
@@ -137,9 +125,7 @@ const handleKeyDown = (e, index) => {
          setLoading(false);
       }, 2000);
     }
-  };
-
-  // Resend OTP
+  };
   const handleResend = async () => {
     if (!email || timer > 0) return;
     setTimer(30);
@@ -162,9 +148,7 @@ const handleKeyDown = (e, index) => {
     } finally {
       setResendLoading(false);
     }
-  };
-
-  // Handle paste of full OTP
+  };
 const handlePaste = (e) => {
   e.preventDefault();
   const pasteData = e.clipboardData.getData("text").trim();
@@ -172,8 +156,7 @@ const handlePaste = (e) => {
     const newOtp = pasteData.split("");
     setOtp(newOtp);
     setOtpError(false);
-    setMessage("");
-    // Move focus to last input
+    setMessage("");
     inputRefs.current[5]?.focus();
   }
 };
@@ -185,17 +168,15 @@ const handlePaste = (e) => {
      
     >
       <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
-        {/* Back Arrow */}
+        
         <button className="absolute top-6 left-5 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
           <img src={arrow} alt="Back" className="h-6 sm:h-8" />
         </button>
 
-        {/* Logo */}
         <div className="flex justify-center pt-4">
           <img src={logo} alt="Logo" className="h-8 sm:h-10" />
         </div>
 
-        {/* Heading */}
         <h2 className="text-center text-[24px] sm:text-[32px] font-semibold text-gray-900 mt-4">
           {mode === "signup" ? "Verify With OTP" : "Verify Your Email"}
         </h2>
@@ -205,7 +186,6 @@ const handlePaste = (e) => {
             : "Enter the OTP sent to your email to reset your password."}
         </p>
 
-        {/* OTP Inputs */}
         <form onSubmit={handleVerify} className="w-full">
           <div className="flex justify-between mb-0">
             {otp.map((digit, index) => (
@@ -238,20 +218,16 @@ const handlePaste = (e) => {
   />
 ))}
 
-
           </div>
 
-          {/* Message */}
           <p className={` mb-8 ${otpError ? "text-[#E63946]" : "text-green-600"}`} style={{ minHeight: "1em" }}>
             { otpError?message:" "}
           </p>
 
-          {/* Verify Button */}
           <button type="submit" disabled={loading} className="w-full text-[18px] sm:text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition">
             {loading ? "Verifying..." : "Verify OTP"}
           </button>
 
-          {/* Resend OTP Button */}
           <div className=" mt-4 text-[#450B7B]">
             <button
               type="button"

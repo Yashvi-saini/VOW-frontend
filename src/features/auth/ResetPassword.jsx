@@ -21,17 +21,13 @@ const ResetPassword = () => {
   const fallbackEmail = sessionStorage.getItem("pendingEmail");
   const email = location.state?.email || fallbackEmail;
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [confirmFocused, setConfirmFocused] = useState(false);
-
-  // Guard: only allow access if we came from verified OTP flow
+  const [confirmFocused, setConfirmFocused] = useState(false);
   useEffect(() => {
     const verified = !!localStorage.getItem("forgotOtpVerified");
     if (!email || !verified) {
       navigate("/forgot-password", { replace: true });
     }
-  }, [email, navigate]);
-
-  // Password rules
+  }, [email, navigate]);
   const passwordRules = [
     { test: (pw) => pw.length >= 8, message: "Password must be at least 8 characters long" },
     { test: (pw) => /[A-Z]/.test(pw), message: "Password must contain at least 1 uppercase letter" },
@@ -113,7 +109,7 @@ const ResetPassword = () => {
       <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative  mx-2 flex-col px-10 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
         style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.08)" }}
       >
-        {/* Close Icon */}
+        
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-10 text-gray-400 hover:text-gray-600 text-xl"
@@ -121,7 +117,6 @@ const ResetPassword = () => {
           <img src={arrow} alt="Back" className="h-6 sm:h-8" />
         </button>
 
-        {/* Logo */}
         <div className="flex justify-center">
           <img src={logo} alt="Logo" className="h-8" />
         </div>
@@ -134,8 +129,7 @@ const ResetPassword = () => {
         </p>
 
         <form onSubmit={handleReset} className="flex flex-col space-y-5">
-          {/* New Password */}
-        {/* New Password */}
+
 <div className="flex flex-col mb-0">
   <label className="text-[14px] font-medium text-gray-700 mb-1 mt-0">New Password:</label>
   <div className="relative">
@@ -179,7 +173,6 @@ const ResetPassword = () => {
   </p>
 </div>
 
-{/* Confirm Password */}
 <div className="flex flex-col mb-0">
   <label className="text-[14px] font-medium text-gray-700 mb-1">Confirm Password:</label>
   <div className="relative">
@@ -224,8 +217,6 @@ const ResetPassword = () => {
   </p>
 </div>
 
-
-          {/* Error Message */}
           <p className={`text-sm text-center -mt-1 mb-1 min-h-5 transition-all ${error ? "text-[#558CE6]" : "text-transparent"}`}>
             {error || " "}
           </p>

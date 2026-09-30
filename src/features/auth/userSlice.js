@@ -9,15 +9,13 @@ const initialState = {
   workspaceId: null,
   workspaceToken: null,
   workspaceName: null,
-  workspaceManagerId: null, // manager/owner id for current workspace
-  // profile gating
+  workspaceManagerId: null, 
   isProfileNeeded: false,
-  signupDone: false,
-  // transient auth/OTP flows (can be persisted but will be cleared on success)
+  signupDone: false,
   signupPending: false,
   forgotRequested: false,
   pendingEmail: null,
-  pendingMode: null, // "signup" | "forgot"
+  pendingMode: null, 
 };
 
 const userSlice = createSlice({
@@ -28,7 +26,7 @@ const userSlice = createSlice({
       state.username = action.payload;
     },
     setUserProfile: (state, action) => {
-  state.profile = action.payload; // store full profile object
+  state.profile = action.payload; 
 },
     setUserAvatar: (state, action) => {
       state.avatar = action.payload;
@@ -59,8 +57,7 @@ const userSlice = createSlice({
 },
     setSignupDone: (state, action) => {
       state.signupDone = action.payload;
-    },
-    // Flow controls
+    },
     startSignupFlow: (state, action) => {
       state.signupPending = true;
       state.pendingEmail = action.payload || null;

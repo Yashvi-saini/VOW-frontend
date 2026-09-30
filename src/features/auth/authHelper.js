@@ -1,29 +1,17 @@
-import api from "../api/axiosConfig";
-
-// ================= TOKEN =================
-
-// Get token from localStorage
+import api from "../api/axiosConfig";
 export const getToken = () => {
   return localStorage.getItem("accessToken");
-};
-
-// Set token
+};
 export const setToken = (token) => {
   localStorage.setItem("accessToken", token);
-};
-
-// Remove token
+};
 export const removeToken = () => {
   localStorage.removeItem("accessToken");
-};
-
-// ================= AUTH CHECK =================
+};
 
 export const isAuthenticated = () => {
   return !!getToken();
-};
-
-// ================= LOGOUT =================
+};
 
 export const logout = async () => {
   try {
@@ -34,11 +22,7 @@ export const logout = async () => {
     removeToken();
     window.location.href = "/login";
   }
-};
-
-// ================= AXIOS HELPER =================
-
-// Attach token automatically
+};
 export const attachTokenToAxios = () => {
   const token = getToken();
 

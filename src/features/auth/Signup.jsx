@@ -13,8 +13,7 @@ import { setSignupDone, startSignupFlow } from "./userSlice";
 import logo from "@/assets/logo.svg";
 export default function Signup() {
   const [enter, setEnter] = useState(false);
-  useEffect(() => {
-    // Trigger mount animation for the card
+  useEffect(() => {
     const r = requestAnimationFrame(() => setEnter(true));
     return () => cancelAnimationFrame(r);
   }, []);
@@ -33,12 +32,10 @@ export default function Signup() {
   const [userexists, setuserexists] = useState(false);
   const [usernameExists, setUsernameExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
-  const [usernameTouched, setUsernameTouched] = useState(false);
-  // Entry overlay (from Home transition)
+  const [usernameTouched, setUsernameTouched] = useState(false);
   const initialEntryOverlay = location.state?.entryOverlay === true;
   const [routeOverlay, setRouteOverlay] = useState(initialEntryOverlay);
-  const [routeOverlayOpaque, setRouteOverlayOpaque] = useState(initialEntryOverlay);
-// Redirect only after this submit completes (avoid persisted-flag surprises)
+  const [routeOverlayOpaque, setRouteOverlayOpaque] = useState(initialEntryOverlay);
 const signupDone = useSelector((state) => state.user.signupDone);
 const [termsError, setTermsError] = useState(false);
 
@@ -48,8 +45,7 @@ useEffect(() => {
     navigate("/verify-otp", { state: { email, mode: "signup" } });
     setAfterSubmit(false);
   }
-}, [afterSubmit, signupDone,  email, navigate]);
-  // Fade out the entry overlay once on mount if coming from Home
+}, [afterSubmit, signupDone,  email, navigate]);
   useEffect(() => {
     if (initialEntryOverlay) {
       const id = requestAnimationFrame(() => setRouteOverlayOpaque(false));
@@ -59,41 +55,30 @@ useEffect(() => {
         clearTimeout(to);
       };
     }
-  }, [initialEntryOverlay]);
-  // Required field error flags, set on submit and cleared on change
+  }, [initialEntryOverlay]);
   const [requiredErrs, setRequiredErrs] = useState({
     username: false,
     email: false,
     password: false,
   });
-const dispatch = useDispatch();
-  // Trimmed username
-const trimmedUsername = username.trim();
-
-// Username validations
+const dispatch = useDispatch();
+const trimmedUsername = username.trim();
 const isUsernameNotEmpty = trimmedUsername.length > 0;
 const isUsernameMinLength = trimmedUsername.length >= 3;
 const isUsernameMaxLength = trimmedUsername.length <= 20;
 const isUsernameValidChars = /^[a-zA-Z0-9._]+$/.test(trimmedUsername);
 const noConsecutiveSpecials = !/[\._]{2,}/.test(trimmedUsername);
-const validStartEnd = /^[a-zA-Z0-9].*[a-zA-Z0-9]$/.test(trimmedUsername);
-
-
-// Final combined username validity
+const validStartEnd = /^[a-zA-Z0-9].*[a-zA-Z0-9]$/.test(trimmedUsername);
 const isUsernameValid =
   isUsernameNotEmpty &&
   isUsernameMinLength &&
   isUsernameMaxLength &&
   isUsernameValidChars &&
   noConsecutiveSpecials &&
-  validStartEnd;
-
-
-  // Validation
+  validStartEnd;
   
- const trimmedEmail = email.trim(); // removes leading & trailing spaces
+ const trimmedEmail = email.trim(); 
 const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
-
 
   const passwordRules = [
     {
@@ -121,27 +106,19 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   const isPasswordValid =
     password && passwordRules.every((rule) => rule.test(password));
   const isFormValid =
-    isUsernameValid && isEmailValid && isPasswordValid && termsAccepted;
-  /******** */
-  // Submit handler
+    isUsernameValid && isEmailValid && isPasswordValid && termsAccepted;
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  // Required field errors
+  e.preventDefault();
   const emptyFlags = {
     username: trimmedUsername === "",
     email: trimmedEmail === "",
     password: (password || "").trim() === "",
   };
 
-  setRequiredErrs(emptyFlags);
-
-  // NEW → validate terms BEFORE any return
+  setRequiredErrs(emptyFlags);
   if (!termsAccepted) {
     setTermsError(true);
-  }
-
-  // Stop if anything missing
+  }
   if (
     emptyFlags.username ||
     emptyFlags.email ||
@@ -151,9 +128,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     return;
   }
 
-  if (!isFormValid) return;
-
-  // Prevent double submit
+  if (!isFormValid) return;
   if (loading) return;
   setLoading(true);
 
@@ -198,7 +173,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     setLoading(false);
   }
 };
-
 
   return (
   <><Background className={`transition-opacity duration-700 ease-out ${enter ? 'opacity-100' : 'opacity-0'}`} />
@@ -248,7 +222,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
             onSubmit={handleSubmit}
             className="space-y-[clamp(10px,1.6vh,16px)] text-left mt-[clamp(12px,2vh,24px)] m-3 mb-0"
           >
-            {/* Username */}
+            
             <div className="relative mb-0">
               <label className="block text-[#1F2937] mb-1 font-bold h-[19px]">
                 Username:
@@ -307,8 +281,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
             </div>
 
-            
-            {/* Email */}
  <div className="relative mb-0">
   <label className="block text-gray-700 mb-1 h-[19px] font-bold">
     Email:
@@ -341,7 +313,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
       }`}
     />
 
-    
     {(userexists || emailExists) && (
       <img
         src={CrossIcon}
@@ -351,7 +322,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     )}
   </div>
 
-  {/* Error message */}
   <p className="text-sm mt-1 min-h-5 text-red-500">
     {requiredErrs.email
       ? "Kindly fill the email"
@@ -363,8 +333,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
    </p>
   </div>
 
-
-            {/* Password */}
             <div className="relative mb-0">
               <label className="block text-gray-700 mb-1 h-[19px] font-bold">
                 Password:
@@ -385,9 +353,9 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
                   onFocus={() => setInputFocused(true)}
                   onBlur={() => setInputFocused(false)}
                   className={`w-full px-2.5 py-[clamp(9px,1.8vh,12px)] pr-10 rounded-lg focus:outline-none focus:ring-2 box-border text-[clamp(14px,2vh,16px)] border ${
-                    password && !inputFocused // ✅ not empty AND not touched
+                    password && !inputFocused 
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
-                      : inputFocused || password // when focused or typing
+                      : inputFocused || password 
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
@@ -421,7 +389,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
               )}
             </div>
 
-            {/* Terms */}
             <div className="flex items-start gap-2 mb-[clamp(12px,2vh,24px)]">
   <input
     type="checkbox"
@@ -430,7 +397,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
     checked={termsAccepted}
     onChange={(e) => {
       setTermsAccepted(e.target.checked);
-      if (e.target.checked) setTermsError(false); // clear error
+      if (e.target.checked) setTermsError(false); 
     }}
   />
   <label
@@ -449,7 +416,6 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   </p>
 )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}

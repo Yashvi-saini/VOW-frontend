@@ -26,7 +26,7 @@ const ForgotPassword = () => {
   setServerMsg("");
 
   try {
-    const trimmedEmail = email.trim(); // ensure clean email
+    const trimmedEmail = email.trim(); 
     const res = await forgotPassword({ email: trimmedEmail });
     const data = res.data;
 
@@ -54,7 +54,6 @@ const ForgotPassword = () => {
   }
 };
 
-   
   return (
     <>
     <Background/>
@@ -63,7 +62,7 @@ const ForgotPassword = () => {
       
     >
       <div className="bg-white pt-5 px-3 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 sm:px-10 text-center box-border">
-        {/* Close Button */}
+        
         <div className="flex justify-start mt-5">
           <button
             className="text-gray-800 font-bold text-3xl mt-1 mr-2 pr-1 text-center"
@@ -75,22 +74,19 @@ const ForgotPassword = () => {
         </div>
 
         <div className="px-6 sm:px-10 pb-10">
-          {/* Logo */}
+          
           <div className="flex justify-center mt-1">
             <img src={logo} alt="Logo" className="h-[35px] w-[51px]" />
           </div>
 
-          {/* Heading */}
           <h2 className="text-center text-[32px] font-medium text-gray-900 mb-1">
             Forgot Password
           </h2>
 
-          {/* Instruction */}
           <p className="text-center text-[17px] mb-8 text-gray-600">
             Please enter your registered email to receive a verification code.
           </p>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="text-left relative">
             <div className="mb-4">
               <label className="block text-1xl font-bold text-gray-900 mb-1">
@@ -102,15 +98,15 @@ const ForgotPassword = () => {
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value.trimStart());
-                    setServerMsg(""); // <-- clear server message on change
+                    setServerMsg(""); 
                   }}
                   onClick={()=>(setEmailFocused(true))}
                   onBlur={() => setTouched(true)}
                   placeholder="Enter your email"
                   className={`w-full border rounded-lg px-2 py-2 text-[17px]  border-gray-400 focus:ring-[#5C0EA4] focus:outline-none focus:ring-2 transition ${
-                      email && emailFocused // ✅ not empty AND not touched
+                      email && emailFocused 
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
-                      : emailFocused || email // when focused or typing
+                      : emailFocused || email 
                       ? "border-[#558CE6] focus:ring-[#558CE6]"
                       : "border-gray-600 focus:ring-[#558CE6]"
                   }`}
@@ -136,7 +132,6 @@ const ForgotPassword = () => {
             </button>
           </form>
 
-          {/* Back to login */}
           <p className="text-center text-[17px] text-[#707070] mt-1">
             <a href="/login" className="font-normal underline">
               Back to Login
