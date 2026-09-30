@@ -16,7 +16,7 @@ import {
 } from "@/features/auth";
 import { Dashboard } from "@/features/dashboard";
 import { ProfilePage } from "@/features/profile";
-import Map from "@/components/map/Map";
+import { Map } from "@/features/map";
 import ChatApp from "@/components/chat/chat";
 
 import { useSelector } from "react-redux";
