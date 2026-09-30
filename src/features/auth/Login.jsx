@@ -14,7 +14,7 @@ import { loginUser } from "@/api/authApi";
 import { getProfileInfo } from "@/api/profileapi";
 import arrow from "@/assets/arrow.svg";
 import Background from "@/features/landing/Background";
-import socket from "@/components/chat/socket";
+import socket, { connectSocket } from "@/features/chat/socket";
 
 const Login = () => {
   const [identifier, setIdentifier] = useState("");
@@ -72,7 +72,9 @@ const Login = () => {
 
       console.log("Login response:", res);
       if (res.success) {
-        const { user } = res;
+        const { user, accessToken, refreshToken } = res;
+        if (accessToken) localStorage.setItem("accessToken", accessToken);
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
         dispatch(setUserId(user._id));
         try {
@@ -94,10 +96,7 @@ const Login = () => {
 
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("isLogged", "true");
-        if (!socket.connected) {
-          socket.connect();
-          console.log("✅ Socket connected after login");
-        }
+        connectSocket();
 
         if (isProfileNeeded) {
           navigate("/profile");
