@@ -15,7 +15,7 @@ import {
   ResetSuccess,
 } from "@/features/auth";
 import { Dashboard } from "@/features/dashboard";
-import ProfilePage from "@/pages/profile/ProfilePage";
+import { ProfilePage } from "@/features/profile";
 import Map from "@/components/map/Map";
 import ChatApp from "@/components/chat/chat";
 
