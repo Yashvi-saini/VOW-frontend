@@ -12,7 +12,7 @@ import dashboardBg from "../../assets/dashboardbg.svg";
 import TeamBuilder from "../chat/teambuilder.jsx";
 import ProfileSettings from "../profilegeneration/ProfileSettings.jsx";
 import MeetingPage from "./Meeting/meetingpage.jsx";
-import GeminiChat from "../../../geminichat.jsx";
+import GeminiChat from "../gemini/geminichat.jsx";
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState("dashboard");

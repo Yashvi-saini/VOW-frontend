@@ -1,6 +1,6 @@
 import axios from "axios";
 
-let rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+let rawApiUrl = import.meta.env.VITE_API_URL || "";
 
 // Ensure URL includes scheme (http:// or https://) so Axios sends absolute requests instead of relative Vercel paths
 if (rawApiUrl && !rawApiUrl.startsWith("http://") && !rawApiUrl.startsWith("https://")) {

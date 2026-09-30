@@ -7,14 +7,14 @@
 [![Socket.io Client](https://img.shields.io/badge/Socket.io--Client-v4.8.1-black.svg)](https://socket.io/)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-v2.0-blue.svg)](https://cloudinary.com/)
 [![Google Gemini AI](https://img.shields.io/badge/Google--GenAI-v1.29.0-orange.svg)](https://ai.google.dev/)
-[![Backend Repository](https://img.shields.io/badge/Backend-VOW__backend-green.svg)](https://github.com/raj-krr/VOW_backend)
+[![Backend Repository](https://img.shields.io/badge/Backend-vow--server-green.svg)](https://github.com/Yashvi-saini/vow-server)
 [![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
 
 **VOW (Virtual Organized World)** is an interactive, real-time spatial web application designed for distributed remote teams. Built on React 19, Vite, Redux Toolkit, and Socket.io, the frontend provides a 2D spatial virtual office interface where team members navigate custom avatars, initiate spontaneous 1-on-1 chats upon avatar collision, collaborate in real-time text channels & DMs, participate in WebRTC SFU video/audio meetings, and query an integrated Google Gemini AI workspace copilot.
 
 > 🔗 **Repositories Ecosystem**:
-> - 🎨 **Frontend Repository (This Repo)**: [https://github.com/raj-krr/VOW](https://github.com/raj-krr/VOW)
-> - ⚙️ **Backend Repository**: [https://github.com/raj-krr/VOW_backend](https://github.com/raj-krr/VOW_backend)
+> - 🎨 **Frontend Repository (This Repo)**: [https://github.com/Yashvi-saini/VOW-frontend](https://github.com/Yashvi-saini/VOW-frontend)
+> - ⚙️ **Backend Repository**: [https://github.com/Yashvi-saini/vow-server](https://github.com/Yashvi-saini/vow-server)
 
 ---
 

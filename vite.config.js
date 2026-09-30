@@ -7,6 +7,5 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: ['vow-1.onrender.com','vow-2.onrender.com'],
   },
 })
