@@ -1,22 +1,23 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import ProtectedRoute from "./ProtectedRoute";
-import FlowProtectedRoute from "./FlowProtectedRoute";
-import RouteWatcher from "./RouteWatcher";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import FlowProtectedRoute from "./routes/FlowProtectedRoute";
+import RouteWatcher from "./routes/RouteWatcher";
 
-import Home from "./pages/home";
-import Login from "./pages/login";
-import Signup from "./components/signup";
-import ForgotPassword from "./components/forgotpassword";
-import VerifyOtp from "./pages/verifyotp";
-import ResetPassword from "./pages/resetpassword";
-import ResetSuccess from "./pages/resetsuccess";
-import Dashboard from "./components/dashboard/dashboard.jsx";
-import ProfilePage from "./pages/profile/ProfilePage";
-import Map from "./components/map/Map";
-import ChatApp from "./components/chat/chat";
-import TermsAndConditions from "./components/terms and conditions";
+import { Home, TermsAndConditions } from "@/features/landing";
+import {
+  Login,
+  Signup,
+  ForgotPassword,
+  VerifyOtp,
+  ResetPassword,
+  ResetSuccess,
+} from "@/features/auth";
+import Dashboard from "@/components/dashboard/dashboard.jsx";
+import ProfilePage from "@/pages/profile/ProfilePage";
+import Map from "@/components/map/Map";
+import ChatApp from "@/components/chat/chat";
 
 import { useSelector } from "react-redux";
 import { isAuthenticated } from "./api/authApi"; 
