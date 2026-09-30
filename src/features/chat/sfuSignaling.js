@@ -35,11 +35,10 @@ export default class SfuSignalingClient {
         : "http://localhost:5000";
     }
 
-    if (base.startsWith("https://")) base = base.replace("https://", "wss://");
-    else if (base.startsWith("http://")) base = base.replace("http://", "ws://");
-    else if (!base.startsWith("ws://") && !base.startsWith("wss://")) base = "ws://" + base;
+    if (base.startsWith("https://")) base = base.replace("https://", "wss:
+    else if (base.startsWith("http://")) base = base.replace("http://", "ws:
+    else if (!base.startsWith("ws:
 
-    // Normalize: remove any trailing slashes or /signaling suffix, then append /signaling
     base = base.replace(/\/+$/, "").replace(/\/signaling$/, "");
     return base + "/signaling";
   }
@@ -97,7 +96,6 @@ export default class SfuSignalingClient {
   send(obj) {
     if (!obj || typeof obj !== "object") return;
 
-    // Fill in roomId and participantId from instance cache if missing
     if (!obj.roomId && this.roomId) {
       obj.roomId = this.roomId;
     }

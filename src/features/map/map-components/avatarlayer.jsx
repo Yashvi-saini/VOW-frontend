@@ -1,4 +1,4 @@
-// AvatarLayer.jsx
+
 import Avatar from "../map/map assets/avtar";
 const AvatarLayer = ({ members, localPlayerId, localPosition, avatarSize }) => (
   <>

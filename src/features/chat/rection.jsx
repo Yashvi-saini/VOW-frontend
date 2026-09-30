@@ -21,7 +21,7 @@ const MessageReactions = ({ msgIndex, reactions, onAddReaction, onRemoveReaction
       onMouseLeave={handleMouseLeave}
       className="relative bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-sm w-full cursor-pointer transition-all duration-200"
     >
-      {/* Quick Reactions */}
+      
       <div
         className={`absolute flex space-x-1 z-40 transform transition-all duration-300 ${
           quickReactionsVisible
@@ -49,10 +49,8 @@ const MessageReactions = ({ msgIndex, reactions, onAddReaction, onRemoveReaction
         </div>
       </div>
 
-      {/* Render message content */}
       <div>{children}</div>
 
-      {/* Reactions */}
       {reactions?.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {reactions.map((r) => (

@@ -1,8 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { getMembers } from "../api/workspaceApi";
-import socket, { connectSocket } from "@/components/chat/socket";
-
-// Fetch members for a given workspace using the scoped workspace token
+import socket, { connectSocket } from "@/components/chat/socket";
 export const useMembers = (workspaceId) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);

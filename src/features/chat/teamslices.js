@@ -1,4 +1,4 @@
-// actions
+
 export const setTeam = (team) => ({
   type: "SET_TEAM",
   payload: team,
@@ -12,15 +12,13 @@ export const setTeamsList = (teams) => ({
 export const setSelectedTeamId = (teamId) => ({
   type: "SET_SELECTED_TEAM_ID",
   payload: teamId,
-});
-
-// reducer
+});
 const initialState = {
-  currentTeam: null,      // last created/updated team
-  teams: [],              // teams in workspace (team documents)
-  selectedTeamId: null,   // selected team for meeting scheduling
-  channelTeamMap: {},     // channelId -> teamId mapping for lookups
-  channelCreatorMap: {},  // channelId -> creatorId mapping for fallback access
+  currentTeam: null,      
+  teams: [],              
+  selectedTeamId: null,   
+  channelTeamMap: {},     
+  channelCreatorMap: {},  
 };
 
 export default function teamReducer(state = initialState, action) {

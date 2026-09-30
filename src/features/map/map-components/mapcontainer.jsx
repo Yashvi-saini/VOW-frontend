@@ -1,4 +1,4 @@
-// MapContainer.jsx
+
 const MapContainer = ({ children, viewportRef, containerRef, cursorBlocked, handleMapClick, handlePointerMove, handlePointerLeave }) => (
   <div
     ref={viewportRef}

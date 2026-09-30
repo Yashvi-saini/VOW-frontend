@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUserProfile ,setProfileNeeded} from "@/features/auth";
 
-
 const ProfileForm = ({ onSubmit }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -80,23 +79,18 @@ const [preview,setPreview]= useState(null);
       const response = await createProfile(payload);
 
       if (response.data?.success) {
-  const profile = response.data.data; // ✅ grab the profile object
-
-  // Persist avatar for refresh (optional)
+  const profile = response.data.data; 
   if (profile.avatar) {
     localStorage.setItem("avatar", profile.avatar);
-  }
-
-  // Update Redux so UI reflects new profile immediately
+  }
   dispatch(setUserProfile({
-    username: profile.username,   // if backend returns it
+    username: profile.username,   
     fullName: profile.fullName,
-    email: profile.email,         // if backend returns it
+    email: profile.email,         
     avatar: profile.avatar,
   }));
 
-  dispatch(setProfileNeeded(false)); // ✅ mark profile complete
-  
+  dispatch(setProfileNeeded(false)); 
 
   onSubmit?.(profile);
 } else {
@@ -128,7 +122,7 @@ const [preview,setPreview]= useState(null);
           className="w-5 h-5 sm:w-6 sm:h-6 hover:opacity-80 transition"
         />
        </div>
-        {/* Header */}
+        
         <div className="text-[#0E1219] text-xl sm:text-2xl md:text-[32px] font-semibold leading-tight text-center mb-2 px-2">
           Create Your VOW Profile
         </div>
@@ -142,7 +136,7 @@ const [preview,setPreview]= useState(null);
         noValidate
         className="flex flex-col gap-3 sm:gap-4 overflow-y-auto px-2"
       >
-        {/* Full Name */}
+        
         <div>
           <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
             Full Name:
@@ -161,7 +155,6 @@ const [preview,setPreview]= useState(null);
           </p>
         </div>
 
-        {/* Gender */}
         <div>
           <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-2">
             Gender:
@@ -186,7 +179,6 @@ const [preview,setPreview]= useState(null);
           </p>
         </div>
 
-        {/* Organisation */}
         <div>
           <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
             Organisation:
@@ -204,7 +196,6 @@ const [preview,setPreview]= useState(null);
           </p>
         </div>
 
-        {/* DOB */}
         <div>
           <label className="block text-xs sm:text-sm font-medium text-[#1F2937] mb-1">
             Date of Birth:
@@ -222,7 +213,6 @@ const [preview,setPreview]= useState(null);
           </p>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}

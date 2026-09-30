@@ -25,7 +25,7 @@ const DeleteModal = ({ open, onCancel, onConfirm, scopeSelector = 'main' }) => {
 
   return (
     <>
-      {/* blurred backdrop  */}
+      
       <div
         className="fixed z-50"
         style={{
@@ -38,7 +38,6 @@ const DeleteModal = ({ open, onCancel, onConfirm, scopeSelector = 'main' }) => {
         }}
       />
 
-      {/* Centered modal within the scoped rectangle */}
       <div
         className="fixed z-50 flex items-center justify-center"
         style={{
@@ -49,7 +48,7 @@ const DeleteModal = ({ open, onCancel, onConfirm, scopeSelector = 'main' }) => {
         }}
       >
         <div className="relative w-[772px] max-w-[90vw] rounded-2xl bg-[#EFE7F6] px-8 py-6 ">
-          {/* Close (X) */}
+          
           <button
             aria-label="Close"
             onClick={onCancel}

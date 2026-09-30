@@ -55,8 +55,7 @@ q5: who can create metings?
 a5:only manager and superviser can create meetings.
 Now answer the user's question clearly and professionally about VOW platform.
 `;
-const CANDIDATE_MODELS = [
-  // try the newest you want first, then fall back
+const CANDIDATE_MODELS = [
   "gemini-2.5-flash",
   "gemini-2.5-flash-lite",
   "gemini-1.5-flash",
@@ -89,14 +88,10 @@ export default function GeminiChat({ onClose }) {
 
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
-  }, [messages]);
-
-  // Debug: print the key to confirm it's loaded (remove in production)
+  }, [messages]);
   useEffect(() => {
     console.log("DEBUG: VITE_GEMINI_API_KEY =>", import.meta.env.VITE_GEMINI_API_KEY ? "LOADED" : "MISSING");
-  }, []);
-
-  // Initialize chat: try candidate models until one works
+  }, []);
   useEffect(() => {
     let mounted = true;
 
@@ -104,9 +99,7 @@ export default function GeminiChat({ onClose }) {
       if (!genAI) {
         console.error("genAI SDK is not initialized. Check import and constructor.");
         return;
-      }
-
-      // If the environment key is missing, log and bail
+      }
       if (!import.meta.env.VITE_GEMINI_API_KEY) {
         console.error("No Gemini API key found in import.meta.env.VITE_GEMINI_API_KEY");
         return;
@@ -118,9 +111,7 @@ export default function GeminiChat({ onClose }) {
         if (!mounted) return;
         try {
           console.log(`Trying model: ${candidate}`);
-          const model = genAI.getGenerativeModel({ model: candidate });
-
-          // Prefer startChat if available; fallback to generateContent usage later
+          const model = genAI.getGenerativeModel({ model: candidate });
           try {
             const session = await model.startChat({
               history: [],
@@ -131,21 +122,15 @@ export default function GeminiChat({ onClose }) {
               chatRef.current = session;
               return;
             }
-          } catch (chatErr) {
-            // startChat failed — maybe model doesn't support chat; treat as a partial failure
-            console.warn(`model.startChat failed for ${candidate}:`, chatErr?.message || chatErr);
-            // try to use generateContent as fallback (no session)
-            // We'll set modelRef and use model.generateContent later
+          } catch (chatErr) {
+            console.warn(`model.startChat failed for ${candidate}:`, chatErr?.message || chatErr);
             modelRef.current = model;
-            chatRef.current = null;
-            // Still return — we can send using generateContent without a session
+            chatRef.current = null;
             console.log(`✅ Using model (without chat session): ${candidate}`);
             return;
           }
-        } catch (err) {
-          // model lookup failed for this candidate
-          console.warn(`Model ${candidate} not available or initialization failed:`, err?.message || err);
-          // continue to next candidate
+        } catch (err) {
+          console.warn(`Model ${candidate} not available or initialization failed:`, err?.message || err);
         }
       }
 
@@ -174,18 +159,14 @@ export default function GeminiChat({ onClose }) {
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
 
-    try {
-      // If we have an active chat session, use it
-      if (chatRef.current?.sendMessage) {
-        // Prepend the base prompt to give context
+    try {
+      if (chatRef.current?.sendMessage) {
         const fullPrompt = BASE_PROMPT + "\n\nUser question: " + trimmed;
-        const result = await chatRef.current.sendMessage(fullPrompt);
-        // handle streamed/response object - try .text()
+        const result = await chatRef.current.sendMessage(fullPrompt);
         const text = await (result?.response?.text ? result.response.text() : Promise.resolve(String(result)));
         const aiMessage = { role: "ai", text };
         setMessages((prev) => [...prev, aiMessage]);
-      } else {
-        // No session — use model.generateContent directly
+      } else {
         const fullPrompt = BASE_PROMPT + "\n\nUser question: " + trimmed;
         const result = await modelRef.current.generateContent(fullPrompt);
         const text = await (result?.response?.text ? result.response.text() : Promise.resolve(String(result)));
@@ -193,8 +174,7 @@ export default function GeminiChat({ onClose }) {
         setMessages((prev) => [...prev, aiMessage]);
       }
     } catch (err) {
-      console.error("Gemini API error (sendMessage):", err);
-      // Log structured info if available
+      console.error("Gemini API error (sendMessage):", err);
       if (err?.response) {
         console.error("Response body:", err.response);
       }
@@ -207,7 +187,6 @@ export default function GeminiChat({ onClose }) {
       setInput("");
     }
   };
-
 
   const handleClearAll = () => {
     if (window.confirm("Clear all chat messages?")) {

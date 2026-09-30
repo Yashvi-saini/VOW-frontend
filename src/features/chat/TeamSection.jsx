@@ -10,9 +10,7 @@ import { setSelectedTeamId, mapChannelTeam, mapChannelCreator } from "./teamslic
 import CreateTeamModal from "./CreateTeamModal.jsx";
 import Toast from "@/components/common/Toast.jsx";
 
-
-const TeamSection = ({ title = "Team", activeRoomId, onChannelSelect }) => {
-  // Holds channel objects (each represents a chat channel). Team ID may differ.
+const TeamSection = ({ title = "Team", activeRoomId, onChannelSelect }) => {
   const [teams, setTeams] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [toast, setToast] = useState({ show: false, type: 'info', message: '' });
@@ -29,8 +27,7 @@ const handleToggleCollapse = () => {
   setIsCollapsed((prev) => !prev);
 };
 const { workspaceId, workspaceManagerId } = useSelector((state) => state.user); 
-const profile = useSelector((state) => state.user.profile);
-// Mapping channelId -> teamId established during team creation
+const profile = useSelector((state) => state.user.profile);
 const channelTeamMap = useSelector((state) => state.team.channelTeamMap);
 const channelCreatorMap = useSelector((state) => state.team.channelCreatorMap);
 const dispatch = useDispatch();
@@ -41,8 +38,7 @@ useEffect(() => {
       console.log("Fetching channels for workspace:", workspaceId);
       const response = await getChannels(workspaceId);
       const channelList = response?.data || [];
-      setTeams(channelList);
-      // Attempt to backfill channel->team mapping for legacy channels
+      setTeams(channelList);
       try {
         const teamsRes = await getTeams(workspaceId);
         const teamDocs = teamsRes?.data?.teams || teamsRes?.data || [];
@@ -53,14 +49,12 @@ useEffect(() => {
           for (const x of b) { if (!sa.has(x)) return false; }
           return true;
         };
-        channelList.forEach(ch => {
-          // Skip if mapped already
+        channelList.forEach(ch => {
           if (!ch?._id) return;
           const existing = channelTeamMap?.[ch._id];
           if (existing) return;
           const chName = ch.name;
-          const chMembers = toIdArray(ch.members);
-          // Candidates by name OR by exact member set
+          const chMembers = toIdArray(ch.members);
           const candidates = teamDocs.filter(td => {
             const tdMembers = toIdArray(td.members);
             const nameMatch = td.name === chName;
@@ -69,8 +63,7 @@ useEffect(() => {
           });
           if (candidates.length === 1) {
             dispatch(mapChannelTeam(ch._id, candidates[0]._id));
-          }
-          // Backfill creator mapping if server returns it
+          }
           const creator = ch.creatorId || ch.ownerId || ch.createdBy || ch.creator;
           if (creator && !channelCreatorMap?.[ch._id]) {
             dispatch(mapChannelCreator(ch._id, creator));
@@ -107,11 +100,10 @@ useEffect(() => {
       return;
     }
     try {
-      setRenameSaving(true);
-      // Rename both team and channel; both must succeed
+      setRenameSaving(true);
       await Promise.all([
-        renameTeam(workspaceId, teamId, newName), // sends { newName }
-        renameChannel(channel._id, newName),      // sends { name }
+        renameTeam(workspaceId, teamId, newName), 
+        renameChannel(channel._id, newName),      
       ]);
       setTeams(prev => prev.map(c => c._id === channel._id ? { ...c, name: newName } : c));
       setToast({ show: true, type: 'success', message: 'Team renamed' });
@@ -127,8 +119,7 @@ useEffect(() => {
 
   return (
     <div className="mt-4">
-      {/* Section Header */}
-      {/* Section Header */}
+
 <div className="flex items-center justify-between text-white bg-[#200539] py-2 px-4">
   <div className="flex items-center gap-2 cursor-pointer" onClick={handleToggleCollapse}>
     <img
@@ -146,7 +137,6 @@ useEffect(() => {
   />
 </div>
 
-      {/* Modal for creating team (replaces channel inline form) */}
       <CreateTeamModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -160,7 +150,6 @@ useEffect(() => {
         }}
       />
 
-      {/* Team List */}
 {!isCollapsed &&
   teams.map((team) => {
     const isActive = String(team._id) === String(activeRoomId);
@@ -176,14 +165,12 @@ useEffect(() => {
       <div
         className="flex items-center gap-2 min-w-0 cursor-pointer"
         onClick={() => {
-          if (renamingId) return; // don't navigate while renaming
+          if (renamingId) return; 
           const userId = profile?._id || profile?.id;
-          const memberIds = team.members?.map(m => (typeof m === 'object' ? m._id || m.id : m)) || [];
-          // Allow if user is listed OR if user created the team (fallback)
-          const creatorId = team.creatorId || team.ownerId || team.createdBy; // heuristic fields
+          const memberIds = team.members?.map(m => (typeof m === 'object' ? m._id || m.id : m)) || [];
+          const creatorId = team.creatorId || team.ownerId || team.createdBy; 
           const mappedCreator = channelCreatorMap?.[team._id];
-          const allowed = true;
-          // Log clicker (user) and manager id for debugging access issues
+          const allowed = true;
           console.log('[channel click]', {
             channelId: team._id,
             userId,
@@ -193,10 +180,8 @@ useEffect(() => {
             isMember: memberIds.includes(userId),
             allowed
           });
-          if (allowed) {
-            // onChannelSelect expects a channel id; this list holds channels
-            onChannelSelect?.(team._id);
-            // Also push the true teamId into redux for downstream features
+          if (allowed) {
+            onChannelSelect?.(team._id);
             const mappedTeamId = channelTeamMap?.[team._id];
             if (mappedTeamId) {
               dispatch(setSelectedTeamId(mappedTeamId));

@@ -1,15 +1,8 @@
-// src/components/map/map objects/ManagerCabin.jsx
+
 import React, { useEffect } from "react";
 import desk2 from "../map assets/desk2.svg";
 import ZoneButton from "../map-components/button.jsx"
-/**
- * ManagerCabin: renders a rectangle and reports a collision box to the parent map.
- * Props:
- * - x, y, width, height: in pixels, top-left anchored relative to the map container
- * - id: unique id for obstacle group (default 'manager')
- * - onObstaclesReady: (id, obstacles[]) callback from Map.jsx
- * - containerRef: ref to the world container element
- */
+
 const ManagerCabin = ({
   x,
   y,
@@ -18,8 +11,7 @@ const ManagerCabin = ({
   title,
   id = "manager",
   onObstaclesReady,
-  containerRef,
-  // Optional collision overrides (independent of visual size)
+  containerRef,
   collisionWidthPx,
   collisionHeightPx,
   collisionWidthPercent,
@@ -32,11 +24,9 @@ const ManagerCabin = ({
       if (!container) return;
       const cw = container.clientWidth;
       const ch = container.clientHeight;
-      if (!cw || !ch) return;
-      // Convert top-left px rect to percent-based center rect
+      if (!cw || !ch) return;
       const centerX = x + width / 2;
-      const centerY = y + height / 2;
-      // Determine collision width/height independently of image/visual rect if overrides provided
+      const centerY = y + height / 2;
       const widthPercent =
         typeof collisionWidthPercent === "number"
           ? collisionWidthPercent

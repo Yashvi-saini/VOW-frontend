@@ -6,13 +6,8 @@ export const connectMapSocket = () => {
   connectSocket();
 };
 
-export const disconnectMapSocket = () => {
-  // Global socket managed by socket.jsx
-};
-
-// --------------------------------------------
-// CLIENT → SERVER
-// --------------------------------------------
+export const disconnectMapSocket = () => {
+};
 export const joinMapPresence = ({ workspaceId, name, x, y }) => {
   connectSocket();
   socket.emit("join", {
@@ -29,11 +24,7 @@ export const updateMapPosition = ({ workspaceId, x, y, displayName, avatar }) =>
 
 export const leaveMapPresence = (workspaceId) => {
   socket.emit("leave", { workspaceId });
-};
-
-// --------------------------------------------
-// SERVER → CLIENT
-// --------------------------------------------
+};
 export const setupMapListeners = (cb = {}) => {
   socket.off("user-joined");
   socket.off("user-moved");

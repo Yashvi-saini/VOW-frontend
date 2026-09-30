@@ -1,14 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import privateroomdesk from "../map assets/privateroomdesk.svg";
 import ZoneButton from "../map-components/button.jsx"
-/**
- * PrivateRoom: renders a cabin with multiple desk images and reports a collision box for each image.
- * Props:
- * - x, y, width, height: in pixels, top-left anchored relative to the map container
- * - id: unique id for obstacle group (default 'privateRoom')
- * - onObstaclesReady: (id, obstacles[]) callback from Map.jsx
- * - containerRef: ref to the world container element
- */
+
 const PrivateRoom = ({ x, y, width, height, title, id = "privateRoom", onObstaclesReady, containerRef }) => {
   const wrapperRef = useRef(null);
   const imgRefs = useRef([]);
@@ -22,15 +15,12 @@ const PrivateRoom = ({ x, y, width, height, title, id = "privateRoom", onObstacl
       const ch = container.clientHeight;
       if (!cw || !ch) return;
 
-      const containerRect = container.getBoundingClientRect();
-
-      // Build obstacles for each desk image by measuring its DOM box
+      const containerRect = container.getBoundingClientRect();
       const obstacles = (imgRefs.current || [])
         .filter(Boolean)
         .map((el, idx) => {
           const r = el.getBoundingClientRect();
-          if (!r.width || !r.height) return null;
-          // Adjust for any CSS scale by comparing DOMRect to clientWidth/Height
+          if (!r.width || !r.height) return null;
           const scaleX = containerRect.width / cw || 1;
           const scaleY = containerRect.height / ch || 1;
           const centerXpx = (r.left - containerRect.left + r.width / 2) / scaleX;

@@ -21,16 +21,12 @@ const CabinStructure = ({
   containerRef,
 }) => {
   const cabinRef = useRef(null);
-  const cabinPosition = position ?? DEFAULT_CABIN_POSITION;
-
-  //desk sizes calculated
+  const cabinPosition = position ?? DEFAULT_CABIN_POSITION;
  const deskW = Math.round((INNER_W - (COLS - 1) * COL_GAP) / COLS);
-  const deskH = Math.round((INNER_H - (ROWS - 1) * ROW_GAP) / ROWS);
-
-  // desks metadata
+  const deskH = Math.round((INNER_H - (ROWS - 1) * ROW_GAP) / ROWS);
   const desks = Array.from({ length: ROWS * COLS }).map((_, i) => {
-    const r = Math.floor(i / COLS); // 0..4
-    const c = i % COLS; // 0..3
+    const r = Math.floor(i / COLS); 
+    const c = i % COLS; 
     const leftPx = PADDING + c * (deskW + COL_GAP);
     const topPx = PADDING + r * (deskH + ROW_GAP);
     const centerXpx = leftPx + deskW / 2;
@@ -62,9 +58,7 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
         if (!containerWidth || !containerHeight) {
           onObstaclesReady?.(id, []);
           return;
-        }
-
-        // cabin center position in container px
+        }
         const cabinCenterX = (cabinPosition.x / 100) * containerWidth;
         const cabinCenterY = (cabinPosition.y / 100) * containerHeight;
         const cabinLeftInContainer = cabinCenterX - CABIN_W / 2;
@@ -93,9 +87,7 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
 
     setup();
     return () => ro?.disconnect?.();
-  }, [id, containerRef, cabinPosition.x, cabinPosition.y]);
-
-  // render
+  }, [id, containerRef, cabinPosition.x, cabinPosition.y]);
   return (
     <div
       ref={cabinRef}
@@ -109,8 +101,7 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
         transform: "translate(-50%, -50%)",
       }}
     >
-      
-{/*dashed outer box*/}
+
 <div
   className="
     absolute
@@ -123,7 +114,6 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
   "
 />
 
-      {/* Grid container sits above the outer rectangle */}
       <div
         style={{
           position: "absolute",
@@ -135,7 +125,7 @@ const COLLISION_Y_OFFSET_FRAC = 0.2;
           pointerEvents: "auto",
         }}
       >
-        {/* inner grid area positioned using exact px values */}
+        
         <div
           style={{
             position: "absolute",

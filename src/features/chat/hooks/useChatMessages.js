@@ -19,7 +19,7 @@ export const useChatMessages = ({
 
   useEffect(() => {
     setVisibleLimit(50);
-    setMessages([]); // Clear previous room's messages immediately
+    setMessages([]); 
 
     if (!activeRoomId || !workspaceId) return;
 
@@ -32,8 +32,7 @@ export const useChatMessages = ({
           isDMMode ||
           (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-"));
 
-        if (isDM) {
-          // Resolve selfId — use Redux userId FIRST, then profile, then localStorage, then JWT
+        if (isDM) {
           let selfId =
             userId ||
             profile?._id ||
@@ -50,9 +49,7 @@ export const useChatMessages = ({
                 selfId = payload.id || payload._id || payload.userId;
               } catch (e) {}
             }
-          }
-
-          // Resolve targetDmId
+          }
           let targetDmId = dmReceiverId;
           if (!targetDmId && typeof activeRoomId === "string" && activeRoomId.startsWith("dm-")) {
             targetDmId = activeRoomId.replace("dm-", "");
@@ -88,8 +85,7 @@ export const useChatMessages = ({
             dmCacheRef.current[targetDmId] = raw;
             setMessages(raw);
           }
-        } else {
-          // Channel messages
+        } else {
           const response = await fetchChannelMessages(activeRoomId);
 
           const raw = Array.isArray(response?.data)

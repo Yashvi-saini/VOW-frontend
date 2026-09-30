@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProfileInfo, createProfile, uploadProfilePhoto } from "@/api/profileapi";
 import { logoutUser } from "@/api/authApi";
 import { setUserProfile } from "@/features/auth";
-import Toast from "@/components/common/Toast";
-
-// Convert any date-like value to strict YYYY-MM-DD for <input type="date">
+import Toast from "@/components/common/Toast";
 const toYYYYMMDD = (val) => {
   if (!val) return "";
   if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
@@ -95,13 +93,11 @@ const ProfileSettings = ({ onClose }) => {
         organisation: form.organisation,
         gender: form.gender,
         dob: toYYYYMMDD(form.dob) || "",
-      });
-      // Refresh profile info and update Redux so UI (Topbar/Sidebar) reflects immediately
+      });
       try {
         const refreshed = await getProfileInfo();
         const data = refreshed.data?.data || null;
-        if (data) {
-          // Prefer the just-uploaded avatar if available (backend may still return a default URL)
+        if (data) {
           const uploadedAvatar = localStorage.getItem("avatar") || rdxProfile?.avatar || "";
           const chosenAvatar = uploadedAvatar || data.avatar || "";
           if (chosenAvatar) {
@@ -114,14 +110,12 @@ const ProfileSettings = ({ onClose }) => {
             avatar: chosenAvatar,
             gender: data.gender,
             organisation: data.organisation,
-          }));
-          // Update local form state as well (cache-busted for immediate UI change)
+          }));
           if (chosenAvatar) {
             setForm((p) => ({ ...p, avatar: `${chosenAvatar}?t=${Date.now()}` }));
           }
         }
-      } catch {}
-      // Success toast before closing
+      } catch {}
       setToast({ show: true, type: "success", message: "Profile saved successfully" });
       setTimeout(() => {
         onClose?.();
@@ -142,11 +136,9 @@ const ProfileSettings = ({ onClose }) => {
     try {
       const res = await uploadProfilePhoto(file);
       const newUrl = res.data?.data?.avatar;
-      if (newUrl) {
-        // cache-bust
+      if (newUrl) {
         const cacheBusted = `${newUrl}?t=${Date.now()}`;
-        setForm((p) => ({ ...p, avatar: cacheBusted }));
-        // Persist and update global profile so Sidebar/Topbar reflect new avatar instantly
+        setForm((p) => ({ ...p, avatar: cacheBusted }));
         try { localStorage.setItem("avatar", newUrl); } catch {}
         const merged = rdxProfile ? { ...rdxProfile, avatar: newUrl } : { avatar: newUrl };
         dispatch(setUserProfile(merged));
@@ -179,7 +171,7 @@ const ProfileSettings = ({ onClose }) => {
     <div className="max-w-3xl mx-auto relative px-4 sm:px-6">
       <h2 className="text-center text-lg sm:text-xl font-semibold text-[#2B2B2B] mb-4 sm:mb-6">Profile Settings</h2>
       <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
-        {/* Avatar */}
+        
         <div className="shrink-0 flex flex-col items-center gap-3 w-full sm:w-auto sm:items-start">
           <img src={avatarSrc} alt="avatar" className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border" />
           <label className="px-3 py-1.5 rounded-lg bg-[#450B7B] text-white text-xs cursor-pointer hover:brightness-110 transition">
@@ -188,7 +180,7 @@ const ProfileSettings = ({ onClose }) => {
           </label>
           {uploadError && <p className="text-[10px] text-red-500 max-w-[120px] text-center sm:text-left">{uploadError}</p>}
         </div>
-        {/* Form */}
+        
         <div className="flex-1 w-full space-y-3 sm:space-y-4 bg-white/60 p-4 sm:p-6 rounded-xl border">
           <div>
             <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Fullname</label>

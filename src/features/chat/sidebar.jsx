@@ -19,7 +19,7 @@ const Sidebar = ({
   onShowMap,
   onStartDM,
   unreadDMs = {},
-  onOpenMemberModal,   // ⭐ new callback to open MemberMultiSelect
+  onOpenMemberModal,   
 }) => {
   const [active, setActive] = useState("virtual");
   const navigate = useNavigate();
@@ -65,8 +65,7 @@ const Sidebar = ({
 
   return (
     <aside className="max-w-[320px] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
-      
-      {/* HEADER */}
+
       <div className="px-6 py-4 border-b border-[#3D1B5F]">
         <button
           onClick={() => navigate(-1)}
@@ -79,27 +78,8 @@ const Sidebar = ({
         </button>
       </div>
 
-      {/* ACTION BUTTONS */}
       <div className="px-6 py-4 space-y-3">
 
-        {/* Add Members */}
-        {/* <button
-          onClick={() => onOpenMemberModal("add")}
-          className="w-full h-11 flex items-center justify-center gap-2 
-                     bg-[#5E9BFF] text-white rounded-xl hover:bg-[#4A8AE8] transition"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Add Members
-        </button> */}
-
-        {/* Create Team */}
         <button
           onClick={() => onOpenMemberModal ? onOpenMemberModal("team") : onCreateTeam?.()}
           className="w-full h-11 flex items-center justify-center gap-2 
@@ -121,7 +101,6 @@ const Sidebar = ({
         </button>
       </div>
 
-      {/* NAVIGATION */}
       <div
         className="px-6 py-4 overflow-y-auto flex-1 scrollbar-hide"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
@@ -182,13 +161,6 @@ const Sidebar = ({
         />
       </div>
 
-      {/* SETTINGS */}
-      {/* <div className="px-6 py-4 border-t border-[#3D1B5F]">
-        <button className="w-full flex items-center gap-3 px-3 h-11 text-white hover:bg-[#3D1B5F] rounded-lg text-left">
-          <img src={settingsIcon} alt="settings" className="w-5 h-5" />
-          <span className="text-base">Settings</span>
-        </button>
-      </div> */}
     </aside>
   );
 };

@@ -1,4 +1,4 @@
-// BigTableStructure.jsx (single image with a collision box)
+
 import React, { useEffect, useRef } from "react";
 import bigtable from "../map assets/big table.svg";
 import ZoneButton from "../map-components/button.jsx"
@@ -13,11 +13,9 @@ const BigTableStructure = ({
   imageHeight,    
 
   collisionWidthPx,
-  collisionHeightPx,
-  // Or percent override relative to container (0-100)
+  collisionHeightPx,
   collisionWidthPercent,
-  collisionHeightPercent,
-  // Optional padding (can be negative) applied after size selection (px)
+  collisionHeightPercent,
   collisionPaddingPx = 0,
 }) => {
   const tableRef = useRef(null);
@@ -25,7 +23,6 @@ const BigTableStructure = ({
   const tablePosition = position ?? DEFAULT_TABLE_POSITION;
 
   const notifyObstacles = onObstaclesReady;
-
 
   useEffect(() => {
     let ro;
@@ -42,13 +39,11 @@ const BigTableStructure = ({
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
 
-  
         if (!containerWidth || !containerHeight) {
           notifyObstacles?.(id, []);
           return;
         }
         const obstacles = [];
-
 
         const containerRect = container.getBoundingClientRect();
         const scaleX = containerRect.width / containerWidth;

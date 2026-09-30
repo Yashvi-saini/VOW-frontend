@@ -23,9 +23,7 @@ const ChatRoomSection = ({
 
   const handleToggleCollapse = () => {
     setIsCollapsed((prev) => !prev);
-  };
-
-  // ✅ CLEAN FETCH (NO TOKEN LOGIC)
+  };
   useEffect(() => {
     const fetchChannels = async () => {
       if (!workspaceId) return;
@@ -44,7 +42,7 @@ const ChatRoomSection = ({
 
   return (
     <div className="mt-4">
-      {/* Header */}
+      
       <div className="flex items-center justify-between text-white bg-[#200539] py-2 px-4">
         <div
           className="flex items-center gap-2 cursor-pointer"
@@ -62,7 +60,7 @@ const ChatRoomSection = ({
 
       {!isCollapsed && (
         <div>
-          {/* Channels */}
+          
           {channels.map((channel) => {
             const isChannelActive = String(channel._id) === String(activeRoomId);
             return (
@@ -91,7 +89,6 @@ const ChatRoomSection = ({
             );
           })}
 
-          {/* Members */}
           {members.map((member) => {
             const memberId = member._id || member.id || member.userId;
             const unreadCount = unreadDMs[memberId] || 0;

@@ -19,9 +19,7 @@ import { useMembers } from "@/hooks/useMembers";
 
 import socket, { sendDirectMessage } from "./socket.jsx";
 import ChatLayout from "./ChatLayout.jsx";
-import { getChannels } from "@/api/channelApi.js";
-
-// ✅ NEW HOOKS
+import { getChannels } from "@/api/channelApi.js";
 import { useChatTeams } from "./hooks/useChatTeams";
 import { useChatMessages } from "./hooks/useChatMessages";
 import { useChatSocket } from "./hooks/useChatSocket";
@@ -82,9 +80,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       socket.off("dm_user_typing", handleTyping);
       socket.off("dm_user_stop_typing", handleStopTyping);
     };
-  }, [activeRoomId, isDMMode]);
-
-  // ✅ HOOKS
+  }, [activeRoomId, isDMMode]);
   const { teams } = useChatTeams(workspaceId);
 
   const { messages, setMessages, dmCacheRef, hasMore, loadMoreMessages } = useChatMessages({
@@ -104,9 +100,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     userId,
     setMessages,
     setUnreadDMs,
-  });
-
-  // Restore DM session
+  });
   useEffect(() => {
     const savedDMState = sessionStorage.getItem("currentDM");
     if (!savedDMState) return;
@@ -124,9 +118,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     } catch (err) {
       console.error("Failed to restore DM state:", err);
     }
-  }, []);
-
-  // Auto-select first channel if activeRoomId is null
+  }, []);
   useEffect(() => {
     if (activeRoomId || !workspaceId || isDMMode) return;
     const loadDefaultChannel = async () => {
@@ -141,9 +133,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       }
     };
     loadDefaultChannel();
-  }, [workspaceId, activeRoomId, isDMMode]);
-
-  // Auto resize
+  }, [workspaceId, activeRoomId, isDMMode]);
   useEffect(() => {
     if (!textareaRef.current) return;
     textareaRef.current.style.height = "auto";
@@ -167,9 +157,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     setIsDMMode(true);
     setDmReceiverId(receiverId);
     setDmReceiverName(receiverName || "User");
-    setActiveRoomId(`dm-${receiverId}`);
-
-    // Clear unread badge counter for this user
+    setActiveRoomId(`dm-${receiverId}`);
     setUnreadDMs((prev) => ({
       ...prev,
       [receiverId]: 0,

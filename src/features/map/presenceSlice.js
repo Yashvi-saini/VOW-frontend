@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  avatars: {},        // remote users
-  selfId: null,       // my real presence ID from join-ack / redux
-  workspaceId: null,  // optional
+  avatars: {},        
+  selfId: null,       
+  workspaceId: null,  
 };
 
 const presenceSlice = createSlice({
@@ -13,8 +13,7 @@ const presenceSlice = createSlice({
     setIdentity(state, action) {
       const { selfId, workspaceId } = action.payload || {};
       if (selfId) {
-        state.selfId = String(selfId);
-        // Purge own avatar if it accidentally exists in remote avatars map
+        state.selfId = String(selfId);
         if (state.avatars[state.selfId]) {
           delete state.avatars[state.selfId];
         }

@@ -32,9 +32,7 @@ const App = () => {
   const isForgot =
     rdxForgot ||
     !!localStorage.getItem("forgotRequested") ||
-    pendingMode === "forgot";
-
-  // OTP flow logic
+    pendingMode === "forgot";
   const verifyCondition =
     !!signupPending || isForgot || !!localStorage.getItem("forgotOtpVerified");
   const verifyRedirectTo = isForgot ? "/forgot-password" : "/signup";
@@ -44,7 +42,7 @@ const App = () => {
       <RouteWatcher />
 
       <Routes>
-        {/* Public Routes */}
+        
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -54,7 +52,6 @@ const App = () => {
           element={<TermsAndConditions />}
         />
 
-        {/* OTP */}
         <Route
           path="/verify-otp"
           element={
@@ -67,7 +64,6 @@ const App = () => {
           }
         />
 
-        {/* Dashboard (Protected) */}
         <Route
           path="/dashboard"
           element={
@@ -77,7 +73,6 @@ const App = () => {
           }
         />
 
-        {/* Reset Password */}
         <Route
           path="/reset-password"
           element={
@@ -90,7 +85,6 @@ const App = () => {
           }
         />
 
-        {/* Reset Success */}
         <Route
           path="/reset-success"
           element={
@@ -103,7 +97,6 @@ const App = () => {
           }
         />
 
-        {/* Profile */}
         <Route
           path="/profile"
           element={
@@ -113,7 +106,6 @@ const App = () => {
           }
         />
 
-        {/* Map */}
         <Route
           path="/map"
           element={
@@ -128,7 +120,6 @@ const App = () => {
           }
         />
 
-        {/* Chat (IMPORTANT FIX 🔥) */}
         <Route
           path="/workspace/:workspaceId/chat"
           element={

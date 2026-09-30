@@ -4,7 +4,7 @@ import MessageReactions from "./rection.jsx";
 const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMore, onLoadMore }) => {
   const bottomRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
-  const [lightboxMedia, setLightboxMedia] = useState(null); // { url, name }
+  const [lightboxMedia, setLightboxMedia] = useState(null); 
 
   useEffect(() => {
     if (bottomRef.current)
@@ -64,7 +64,7 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
       isSentByUser ? "flex-row space-x-reverse" : ""
     }`}
   >
-    {/* Avatar */}
+    
     <div className="relative w-10 h-10 shrink-0">
       <img
   src={msg.sender?.avatar || "https://api.dicebear.com/9.x/adventurer/svg?seed=Default"}
@@ -77,7 +77,6 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
 />
     </div>
 
-  {/* Message Bubble + Reactions */}
   <div className="flex flex-col space-y-2 w-full relative min-w-0">
       <div className="flex items-center space-x-2">
         <p className="text-sm font-semibold text-[#0E1219]">
@@ -165,8 +164,7 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
       </MessageReactions>
     </div>
   </div>
-  
-  {/* Delete button - only show for messages sent by current user */}
+
   {msg._id && onDeleteMessage && currentUserId && msg.sender?._id === currentUserId && (
     <button
       onClick={() => onDeleteMessage(msg._id)}
@@ -182,7 +180,6 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
 
       <div ref={bottomRef} />
 
-      {/* FULLSCREEN LIGHTBOX MODAL */}
       {lightboxMedia && (
         <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in"
@@ -192,7 +189,7 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
             className="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center bg-[#200539] p-4 rounded-2xl border border-[#5C0EA4] shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
+            
             <button
               onClick={() => setLightboxMedia(null)}
               className="absolute top-3 right-3 text-white bg-[#5C0EA4] hover:bg-[#7015c2] w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold transition-all shadow-md z-10"
@@ -200,12 +197,10 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
               ✕
             </button>
 
-            {/* Media Title */}
             <h3 className="text-white text-base font-semibold mb-3 truncate max-w-md">
               {lightboxMedia.name}
             </h3>
 
-            {/* Image / Content Preview */}
             <div className="overflow-auto max-h-[70vh] flex items-center justify-center rounded-lg bg-[#110221] p-2">
               <img
                 src={lightboxMedia.url}
@@ -214,7 +209,6 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
               />
             </div>
 
-            {/* Actions Bar */}
             <div className="mt-4 flex items-center gap-4">
               <a
                 href={lightboxMedia.url}

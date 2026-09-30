@@ -1,4 +1,4 @@
-// src/hooks/useMovementKeys.js
+
 import { useEffect } from "react";
 
 export function useMovementKeys({ keysPressedRef, followCameraRef }) {

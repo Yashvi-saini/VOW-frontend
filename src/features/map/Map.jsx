@@ -47,13 +47,10 @@ const Map = ({ onAvatarCollision }) => {
     "User";
   const avatar = userState.avatar || userState.profile?.avatar;
   const { selfId } = useSelector((s) => s.presence || {});
-  const userPanningRef = useRef(false);
-  // Local avatar state
+  const userPanningRef = useRef(false);
   const [position, setPosition] = useState({ x: 60, y: 60 });
   const [clickMarker, setClickMarker] = useState(null);
-  const [cursorBlocked, setCursorBlocked] = useState(false);
-
-  // Refs
+  const [cursorBlocked, setCursorBlocked] = useState(false);
   const positionRef = useRef({ x: 60, y: 60 });
   const velocityRef = useRef({ vx: 0, vy: 0 });
   const obstaclesRef = useRef([]);
@@ -66,21 +63,13 @@ const Map = ({ onAvatarCollision }) => {
   const followCameraRef = useRef(true);
   const keysPressed = useRef({});
   const moveToTargetRef = useRef(null);
-  const avatarSize = 65;
-
-  // ----------------------------------------------
-  // Obstacle collector
-  // ----------------------------------------------
+  const avatarSize = 65;
   const handleObstaclesFromChild = useCallback((id, newObs) => {
     obstaclesRef.current = Object.values({
       ...obstaclesRef.current,
       [id]: newObs,
     }).flat();
-  }, []);
-
-  // ----------------------------------------------
-  // Collision utilities
-  // ----------------------------------------------
+  }, []);
   const isColliding = createCollisionChecker({
     containerRef,
     obstaclesRef,
@@ -88,11 +77,7 @@ const Map = ({ onAvatarCollision }) => {
     COLLISION_EPS: 0,
   });
 
-  const findNearestFreePoint = findNearestFreePointFactory(isColliding);
-
-  // ----------------------------------------------
-  // Hooks for movement, camera, keys
-  // ----------------------------------------------
+  const findNearestFreePoint = findNearestFreePointFactory(isColliding);
   useMovementKeys({ keysPressedRef: keysPressed, followCameraRef });
   useCameraPanning({
     viewportRef,
@@ -140,11 +125,7 @@ const Map = ({ onAvatarCollision }) => {
       containerRef,
       isColliding,
       setCursorBlocked,
-    });
-
-  // ----------------------------------------------
-  // INITIAL MOUNT — Connect Socket + Join
-  // ----------------------------------------------
+    });
   const currentUserId = userState.userId || userState.profile?._id || userState.profile?.id;
   const selfIdRef = useRef(currentUserId);
 
@@ -213,12 +194,7 @@ useEffect(() => {
     removeMapListeners();
     mapSocket.off("connect", onConnected);
   };
-}, [workspaceId, username]);
-
-
-  // ----------------------------------------------
-  // SEND POSITION UPDATES (~16Hz)
-  // ----------------------------------------------
+}, [workspaceId, username]);
   useEffect(() => {
     const lastSent = { x: null, y: null };
 
@@ -238,11 +214,7 @@ useEffect(() => {
     }, 60);
 
     return () => clearInterval(interval);
-  }, [workspaceId]);
-
-  // ----------------------------------------------
-  // AVATAR COLLISION DETECTION WITH REMOTE PLAYERS
-  // ----------------------------------------------
+  }, [workspaceId]);
   const { avatars } = useSelector((s) => s.presence || {});
   const mountTimeRef = useRef(Date.now());
   const lastCollisionTimeRef = useRef(0);
@@ -254,17 +226,13 @@ useEffect(() => {
   useEffect(() => {
     if (!positionRef.current || !avatars) return;
 
-    const now = Date.now();
-
-    // 3-second grace period after map mounts to prevent instant collision on load
-    if (now - mountTimeRef.current < 3000) return;
-
-    // 5-second cooldown to prevent spamming DM open on continuous collision
+    const now = Date.now();
+    if (now - mountTimeRef.current < 3000) return;
     if (now - lastCollisionTimeRef.current < 5000) return;
 
     const px = positionRef.current.x;
     const py = positionRef.current.y;
-    const COLLISION_DISTANCE = 3.0; // percentage distance threshold
+    const COLLISION_DISTANCE = 3.0; 
 
     const collidedUser = Object.values(avatars).find((a) => {
       if (!a || !a.userId || String(a.userId) === String(selfIdRef.current)) return false;
@@ -279,11 +247,7 @@ useEffect(() => {
       console.log(`[Map] 🤝 Collision with ${collidedUser.displayName} (${collidedUser.userId})! Opening DM...`);
       onAvatarCollision?.(collidedUser.userId, collidedUser.displayName);
     }
-  }, [position, avatars, onAvatarCollision]);
-
-  // ----------------------------------------------
-  // RENDER
-  // ----------------------------------------------
+  }, [position, avatars, onAvatarCollision]);
   return (
     <MapContainer
       viewportRef={viewportRef}
@@ -298,7 +262,6 @@ useEffect(() => {
         handleObstaclesFromChild={handleObstaclesFromChild}
       />
 
-      {/* LOCAL PLAYER */}
       <Avatar
         image={avatar || playerImg}
         size={avatarSize}
@@ -311,7 +274,6 @@ useEffect(() => {
         }}
       />
 
-      {/* REMOTE PLAYERS */}
       <AvatarsLayer />
 
       <ClickMarker clickMarker={clickMarker} />
