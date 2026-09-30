@@ -7,9 +7,7 @@ import { setTeam, setSelectedTeamId, setTeamsList, mapChannelTeam, mapChannelCre
 import useOutsideClick from "../common/useOutsideClick";
 import ModalContainer from "../common/ModalContainer";
 import MemberMultiSelect from "./MemberMultiSelect";
-import SupervisorSelect from "./SupervisorSelect";
-
-// moved to common/ModalContainer.jsx
+import SupervisorSelect from "./SupervisorSelect";
 
 export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
   const dispatch = useDispatch();
@@ -19,8 +17,7 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
   const { members, loading: membersLoading } = useMembers(workspaceId);
 
   const selfId = profile?._id || profile?.id || null;
-  const [teamName, setTeamName] = useState("");
-  // Pre-select creator in members
+  const [teamName, setTeamName] = useState("");
   const [memberIds, setMemberIds] = useState(selfId ? [selfId] : []);
   const [supervisorId, setSupervisorId] = useState("");
   const [saving, setSaving] = useState(false);
@@ -55,8 +52,7 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
     if (v) { setError(v); return; }
     if (!workspaceId) { setError('Workspace not found'); return; }
     try {
-      setSaving(true);
-      // Ensure creator stays in memberIds
+      setSaving(true);
       const finalMemberIds = selfId && !memberIds.includes(selfId) ? [selfId, ...memberIds] : (memberIds.length > 0 ? memberIds : (selfId ? [selfId] : []));
       const finalSupervisor = supervisorId || (selfId && finalMemberIds.includes(selfId) ? selfId : finalMemberIds[0] || null);
       const payload = { name: teamName.trim(), memberIds: finalMemberIds, superviser: finalSupervisor };
@@ -69,8 +65,7 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
       }
       const channelPayload = { name: teamName.trim(), type: 'text', workspaceId, members: finalMemberIds };
       const resChannel = await createChannel(channelPayload);
-      const channel = resChannel?.data || resChannel;
-      // Pair channelId with teamId for future lookups
+      const channel = resChannel?.data || resChannel;
       if (team?._id && channel?._id) {
         dispatch(mapChannelTeam(channel._id, team._id));
         if (selfId) dispatch(mapChannelCreator(channel._id, selfId));
@@ -108,8 +103,7 @@ export default function CreateTeamModal({ open, onClose, onChannelCreated }) {
           <MemberMultiSelect
             members={selectableMembers}
             value={memberIds}
-            onChange={(next) => {
-              // ensure supervisor validity when members change
+            onChange={(next) => {
               if (supervisorId && !next.includes(supervisorId)) setSupervisorId("");
               setMemberIds(next);
             }}

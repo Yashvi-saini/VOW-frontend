@@ -18,10 +18,8 @@ const VideoConference = () => {
   const [copied, setCopied] = useState(false);
   const callContainerRef = useRef(null);
 
-  // real roomId returned by SFU backend
   const [generatedRoomId, setGeneratedRoomId] = useState("");
 
-  // user’s text input (title before room is created)
   const [callTitle, setCallTitle] = useState("");
 
   const [joinInput, setJoinInput] = useState("");
@@ -38,7 +36,6 @@ const VideoConference = () => {
     toggleVideo: toggleVideoHook,
   } = useSfuVideoCall();
 
-  // Attach local stream to video element whenever stream or call active state changes
   useEffect(() => {
     if (localVideoRef.current && localStream) {
       if (localVideoRef.current.srcObject !== localStream) {
@@ -50,14 +47,12 @@ const VideoConference = () => {
     }
   }, [localStream, isCallActive]);
 
-  // Clean up call on unmount
   useEffect(() => {
     return () => {
       leave();
     };
   }, [leave]);
 
-  // CREATE NEW CALL
   const startCall = async () => {
     try {
       const title = callTitle.trim();
@@ -82,7 +77,6 @@ const VideoConference = () => {
     }
   };
 
-  // JOIN EXISTING CALL
   const joinCall = async () => {
     const targetRoomId = joinInput.trim();
     if (!targetRoomId) return alert("Enter meeting ID");
@@ -125,11 +119,11 @@ const VideoConference = () => {
 
   return (
     <div className="h-full bg-white text-black flex flex-col">
-      {/* BEFORE CALL */}
+      
       {!isCallActive ? (
         <div className="h-full flex flex-col">
           <div className="flex-1 w-full overflow-y-auto px-4 py-6 space-y-6 flex flex-col items-center">
-            {/* START A NEW CALL */}
+            
             <div
               className="flex flex-col items-center justify-center rounded-2xl bg-[#EFE7F6] px-[18px] py-6 gap-6 w-[944px] max-w-[95vw] h-[285px]"
               style={{
@@ -168,7 +162,6 @@ const VideoConference = () => {
               </button>
             </div>
 
-            {/* JOIN EXISTING CALL */}
             <div
               className="flex flex-col items-center justify-center rounded-2xl bg-[#EFE7F6] px-[18px] py-6 gap-6 w-[944px] max-w-[95vw] h-[285px]"
               style={{
@@ -210,7 +203,7 @@ const VideoConference = () => {
         <div ref={callContainerRef} className="h-full bg-[#1A1A2E] flex flex-col">
           <div className="flex-1 p-4">
             <div className="grid grid-cols-2 gap-4 h-full">
-              {/* Local Video */}
+              
               <div className="relative bg-gray-800 rounded-xl overflow-hidden shadow-lg">
                 <video
                   ref={(el) => {
@@ -235,7 +228,6 @@ const VideoConference = () => {
                 )}
               </div>
 
-              {/* Remote Video Peers */}
               {Array.from(remoteStreams.entries()).map(([peerId, mediaStream]) => (
                 <div key={peerId} className="relative bg-gray-800 rounded-xl overflow-hidden shadow-lg">
                   <video
@@ -257,7 +249,6 @@ const VideoConference = () => {
                 </div>
               ))}
 
-              {/* Waiting for peers placeholder */}
               {remoteStreams.size === 0 && (
                 <div className="relative bg-gray-800/80 rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-gray-600">
                   <div className="text-white/70 text-center p-6">
@@ -269,7 +260,6 @@ const VideoConference = () => {
             </div>
           </div>
 
-          {/* Bottom Controls */}
           <div className="bg-[#200539] border-t border-[#3D1B5F] px-6 py-3">
             <div className="flex items-center justify-center gap-5">
               <button

@@ -29,9 +29,7 @@ const InputBox = ({
   const [showMentionDropdown, setShowMentionDropdown] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [mentionPosition, setMentionPosition] = useState(0);
-  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
-  
-  // Get workspace info from Redux store
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const userState = useSelector((state) => state.user);
   const workspaceId = userState?.workspaceId;
 
@@ -41,9 +39,7 @@ const InputBox = ({
 
   const handleFilesSelected = async (e) => {
     const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-
-    // Check if user has selected a workspace
+    if (!files.length) return;
     if (!workspaceId) {
       console.error("No workspace selected for file upload");
       alert("Please join or select a workspace before uploading files.");
@@ -70,18 +66,14 @@ const InputBox = ({
         uploadedMeta.push(meta);
         console.log(`[Chat] File uploaded successfully: ${meta.name}`);
       } catch (err) {
-        console.error("Upload failed for", f.name, err);
-        
-        // Show user-friendly error message
+        console.error("Upload failed for", f.name, err);
         const errorMsg = err.message || `Failed to upload ${f.name}`;
         alert(`Upload failed: ${errorMsg}`);
       }
     }
     
     if (uploadedMeta.length) {
-      setAttachments((prev) => [...prev, ...uploadedMeta]);
-      
-      // Show success message if some files uploaded
+      setAttachments((prev) => [...prev, ...uploadedMeta]);
       if (uploadedMeta.length === files.length) {
         console.log(`[Chat] All ${uploadedMeta.length} files uploaded successfully`);
       } else {
@@ -95,17 +87,13 @@ const InputBox = ({
 
   const removeAttachment = (fileId) => {
     setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
-  };
-
-  // Filter members based on mention query
+  };
   const filteredMembers = mentionQuery
     ? members.filter(m => 
         (m.fullName?.toLowerCase().includes(mentionQuery.toLowerCase()) || 
          m.username?.toLowerCase().includes(mentionQuery.toLowerCase()))
       )
-    : members;
-
-  // Handle @ symbol detection and mention dropdown
+    : members;
   const handleInputChange = (e) => {
     const value = e.target.value;
     const cursorPos = e.target.selectionStart;
@@ -130,14 +118,11 @@ const InputBox = ({
           socket.emit("stop_typing", activeRoomId);
         }
       }, 1500);
-    }
-    
-    // Find last @ before cursor
+    }
     const textBeforeCursor = value.substring(0, cursorPos);
     const lastAtIndex = textBeforeCursor.lastIndexOf('@');
     
-    if (lastAtIndex !== -1) {
-      // Check if there's a space between @ and cursor
+    if (lastAtIndex !== -1) {
       const textAfterAt = textBeforeCursor.substring(lastAtIndex + 1);
       if (!textAfterAt.includes(' ')) {
         setMentionQuery(textAfterAt);
@@ -149,9 +134,7 @@ const InputBox = ({
     }
     
     setShowMentionDropdown(false);
-  };
-
-  // Handle member selection from dropdown
+  };
   const selectMention = (member) => {
     const memberName = member.fullName || member.username || 'User';
     const beforeMention = messageInput.substring(0, mentionPosition);
@@ -160,9 +143,7 @@ const InputBox = ({
     
     setMessageInput(newValue);
     setShowMentionDropdown(false);
-    setMentionQuery('');
-    
-    // Focus back on textarea
+    setMentionQuery('');
     if (textareaRef.current) {
       textareaRef.current.focus();
       const newCursorPos = mentionPosition + memberName.length + 2;
@@ -170,9 +151,7 @@ const InputBox = ({
         textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
       }, 0);
     }
-  };
-
-  // Handle keyboard navigation in mention dropdown
+  };
   const handleKeyDown = (e) => {
     if (showMentionDropdown && filteredMembers.length > 0) {
       if (e.key === 'ArrowDown') {
@@ -204,7 +183,7 @@ const InputBox = ({
   return (
     <footer className="border-[#BCBCBC] p-4 w-full max-w-full relative">
       <div className="flex items-end border-2 rounded-2xl w-full max-w-full pr-4 py-2">
-        {/* Left section: Textarea + icons */}
+        
         <div className="flex flex-col w-full">
           <textarea
             className="w-full px-2.5 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40"
@@ -215,7 +194,7 @@ const InputBox = ({
             onKeyDown={handleKeyDown}
             rows={1}
           />
-          {/* Mention Dropdown */}
+          
           {showMentionDropdown && filteredMembers.length > 0 && (
             <div className="absolute bottom-full left-2 mb-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto w-64 z-50">
               {filteredMembers.map((member, index) => (
@@ -243,7 +222,7 @@ const InputBox = ({
               ))}
             </div>
           )}
-          {/* Attachment previews */}
+          
           {attachments && attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2 px-2">
               {attachments.map((att) => (
@@ -281,7 +260,7 @@ const InputBox = ({
               ))}
             </div>
           )}
-          {/* Icons below textarea */}
+          
           <div className="flex space-x-3 ml-2 pt-1 pl-1">
             <EmojiSelector
               icon={emoji}
@@ -299,8 +278,7 @@ const InputBox = ({
                 if (textareaRef.current) {
                   textareaRef.current.focus();
                   setTimeout(() => {
-                    textareaRef.current.setSelectionRange(cursorPos + 1, cursorPos + 1);
-                    // Trigger mention detection
+                    textareaRef.current.setSelectionRange(cursorPos + 1, cursorPos + 1);
                     handleInputChange({ 
                       target: { 
                         value: newValue, 
@@ -341,7 +319,6 @@ const InputBox = ({
           </div>
         </div>
 
-        {/* Send Button */}
         <button
           className="ml-4 text-white rounded-md transition shrink-0 mb-5"
           onClick={sendMessage}

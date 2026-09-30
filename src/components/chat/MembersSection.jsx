@@ -21,7 +21,6 @@ const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {}
   })();
   const selfUserId = profile?._id || profile?.id || userState.userId || userState.id || storedId || null;
 
-
   React.useEffect(() => {
     let cancelled = false;
     const primeProfile = async () => {
@@ -50,9 +49,7 @@ const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {}
   const [activePeer, setActivePeer] = useState(null); 
   const [callStatus, setCallStatus] = useState("idle"); 
 
-  
   const remoteAudioRef = useRef(null);
-
 
   React.useEffect(() => {
     console.log('[p2p] effect: mount/join selfUserId=', selfUserId);
@@ -192,7 +189,6 @@ const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {}
     }
   };
 
- 
   React.useEffect(() => {
     if (!socket) return;
     const onIncoming = async ({ from, fromUserId, offer }) => {
@@ -200,8 +196,7 @@ const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {}
       if (fromUserId === selfUserId) { console.log('[p2p] incoming-call ignored (from self)'); return; }
       console.log('[p2p] incoming-call from=', fromUserId, 'offer present=', !!offer);
       setActivePeer(fromUserId);
-      setCallStatus("ringing");
-      // Auto switch chat to the incoming peer channel
+      setCallStatus("ringing");
       const channelId = [selfUserId, fromUserId].sort().join("-");
       onSelectChannel?.(channelId);
       onOpenChat?.();
@@ -360,7 +355,7 @@ const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {}
             )}
         </div>
       )}
-      {/* Hidden audio element for remote stream playback */}
+      
       <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: 'none' }} />
     </div>
   );

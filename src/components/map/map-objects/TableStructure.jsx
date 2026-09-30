@@ -1,4 +1,4 @@
-// TableStructure.jsx (recreated to use a single image with a collision box)
+
 import React, { useEffect, useRef } from "react";
 import small_room from "../map assets/small room.svg";
 import ZoneButton from "../map-components/button.jsx"
@@ -8,10 +8,9 @@ const TableStructure = ({
   onObstaclesReady,
   position,
   containerRef,
-  imageSize,      // optional square size (px)
-  imageWidth,     // optional width (px)
-  imageHeight,    // optional height (px)
-  // Collision overrides (independent box even if image scales)
+  imageSize,      
+  imageWidth,     
+  imageHeight,    
   collisionWidthPx,
   collisionHeightPx,
   collisionWidthPercent,
@@ -22,7 +21,6 @@ const TableStructure = ({
   const tablePosition = position ?? DEFAULT_TABLE_POSITION;
 
   const notifyObstacles = onObstaclesReady;
-
 
   useEffect(() => {
     let ro;
@@ -39,22 +37,16 @@ const TableStructure = ({
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
 
-  
         if (!containerWidth || !containerHeight) {
           notifyObstacles?.(id, []);
           return;
-        }
-
-        // Start with no obstacles from legacy rectangles; we only use the image bounds now.
-        const obstacles = [];
-
-        // Also add a collision box for the small room SVG, measured from its DOM box
+        }
+        const obstacles = [];
         const roomEl = smallRoomRef.current;
         if (roomEl) {
           const containerRect = container.getBoundingClientRect();
           const roomRect = roomEl.getBoundingClientRect();
-          if (roomRect.width > 0 && roomRect.height > 0) {
-            // Adjust for world scale: convert measured (scaled) px back to unscaled px
+          if (roomRect.width > 0 && roomRect.height > 0) {
             const scaleX = containerRect.width / containerWidth;
             const scaleY = containerRect.height / containerHeight;
             const centerXpx = (roomRect.left - containerRect.left + roomRect.width / 2) / (scaleX || 1);
@@ -62,9 +54,7 @@ const TableStructure = ({
             const measuredWidthPx = roomRect.width / (scaleX || 1);
             const measuredHeightPx = roomRect.height / (scaleY || 1);
             const xPercent = (centerXpx / containerWidth) * 100;
-            const yPercent = (centerYpx / containerHeight) * 100;
-
-            // Allow overrides to replace measured dimensions
+            const yPercent = (centerYpx / containerHeight) * 100;
             const widthPercent =
               typeof collisionWidthPercent === 'number'
                 ? collisionWidthPercent
@@ -118,7 +108,7 @@ const TableStructure = ({
         transform: "translate(-50%, -50%)",
       }}
     >
-      {/* Single image representing the structure; its bounds are used as the collision box */}
+      
       <img
         ref={smallRoomRef}
         src={small_room}

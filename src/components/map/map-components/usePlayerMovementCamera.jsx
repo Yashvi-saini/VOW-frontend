@@ -1,6 +1,4 @@
-import { useEffect, useRef } from "react";
-
-// Handles avatar physics movement and camera follow logic
+import { useEffect, useRef } from "react";
 export function usePlayerMovementCamera({
   positionRef,
   velocityRef,
@@ -15,8 +13,7 @@ export function usePlayerMovementCamera({
   followCameraRef,
   avatarConfig: { accel, maxSpeed, friction, DEADZONE_RATIO, CAMERA_SMOOTH },
   isColliding,
-}) {
-  // Track when camera starts moving to zero velocity once for smooth perception
+}) {
   const wasCameraMovingRef = useRef(false);
   useEffect(() => {
     let lastTime = performance.now();
@@ -87,12 +84,10 @@ export function usePlayerMovementCamera({
           let targetLeft = currentLeft; let targetTop = currentTop;
           if (ax < currentLeft + hThresh) targetLeft = Math.max(0, ax - hThresh); else if (ax > currentLeft + vw - hThresh) targetLeft = Math.min(ww - vw, ax - vw + hThresh);
           if (ay < currentTop + vThresh) targetTop = Math.max(0, ay - vThresh); else if (ay > currentTop + vh - vThresh) targetTop = Math.min(wh - vh, ay - vh + vThresh);
-          cameraTargetRef.current = { left: targetLeft, top: targetTop };
-
-          // Detect beginning of camera motion and zero avatar velocity once
+          cameraTargetRef.current = { left: targetLeft, top: targetTop };
           const dX = cameraTargetRef.current.left - cameraPosRef.current.left;
           const dY = cameraTargetRef.current.top - cameraPosRef.current.top;
-          const movingNow = Math.hypot(dX, dY) > 0.5; // pixel threshold
+          const movingNow = Math.hypot(dX, dY) > 0.5; 
           if (movingNow && !wasCameraMovingRef.current) {
             velocityRef.current = { vx: 0, vy: 0 };
           }
@@ -100,9 +95,7 @@ export function usePlayerMovementCamera({
           const nextLeft = cameraPosRef.current.left + (cameraTargetRef.current.left - cameraPosRef.current.left) * alpha;
           const nextTop = cameraPosRef.current.top + (cameraTargetRef.current.top - cameraPosRef.current.top) * alpha;
           cameraPosRef.current = { left: nextLeft, top: nextTop };
-          viewport.scrollTo({ left: nextLeft, top: nextTop, behavior: "auto" });
-
-          // Update camera moving state
+          viewport.scrollTo({ left: nextLeft, top: nextTop, behavior: "auto" });
           wasCameraMovingRef.current = movingNow;
         } else {
           cameraPosRef.current = { left: viewport.scrollLeft, top: viewport.scrollTop };

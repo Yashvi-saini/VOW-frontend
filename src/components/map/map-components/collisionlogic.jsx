@@ -1,4 +1,4 @@
-// utils/collision.js
+
 
 export function createCollisionChecker({
   containerRef,

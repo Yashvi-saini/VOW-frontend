@@ -1,13 +1,13 @@
-// src/utils/findNearestFreePoint.js
+
 
 export function findNearestFreePointFactory(isColliding) {
   return function findNearestFreePoint(x, y) {
     if (!isColliding(x, y)) return { x, y };
 
     const clamp01 = (v) => Math.max(0, Math.min(100, v));
-    const maxRadius = 12; // percent
-    const step = 0.6;     // radial step in percent
-    const samples = 24;   // angular samples per ring
+    const maxRadius = 12; 
+    const step = 0.6;     
+    const samples = 24;   
 
     let best = null;
     let bestDist2 = Infinity;
@@ -29,7 +29,7 @@ export function findNearestFreePointFactory(isColliding) {
           }
         }
       }
-      if (best) break; // earliest ring win = nearest
+      if (best) break; 
     }
 
     return best;

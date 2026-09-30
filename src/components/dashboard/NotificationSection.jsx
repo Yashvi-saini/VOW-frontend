@@ -36,7 +36,6 @@ const EmptyState = ({ onBack }) => (
   </div>
 );
 
-
 const NotificationSection = () => {
   const [query, setQuery] = React.useState("");
  
@@ -67,7 +66,6 @@ const NotificationSection = () => {
         </div>
       </div>
 
-      {/* Table area with header + empty state */}
       <div className="w-full rounded-2xl bg-white  overflow-hidden">
         <TableHeader />
         <EmptyState />

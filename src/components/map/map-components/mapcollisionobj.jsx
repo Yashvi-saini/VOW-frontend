@@ -1,4 +1,4 @@
-// MapObjects.jsx
+
 import CabinStructure from "../map-objects/cabinStructure";
 import WelcomeZone from "../map-objects/WelcomeZone";
 import TeleportButton from "../map-objects/Teleport";
@@ -7,10 +7,7 @@ import PrivateRoom from "../map-objects/PrivetRoom";
 import ManagerCabin from "../map-objects/Manager";
 import SupervisorCabin from "../map-objects/Supervisor";
 import BigTableStructure  from "../map-objects/bigtablestructure";
-import TableStructure from "../map-objects/TableStructure";
-
-// Each object now has a stable roomId (UUID-like placeholders) used for layout API.
-// Teleport buttons intentionally excluded from room list collection.
+import TableStructure from "../map-objects/TableStructure";
 const MapObjects = ({ containerRef, handleObstaclesFromChild }) => (
   <>
     <TableStructure roomId="room-tableA" id="tableA" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 12.5, y: 21.5 }} imageSize={450}   collisionWidthPx={300} collisionHeightPx={200} />

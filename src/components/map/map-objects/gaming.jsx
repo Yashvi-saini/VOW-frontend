@@ -11,14 +11,12 @@ const Gaming = ({
   id = "gaming",
   roomId,
   onObstaclesReady,
-  containerRef,
-  // Optional collision overrides (independent of visual size)
+  containerRef,
   collisionWidthPx,
   collisionHeightPx,
   collisionWidthPercent,
   collisionHeightPercent,
 }) => {
-
 
   useEffect(() => {
       let ro;

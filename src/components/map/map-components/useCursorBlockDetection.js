@@ -1,4 +1,4 @@
-// src/utils/updateCursorBlocked.js
+
 
 export function updateCursorBlocked({
   clientX,

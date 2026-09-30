@@ -1,4 +1,4 @@
-// src/utils/mapClickHandler.js
+
 
 export function createMapClickHandler({
   containerRef,

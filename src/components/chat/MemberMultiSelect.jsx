@@ -7,7 +7,7 @@ export default function MemberMultiSelect({
   onChange,
   loading = false,
   label = "Select Members",
-  lockIds = [], // ids that must remain selected (e.g., creator)
+  lockIds = [], 
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -22,7 +22,7 @@ export default function MemberMultiSelect({
 
   const isLocked = (id) => lockIds.includes(id);
   const toggle = (id) => {
-    if (isLocked(id)) return; // do not allow removing locked ids
+    if (isLocked(id)) return; 
     const next = value.includes(id) ? value.filter(x => x !== id) : [...value, id];
     onChange?.(next);
   };
@@ -42,11 +42,7 @@ export default function MemberMultiSelect({
         >
           <div className="flex flex-wrap gap-1 items-center text-[#111827]">
             {value.length === 0 && <span className="text-[#707070]">Select members</span>}
-            {/* {value.slice(0,3).map(id => {
-              const mm = members.find(x => x._id === id);
-              return <span key={id} className="text-xs bg-[#5C0EA4] text-white px-2 py-1 rounded">{(mm?.fullName || mm?.username || id).slice(0,16)}</span>;
-            })} */}
-            {/* {value.length > 3 && <span className="text-xs text-[#5C0EA4]">+{value.length - 3} more</span>} */}
+
           </div>
           
           select members

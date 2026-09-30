@@ -1,4 +1,4 @@
-// Hook factory for click-to-move behavior
+
 export function useClickToMove({
   containerRef,
   isColliding,
@@ -12,7 +12,7 @@ export function useClickToMove({
       const uiEl = e.target.closest("[data-map-no-move]");
       if (uiEl) return;
     }
-    if (e.button && e.button !== 0) return; // only left click
+    if (e.button && e.button !== 0) return; 
     const world = containerRef.current; if (!world) return;
     const rect = world.getBoundingClientRect();
     const px = Math.max(0, Math.min((e.clientX - rect.left) / rect.width, 1));

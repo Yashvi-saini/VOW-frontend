@@ -1,7 +1,4 @@
-import { getWorkspaceForUsers } from "../../../api/workspaceApi";
-
-// Resolve or ensure a DM channel between two userIds
-// Returns the resolved channelId formatted as dm-peerId
+import { getWorkspaceForUsers } from "../../../api/workspaceApi";
 export default async function resolveDirectDMChannel(selfId, peerId) {
   if (!selfId || !peerId) return null;
   try {

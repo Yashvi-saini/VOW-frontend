@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchChannelMessages, sendMessageToChannel } from "../../../api/channelApi.js";
-import socket from "../socket.jsx";
-
-// Encapsulates message history, socket join/leave, and sending
+import socket from "../socket.jsx";
 export default function useChatRoom(activeRoomId, profile, opts = {}) {
   const [messages, setMessages] = useState([]);
-  const socketRef = useRef(socket);
-
-  // Load history when room changes
+  const socketRef = useRef(socket);
   useEffect(() => {
     const load = async () => {
       if (!activeRoomId) { setMessages([]); return; }
@@ -20,9 +16,7 @@ export default function useChatRoom(activeRoomId, profile, opts = {}) {
       }
     };
     load();
-  }, [activeRoomId]);
-
-  // Socket join/leave and live updates
+  }, [activeRoomId]);
   useEffect(() => {
     const s = socketRef.current;
     if (!s) return;

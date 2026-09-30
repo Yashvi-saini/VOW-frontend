@@ -15,14 +15,10 @@ const AvatarsLayer = () => {
 
   useEffect(() => {
     const ids = Object.keys(avatars || {});
-    console.log('[avatars] remote list update (excluding self)', ids, 'selfId=', selfId);
-
-    // remove stale
+    console.log('[avatars] remote list update (excluding self)', ids, 'selfId=', selfId);
     Object.keys(interpRef.current).forEach(id => {
       if (!avatars[id]) delete interpRef.current[id];
-    });
-
-    // add new
+    });
     Object.values(avatars || {}).forEach(a => {
       if (a && a.userId && !interpRef.current[a.userId]) {
         const startX = typeof a.x === 'number' && !isNaN(a.x) ? a.x : 60;
@@ -105,13 +101,12 @@ const AvatarsLayer = () => {
               zIndex: 35,
             }}
           >
-            {/* Remote Avatar */}
+            
             <div className="relative group cursor-pointer pointer-events-auto flex flex-col items-center">
               <Avatar size={60} image={a.avatar} name={username} />
               <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#200539] rounded-full shadow-md z-10" />
             </div>
 
-            {/* Distinct Username Badge */}
             <div className="mt-1 px-3 py-0.5 bg-[#200539] text-white font-bold text-xs rounded-full border border-[#AC92CB] shadow-xl whitespace-nowrap pointer-events-auto">
               {username}
             </div>

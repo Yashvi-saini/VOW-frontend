@@ -17,9 +17,7 @@ const MeetingCards = ({ selectedDate }) => {
       }
     };
     fetchMeetings();
-  }, []);
-
-  // Helper to format date as YYYY-MM-DD
+  }, []);
   const formatDate = (date) => date.toISOString().split("T")[0];
 
   useEffect(() => {
@@ -30,15 +28,13 @@ const MeetingCards = ({ selectedDate }) => {
   const filteredMeetings = selectedDate
     ? meetings.filter((m) => {
         const start = new Date(m.startTime);
-        const end = new Date(m.endTime);
-
-        // Match selected date AND ensure meeting hasn't ended yet
+        const end = new Date(m.endTime);
         return (
           formatDate(start) === formatDate(selectedDate) &&
           end > now
         );
       })
-    : meetings.filter((m) => new Date(m.endTime) > now); // if no date selected, show only upcoming
+    : meetings.filter((m) => new Date(m.endTime) > now); 
 
   if (loading) return <p className="p-4 text-gray-500">Loading meetings...</p>;
   if (filteredMeetings.length === 0)

@@ -9,9 +9,8 @@ import gridIcon from "../../assets/grid.svg";
 import helpIcon from "../../assets/dashhelp.svg";
 import contactIcon from "../../assets/dashphone.svg";
 import userIcon from "../../assets/dashuser.svg";
-import closeIcon from "../../assets/cross.svg"; // ✅ Add a close icon (use any "X" SVG from your assets)
+import closeIcon from "../../assets/cross.svg"; 
 import { useSelector } from "react-redux";
-
 
 const Sidebar = ({
   activeSection,
@@ -39,10 +38,8 @@ const Sidebar = ({
 
   const handleMenuClick = (id) => {
     setActiveSection(id);
-    setIsSidebarOpen(false); // Close sidebar on mobile after selection
-  };
-
-  // Close contact modal when clicking outside
+    setIsSidebarOpen(false); 
+  };
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (contactModalRef.current && !contactModalRef.current.contains(event.target)) {
@@ -59,10 +56,9 @@ const Sidebar = ({
     };
   }, [showContactModal]);
 
-
   return (
     <>
-      {/* Sidebar */}
+      
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
@@ -72,14 +68,13 @@ const Sidebar = ({
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        {/* ✅ Top section with logo + close icon */}
+        
         <div className="flex items-center justify-between mb-8 relative">
           <div className="flex items-center gap-1">
             <img src={logo} alt="logo" className="w-12.5 h-10" />
             <p className="text-4xl pb-3 font-semibold text-[#F9F6FC]">vow</p>
           </div>
 
-          {/* ❌ Close icon — only visible on small screens */}
           <button
             className="lg:hidden absolute right-0 top-1 p-2 hover:bg-white/10 rounded-md"
             onClick={() => setIsSidebarOpen(false)}
@@ -90,7 +85,7 @@ const Sidebar = ({
         </div>
 
         <div className="flex-1 flex flex-col overflow-y-auto hide-scrollbar">
-          {/* Profile */}
+          
           <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-2 py-2 mb-8 mt-1">
             <div className="flex items-center gap-3">
               <img  onClick={(e)=>{
@@ -111,7 +106,6 @@ const Sidebar = ({
             </div>
           </div>
 
-          {/* Workspace Buttons */}
           <div className="flex flex-col gap-4 mb-8">
             <button
               onClick={onCreateWorkspace}
@@ -138,7 +132,6 @@ const Sidebar = ({
             </button>
           </div>
 
-          {/* Navigation Menu */}
           <nav className="flex flex-col gap-2 mt-4">
             {menuItems.map((item) => (
               <button
@@ -161,7 +154,6 @@ const Sidebar = ({
           </nav>
         </div>
 
-        {/* Bottom Section */}
         <div className="border-t border-[#450B7B] pt-4 space-y-2">
           <button 
             onClick={onNeedHelp}
@@ -188,7 +180,6 @@ const Sidebar = ({
         </div>
       </aside>
 
-      {/* Contact Us Modal */}
       {showContactModal && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div

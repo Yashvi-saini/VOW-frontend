@@ -54,8 +54,7 @@ export const useChatSocket = ({
           }
           return [...prev, msg];
         });
-      } else {
-        // Increment unread count if message came from another user
+      } else {
         if (userId && String(senderId) !== String(userId) && setUnreadDMs) {
           setUnreadDMs((prev) => ({
             ...prev,

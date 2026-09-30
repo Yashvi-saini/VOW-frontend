@@ -7,8 +7,7 @@ const InfoBar = ({ channelName = 'Team 1', memberCount = 0, onlineCount = 0, onS
 
   const toggleSearch = () => {
     setShowSearch(s => !s);
-    if (showSearch) {
-      // closing search resets
+    if (showSearch) {
       setQuery("");
       onSearchChange?.("");
     }
@@ -23,10 +22,7 @@ const InfoBar = ({ channelName = 'Team 1', memberCount = 0, onlineCount = 0, onS
   return (
     <div className="relative flex-1 overflow-y-auto space-y-4">
       <div className="sticky top-0 flex bg-gray-200 justify-between p-3 z-10">
-        {/* <div className="flex items-center">
-          <p className="text-[26px] mr-2">#</p>
-          <p className="text-2xl pt-0.5 truncate max-w-40" title={channelName}>{channelName}</p>
-        </div> */}
+        
         <div className="flex items-center gap-5 mr-3">
           <button type="button" onClick={toggleSearch} title="Search messages" className="w-5">
             <img src={search} alt="search" className="w-4" />

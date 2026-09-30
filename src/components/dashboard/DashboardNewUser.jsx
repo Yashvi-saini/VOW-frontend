@@ -77,7 +77,6 @@ const DashboardNewUser = ({ onCreate }) => {
               <button type="button" onClick={onCreate} className={primaryBtn}>Create</button>
             </div>
 
-            {/* Join Workspace */}
             <div className={card}>
               <h3 className="font-bold text-[24px] text-[#000]">Join New Workspace</h3>
               <div className="relative w-full max-w-xs">
@@ -114,7 +113,6 @@ const DashboardNewUser = ({ onCreate }) => {
             </div>
           </div>
 
-          {/* Tutorial card */}
           <div className="rounded-[16px] ">
             <div className="w-full h-[280px] rounded-[12px] bg-[#9FA3A9] flex items-center justify-center text-[#000]">
              

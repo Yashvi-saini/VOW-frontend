@@ -1,4 +1,4 @@
-// src/hooks/usePresenceSync.js
+
 import { useEffect } from "react";
 
 export function usePresenceSync({ socket, workspaceId, setMembers }) {

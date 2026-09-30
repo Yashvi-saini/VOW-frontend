@@ -1,4 +1,4 @@
-// hooks/usePlayerMovement.js
+
 import { useEffect } from "react";
 
 export function usePlayerMovement({

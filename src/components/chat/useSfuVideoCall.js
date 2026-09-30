@@ -1,12 +1,12 @@
-// useSfuVideoCall.js
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import SfuSignalingClient from "./sfuSignaling.js";
 
 export const useSfuVideoCall = () => {
   const signalingRef = useRef(null);
-  const peersRef = useRef(new Map()); // peerId -> RTCPeerConnection
-  const remoteStreamsRef = useRef(new Map()); // peerId -> MediaStream
-  const pendingCandidatesRef = useRef(new Map()); // peerId -> candidate[]
+  const peersRef = useRef(new Map()); 
+  const remoteStreamsRef = useRef(new Map()); 
+  const pendingCandidatesRef = useRef(new Map()); 
   const localStreamRef = useRef(null);
   const roomIdRef = useRef(null);
   const participantIdRef = useRef(null);
@@ -112,7 +112,6 @@ export const useSfuVideoCall = () => {
       console.log("[SFU] ICE state for peer:", peerId, pc.iceConnectionState);
     };
 
-    // Attach all local tracks to the new peer connection
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((track) => {
         pc.addTrack(track, localStreamRef.current);
@@ -143,7 +142,6 @@ export const useSfuVideoCall = () => {
 
       const media = await ensureLocalMedia();
 
-      // Initiate connection to all existing participants in the room
       if (Array.isArray(msg.data?.participants)) {
         for (const p of msg.data.participants) {
           if (p.id === pid) continue;
@@ -238,7 +236,7 @@ export const useSfuVideoCall = () => {
           console.error("[SFU] Error adding ICE candidate for peer:", from, err);
         }
       } else {
-        // Queue candidate to apply once remote description is set
+
         if (!pendingCandidatesRef.current.has(from)) {
           pendingCandidatesRef.current.set(from, []);
         }
@@ -266,10 +264,8 @@ export const useSfuVideoCall = () => {
       roomIdRef.current = rid;
       setRoomId(rid);
 
-      // Acquire media first so local video is ready immediately
       await ensureLocalMedia();
 
-      // Connect signaling client
       if (!signalingRef.current) {
         const s = new SfuSignalingClient();
         registerHandlers(s);
@@ -343,7 +339,6 @@ export const useSfuVideoCall = () => {
     }
   }, []);
 
-  // Cleanup on hook unmount
   useEffect(() => {
     return () => {
       leave();
