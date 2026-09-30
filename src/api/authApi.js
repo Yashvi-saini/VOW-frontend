@@ -1,13 +1,11 @@
 import api from "./axiosConfig";
 
-// ===== AUTH APIs =====
-
 export const registerUser = (data) =>
   api.post("auth/register", data);
 
 export const loginUser = async (data) => {
   const res = await api.post("auth/login", data);
-  return res.data; // ✅ no token handling
+  return res.data;
 };
 
 export const logoutUser = async () => {
@@ -20,11 +18,7 @@ export const logoutUser = async () => {
   }
 };
 
-// ✅ simple auth check (optional)
 export const isAuthenticated = () => true;
-// (real auth is handled by backend cookies)
-
-// ===== PASSWORD / OTP =====
 
 export const forgotPassword = (data) =>
   api.post("auth/forgetpassword", data);
