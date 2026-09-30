@@ -22,8 +22,7 @@ const Dashboard = () => {
   const [showGeminiChat, setShowGeminiChat] = useState(false);
   const [workspaceRefreshTrigger, setWorkspaceRefreshTrigger] = useState(0);
 
-  const handleWorkspaceCreated = () => {
-    // Increment the trigger to force refresh of workspace list
+  const handleWorkspaceCreated = () => {
     setWorkspaceRefreshTrigger(prev => prev + 1);
   };
   const renderSection = () => {
@@ -59,7 +58,6 @@ const Dashboard = () => {
         onNeedHelp={() => setShowGeminiChat(true)}
       />
 
-      {/* Full-screen blur overlay when sidebar is open on mobile */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
@@ -67,7 +65,6 @@ const Dashboard = () => {
         />
       )}
 
-      {/* Gemini Chat Modal */}
       {showGeminiChat && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
           <GeminiChat onClose={() => setShowGeminiChat(false)} />
@@ -96,7 +93,6 @@ const Dashboard = () => {
         </main>
       </div>
 
-      {/* Modal overlays positioned fixed to cover entire screen including topbar */}
       {isCreateModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"

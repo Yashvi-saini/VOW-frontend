@@ -1,4 +1,4 @@
-// dateUtils.js
+
 export function getWeekDays() {
   const today = new Date();
   const days = [];

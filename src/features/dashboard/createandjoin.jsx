@@ -67,7 +67,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
         w-full
       "
     >
-      {/* Create Workspace Card */}
+      
       <div
         className="
           gradient rounded-xl p-4 sm:p-6 
@@ -107,7 +107,6 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
         </button>
       </div>
 
-      {/* Join Workspace Card */}
       <div
         className="
           gradient rounded-xl p-4 sm:p-6 

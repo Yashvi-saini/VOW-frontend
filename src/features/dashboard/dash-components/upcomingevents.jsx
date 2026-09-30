@@ -22,12 +22,11 @@ export default function UpcomingEvents() {
     mx-auto lg:mx-0
   "
 >
-      {/* Header */}
+      
       <h2 className="text-xl sm:text-2xl font-bold text-[#3A0A7E]">
         Upcoming Meetings
       </h2>
 
-      {/* Week Calendar */}
       <div className="overflow-x-auto">
         <WeekCalendar
           currentDate={weekAnchor}
@@ -37,7 +36,6 @@ export default function UpcomingEvents() {
         />
       </div>
 
-      {/* Events */}
       <div className="flex flex-col sm:flex-row flex-wrap gap-4">
         <EventCard selectedDate={selectedDate} />
       </div>

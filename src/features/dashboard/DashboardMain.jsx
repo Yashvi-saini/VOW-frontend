@@ -6,12 +6,11 @@ import UpcomingEvents from "./dash-components/upcomingevents.jsx";
 const DashboardMain = ({ refreshTrigger }) => {
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)] w-full max-w-full bg-transparent overflow-x-hidden">
-      {/* Header Section (Welcome / Rejoin Section) */}
+      
       <div className="relative z-10 w-full px-4 lg:px-10">
         <RejoinAndFetch refreshTrigger={refreshTrigger} />
       </div>
 
-      {/* Main Content Section */}
       <div
         className="
           flex flex-col lg:flex-row 
@@ -26,7 +25,7 @@ const DashboardMain = ({ refreshTrigger }) => {
           sm:mb-30
         "
       >
-        {/* Upcoming Events Section */}
+        
         <div className="w-full lg:w-[60%] flex-shrink-0">
           <UpcomingEvents />
         </div>

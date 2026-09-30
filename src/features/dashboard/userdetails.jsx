@@ -50,8 +50,7 @@ const JoinedWorkspaces = () => {
   const handleDelete = async (workspaceId) => {
     if (!window.confirm("Are you sure you want to delete this workspace?")) return;
     try {
-      await deleteWorkspace(workspaceId);
-      // Remove from state so UI updates
+      await deleteWorkspace(workspaceId);
       setWorkspaces((prev) => prev.filter((ws) => ws._id !== workspaceId));
       alert("Workspace deleted successfully");
     } catch (error) {
@@ -115,7 +114,7 @@ const JoinedWorkspaces = () => {
                   </div>
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // prevent triggering rejoin
+                      e.stopPropagation(); 
                       handleDelete(ws._id);
                     }}
                     className="ml-4 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"

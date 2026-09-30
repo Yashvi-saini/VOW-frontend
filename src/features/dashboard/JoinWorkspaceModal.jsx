@@ -10,9 +10,7 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
   const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const modalRef = useRef(null);
-
-  // Scrolls main div so modal is vertically centered in the viewport
+  const modalRef = useRef(null);
   useEffect(() => {
     if (isOpen && modalRef.current) {
       setTimeout(() => {
@@ -92,7 +90,7 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
         ref={modalRef}
         className="relative bg-[#EFE7F6] gradient rounded-2xl mx-auto my-24 w-[90%] sm:w-[600px] lg:w-[772px] p-6 sm:p-8 transition-all duration-300 z-50"
       >
-        {/* Close button */}
+        
         <button
           onClick={handleClose}
           className="absolute top-3 right-4 text-[#000000] text-3xl font-bold hover:text-gray-700 cursor-pointer"
@@ -104,7 +102,6 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
           Join a New Workspace
         </h2>
 
-        {/* Workspace ID Input */}
         <div className="mb-6">
           <label className="block text-[20px] sm:text-[24px] font-semibold mb-3 text-[#000000]">
             Workspace ID
@@ -133,7 +130,6 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
           )}
         </div>
 
-        {/* Buttons */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
           <button
             type="button"

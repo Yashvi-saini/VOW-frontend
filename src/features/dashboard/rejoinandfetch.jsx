@@ -77,7 +77,6 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
     }
   };
 
-
   const handleRejoin = async (wsOrId) => {
     const workspaceId = typeof wsOrId === "string" ? wsOrId : wsOrId?._id;
     const fallbackName =
@@ -86,8 +85,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
         : workspaces.find((w) => w._id === wsOrId)?.workspaceName;
     try {
       setRejoiningId(workspaceId);
-      const response = await rejoinWorkspace(workspaceId);
-      // Server refreshes HttpOnly cookie; no need to read token in JS
+      const response = await rejoinWorkspace(workspaceId);
       const apiName =
         response?.data?.workspace?.workspaceName ||
         response?.data?.workspaceName;
@@ -104,8 +102,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
           show: true,
           type: "success",
           message: `Rejoined workspace: ${resolvedName || workspaceId}`,
-        });
-        // Let the toast be visible briefly before navigating
+        });
         setTimeout(() => {
           navigate(`/workspace/${workspaceId}/chat?view=chat`);
         }, 1000);
@@ -126,8 +123,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
           error.message ||
           "Something went wrong",
       });
-    } finally {
-      // If we navigate away, this doesn't matter; if not, we re-enable the button
+    } finally {
       setTimeout(
         () => setRejoiningId((id) => (id === workspaceId ? null : id)),
         1100
@@ -135,8 +131,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
     }
   };
 
-  const handleCopyInvite = async (code, e) => {
-    // Prevent triggering the triple-click delete or rejoin handlers
+  const handleCopyInvite = async (code, e) => {
     if (e) e.stopPropagation();
     const value = code || "";
     if (!value) {
@@ -153,9 +148,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
     } catch (_) {
       setToast({ show: true, type: "error", message: "Copy failed" });
     }
-  };
-
-  // Auto-hide toast after a short delay – must be declared before any early return
+  };
   useEffect(() => {
     if (toast.show) {
       const id = setTimeout(
@@ -199,7 +192,6 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
                   {ws.workspaceName}
                 </span>
 
-                {/* Tooltip --- shows ONLY on hover heading */}
                 <span
                   className="absolute left-1/2 -translate-x-1/2 -top-9 mt-2 
     hidden group-hover:block  text-[#5C0EA4] text-sm 
@@ -272,7 +264,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
             </div>
           ))}
         </div>
-        {/* Toast notifications */}
+        
         <Toast show={toast.show} type={toast.type} message={toast.message} />
       </div>
       {deleteTarget && (
@@ -308,8 +300,6 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
         </div>
       )}
 
-
-      {/* ✅ Modal OUTSIDE the grid */}
       {modalOpen && (
         <CreateWorkspaceModal
           isOpen={modalOpen}

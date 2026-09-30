@@ -11,9 +11,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
   const [toast, setToast] = useState({ show: false, type: "info", message: "" });
   const dispatch = useDispatch();
 
-  const modalRef = useRef(null);
-
-  // Scroll to center when modal opens
+  const modalRef = useRef(null);
   useEffect(() => {
     if (isOpen && modalRef.current) {
       const modalRect = modalRef.current.getBoundingClientRect();
@@ -60,9 +58,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
       localStorage.setItem("workspaceId", wsId);
       localStorage.setItem("inviteCode", wsInviteCode);
       dispatch(setWorkspaceContext({ workspaceId: wsId, workspaceToken: null, workspaceName, workspaceManagerId: managerId }));
-      setToast({ show: true, type: "success", message: `Workspace created. Invites: ${inviteEmails.length}. Code: ${wsInviteCode}` });
-
-      // Notify parent component to refresh workspace list
+      setToast({ show: true, type: "success", message: `Workspace created. Invites: ${inviteEmails.length}. Code: ${wsInviteCode}` });
       if (typeof onWorkspaceCreated === "function") {
         onWorkspaceCreated({ workspace });
       }
@@ -86,9 +82,9 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
 
   return (
     <>
-      {/* Overlay */}
+      
       <div className="fixed inset-0  backdrop-blur-sm z-50 flex justify-center items-center p-4 overflow-y-auto">
-        {/* Modal */}
+        
         <div
           ref={modalRef}
           className="relative w-full max-w-[772px] sm:w-[90%] md:w-[80%] lg:w-[772px] mx-auto my-8 rounded-2xl overflow-hidden"
@@ -98,7 +94,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
               "0 0 8px 0 rgba(17,17,26,0.10), 0 1px 0 0 rgba(17,17,26,0.05), 0 -23px 25px 0 rgba(191,162,225,0.17) inset, 0 -36px 30px 0 rgba(204,180,227,0.15) inset, 0 -79px 40px 0 rgba(204,180,227,0.10) inset, 0 2px 1px 0 rgba(204,180,227,0.06), 0 4px 2px 0 rgba(204,180,227,0.09), 0 8px 4px 0 rgba(204,180,227,0.09), 0 16px 8px 0 rgba(204,180,227,0.09), 0 32px 16px 0 rgba(204,180,227,0.09)",
           }}
         >
-          {/* Close Button */}
+          
           <button
             onClick={handleClose}
             aria-label="Close"
@@ -112,7 +108,6 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
               Create a New Workspace
             </h2>
 
-            {/* Workspace Name */}
             <div className="mb-6">
               <label className="block text-[18px] sm:text-[22px] font-medium mb-2 text-black">
                 Workspace Name
@@ -130,7 +125,6 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
               </p>
             </div>
 
-            {/* Invite Members */}
             <div className="mb-6">
               <label className="block text-[18px] sm:text-[22px] font-medium mb-2 text-black">
                 Invite Members (optional)
@@ -154,7 +148,6 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
               </p>
             </div>
 
-            {/* Buttons */}
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-8">
               <button
                 onClick={handleClose}

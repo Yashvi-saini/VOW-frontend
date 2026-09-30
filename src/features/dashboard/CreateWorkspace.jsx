@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createWorkspace } from "@/api/workspaceApi"; 
 import { useDispatch } from "react-redux";
-import { setWorkspaceContext } from "@/features/auth"; // normalized path
+import { setWorkspaceContext } from "@/features/auth"; 
 const CreateWorkspace = ({ onCreated }) => {
   const [workspaceName, setWorkspaceName] = useState("");
   const [emails, setEmails] = useState("");
@@ -16,7 +16,7 @@ const CreateWorkspace = ({ onCreated }) => {
     try {
       setLoading(true);
   const response = await createWorkspace({ workspaceName, inviteEmails });
-  const { workspace } = response.data; // token is set as HttpOnly cookie
+  const { workspace } = response.data; 
       const workspaceId = workspace._id || workspace.id;
       const inviteCode = workspace.inviteCode;
     const managerId = workspace.manager || workspace.managerId || workspace.ownerId || null;
@@ -25,8 +25,7 @@ const CreateWorkspace = ({ onCreated }) => {
       dispatch(setWorkspaceContext({ workspaceId, workspaceToken: null, workspaceManagerId: managerId }));
       alert("Workspace created successfully!");
       setWorkspaceName("");
-      setEmails("");
-      // Notify parent if provided (e.g., to refresh and/or close modal)
+      setEmails("");
       if (typeof onCreated === "function") {
         try { onCreated({ workspace }); } catch (_) {}
       }
@@ -46,7 +45,6 @@ const CreateWorkspace = ({ onCreated }) => {
       <div className="max-w-lg space-y-6">
   <h2 className="text-[36px] font-bold mb-6 text-black">Create a New Workspace</h2>
 
-        {/* Workspace Name */}
         <div>
   <label className="block text-[24px] font-semibold mb-2 text-black">
     Workspace Name
@@ -56,7 +54,7 @@ const CreateWorkspace = ({ onCreated }) => {
     value={workspaceName}
     onChange={(e) => setWorkspaceName(e.target.value)}
     placeholder="e.g. Design Studio, Growth Team, Marketing Hub"
-    maxLength={20} // ✅ limit to 20 characters
+    maxLength={20} 
     className="border border-[#707070] rounded-lg px-4 py-3 w-full 
                focus:outline-none focus:border-[#5E9BFF] focus:ring-2 
                focus:ring-[#5E9BFF]/20 text-[#707070] bg-[#EFE7F6] font-normal"
@@ -66,8 +64,6 @@ const CreateWorkspace = ({ onCreated }) => {
   </p>
 </div>
 
-
-        {/* Logo Picker (UI only) */}
         <div>
           <label className="block font-semibold border-[#707070] text-[24px] mb-2 text-black">Choose Workspace Logo</label>
           <div className="flex items-center gap-4">
@@ -81,7 +77,6 @@ const CreateWorkspace = ({ onCreated }) => {
           </div>
         </div>
 
-        {/* Total Members (UI only) */}
         <div>
           <label className="block font-semibold mb-2 text-black text-[24px]">Total Members</label>
           <div className="flex gap-3 bg-[#EFE7F6] border-[#707070]">
@@ -92,7 +87,6 @@ const CreateWorkspace = ({ onCreated }) => {
           </div>
         </div>
 
-        {/* Email Input */}
         <div>
           <label className="block text-[24px] font-semibold mb-2 text-black">Invite Members (comma-separated emails)</label>
           <input
@@ -104,7 +98,6 @@ const CreateWorkspace = ({ onCreated }) => {
           />
         </div>
 
-        {/* Submit Button */}
         <button
           onClick={handleCreate}
           disabled={loading}

@@ -1,9 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
-
-// Minimal workspace slice to support components that read from state.workspace
-// and to satisfy build imports in store.js. Prefer using userslice for
-// workspace context where already wired, but this slice provides a stable
-// fallback shape { id, name, token }.
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   id: null,
