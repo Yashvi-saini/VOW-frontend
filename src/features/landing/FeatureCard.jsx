@@ -29,7 +29,7 @@ const FeatureCards = () => {
   return (
     <div className="w-full overflow-hidden">
       <div className="w-full mx-auto">
-        {/* Horizontal scroll container */}
+        
         <div className="flex gap-6 overflow-x-auto no-scrollbar py-4"
         style={{
           msOverflowStyle: "none",

@@ -7,9 +7,7 @@ const Footer = () => {
   const [hovered, setHovered] = useState(false);
   const [glowPos, setGlowPos] = useState({ x: 0, y: 0 });
   const animationFrameRef = useRef(null);
-  const lastMouseMoveRef = useRef(0);
-
-  // Smooth scroll navigation function
+  const lastMouseMoveRef = useRef(0);
   const handleNavigation = (targetId) => {
     const element = document.getElementById(targetId);
     if (element) {
@@ -18,29 +16,19 @@ const Footer = () => {
         block: 'start'
       });
     }
-  };
-
-  // Email submission handler
+  };
   const handleEmailSubmit = (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
-    
-    // Create mailto link
+    const email = e.target.email.value;
     const subject = encodeURIComponent('VOW Newsletter Subscription');
     const body = encodeURIComponent(`Hello,\n\nI would like to subscribe to VOW updates with this email: ${email}\n\nThank you!`);
-    const mailtoLink = `mailto:vow.org8000@gmail.com?subject=${subject}&body=${body}`;
-    
-    // Open email client
-    window.location.href = mailtoLink;
-    
-    // Reset form
+    const mailtoLink = `mailto:vow.org8000@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = mailtoLink;
     e.target.reset();
-  };
-
-  // Throttled mouse move handler
+  };
   const handleMouseMove = useCallback((e) => {
     const now = Date.now();
-    if (now - lastMouseMoveRef.current < 16) return; // ~60fps throttle
+    if (now - lastMouseMoveRef.current < 16) return; 
     lastMouseMoveRef.current = now;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -58,9 +46,7 @@ const Footer = () => {
       y: touch.clientY - rect.top,
     });
     setHovered(true);
-  }, []);
-
-  // Optimized animation loop
+  }, []);
   useEffect(() => {
     if (!hovered) {
       if (animationFrameRef.current) {
@@ -86,9 +72,7 @@ const Footer = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [hovered, mouse]);
-
-  // Generate grid cells once (memoized)
+  }, [hovered, mouse]);
   const gridCells = useRef(
     Array.from({ length: 500 }, (_, i) => ({ id: i }))
   ).current;
@@ -103,7 +87,7 @@ const Footer = () => {
       onTouchStart={() => setHovered(true)}
       onTouchEnd={() => setHovered(false)}
     >
-      {/* Grid Effect */}
+      
       {hovered && (
         <div
           className="absolute inset-0 pointer-events-none transition-opacity duration-300"
@@ -113,7 +97,7 @@ const Footer = () => {
             WebkitMaskImage: `radial-gradient(circle 180px at ${glowPos.x}px ${glowPos.y}px, white 30%, transparent 90%)`,
           }}
         >
-          {/* Optimized Grid */}
+          
           <div
             className="absolute inset-0 grid pointer-events-none"
             style={{
@@ -137,9 +121,8 @@ const Footer = () => {
         </div>
       )}
 
-      {/* Footer Content */}
       <div className="max-w-[1160px] mx-auto flex flex-col items-center lg:flex-row lg:justify-center lg:items-start gap-8 sm:gap-10 md:gap-12 lg:gap-[164px] relative z-10">
-        {/* Intro */}
+        
         <section className="w-full max-w-[375px] space-y-4 text-center lg:text-left">
           <div className="flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-2.5 lg:gap-3 mb-6 sm:mb-8 lg:mb-[59px]">
             <img
@@ -177,7 +160,6 @@ const Footer = () => {
           </div>
         </section>
 
-        {/* Quick Links */}
         <nav
           className="w-full max-w-[300px] space-y-4 text-center"
           aria-label="Quick Links"
@@ -205,7 +187,6 @@ const Footer = () => {
           </ul>
         </nav>
 
-        {/* Subscribe */}
         <section id="subscribe" className="w-full max-w-[375px] space-y-4 text-center lg:text-left px-4 lg:px-0">
           <h4 className="text-white font-semibold text-[20px] sm:text-[22px] lg:text-[24px] leading-[1.2] mb-6 sm:mb-8 lg:mb-[42px]">
             Subscribe
@@ -233,7 +214,6 @@ const Footer = () => {
         </section>
       </div>
 
-      {/* Copyright */}
       <div className="max-w-[1160px] mx-auto mt-8 sm:mt-10 md:mt-12 lg:mt-[48px] pt-8 sm:pt-10 md:pt-12 lg:pt-[60px] text-center text-[#969696] text-[12px] sm:text-[14px] lg:text-[16px] leading-[1.2] relative z-10 px-4">
         <p>© 2025 VOW. All rights reserved.</p>
         <p className="mt-1">Virtual Organised World - Where Remote Teams Connect.</p>

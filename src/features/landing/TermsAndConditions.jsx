@@ -25,7 +25,6 @@ export default function TermsAndConditions() {
           the following terms. Please read them carefully.
         </p>
 
-        {/* Table of Contents */}
         <div className="mb-10 border border-gray-200 rounded-lg p-4 bg-gray-100">
           <h2 className="text-xl font-semibold mb-3">Table of Contents</h2>
           <ul className="list-decimal list-inside space-y-2 text-[#558CE6]">
@@ -42,7 +41,6 @@ export default function TermsAndConditions() {
           </ul>
         </div>
 
-        {/* Terms Content */}
         <div className="space-y-10 text-[#4774BF] ">
           <section id="introduction">
             <h2 className="text-2xl font-semibold">

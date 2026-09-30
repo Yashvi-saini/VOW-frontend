@@ -4,9 +4,7 @@ import logo from '@/assets/logo.png';
 import hamburgerIcon from '@/assets/hamburger.png';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Smooth scroll navigation function
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const handleNavigation = (targetId) => {
     const element = document.getElementById(targetId);
     if (element) {
@@ -15,21 +13,19 @@ const Navbar = () => {
         block: 'start'
       });
     }
-    setIsMenuOpen(false); // Close mobile menu after navigation
+    setIsMenuOpen(false); 
   };
 
   return (
     <div className="w-full fixed top-0 left-0 right-0 flex justify-center py-2 sm:py-2.5 md:py-[10px] px-4 sm:px-5 md:px-[20px] lg:px-[60px] bg-transparent z-50">
       <div className="w-full max-w-[1660px] border border-[#DDDFE1] rounded-[12px] sm:rounded-[14px] md:rounded-[16px] bg-white shadow-sm">
         <nav className="flex justify-between items-center h-[52px] sm:h-[56px] md:h-[60px] lg:h-[64px] w-full px-4 sm:px-5 md:px-[16px] lg:px-[20px]">
-        
-          {/* Logo */}
+
           <div className="flex items-center gap-1.5 sm:gap-2">
             <img src={logo} alt="Logo" className="h-[24px] sm:h-[28px] md:h-[32px] lg:h-[40px] w-auto" />
             <span className="text-[#5C0EA4] text-[16px] sm:text-[18px] md:text-[20px] lg:text-[24px] font-bold leading-none">VOW</span>
           </div>
 
-          {/* Desktop Menu */}
           <ul className="hidden lg:flex items-center gap-[30px] xl:gap-[60px] 2xl:gap-[90px]">
             <li onClick={() => handleNavigation('home')} className="text-[#969696] font-inter text-[14px] xl:text-[15px] 2xl:text-[16px] leading-[19.2px] font-normal hover:text-[#5C0EA4] cursor-pointer transition-colors whitespace-nowrap">
               Home
@@ -45,7 +41,6 @@ const Navbar = () => {
             </li>
           </ul>
 
-          {/* Desktop Buttons */}
           <div className="hidden lg:flex items-center gap-2 xl:gap-[10px]">
             <Link
               to="/login"
@@ -62,7 +57,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile Hamburger Menu */}
           <button 
             className="lg:hidden flex items-center justify-center focus:outline-none flex-shrink-0"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -72,7 +66,6 @@ const Navbar = () => {
           </button>
         </nav>
 
-        {/* Mobile Menu Dropdown */}
         <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="border-t border-[#DDDFE1] py-3 sm:py-4 md:py-[16px] px-4 sm:px-5 md:px-[20px] bg-white rounded-b-[12px] sm:rounded-b-[14px] md:rounded-b-[16px]">
             <ul className="flex flex-col gap-2 sm:gap-3 md:gap-[12px] mb-3 sm:mb-4 md:mb-[16px]">

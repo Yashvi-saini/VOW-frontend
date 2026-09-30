@@ -74,7 +74,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
   const [overlayOpaque, setOverlayOpaque] = useState(false);
-  const [showDemo, setShowDemo] = useState(false); // ✅ State for showing video
+  const [showDemo, setShowDemo] = useState(false); 
 
   const goToSignupWithOverlay = () => {
     setShowOverlay(true);
@@ -88,7 +88,6 @@ const Home = () => {
     <>
       <Navbar />
 
-      {/* HERO SECTION */}
       <section id="home" className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
         <div className="relative z-10 max-w-7xl my-55 w-full flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
@@ -129,15 +128,12 @@ const Home = () => {
         <img src={img3} className="md:block pointer-events-none select-none absolute -right-5 top-90 -translate-x-1/2 -translate-y-1/2 w-20 md:left-[75vw] md:top-[33em] sm:w-10 md:w-30" />
       </section>
 
-      {/* FEATURE CARDS */}
       <section id="features" className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
           All Your Work — In One Virtual Space
         </h2>
         <FeatureCards />
       </section>
-
-     
 
       <section id="user-roles" className="py-16 px-6 md:px-20 mb-24 ">
         <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">Build For Every Team Member</h2>
@@ -155,7 +151,6 @@ const Home = () => {
          </div></div>
         </div>
         <hr className=" border-[#EBE2F6] border-b-4 border-t-0 mt-16" />
-
 
         <div className='flex justify-between  mt-16 flex-col-reverse items-end sm:flex-row sm:justify-between'>
           <div className='w-full max-w-2xl'>
@@ -190,14 +185,12 @@ const Home = () => {
         className={`fixed inset-0 z-60 bg-[#450B7B] transition-opacity duration-500 ${overlayOpaque ? 'opacity-100' : 'opacity-0'} ${showOverlay ? '' : 'pointer-events-none'}`}
       />
 
-      {/* DEMO VIDEO SECTION */}
       <section id="demo-video" className="px-6 md:px-20 mb-40">
         <div className="relative max-w-4xl mx-auto">
           <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">
             See How VOW Transforms Your Workday
           </h2>
 
-          {/* ✅ Video Section */}
           <div className="w-full rounded-xl mt-10 sm:mt-12 overflow-hidden shadow-lg">
             {showDemo ? (
               <video
