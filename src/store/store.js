@@ -2,11 +2,11 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-import userReducer from "@/components/userslice";
-import presenceReducer from "@/components/map/presenceSlice";
-import workspaceReducer from "@/components/workspaceSlice";
-import filesReducer from "@/components/dashboard/filesSlice";
-import teamReducer from "@/components/chat/teamslices";
+import { userReducer } from "@/features/auth";
+import { presenceReducer } from "@/features/map";
+import { workspaceReducer } from "@/features/dashboard";
+import { filesReducer } from "@/features/files";
+import { teamReducer } from "@/features/chat";
 
 const rootReducer = combineReducers({
   user: userReducer,
