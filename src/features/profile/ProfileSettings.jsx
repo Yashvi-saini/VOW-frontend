@@ -72,8 +72,9 @@ const ProfileSettings = ({ onClose }) => {
     return () => { mounted = false; };
   }, [rdxProfile]);
 
-  const genderKey = form.gender || "other";
-  const avatarSrc = form.avatar?.trim() ? form.avatar : defaultAvatars[genderKey] || defaultAvatars.other;
+  const genderKey = (form.gender || "other").toLowerCase();
+  const isBrokenS3 = form.avatar?.includes("amazonaws.com") && !form.avatar?.includes("user-avatars");
+  const avatarSrc = (form.avatar?.trim() && !isBrokenS3) ? form.avatar : defaultAvatars[genderKey] || defaultAvatars.other;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -173,7 +174,15 @@ const ProfileSettings = ({ onClose }) => {
       <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
         
         <div className="shrink-0 flex flex-col items-center gap-3 w-full sm:w-auto sm:items-start">
-          <img src={avatarSrc} alt="avatar" className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border" />
+          <img
+            src={avatarSrc}
+            alt="avatar"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = defaultAvatars[genderKey] || defaultAvatars.other;
+            }}
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border"
+          />
           <label className="px-3 py-1.5 rounded-lg bg-[#450B7B] text-white text-xs cursor-pointer hover:brightness-110 transition">
             {uploading ? "Uploading..." : "Upload Photo"}
             <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploading} className="hidden" />

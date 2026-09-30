@@ -15,8 +15,10 @@ const ProfileCard = ({ profile }) => {
   const [uploading,setUploading]=useState(false);
   if (!profile) return null;
 
-  const genderKey = profile.gender?.toLowerCase() || "other";
-  const avatarSrc = avatarUrl?.trim() ? avatarUrl 
+  const genderKey = (profile.gender || "other").toLowerCase();
+  const isBrokenS3 = avatarUrl?.includes("amazonaws.com") && !avatarUrl?.includes("user-avatars");
+  const avatarSrc = (avatarUrl?.trim() && !isBrokenS3)
+    ? avatarUrl 
     : defaultAvatars[genderKey] || defaultAvatars.other;
 
     const handleFilechange =async (e)=>{
@@ -53,7 +55,10 @@ const ProfileCard = ({ profile }) => {
           src={avatarSrc}
           alt={`${profile.fullName}'s Avatar`}
           className="w-28 h-28 rounded-full border-4 border-[#450B7B] object-cover shadow-md"
-          onError={(e) => (e.target.src = defaultAvatars[genderKey])}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = defaultAvatars[genderKey] || defaultAvatars.other;
+          }}
         />
         <label className="mt-3 text-sm text-[#450B7B] font-medium cursor-pointer hover:underline">
           {uploading ? "Uploading..." : "upload custom photo"}
