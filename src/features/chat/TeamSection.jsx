@@ -35,7 +35,6 @@ useEffect(() => {
   const fetchChannels = async () => {
     if (!workspaceId) return;
     try {
-      console.log("Fetching channels for workspace:", workspaceId);
       const response = await getChannels(workspaceId);
       const channelList = response?.data || [];
       setTeams(channelList);
@@ -171,15 +170,6 @@ useEffect(() => {
           const creatorId = team.creatorId || team.ownerId || team.createdBy; 
           const mappedCreator = channelCreatorMap?.[team._id];
           const allowed = true;
-          console.log('[channel click]', {
-            channelId: team._id,
-            userId,
-            workspaceManagerId,
-            creatorId,
-            mappedCreator,
-            isMember: memberIds.includes(userId),
-            allowed
-          });
           if (allowed) {
             onChannelSelect?.(team._id);
             const mappedTeamId = channelTeamMap?.[team._id];

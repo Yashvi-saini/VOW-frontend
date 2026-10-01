@@ -86,10 +86,8 @@ const handleKeyDown = (e, index) => {
       let res, data;
 
       if (mode === "signup") {
-        console.log("Sending signup verifyEmail payload:", { email, code });
         res = await verifyEmail({ email, code });
       } else if (mode === "forgot") {
-        console.log("Sending forgot verifyResetOtp payload:", { email, otp: code });
         res = await verifyResetOtp({ email, otp: code });
       }
       data = res.data;

@@ -5,21 +5,22 @@ import { getTeams } from "@/api/teamApi";
 import { scheduleMeeting } from "@/api/meetingApi";
 import { setSelectedTeamId, setTeamsList } from "@/components/chat/teamslices";
 
-const MeetingForm = ({ role }) => {
+const MeetingForm = ({ role, onSuccess, onClose }) => {
   const audienceOptions = [{ id: "specific-teams", label: "Select Teams" }];
   const [audience, setAudience] = useState("specific-teams");
   const [form, setForm] = useState({ title: "", dateTime: "", agenda: "" });
   const dispatch = useDispatch();
-  const workspaceId = useSelector(s => s.user.workspaceId);
+  const reduxWsId = useSelector((s) => s.user?.workspaceId);
+  const workspaceId = reduxWsId || localStorage.getItem("workspaceId");
   const [feedback, setFeedback] = useState("");
-  const teams = useSelector(s => s.team.teams);
-  const selectedTeamId = useSelector(s => s.team.selectedTeamId);
+  const teams = useSelector((s) => s.team?.teams || []);
+  const selectedTeamId = useSelector((s) => s.team?.selectedTeamId);
   const [loadingTeams, setLoadingTeams] = useState(false);
   const [meetingSaving, setMeetingSaving] = useState(false);
   const [isConference, setIsConference] = useState(false);
   const agendaRef = useRef(null);
-const [titleError, setTitleError] = useState("");
-const [agendaError, setAgendaError] = useState("");
+  const [titleError, setTitleError] = useState("");
+  const [agendaError, setAgendaError] = useState("");
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarState, setCalendarState] = useState(null);
@@ -28,7 +29,7 @@ const [agendaError, setAgendaError] = useState("");
     "w-full h-[51px] rounded-[10px] border border-[#BFA2E1] bg-[#EFE7F6] px-4 text-[#000] placeholder:text-[#707070] focus:outline-none focus:border-[#8231CC] focus:ring-1 focus:ring-[#8231CC]";
 
   const onChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const refreshTeams = async () => {
     if (!workspaceId) return;
@@ -44,20 +45,24 @@ const [agendaError, setAgendaError] = useState("");
     }
   };
 
-  useEffect(() => { refreshTeams(); }, [workspaceId]);
+  useEffect(() => {
+    refreshTeams();
+  }, [workspaceId]);
+
   useEffect(() => {
     if (agendaRef.current) {
       agendaRef.current.style.height = "auto";
       agendaRef.current.style.height = `${Math.min(agendaRef.current.scrollHeight, 160)}px`;
     }
-  }, [form.agenda]);
+  }, [form.agenda]);
+
   const buildDateTimes = () => {
     if (!calendarState?.date) return { startTime: null, endTime: null };
     const baseDate = calendarState.date;
     const year = baseDate.getFullYear();
     const month = baseDate.getMonth();
     const day = baseDate.getDate();
-    const pad = (n) => String(n).padStart(2, '0');
+    const pad = (n) => String(n).padStart(2, "0");
     const toLocalOffsetISO = (d) => {
       const y = d.getFullYear();
       const mo = pad(d.getMonth() + 1);
@@ -65,8 +70,8 @@ const [agendaError, setAgendaError] = useState("");
       const hh = pad(d.getHours());
       const mm = pad(d.getMinutes());
       const ss = pad(d.getSeconds());
-      const tzMin = -d.getTimezoneOffset(); 
-      const sign = tzMin >= 0 ? '+' : '-';
+      const tzMin = -d.getTimezoneOffset();
+      const sign = tzMin >= 0 ? "+" : "-";
       const abs = Math.abs(tzMin);
       const tzh = pad(Math.floor(abs / 60));
       const tzm = pad(abs % 60);
@@ -74,11 +79,11 @@ const [agendaError, setAgendaError] = useState("");
     };
     const to24 = (h, mer) => {
       let hour = parseInt(h, 10);
-      if (mer === 'PM' && hour !== 12) hour += 12;
-      if (mer === 'AM' && hour === 12) hour = 0;
+      if (mer === "PM" && hour !== 12) hour += 12;
+      if (mer === "AM" && hour === 12) hour = 0;
       return hour;
     };
-    if (calendarState.mode === 'range') {
+    if (calendarState.mode === "range") {
       const sh = to24(calendarState.range.sh, calendarState.range.smer);
       const eh = to24(calendarState.range.eh, calendarState.range.emer);
       const sm = parseInt(calendarState.range.sm, 10);
@@ -87,108 +92,111 @@ const [agendaError, setAgendaError] = useState("");
       const end = new Date(year, month, day, eh, em, 0);
       return { startTime: toLocalOffsetISO(start), endTime: toLocalOffsetISO(end) };
     }
-    if (calendarState.mode === 'time') {
+    if (calendarState.mode === "time") {
       const hour = to24(calendarState.time.h, calendarState.time.mer);
       const minute = parseInt(calendarState.time.m, 10);
-      const start = new Date(year, month, day, hour, minute, 0);
+      const start = new Date(year, month, day, hour, minute, 0);
       const end = new Date(start.getTime() + 60 * 60 * 1000);
       return { startTime: toLocalOffsetISO(start), endTime: toLocalOffsetISO(end) };
-    }
+    }
     const startDay = new Date(year, month, day, 0, 0, 0);
     const endDay = new Date(year, month, day, 23, 59, 59);
     return { startTime: toLocalOffsetISO(startDay), endTime: toLocalOffsetISO(endDay) };
   };
 
- const onSubmit = async (e) => {
-e.preventDefault();
-  setFeedback("");
-  setTitleError("");
-  setAgendaError("");
-  if (!workspaceId) {
-    return setFeedback("Workspace ID missing");
-  }
-  if (!form.title.trim()) {
-    return setFeedback("Enter meeting title");
-  }
-  if (!calendarState) {
-    return setFeedback("Select date & time");
-  }
- if (form.title.trim().length < 4) {
-    setTitleError("Minimum 4 characters required.");
-    return;
-  }
-  if (form.title.trim().length > 15) {
-    setTitleError("Maximum 15 characters allowed.");
-    return;
-  }
-  if (form.agenda.trim().length < 10) {
-    setAgendaError("Minimum 10 characters required.");
-    return;
-  }
-
-  const { startTime, endTime } = buildDateTimes();
-  if (!startTime || !endTime) {
-    return setFeedback("Invalid date/time selection");
-  }
-  if (!isConference && !selectedTeamId) {
-    return setFeedback("Select a team or mark as conference");
-  }
-
-  const body = {
-    title: form.title.trim(),
-    description: form.agenda || "",
-    startTime,
-    endTime,
-    teamId: isConference ? undefined : selectedTeamId,
-    isConference,
-  };
-
-  try {
-    setMeetingSaving(true);
-
-    const res = await scheduleMeeting(workspaceId, body);
-
-    if (res?.data?.success) {
-      setFeedback("Meeting scheduled successfully.");
-    } 
-    else {
-      setFeedback(res?.data?.msg || res?.data?.message || "Failed to schedule meeting.");
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setFeedback("");
+    setTitleError("");
+    setAgendaError("");
+    if (!workspaceId) {
+      return setFeedback("Workspace ID missing");
+    }
+    if (!form.title.trim()) {
+      return setFeedback("Enter meeting title");
+    }
+    if (!calendarState) {
+      return setFeedback("Select date & time");
+    }
+    if (form.title.trim().length < 4) {
+      setTitleError("Minimum 4 characters required.");
+      return;
+    }
+    if (form.title.trim().length > 50) {
+      setTitleError("Maximum 50 characters allowed.");
+      return;
+    }
+    if (form.agenda.trim().length < 10) {
+      setAgendaError("Minimum 10 characters required.");
+      return;
     }
 
-  } catch (err) {
-    console.warn("Meeting error:", err);
-    const backendMsg =
-      err?.response?.data?.msg ||
-      err?.response?.data?.message ||
-      err?.message;
+    const { startTime, endTime } = buildDateTimes();
+    if (!startTime || !endTime) {
+      return setFeedback("Invalid date/time selection");
+    }
+    if (!isConference && !selectedTeamId) {
+      return setFeedback("Select a team or mark as conference");
+    }
 
-    setFeedback(backendMsg || "Error scheduling meeting.");
-  } finally {
-    setTimeout(() => {
-      setMeetingSaving(false);
-    }, 1000);
-    
-  }
-};
+    const body = {
+      title: form.title.trim(),
+      description: form.agenda || "",
+      startTime,
+      endTime,
+      teamId: isConference ? undefined : selectedTeamId,
+      isConference,
+    };
+
+    try {
+      setMeetingSaving(true);
+      const res = await scheduleMeeting(workspaceId, body);
+
+      if (res?.data?.success) {
+        setFeedback("Meeting scheduled successfully.");
+        setTimeout(() => {
+          onSuccess?.();
+        }, 700);
+      } else {
+        setFeedback(res?.data?.msg || res?.data?.message || "Failed to schedule meeting.");
+      }
+    } catch (err) {
+      const backendMsg =
+        err?.response?.data?.msg ||
+        err?.response?.data?.message ||
+        err?.message;
+      setFeedback(backendMsg || "Error scheduling meeting.");
+    } finally {
+      setTimeout(() => {
+        setMeetingSaving(false);
+      }, 1000);
+    }
+  };
 
   return (
     <div className="w-full h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-      
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl lg:text-[36px] leading-tight font-bold text-black">
           Schedule a Meeting
         </h1>
-
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-700 text-3xl font-bold p-1 leading-none cursor-pointer"
+            title="Close"
+          >
+            &times;
+          </button>
+        )}
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-6 sm:gap-8 lg:gap-10 max-w-full sm:max-w-[588px] pb-8">
-        
         <div>
           <label className="block font-semibold text-black mb-2 text-lg sm:text-xl lg:text-[24px]">
             Meeting Title
           </label>
           <input
-          
             type="text"
             name="title"
             placeholder="Give your meeting a clear name"
@@ -218,49 +226,68 @@ e.preventDefault();
           </div>
           {!isConference && (
             <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <h3
-                      className="font-semibold text-black cursor-pointer select-none"
-                      title="Click to load latest teams"
-                      onClick={refreshTeams}
-                    >
-                      Select a Team
-                    </h3>
-                    <button type="button" onClick={refreshTeams} className="text-[10px] px-2 py-1 rounded bg-white border border-[#D6C5E9] hover:bg-[#F3EEF9]">Refresh</button>
+              <div className="flex items-center justify-between">
+                <h3
+                  className="font-semibold text-black cursor-pointer select-none"
+                  title="Click to load latest teams"
+                  onClick={refreshTeams}
+                >
+                  Select a Team
+                </h3>
+                <button
+                  type="button"
+                  onClick={refreshTeams}
+                  className="text-[10px] px-2 py-1 rounded bg-white border border-[#D6C5E9] hover:bg-[#F3EEF9]"
+                >
+                  Refresh
+                </button>
+              </div>
+              {loadingTeams && <p className="text-sm">Loading teams...</p>}
+              {!loadingTeams && teams.length === 0 && (
+                <p className="text-sm text-gray-500">
+                  No teams created yet. Check "Conference (all workspace)" to invite all members.
+                </p>
+              )}
+              <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+                {teams.map((t) => (
+                  <div
+                    key={t._id}
+                    onClick={() => dispatch(setSelectedTeamId(t._id))}
+                    className={`px-3 py-2 rounded cursor-pointer text-sm border ${
+                      selectedTeamId === t._id
+                        ? "bg-[#5C0EA4] text-white border-[#5C0EA4]"
+                        : "bg-[#E6D9F3] text-[#2D2940] border-transparent hover:bg-white"
+                    }`}
+                    title={t.name}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="truncate max-w-[200px]">{t.name}</span>
+                      {selectedTeamId === t._id && <span className="text-[10px] font-medium">Selected</span>}
+                    </div>
                   </div>
-                  {loadingTeams && <p className="text-sm">Loading teams...</p>}
-                  {!loadingTeams && teams.length === 0 && <p className="text-sm">No teams created yet.</p>}
-                  <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
-                    {teams.map(t => (
-                      <div
-                        key={t._id}
-                        onClick={() => dispatch(setSelectedTeamId(t._id))}
-                        className={`px-3 py-2 rounded cursor-pointer text-sm border ${selectedTeamId===t._id ? 'bg-[#5C0EA4] text-white border-[#5C0EA4]' : 'bg-[#E6D9F3] text-[#2D2940] border-transparent hover:bg-white'}`}
-                        title={t.name}
-                      >
-                        <div className="flex justify-between items-center ">
-                          <span className="truncate max-w-[200px]">{t.name}</span>
-                          {selectedTeamId===t._id && <span className="text-[10px] font-medium">Selected</span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {selectedTeamId && (
-                    <p className="text-[14px] text-[#5C0EA4]">Selected team: {teams.find(x => x._id===selectedTeamId)?.name}</p>
-                  )}
+                ))}
+              </div>
+              {selectedTeamId && (
+                <p className="text-[14px] text-[#5C0EA4]">
+                  Selected team: {teams.find((x) => x._id === selectedTeamId)?.name}
+                </p>
+              )}
             </div>
           )}
-          {isConference && <p className="text-[14px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>}
+          {isConference && (
+            <p className="text-[14px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>
+          )}
         </div>
 
         <div className="relative">
           <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
             Date & Time
           </label>
+
           <button
             type="button"
             onClick={() => setCalendarOpen(true)}
-            className={`${inputBase} text-left`}
+            className={`${inputBase} text-left cursor-pointer`}
           >
             {form.dateTime || "Select Date & Time"}
           </button>
@@ -271,20 +298,7 @@ e.preventDefault();
             onClose={() => setCalendarOpen(false)}
             onDone={(state) => {
               setCalendarState(state);
-              setForm((f) => ({ ...f, dateTime: state.label }));
-              try {
-                const date = state?.date;
-                console.log('[meeting] Calendar selection', {
-                  label: state?.label,
-                  mode: state?.mode,
-                  date_string: date ? date.toString() : null,
-                  date_iso: date && typeof date.toISOString === 'function' ? date.toISOString() : null,
-                  time: state?.time,
-                  range: state?.range,
-                });
-              } catch (e) {
-                console.warn('[meeting] Failed to log calendar selection', e);
-              }
+              setForm((f) => ({ ...f, dateTime: state.label }));
               setCalendarOpen(false);
             }}
           />
@@ -296,25 +310,26 @@ e.preventDefault();
           </label>
           <textarea
             name="agenda"
-           placeholder="Add agenda or notes"
+            placeholder="Add agenda or notes (minimum 10 characters)"
             className={`${inputBase} w-full px-2.5 py-2 border-none rounded-md outline-none resize-none overflow-y-auto hide-scrollbar max-h-40`}
             value={form.agenda}
             onChange={onChange}
             ref={agendaRef}
           />
           {agendaError ? (
-  <p className="text-red-600 text-sm mt-1">{agendaError}</p>
-) : (
-  <p className="text-sm mt-1 opacity-0">{" "}</p>
-)}
-
+            <p className="text-red-600 text-sm mt-1">{agendaError}</p>
+          ) : (
+            <p className="text-sm mt-1 opacity-0">{" "}</p>
+          )}
         </div>
 
         <div className="pt-2 flex flex-col gap-2">
           <button
             type="submit"
             disabled={meetingSaving}
-            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white font-medium transition-colors ${meetingSaving ? 'bg-[#7A91D6] cursor-not-allowed' : 'bg-[#4C6FFF] hover:bg-[#3A57E8]'}`}
+            className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-white font-medium transition-colors cursor-pointer ${
+              meetingSaving ? "bg-[#7A91D6] cursor-not-allowed" : "bg-[#4C6FFF] hover:bg-[#3A57E8]"
+            }`}
           >
             {meetingSaving ? (
               <>
@@ -325,10 +340,10 @@ e.preventDefault();
                 Saving...
               </>
             ) : (
-              'Save Meeting'
+              "Save Meeting"
             )}
           </button>
-          {feedback && <span className="text-[20px] text-[#5C0EA4]">{feedback}</span>}
+          {feedback && <span className="text-[16px] text-[#5C0EA4] font-medium">{feedback}</span>}
         </div>
       </form>
     </div>

@@ -6,8 +6,6 @@ import { useSelector } from "react-redux";
 const TeamBuilder = () => {
  const workspaceId = useSelector((state) => state.user?.workspaceId || state.workspace?.activeWorkspace?.workspaceId) || localStorage.getItem("workspaceId"); 
 const workspaceToken = useSelector((state) => state.user.workspaceToken);
- console.log("Workspace ID:", workspaceId);
- console.log("Workspace Token:", workspaceToken);
   const { members, loading, error } = useMembers(workspaceId); 
   const [selectedIds, setSelectedIds] = useState([]);
   const [teamName, setTeamName] = useState("");
@@ -15,7 +13,6 @@ const workspaceToken = useSelector((state) => state.user.workspaceToken);
   const [serverMsg, setServerMsg] = useState("");
     
 const fullUserState = useSelector((state) => state.user);
-console.log("Redux user state:", fullUserState);
   const toggleMember = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]

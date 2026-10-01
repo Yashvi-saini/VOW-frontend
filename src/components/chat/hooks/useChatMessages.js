@@ -55,10 +55,8 @@ export const useChatMessages = ({
             targetDmId = activeRoomId.replace("dm-", "");
           }
 
-          console.log("[useChatMessages] DM fetch:", { selfId, targetDmId, workspaceId });
 
           if (!targetDmId || !selfId) {
-            console.warn("[useChatMessages] Cannot fetch DMs: missing selfId or targetDmId");
             if (isSubscribed) {
               setMessages([]);
               setLoadingMessages(false);
@@ -79,7 +77,6 @@ export const useChatMessages = ({
             raw = response.data;
           }
 
-          console.log("[useChatMessages] DM fetched:", raw.length, "messages");
 
           if (isSubscribed) {
             dmCacheRef.current[targetDmId] = raw;

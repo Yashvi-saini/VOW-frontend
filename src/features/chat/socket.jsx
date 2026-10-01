@@ -24,18 +24,11 @@ if (typeof window !== "undefined" && localStorage.getItem("accessToken")) {
 export const disconnectSocket = () => {
   if (socket.connected) socket.disconnect();
 };
-socket.on("connect", () => {
-  const t = socket.io.engine.transport?.name;
-  console.log("[socket] connected:", socket.id, "transport=", t);
-});
 
-socket.on("connect_error", (err) => {
-  console.error("[socket] connect_error:", err?.message || err);
-});
 
-socket.on("disconnect", (reason) => {
-  console.log("[socket] disconnected:", reason);
-});
+
+
+
 socket.on("error", (msg) => {
   console.error("[socket] Server error:", msg);
 });

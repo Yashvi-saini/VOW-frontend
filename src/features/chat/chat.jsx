@@ -183,7 +183,6 @@ const Chat = ({ username, roomId, remoteUserId }) => {
 
     if (targetReceiverId === "undefined") targetReceiverId = null;
 
-    console.log("[sendMessage]", { isDM, isDMMode, activeRoomId, targetReceiverId, dmReceiverId, workspaceId });
 
     if (isDM && targetReceiverId) {
       const payload = {
@@ -192,7 +191,6 @@ const Chat = ({ username, roomId, remoteUserId }) => {
         content: messageInput,
         attachments,
       };
-      console.log("[sendMessage] Emitting send_dm to", targetReceiverId, "attachments:", attachments.length);
       sendDirectMessage(payload);
     } else if (activeRoomId && typeof activeRoomId === "string" && !activeRoomId.startsWith("dm-")) {
       socket.emit("send_message", {

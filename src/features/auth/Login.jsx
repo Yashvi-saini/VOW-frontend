@@ -70,7 +70,7 @@ const Login = () => {
         password,
       });
 
-      console.log("Login response:", res);
+
       if (res.success) {
         const { user, accessToken, refreshToken } = res;
         if (accessToken) localStorage.setItem("accessToken", accessToken);

@@ -9,7 +9,9 @@ const MeetingCards = ({ selectedDate }) => {
     const fetchMeetings = async () => {
       try {
         const res = await getAllMeetings();
-        setMeetings(res.data.meetings || []);
+        const raw = res?.data?.meetings ?? res?.data ?? res?.meetings ?? [];
+        const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.meetings) ? raw.meetings : []);
+        setMeetings(list);
       } catch (err) {
         console.error("Failed to fetch meetings:", err);
       } finally {
@@ -17,24 +19,26 @@ const MeetingCards = ({ selectedDate }) => {
       }
     };
     fetchMeetings();
-  }, []);
-  const formatDate = (date) => date.toISOString().split("T")[0];
+  }, []);
 
-  useEffect(() => {
-  }, [selectedDate]);
+  const toLocalDateString = (d) => {
+    if (!d) return "";
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const now = new Date();
 
   const filteredMeetings = selectedDate
     ? meetings.filter((m) => {
         const start = new Date(m.startTime);
-        const end = new Date(m.endTime);
-        return (
-          formatDate(start) === formatDate(selectedDate) &&
-          end > now
-        );
+        return toLocalDateString(start) === toLocalDateString(selectedDate);
       })
-    : meetings.filter((m) => new Date(m.endTime) > now); 
+    : meetings.filter((m) => new Date(m.endTime) > now);
 
   if (loading) return <p className="p-4 text-gray-500">Loading meetings...</p>;
   if (filteredMeetings.length === 0)
@@ -49,20 +53,21 @@ const MeetingCards = ({ selectedDate }) => {
         const start = new Date(meeting.startTime);
         const end = new Date(meeting.endTime);
 
-        const formatTime = (date) =>
-          date.toLocaleTimeString("en-IN", {
+        const formatTime = (date) => {
+          if (isNaN(date.getTime())) return "N/A";
+          return date.toLocaleTimeString("en-IN", {
             hour: "numeric",
             minute: "2-digit",
             hour12: true,
-            timeZone: "Asia/Kolkata",
           });
+        };
 
-        const timeRange = `${formatTime(start)} – ${formatTime(end)} (IST)`;
+        const timeRange = `${formatTime(start)} – ${formatTime(end)}`;
 
         return (
           <div
-            key={meeting._id}
-            className={`rounded-2xl  ${bgColor} p-3 border border-gray-200`}
+            key={meeting._id || meeting.id || index}
+            className={`rounded-2xl ${bgColor} p-3 border border-gray-200`}
           >
             <h2 className="text-lg font-semibold">{meeting.title}</h2>
             <p className="text-sm">{timeRange}</p>
