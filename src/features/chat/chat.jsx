@@ -17,7 +17,7 @@ import VideoConference from "./VideoConference.jsx";
 import { useVoiceCall } from "@/components/voice/useVoiceCall.js";
 import { useMembers } from "@/hooks/useMembers";
 
-import socket, { sendDirectMessage } from "./socket.jsx";
+import socket, { sendDirectMessage, connectSocket } from "./socket.jsx";
 import ChatLayout from "./ChatLayout.jsx";
 import { getChannels } from "@/api/channelApi.js";
 import { useChatTeams } from "./hooks/useChatTeams";

@@ -79,16 +79,22 @@ export const useChatSocket = ({
     socket.on("receive_message", handleMessage);
     socket.on("receive_dm", handleDM);
 
-    if (workspaceId) {
-      joinDMWorkspace(workspaceId);
-    }
-    if (activeRoomId && !isDM) {
-      socket.emit("join_channel", activeRoomId);
-    }
+    const joinCurrentRooms = () => {
+      if (workspaceId) {
+        joinDMWorkspace(workspaceId);
+      }
+      if (activeRoomId && !isDM) {
+        socket.emit("join_channel", activeRoomId);
+      }
+    };
+
+    joinCurrentRooms();
+    socket.on("connect", joinCurrentRooms);
 
     return () => {
       socket.off("receive_message", handleMessage);
       socket.off("receive_dm", handleDM);
+      socket.off("connect", joinCurrentRooms);
       if (activeRoomId && !isDM) {
         socket.emit("leave_channel", activeRoomId);
       }

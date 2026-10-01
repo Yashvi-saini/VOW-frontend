@@ -4,23 +4,25 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
 
 const socket = io(SOCKET_URL, {
   path: "/socket.io",
-  transports: ["websocket", "polling"],
+  transports: ["websocket"],
   withCredentials: true,
   autoConnect: false,
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
   timeout: 20000,
 });
 export const connectSocket = () => {
-  const token = localStorage.getItem("accessToken");
+  let token = localStorage.getItem("accessToken");
   if (token) {
+    token = token.replace(/^Bearer\s+/i, "").trim();
     socket.auth = { token };
   }
-  if (!socket.connected) {
+  if (!socket.connected && !socket.active) {
     socket.connect();
   }
 };
-if (typeof window !== "undefined" && localStorage.getItem("accessToken")) {
-  connectSocket();
-}
+
 export const disconnectSocket = () => {
   if (socket.connected) socket.disconnect();
 };
