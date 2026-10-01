@@ -31,7 +31,19 @@ const Sidebar = ({
   const profile = useSelector((state) => state.user.profile);
   localStorage.setItem("isLogged", "false");
 
-  const { fullName, email, avatar } = profile || {};
+  const { fullName, email, avatar, gender } = profile || {};
+
+  const defaultAvatars = {
+    male: "/avatars/male/avatar1.png",
+    female: "/avatars/female/avatar1.png",
+    other: "/avatars/other/avatar1.png",
+  };
+  const genderKey = (gender || "other").toLowerCase();
+  const isBrokenS3 = avatar?.includes("amazonaws.com") && !avatar?.includes("user-avatars");
+  const avatarSrc =
+    avatar && avatar.trim() && !isBrokenS3
+      ? avatar
+      : defaultAvatars[genderKey] || `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(fullName || "User")}`;
 
   const [showContactModal, setShowContactModal] = useState(false);
   const contactModalRef = useRef(null);
@@ -88,14 +100,18 @@ const Sidebar = ({
           
           <div className="rounded-2xl border border-dashed border-[#EFE7F6] px-2 py-2 mb-8 mt-1">
             <div className="flex items-center gap-3">
-              <img  onClick={(e)=>{
-                e.preventDefault();
-                 setActiveSection("profile");
-
-              }}
-                src={avatar ? avatar : userIcon}
+              <img
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveSection("profile");
+                }}
+                src={avatarSrc}
                 alt="Avatar"
-                className="w-9 h-9 rounded-full"
+                className="w-9 h-9 rounded-full object-cover cursor-pointer bg-[#3D1B5F] shrink-0"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(fullName || "User")}`;
+                }}
               />
               <div>
                 <p className="text-white text-[16px] font-semibold leading-6">

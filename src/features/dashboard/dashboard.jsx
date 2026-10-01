@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getProfileInfo } from "@/api/profileapi";
+import { setUserProfile } from "@/features/auth";
 import Sidebar from "./Sidebar";
 import TopBar from "./Topbar";
 import DashboardContainer from "./DashboardContainer";
@@ -15,12 +18,25 @@ import MeetingPage from "@/features/meetings/meetingpage";
 import GeminiChat from "@/components/gemini/geminichat.jsx";
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showGeminiChat, setShowGeminiChat] = useState(false);
   const [workspaceRefreshTrigger, setWorkspaceRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    getProfileInfo()
+      .then((res) => {
+        if (res?.data?.success && res?.data?.data) {
+          dispatch(setUserProfile(res.data.data));
+        }
+      })
+      .catch((err) => {
+        console.error("Dashboard failed to fetch user profile:", err);
+      });
+  }, [dispatch]);
 
   const handleWorkspaceCreated = () => {
     setWorkspaceRefreshTrigger(prev => prev + 1);
