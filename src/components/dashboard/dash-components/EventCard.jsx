@@ -79,3 +79,4 @@ const MeetingCards = ({ selectedDate }) => {
 };
 
 export default MeetingCards;
+export default MeetingCards;

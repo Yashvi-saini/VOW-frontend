@@ -29,3 +29,4 @@ const MeetingSearchFilter = ({ searchTerm = "", onSearchChange, onScheduleClick 
 };
 
 export default MeetingSearchFilter;
+
