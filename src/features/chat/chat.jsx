@@ -19,7 +19,7 @@ import { useMembers } from "@/hooks/useMembers";
 
 import socket, { sendDirectMessage } from "./socket.jsx";
 import ChatLayout from "./ChatLayout.jsx";
-import { getChannels } from "@/api/channelApi.js";
+import { getChannels } from "@/api/channelApi.js";
 import { useChatTeams } from "./hooks/useChatTeams";
 import { useChatMessages } from "./hooks/useChatMessages";
 import { useChatSocket } from "./hooks/useChatSocket";
@@ -80,7 +80,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       socket.off("dm_user_typing", handleTyping);
       socket.off("dm_user_stop_typing", handleStopTyping);
     };
-  }, [activeRoomId, isDMMode]);
+  }, [activeRoomId, isDMMode]);
   const { teams } = useChatTeams(workspaceId);
 
   const { messages, setMessages, dmCacheRef, hasMore, loadMoreMessages } = useChatMessages({
@@ -100,7 +100,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     userId,
     setMessages,
     setUnreadDMs,
-  });
+  });
   useEffect(() => {
     const savedDMState = sessionStorage.getItem("currentDM");
     if (!savedDMState) return;
@@ -118,7 +118,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     } catch (err) {
       console.error("Failed to restore DM state:", err);
     }
-  }, []);
+  }, []);
   useEffect(() => {
     if (activeRoomId || !workspaceId || isDMMode) return;
     const loadDefaultChannel = async () => {
@@ -133,7 +133,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
       }
     };
     loadDefaultChannel();
-  }, [workspaceId, activeRoomId, isDMMode]);
+  }, [workspaceId, activeRoomId, isDMMode]);
   useEffect(() => {
     if (!textareaRef.current) return;
     textareaRef.current.style.height = "auto";
@@ -157,7 +157,7 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     setIsDMMode(true);
     setDmReceiverId(receiverId);
     setDmReceiverName(receiverName || "User");
-    setActiveRoomId(`dm-${receiverId}`);
+    setActiveRoomId(`dm-${receiverId}`);
     setUnreadDMs((prev) => ({
       ...prev,
       [receiverId]: 0,
@@ -172,6 +172,12 @@ const Chat = ({ username, roomId, remoteUserId }) => {
   const sendMessage = async () => {
     if (!messageInput.trim() && attachments.length === 0) return;
 
+    const content = messageInput.trim();
+    const currentAttachments = [...attachments];
+
+    setMessageInput("");
+    setAttachments([]);
+
     const isDM =
       isDMMode ||
       (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-"));
@@ -183,24 +189,54 @@ const Chat = ({ username, roomId, remoteUserId }) => {
 
     if (targetReceiverId === "undefined") targetReceiverId = null;
 
+    const currentSenderId = userId || profile?._id || localStorage.getItem("userId") || "self";
+    const currentSenderName = username || profile?.username || profile?.fullName || "You";
+    const currentAvatar = profile?.avatar || null;
+
+    // Optimistic UI message
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const optimisticMsg = {
+      _id: tempId,
+      content,
+      attachments: currentAttachments,
+      sender: {
+        _id: currentSenderId,
+        username: currentSenderName,
+        avatar: currentAvatar,
+      },
+      receiver: targetReceiverId,
+      channelId: !isDM ? activeRoomId : undefined,
+      workspaceId,
+      createdAt: new Date().toISOString(),
+      isOptimistic: true,
+    };
+
+    setMessages((prev) => [...prev, optimisticMsg]);
+
+    if (isDM && targetReceiverId && dmCacheRef?.current) {
+      dmCacheRef.current[targetReceiverId] = [
+        ...(dmCacheRef.current[targetReceiverId] || []),
+        optimisticMsg,
+      ];
+    }
+
+    connectSocket();
 
     if (isDM && targetReceiverId) {
       const payload = {
         receiverId: targetReceiverId,
         workspaceId,
-        content: messageInput,
-        attachments,
+        content,
+        attachments: currentAttachments,
       };
       sendDirectMessage(payload);
     } else if (activeRoomId && typeof activeRoomId === "string" && !activeRoomId.startsWith("dm-")) {
       socket.emit("send_message", {
         channelId: activeRoomId,
-        content: messageInput,
+        content,
+        attachments: currentAttachments,
       });
     }
-
-    setMessageInput("");
-    setAttachments([]);
   };
 
   const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);

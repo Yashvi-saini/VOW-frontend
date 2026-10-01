@@ -29,6 +29,12 @@ export const useChatSocket = ({
           if (msg._id && prev.some((m) => m._id === msg._id)) {
             return prev;
           }
+          const optIdx = prev.findIndex((m) => m.isOptimistic && m.content === msg.content);
+          if (optIdx !== -1) {
+            const next = [...prev];
+            next[optIdx] = msg;
+            return next;
+          }
           return [...prev, msg];
         });
       }
@@ -52,9 +58,15 @@ export const useChatSocket = ({
           if (msg._id && prev.some((m) => m._id === msg._id)) {
             return prev;
           }
+          const optIdx = prev.findIndex((m) => m.isOptimistic && m.content === msg.content);
+          if (optIdx !== -1) {
+            const next = [...prev];
+            next[optIdx] = msg;
+            return next;
+          }
           return [...prev, msg];
         });
-      } else {
+      } else {
         if (userId && String(senderId) !== String(userId) && setUnreadDMs) {
           setUnreadDMs((prev) => ({
             ...prev,
