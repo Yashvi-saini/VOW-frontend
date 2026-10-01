@@ -117,3 +117,5 @@ export const useVoiceCall = () => {
 
   return { startCall, endCall };
 };
+
+export default useVoiceCall;
