@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import socket, { connectSocket } from "../chat/socket";
+import { RTC_CONFIGURATION } from "@/config/webrtcConfig.js";
 
 export const useVoiceCall = () => {
   const peerConnectionRef = useRef(null);
@@ -41,9 +42,7 @@ export const useVoiceCall = () => {
   }, []);
 
   const setupPeerConnection = () => {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
+    const pc = new RTCPeerConnection(RTC_CONFIGURATION);
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {

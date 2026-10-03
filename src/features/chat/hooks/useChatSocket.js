@@ -21,6 +21,8 @@ export const useChatSocket = ({
       isDMMode ||
       (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-"));
 
+    const effectiveUserId = userId || localStorage.getItem("userId");
+
     const handleMessage = (msg) => {
       if (!msg || isDM) return;
       const msgChannelId = typeof msg.channelId === "object" ? (msg.channelId._id || msg.channelId.id) : msg.channelId;
@@ -67,7 +69,7 @@ export const useChatSocket = ({
           return [...prev, msg];
         });
       } else {
-        if (userId && String(senderId) !== String(userId) && setUnreadDMs) {
+        if (senderId && String(senderId) !== String(effectiveUserId) && setUnreadDMs) {
           setUnreadDMs((prev) => ({
             ...prev,
             [senderId]: (prev[senderId] || 0) + 1,
@@ -76,8 +78,21 @@ export const useChatSocket = ({
       }
     };
 
+    const handleReactionUpdated = (data) => {
+      if (!data || !data.messageId) return;
+      setMessages((prev) =>
+        prev.map((m) =>
+          String(m._id) === String(data.messageId)
+            ? { ...m, reactions: data.reactions }
+            : m
+        )
+      );
+    };
+
     socket.on("receive_message", handleMessage);
     socket.on("receive_dm", handleDM);
+    socket.on("message_reaction_updated", handleReactionUpdated);
+    socket.on("dm_reaction_updated", handleReactionUpdated);
 
     const joinCurrentRooms = () => {
       if (workspaceId) {
@@ -94,6 +109,8 @@ export const useChatSocket = ({
     return () => {
       socket.off("receive_message", handleMessage);
       socket.off("receive_dm", handleDM);
+      socket.off("message_reaction_updated", handleReactionUpdated);
+      socket.off("dm_reaction_updated", handleReactionUpdated);
       socket.off("connect", joinCurrentRooms);
       if (activeRoomId && !isDM) {
         socket.emit("leave_channel", activeRoomId);

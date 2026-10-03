@@ -1,38 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import MessageReactions from "./rection.jsx";
 
-const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMore, onLoadMore }) => {
+const MessageList = ({
+  messages,
+  username,
+  onDeleteMessage,
+  currentUserId,
+  hasMore,
+  onLoadMore,
+  onReact,
+}) => {
   const bottomRef = useRef(null);
-  const [messageReactions, setMessageReactions] = useState({});
   const [lightboxMedia, setLightboxMedia] = useState(null); 
 
   useEffect(() => {
     if (bottomRef.current)
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const addReaction = (msgIndex, emoji) => {
-    setMessageReactions((prev) => {
-      const reactions = prev[msgIndex] || [];
-      const existing = reactions.find((r) => r.emoji === emoji);
-      const updated = existing
-        ? reactions.map((r) =>
-            r.emoji === emoji ? { ...r, count: r.count + 1 } : r
-          )
-        : [...reactions, { emoji, count: 1 }];
-      return { ...prev, [msgIndex]: updated };
-    });
-  };
-
-  const handleReactionClick = (msgIndex, emoji) => {
-    setMessageReactions((prev) => {
-      const reactions = prev[msgIndex] || [];
-      const updated = reactions
-        .map((r) => (r.emoji === emoji ? { ...r, count: r.count - 1 } : r))
-        .filter((r) => r.count > 0);
-      return { ...prev, [msgIndex]: updated };
-    });
-  };
 
   const handleMediaClick = (url, name) => {
     if (!url) return;
@@ -55,7 +39,7 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
         const selfId = currentUserId || localStorage.getItem("userId");
         const senderId = typeof msg.sender === "object" ? (msg.sender?._id || msg.sender?.id) : msg.sender;
         const isSentByUser = String(senderId) === String(selfId) || msg.sender === username || msg.sender?.username === username;
-        const reactions = messageReactions[index] || [];
+        const reactions = msg.reactions || [];
 
         return (
          <div key={msg._id || index} className="flex w-full max-w-full min-w-0 group relative">
@@ -97,10 +81,10 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
       </div>
 
       <MessageReactions
-        msgIndex={index}
+        msgId={msg._id}
         reactions={reactions}
-        onAddReaction={addReaction}
-        onRemoveReaction={handleReactionClick}
+        currentUserId={selfId}
+        onReact={(emoji) => msg._id && onReact?.(msg._id, emoji)}
       >
         {msg.content && (
           <div>

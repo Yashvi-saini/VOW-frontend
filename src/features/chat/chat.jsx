@@ -92,12 +92,14 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     profile,
   });
 
+  const effectiveUserId = userId || profile?._id || profile?.id || localStorage.getItem("userId");
+
   useChatSocket({
     isDMMode,
     dmReceiverId,
     workspaceId,
     activeRoomId,
-    userId,
+    userId: effectiveUserId,
     setMessages,
     setUnreadDMs,
   });
@@ -239,6 +241,35 @@ const Chat = ({ username, roomId, remoteUserId }) => {
     }
   };
 
+  const handleReact = (messageId, emoji) => {
+    if (!messageId || !emoji) return;
+    const isDM =
+      isDMMode ||
+      (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-"));
+    const targetReceiverId =
+      dmReceiverId ||
+      (typeof activeRoomId === "string" && activeRoomId.startsWith("dm-")
+        ? activeRoomId.replace("dm-", "")
+        : null);
+
+    connectSocket();
+
+    if (isDM) {
+      socket.emit("react_dm", {
+        messageId,
+        emoji,
+        receiverId: targetReceiverId,
+      });
+    } else if (activeRoomId && typeof activeRoomId === "string" && !activeRoomId.startsWith("dm-")) {
+      socket.emit("react_message", {
+        messageId,
+        channelId: activeRoomId,
+        emoji,
+      });
+    }
+  };
+
+
   const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
 
   const displayedMessages = searchQuery
@@ -331,9 +362,10 @@ const Chat = ({ username, roomId, remoteUserId }) => {
             <MessageList
               messages={displayedMessages}
               username={profile?.username || profile?.fullName || username}
-              currentUserId={profile?._id || profile?.id || localStorage.getItem("userId")}
+              currentUserId={effectiveUserId}
               hasMore={hasMore}
               onLoadMore={loadMoreMessages}
+              onReact={handleReact}
             />
 
             {typingUser && (

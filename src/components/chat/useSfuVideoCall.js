@@ -1,6 +1,6 @@
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import SfuSignalingClient from "./sfuSignaling.js";
+import { RTC_CONFIGURATION } from "@/config/webrtcConfig.js";
 
 export const useSfuVideoCall = () => {
   const signalingRef = useRef(null);
@@ -21,7 +21,11 @@ export const useSfuVideoCall = () => {
     if (localStreamRef.current) return localStreamRef.current;
     try {
       const s = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
         video: {
           width: { ideal: 640 },
           height: { ideal: 480 },
@@ -43,13 +47,15 @@ export const useSfuVideoCall = () => {
       console.log(`[SFU] Draining ${pending.length} queued ICE candidates for peer: ${peerId}`);
       for (const cand of pending) {
         try {
-          await pc.addIceCandidate(
-            new RTCIceCandidate({
-              candidate: cand.candidate,
-              sdpMid: cand.sdpMid,
-              sdpMLineIndex: cand.sdpMLineIndex,
-            })
-          );
+          if (cand && cand.candidate) {
+            await pc.addIceCandidate(
+              new RTCIceCandidate({
+                candidate: cand.candidate,
+                sdpMid: cand.sdpMid,
+                sdpMLineIndex: cand.sdpMLineIndex,
+              })
+            );
+          }
         } catch (err) {
           console.error("[SFU] Error applying queued ICE candidate:", err);
         }
@@ -66,16 +72,10 @@ export const useSfuVideoCall = () => {
 
     console.log("[SFU] Creating new RTCPeerConnection for peer:", peerId);
 
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        { urls: "stun:stun2.l.google.com:19302" },
-      ],
-    });
+    const pc = new RTCPeerConnection(RTC_CONFIGURATION);
 
     pc.onicecandidate = (e) => {
-      if (e.candidate && signalingRef.current) {
+      if (e.candidate && e.candidate.candidate && signalingRef.current) {
         console.log("[SFU] Sending ICE candidate to peer:", peerId);
         signalingRef.current.sendIceCandidate(
           roomIdRef.current,
@@ -110,17 +110,45 @@ export const useSfuVideoCall = () => {
 
     pc.oniceconnectionstatechange = () => {
       console.log("[SFU] ICE state for peer:", peerId, pc.iceConnectionState);
+      if (pc.iceConnectionState === "failed") {
+        console.warn("[SFU] ICE connection failed for peer:", peerId, "- attempting ICE restart");
+        if (typeof pc.restartIce === "function") {
+          try {
+            pc.restartIce();
+          } catch (e) {
+            console.error("[SFU] Error during restartIce:", e);
+          }
+        }
+      }
     };
 
     if (localStreamRef.current) {
+      const existingTracks = pc.getSenders().map((s) => s.track?.id).filter(Boolean);
       localStreamRef.current.getTracks().forEach((track) => {
-        pc.addTrack(track, localStreamRef.current);
-        console.log("[SFU] Added local track to peer:", peerId, track.kind);
+        if (!existingTracks.includes(track.id)) {
+          pc.addTrack(track, localStreamRef.current);
+          console.log("[SFU] Added local track to peer:", peerId, track.kind);
+        }
       });
     }
 
     peersRef.current.set(peerId, pc);
     return pc;
+  }, []);
+
+  const startHeartbeat = useCallback(() => {
+    if (heartbeatTimerRef.current) {
+      clearInterval(heartbeatTimerRef.current);
+    }
+    heartbeatTimerRef.current = setInterval(() => {
+      if (signalingRef.current && roomIdRef.current && participantIdRef.current) {
+        signalingRef.current.send({
+          type: "heartbeat",
+          roomId: roomIdRef.current,
+          participantId: participantIdRef.current,
+        });
+      }
+    }, 15000);
   }, []);
 
   const registerHandlers = useCallback((s) => {
@@ -134,13 +162,15 @@ export const useSfuVideoCall = () => {
       setParticipantId(pid);
       setRoomId(rid);
 
+      startHeartbeat();
+
       s.send({
         type: "start-publish",
         roomId: rid,
         participantId: pid,
       });
 
-      const media = await ensureLocalMedia();
+      await ensureLocalMedia();
 
       if (Array.isArray(msg.data?.participants)) {
         for (const p of msg.data.participants) {
@@ -158,6 +188,14 @@ export const useSfuVideoCall = () => {
             console.error("[SFU] Error creating offer for peer:", p.id, err);
           }
         }
+      }
+    });
+
+    s.on("participant-joined", async (msg) => {
+      const newPid = msg.data?.participant?.id || msg.participantId;
+      console.log("[SFU] Participant joined room:", newPid);
+      if (newPid && newPid !== participantIdRef.current) {
+        await ensureLocalMedia().catch((err) => console.error("[SFU] Pre-init media error:", err));
       }
     });
 
@@ -221,6 +259,8 @@ export const useSfuVideoCall = () => {
     s.on("ice-candidate", async (msg) => {
       const from = msg.participantId;
       const candidateData = msg.data;
+      if (!candidateData || !candidateData.candidate) return;
+
       const pc = peersRef.current.get(from);
 
       if (pc && pc.remoteDescription && pc.remoteDescription.type) {
@@ -236,7 +276,6 @@ export const useSfuVideoCall = () => {
           console.error("[SFU] Error adding ICE candidate for peer:", from, err);
         }
       } else {
-
         if (!pendingCandidatesRef.current.has(from)) {
           pendingCandidatesRef.current.set(from, []);
         }
@@ -257,7 +296,7 @@ export const useSfuVideoCall = () => {
       pendingCandidatesRef.current.delete(peerId);
       setRemoteStreams(new Map(remoteStreamsRef.current));
     });
-  }, [createPeer, drainPendingCandidates, ensureLocalMedia]);
+  }, [createPeer, drainPendingCandidates, ensureLocalMedia, startHeartbeat]);
 
   const join = useCallback(
     async (rid, name) => {

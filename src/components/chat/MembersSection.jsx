@@ -7,6 +7,7 @@ import { useMembers } from "../useMembers";
 import { setUserProfile } from "../userslice";
 import { getProfileInfo } from "../../api/profileapi";
 import { getWorkspaceForUsers } from "../../api/authApi";
+import { RTC_CONFIGURATION } from "@/config/webrtcConfig.js";
 
 const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {} }) => {
 
@@ -83,11 +84,7 @@ const MembersSection = ({ onSelectChannel, onOpenChat, onStartDM, unreadDMs = {}
 
   const createPeerConnection = (targetUserId) => {
     console.log('[p2p] createPeerConnection target=', targetUserId);
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-      ],
-    });
+    const pc = new RTCPeerConnection(RTC_CONFIGURATION);
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {

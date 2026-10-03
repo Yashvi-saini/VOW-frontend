@@ -140,8 +140,8 @@ const ChatRoomSection = ({
                 </div>
 
                 {unreadCount > 0 && (
-                  <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
-                    {unreadCount}
+                  <div className="bg-red-500 text-white font-bold text-xs px-2.5 py-0.5 rounded-full shadow-md min-w-[22px] text-center">
+                    {unreadCount > 99 ? "99+" : unreadCount}
                   </div>
                 )}
               </div>

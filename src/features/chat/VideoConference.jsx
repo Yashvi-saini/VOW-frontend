@@ -11,6 +11,42 @@ import EmojiSelector from './emojipicker.jsx';
 import useSfuVideoCall from './useSfuVideoCall.js';
 import api from "@/api/axiosConfig.js";
 
+const RemoteVideoItem = ({ peerId, stream }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !stream) return;
+
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+    }
+
+    const playPromise = video.play?.();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        if (err.name !== "AbortError") {
+          console.warn("[VideoConference] Error playing remote video:", peerId, err);
+        }
+      });
+    }
+  }, [stream, peerId]);
+
+  return (
+    <div className="relative bg-gray-800 rounded-xl overflow-hidden shadow-lg">
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded font-medium">
+        Peer: {peerId.slice(0, 8)}
+      </div>
+    </div>
+  );
+};
+
 const VideoConference = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -229,25 +265,9 @@ const VideoConference = () => {
               </div>
 
               {Array.from(remoteStreams.entries()).map(([peerId, mediaStream]) => (
-                <div key={peerId} className="relative bg-gray-800 rounded-xl overflow-hidden shadow-lg">
-                  <video
-                    autoPlay
-                    playsInline
-                    ref={(el) => {
-                      if (el && el.srcObject !== mediaStream) {
-                        el.srcObject = mediaStream;
-                        el.play?.().catch((err) => {
-                          console.error("[VideoConference] Error playing remote video:", peerId, err);
-                        });
-                      }
-                    }}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded font-medium">
-                    Peer: {peerId.slice(0, 8)}
-                  </div>
-                </div>
+                <RemoteVideoItem key={peerId} peerId={peerId} stream={mediaStream} />
               ))}
+
 
               {remoteStreams.size === 0 && (
                 <div className="relative bg-gray-800/80 rounded-xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-gray-600">
