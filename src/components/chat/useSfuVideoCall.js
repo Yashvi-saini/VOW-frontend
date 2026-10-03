@@ -6,8 +6,10 @@ export const useSfuVideoCall = () => {
   const signalingRef = useRef(null);
   const peersRef = useRef(new Map()); 
   const remoteStreamsRef = useRef(new Map()); 
+  const participantNamesRef = useRef(new Map());
   const pendingCandidatesRef = useRef(new Map()); 
   const localStreamRef = useRef(null);
+  const localNameRef = useRef("You");
   const roomIdRef = useRef(null);
   const participantIdRef = useRef(null);
   const heartbeatTimerRef = useRef(null);
@@ -16,6 +18,7 @@ export const useSfuVideoCall = () => {
   const [participantId, setParticipantId] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStreams, setRemoteStreams] = useState(new Map());
+  const [participantNames, setParticipantNames] = useState(new Map());
 
   const ensureLocalMedia = useCallback(async () => {
     if (localStreamRef.current) return localStreamRef.current;
@@ -27,9 +30,9 @@ export const useSfuVideoCall = () => {
           autoGainControl: true,
         },
         video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 24 },
+          width: { ideal: 640, max: 854 },
+          height: { ideal: 360, max: 480 },
+          frameRate: { ideal: 20, max: 24 },
         },
       });
       localStreamRef.current = s;
@@ -126,7 +129,19 @@ export const useSfuVideoCall = () => {
       const existingTracks = pc.getSenders().map((s) => s.track?.id).filter(Boolean);
       localStreamRef.current.getTracks().forEach((track) => {
         if (!existingTracks.includes(track.id)) {
-          pc.addTrack(track, localStreamRef.current);
+          const sender = pc.addTrack(track, localStreamRef.current);
+          if (track.kind === "video") {
+            try {
+              const params = sender.getParameters();
+              if (!params.encodings || params.encodings.length === 0) {
+                params.encodings = [{}];
+              }
+              params.encodings[0].maxBitrate = 450000;
+              params.encodings[0].maxFramerate = 24;
+              params.degradationPreference = "maintain-framerate";
+              sender.setParameters(params).catch(() => {});
+            } catch (e) {}
+          }
           console.log("[SFU] Added local track to peer:", peerId, track.kind);
         }
       });
@@ -174,26 +189,36 @@ export const useSfuVideoCall = () => {
 
       if (Array.isArray(msg.data?.participants)) {
         for (const p of msg.data.participants) {
+          if (p.id && p.name) {
+            participantNamesRef.current.set(p.id, p.name);
+          }
           if (p.id === pid) continue;
 
-          console.log("[SFU] Creating offer for existing participant:", p.id);
+          console.log("[SFU] Creating offer for existing participant:", p.id, p.name);
           const pc = createPeer(p.id);
 
           try {
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
-            s.sendOffer(rid, pid, p.id, offer);
+            s.sendOffer(rid, pid, p.id, offer, localNameRef.current);
             console.log("[SFU] Sent offer to peer:", p.id);
           } catch (err) {
             console.error("[SFU] Error creating offer for peer:", p.id, err);
           }
         }
+        setParticipantNames(new Map(participantNamesRef.current));
       }
     });
 
     s.on("participant-joined", async (msg) => {
-      const newPid = msg.data?.participant?.id || msg.participantId;
-      console.log("[SFU] Participant joined room:", newPid);
+      const p = msg.data?.participant;
+      const newPid = p?.id || msg.participantId;
+      const newName = p?.name || msg.data?.participantName || "Guest";
+      console.log("[SFU] Participant joined room:", newPid, newName);
+      if (newPid) {
+        participantNamesRef.current.set(newPid, newName);
+        setParticipantNames(new Map(participantNamesRef.current));
+      }
       if (newPid && newPid !== participantIdRef.current) {
         await ensureLocalMedia().catch((err) => console.error("[SFU] Pre-init media error:", err));
       }
@@ -201,7 +226,12 @@ export const useSfuVideoCall = () => {
 
     s.on("offer", async (msg) => {
       const from = msg.participantId;
-      console.log("[SFU] Received offer from peer:", from);
+      const remoteName = msg.data?.senderName;
+      if (remoteName) {
+        participantNamesRef.current.set(from, remoteName);
+        setParticipantNames(new Map(participantNamesRef.current));
+      }
+      console.log("[SFU] Received offer from peer:", from, remoteName);
 
       await ensureLocalMedia();
       const pc = createPeer(from);
@@ -223,7 +253,8 @@ export const useSfuVideoCall = () => {
           roomIdRef.current || msg.roomId,
           participantIdRef.current || s.participantId,
           from,
-          answer
+          answer,
+          localNameRef.current
         );
         console.log("[SFU] Answer created and sent to peer:", from);
       } catch (err) {
@@ -233,7 +264,12 @@ export const useSfuVideoCall = () => {
 
     s.on("answer", async (msg) => {
       const from = msg.participantId;
-      console.log("[SFU] Received answer from peer:", from);
+      const remoteName = msg.data?.senderName;
+      if (remoteName) {
+        participantNamesRef.current.set(from, remoteName);
+        setParticipantNames(new Map(participantNamesRef.current));
+      }
+      console.log("[SFU] Received answer from peer:", from, remoteName);
 
       const pc = peersRef.current.get(from);
       if (!pc) {
@@ -293,8 +329,10 @@ export const useSfuVideoCall = () => {
         peersRef.current.delete(peerId);
       }
       remoteStreamsRef.current.delete(peerId);
+      participantNamesRef.current.delete(peerId);
       pendingCandidatesRef.current.delete(peerId);
       setRemoteStreams(new Map(remoteStreamsRef.current));
+      setParticipantNames(new Map(participantNamesRef.current));
     });
   }, [createPeer, drainPendingCandidates, ensureLocalMedia, startHeartbeat]);
 
@@ -302,6 +340,7 @@ export const useSfuVideoCall = () => {
     async (rid, name) => {
       roomIdRef.current = rid;
       setRoomId(rid);
+      localNameRef.current = name || "Me";
 
       await ensureLocalMedia();
 
@@ -326,7 +365,8 @@ export const useSfuVideoCall = () => {
     if (signalingRef.current) {
       try {
         signalingRef.current.leave(roomIdRef.current, participantIdRef.current);
-      } catch (e) {
+      } catch (e)
+      {
         console.warn("[SFU] Error leaving signaling room:", e);
       }
       signalingRef.current.disconnect();
@@ -342,7 +382,9 @@ export const useSfuVideoCall = () => {
     pendingCandidatesRef.current.clear();
 
     remoteStreamsRef.current.clear();
+    participantNamesRef.current.clear();
     setRemoteStreams(new Map());
+    setParticipantNames(new Map());
 
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((t) => t.stop());
@@ -389,6 +431,7 @@ export const useSfuVideoCall = () => {
     participantId,
     localStream,
     remoteStreams,
+    participantNames,
     join,
     leave,
     toggleMute,

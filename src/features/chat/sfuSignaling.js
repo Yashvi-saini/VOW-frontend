@@ -7,7 +7,9 @@ export default class SfuSignalingClient {
     this.handlers = new Map();
     this.token = token || localStorage.getItem("accessToken");
     this.participantId = null;
+    this.participantName = null;
     this.roomId = null;
+    this.intentionalDisconnect = false;
   }
 
   on(type, fn) {
@@ -44,6 +46,7 @@ export default class SfuSignalingClient {
   }
 
   connect() {
+    this.intentionalDisconnect = false;
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       return Promise.resolve();
     }
@@ -86,6 +89,20 @@ export default class SfuSignalingClient {
         this.ws.onclose = (event) => {
           this.connected = false;
           console.log("[SFU] WebSocket closed, code:", event.code, "reason:", event.reason);
+
+          if (!this.intentionalDisconnect && this.roomId) {
+            console.log("[SFU] Reconnecting in 1.5s...");
+            setTimeout(() => {
+              if (!this.intentionalDisconnect && this.roomId) {
+                this.connect()
+                  .then(() => {
+                    console.log("[SFU] Reconnected. Rejoining room:", this.roomId);
+                    this.join(this.roomId, this.participantName || "User");
+                  })
+                  .catch((e) => console.warn("[SFU] Reconnect failed:", e));
+              }
+            }, 1500);
+          }
         };
       } catch (err) {
         reject(err);
@@ -112,6 +129,7 @@ export default class SfuSignalingClient {
 
   join(roomId, name) {
     this.roomId = roomId;
+    this.participantName = name;
     this.send({
       type: "join",
       roomId,
@@ -127,7 +145,7 @@ export default class SfuSignalingClient {
     });
   }
 
-  sendOffer(roomId, from, to, sdp) {
+  sendOffer(roomId, from, to, sdp, senderName) {
     this.send({
       type: "offer",
       roomId: roomId || this.roomId,
@@ -136,11 +154,12 @@ export default class SfuSignalingClient {
       data: {
         type: sdp.type,
         sdp: sdp.sdp,
+        senderName: senderName || this.participantName,
       },
     });
   }
 
-  sendAnswer(roomId, from, to, sdp) {
+  sendAnswer(roomId, from, to, sdp, senderName) {
     this.send({
       type: "answer",
       roomId: roomId || this.roomId,
@@ -149,6 +168,7 @@ export default class SfuSignalingClient {
       data: {
         type: sdp.type,
         sdp: sdp.sdp,
+        senderName: senderName || this.participantName,
       },
     });
   }
@@ -168,6 +188,7 @@ export default class SfuSignalingClient {
   }
 
   disconnect() {
+    this.intentionalDisconnect = true;
     if (this.ws) {
       try {
         this.ws.close();
@@ -178,6 +199,7 @@ export default class SfuSignalingClient {
     }
     this.connected = false;
     this.participantId = null;
+    this.participantName = null;
     this.roomId = null;
     this.handlers.clear();
   }
