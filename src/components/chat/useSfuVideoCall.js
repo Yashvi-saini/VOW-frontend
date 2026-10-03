@@ -189,12 +189,13 @@ export const useSfuVideoCall = () => {
 
       if (Array.isArray(msg.data?.participants)) {
         for (const p of msg.data.participants) {
-          if (p.id && p.name) {
-            participantNamesRef.current.set(p.id, p.name);
+          const peerName = p.name || p.participantName || p.username;
+          if (p.id && peerName) {
+            participantNamesRef.current.set(p.id, peerName);
           }
           if (p.id === pid) continue;
 
-          console.log("[SFU] Creating offer for existing participant:", p.id, p.name);
+          console.log("[SFU] Creating offer for existing participant:", p.id, peerName);
           const pc = createPeer(p.id);
 
           try {
@@ -213,9 +214,15 @@ export const useSfuVideoCall = () => {
     s.on("participant-joined", async (msg) => {
       const p = msg.data?.participant;
       const newPid = p?.id || msg.participantId;
-      const newName = p?.name || msg.data?.participantName || "Guest";
+      const newName =
+        p?.name ||
+        p?.participantName ||
+        p?.username ||
+        msg.data?.participantName ||
+        msg.data?.name ||
+        "Guest";
       console.log("[SFU] Participant joined room:", newPid, newName);
-      if (newPid) {
+      if (newPid && newName) {
         participantNamesRef.current.set(newPid, newName);
         setParticipantNames(new Map(participantNamesRef.current));
       }
@@ -226,8 +233,12 @@ export const useSfuVideoCall = () => {
 
     s.on("offer", async (msg) => {
       const from = msg.participantId;
-      const remoteName = msg.data?.senderName;
-      if (remoteName) {
+      const remoteName =
+        msg.data?.senderName ||
+        msg.data?.participantName ||
+        msg.data?.name ||
+        msg.data?.username;
+      if (remoteName && from) {
         participantNamesRef.current.set(from, remoteName);
         setParticipantNames(new Map(participantNamesRef.current));
       }
@@ -264,8 +275,12 @@ export const useSfuVideoCall = () => {
 
     s.on("answer", async (msg) => {
       const from = msg.participantId;
-      const remoteName = msg.data?.senderName;
-      if (remoteName) {
+      const remoteName =
+        msg.data?.senderName ||
+        msg.data?.participantName ||
+        msg.data?.name ||
+        msg.data?.username;
+      if (remoteName && from) {
         participantNamesRef.current.set(from, remoteName);
         setParticipantNames(new Map(participantNamesRef.current));
       }
