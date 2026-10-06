@@ -55,24 +55,14 @@ q5: who can create metings?
 a5:only manager and superviser can create meetings.
 Now answer the user's question clearly and professionally about VOW platform.
 `;
-const CANDIDATE_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "text-bison-001",
-  "chat-bison-001",
+const CANDIDATE_MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
 ];
 
-const genAI = (() => {
-  try {
-    const k = import.meta.env.VITE_GEMINI_API_KEY;
-    return new GoogleGenerativeAI(k);
-  } catch (err) {
-    console.error("Failed to construct GoogleGenerativeAI:", err);
-    return null;
-  }
-})();
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 export default function GeminiChat({ onClose }) {
   const [messages, setMessages] = useState(() => {
@@ -83,109 +73,67 @@ export default function GeminiChat({ onClose }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
-  const chatRef = useRef(null);
-  const modelRef = useRef(null);
-
+  
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
-  }, [messages]);
+  }, [messages]);
+
   useEffect(() => {
-    console.log("DEBUG: VITE_GEMINI_API_KEY =>", import.meta.env.VITE_GEMINI_API_KEY ? "LOADED" : "MISSING");
-  }, []);
-  useEffect(() => {
-    let mounted = true;
-
-    async function init() {
-      if (!genAI) {
-        console.error("genAI SDK is not initialized. Check import and constructor.");
-        return;
-      }
-      if (!import.meta.env.VITE_GEMINI_API_KEY) {
-        console.error("No Gemini API key found in import.meta.env.VITE_GEMINI_API_KEY");
-        return;
-      }
-
-      console.log("Attempting to initialize a chat model from candidate list:", CANDIDATE_MODELS);
-
-      for (const candidate of CANDIDATE_MODELS) {
-        if (!mounted) return;
-        try {
-          console.log(`Trying model: ${candidate}`);
-          const model = genAI.getGenerativeModel({ model: candidate });
-          try {
-            const session = await model.startChat({
-              history: [],
-            });
-            if (session) {
-              console.log(`✅ Initialized chat session with model: ${candidate}`);
-              modelRef.current = model;
-              chatRef.current = session;
-              return;
-            }
-          } catch (chatErr) {
-            console.warn(`model.startChat failed for ${candidate}:`, chatErr?.message || chatErr);
-            modelRef.current = model;
-            chatRef.current = null;
-            console.log(`✅ Using model (without chat session): ${candidate}`);
-            return;
-          }
-        } catch (err) {
-          console.warn(`Model ${candidate} not available or initialization failed:`, err?.message || err);
-        }
-      }
-
-      console.error("No candidate models succeeded. Check API key, account access, or model names.");
+    if (!genAI) {
+      console.error("Gemini API key missing: set VITE_GEMINI_API_KEY in .env and restart the dev server.");
     }
-
-    init();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || loading) return;
     if (!genAI) {
-      alert("Gemini SDK not initialized. Check console.");
-      return;
-    }
-    if (!modelRef.current) {
-      alert("No model available. Check console for model initialization errors.");
-      return;
-    }
-
-    const userMessage = { role: "user", text: trimmed };
-    setMessages((prev) => [...prev, userMessage]);
-    setLoading(true);
-
-    try {
-      if (chatRef.current?.sendMessage) {
-        const fullPrompt = BASE_PROMPT + "\n\nUser question: " + trimmed;
-        const result = await chatRef.current.sendMessage(fullPrompt);
-        const text = await (result?.response?.text ? result.response.text() : Promise.resolve(String(result)));
-        const aiMessage = { role: "ai", text };
-        setMessages((prev) => [...prev, aiMessage]);
-      } else {
-        const fullPrompt = BASE_PROMPT + "\n\nUser question: " + trimmed;
-        const result = await modelRef.current.generateContent(fullPrompt);
-        const text = await (result?.response?.text ? result.response.text() : Promise.resolve(String(result)));
-        const aiMessage = { role: "ai", text };
-        setMessages((prev) => [...prev, aiMessage]);
-      }
-    } catch (err) {
-      console.error("Gemini API error (sendMessage):", err);
-      if (err?.response) {
-        console.error("Response body:", err.response);
-      }
       setMessages((prev) => [
         ...prev,
-        { role: "helper", text: "Sorry, something went wrong. Check console for details." },
+        { role: "helper", text: "AI support isn't configured (missing Gemini API key)." },
       ]);
-    } finally {
-      setLoading(false);
-      setInput("");
+      return;
     }
+
+    const history = messages
+      .filter((m) => m.role === "user" || m.role === "ai")
+      .map((m) => ({ role: m.role === "ai" ? "model" : "user", parts: [{ text: m.text }] }));
+
+    setMessages((prev) => [...prev, { role: "user", text: trimmed }]);
+    setInput("");
+    setLoading(true);
+
+    let lastErr = null;
+    for (const candidate of CANDIDATE_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: candidate,
+          systemInstruction: BASE_PROMPT,
+        });
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessage(trimmed);
+        const text = result.response.text();
+        setMessages((prev) => [...prev, { role: "ai", text }]);
+        setLoading(false);
+        return;
+      } catch (err) {
+        lastErr = err;
+        console.warn(`Gemini model ${candidate} failed:`, err?.message || err);
+        const msg = String(err?.message || "");
+        // Only fall through to the next model when this one is unavailable
+        if (!/404|not found|not supported|503|overloaded/i.test(msg)) break;
+      }
+    }
+
+    console.error("Gemini API error:", lastErr);
+    const msg = String(lastErr?.message || "");
+    const text = /API key|API_KEY|403|401/i.test(msg)
+      ? "The AI service rejected the API key. Please check the Gemini key configuration."
+      : /429|quota/i.test(msg)
+      ? "The AI service is busy (rate limit reached). Please try again in a minute."
+      : "Sorry, something went wrong reaching the AI service. Please try again.";
+    setMessages((prev) => [...prev, { role: "helper", text }]);
+    setLoading(false);
   };
 
   const handleClearAll = () => {
@@ -202,7 +150,7 @@ export default function GeminiChat({ onClose }) {
   return (
     <div className="relative w-full max-w-xl mx-auto p-6 bg-white rounded-xl shadow-xl" onClick={(e) => e.stopPropagation()}>
       <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl">✕</button>
-      <h2 className="text-2xl font-bold mb-4 text-purple-700">Gemini Chat (debug)</h2>
+      <h2 className="text-2xl font-bold mb-4 text-purple-700">AI Support</h2>
 
       <div className="space-y-4 max-h-[400px] overflow-y-auto mb-4 pr-1">
        {messages.map((msg, i) => (
@@ -229,7 +177,7 @@ export default function GeminiChat({ onClose }) {
 
       <div className="flex gap-2 mb-2">
         <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendMessage()} className="flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Ask something..." />
-        <button onClick={sendMessage} disabled={loading} className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+        <button onClick={sendMessage} disabled={loading || !input.trim()} className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
           {loading ? "Thinking..." : "Send"}
         </button>
       </div>

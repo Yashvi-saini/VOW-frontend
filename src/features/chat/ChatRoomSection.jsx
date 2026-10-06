@@ -23,7 +23,7 @@ const ChatRoomSection = ({
 
   const handleToggleCollapse = () => {
     setIsCollapsed((prev) => !prev);
-  };
+  };
   useEffect(() => {
     const fetchChannels = async () => {
       if (!workspaceId) return;
@@ -89,7 +89,9 @@ const ChatRoomSection = ({
             );
           })}
 
-          {members.map((member) => {
+          {[...members]
+            .sort((a, b) => Number(!!b.online) - Number(!!a.online))
+            .map((member) => {
             const memberId = member._id || member.id || member.userId;
             const unreadCount = unreadDMs[memberId] || 0;
             const isSelf = String(memberId) === String(currentUserId);
@@ -104,7 +106,7 @@ const ChatRoomSection = ({
                   isDMActive
                     ? "bg-[#5C0EA4] text-white font-semibold border-l-4 border-[#AC92CB]"
                     : "bg-[#200539] text-[#BCBCBC] hover:bg-[#3D1B5F]"
-                }`}
+                } ${member.online || isSelf ? "" : "opacity-60"}`}
                 onClick={() =>
                   onStartDM?.(memberId, rawName)
                 }
@@ -136,6 +138,13 @@ const ChatRoomSection = ({
                     <h3 className="text-base truncate">
                       {displayName}
                     </h3>
+                    <span
+                      className={`text-[10px] font-medium ${
+                        member.online ? "text-green-400" : "text-gray-400"
+                      }`}
+                    >
+                      {member.online ? "Online" : "Offline"}
+                    </span>
                   </div>
                 </div>
 

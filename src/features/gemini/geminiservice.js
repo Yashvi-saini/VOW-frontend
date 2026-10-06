@@ -1,9 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 export async function askGemini(prompt) {
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+if (!genAI) throw new Error("Missing VITE_GEMINI_API_KEY");
+  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
 
   const result = await model.generateContent([prompt]);
   return await result.response.text();

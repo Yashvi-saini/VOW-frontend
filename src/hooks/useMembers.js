@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { getMembers } from "../api/workspaceApi";
-import socket, { connectSocket } from "@/components/chat/socket";
+import socket, { connectSocket } from "@/components/chat/socket";
 export const useMembers = (workspaceId) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export const useMembers = (workspaceId) => {
         });
         setMembers(normalized);
         if (socket && socket.connected) {
-          socket.emit("get_online_users");
+          socket.emit("get_online_users", String(workspaceId));
         }
       } else {
         throw new Error(response.data?.message || "Failed to fetch members");
@@ -42,11 +42,25 @@ export const useMembers = (workspaceId) => {
   }, [workspaceId]);
 
   useEffect(() => {
+    if (!workspaceId) return;
+    const wsId = String(workspaceId);
+    onlineSetRef.current = new Set();
+    setMembers((prev) => prev.map((m) => ({ ...m, online: false })));
+
     connectSocket();
 
-    socket.emit("get_online_users");
+    // Register presence for this workspace and request its online list.
+    // Re-run on (re)connect since the server forgets rooms on disconnect.
+    const announce = () => {
+      socket.emit("join_workspace_presence", wsId);
+      socket.emit("get_online_users", wsId);
+    };
+    if (socket.connected) announce();
+    socket.on("connect", announce);
 
-    const handleUserOnline = ({ userId }) => {
+    const handleUserOnline = ({ userId, workspaceId: evWs }) => {
+      // Global (no workspaceId) events only mean "connected to the app"
+      if (!evWs || String(evWs) !== wsId) return;
       if (userId) {
         onlineSetRef.current.add(String(userId));
       }
@@ -57,7 +71,8 @@ export const useMembers = (workspaceId) => {
       );
     };
 
-    const handleUserOffline = ({ userId }) => {
+    const handleUserOffline = ({ userId, workspaceId: evWs }) => {
+      if (evWs && String(evWs) !== wsId) return;
       if (userId) {
         onlineSetRef.current.delete(String(userId));
       }
@@ -86,11 +101,12 @@ export const useMembers = (workspaceId) => {
     socket.on("online_users_list", handleOnlineList);
 
     return () => {
+      socket.off("connect", announce);
       socket.off("user_online", handleUserOnline);
       socket.off("user_offline", handleUserOffline);
       socket.off("online_users_list", handleOnlineList);
     };
-  }, []);
+  }, [workspaceId]);
 
   return { members, loading, error, fetchMembers };
 };
