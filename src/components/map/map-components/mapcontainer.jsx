@@ -6,7 +6,7 @@ const MapContainer = ({ children, viewportRef, containerRef, cursorBlocked, hand
     style={{
       touchAction: "pan-x pan-y",
       WebkitOverflowScrolling: "touch",
-      width: "83vw"
+      width: "100%",
     }}
   >
     <div
