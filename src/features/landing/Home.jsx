@@ -88,7 +88,7 @@ const Home = () => {
     <>
       <Navbar />
 
-      <section id="home" className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
+      <section id="home" className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center justify-center">
         <div className="relative z-10 max-w-7xl my-55 w-full flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
             <h1 className='text-[2.5rem] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
