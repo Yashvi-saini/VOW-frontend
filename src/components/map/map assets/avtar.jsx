@@ -65,3 +65,4 @@ const Avatar = React.memo(({ image, size = 48, name, userId, style }) => {
 });
 
 export default Avatar;
+

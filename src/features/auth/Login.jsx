@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import logo from "@/assets/logo.png";
 import X from "@/assets/X.png";
-import Eye from "@/assets/Eye.png";
-import EyeOff from "@/assets/blue eye off.png";
+import Eye from "@/assets/Eye.svg";
+import EyeOff from "@/assets/Eye off.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -39,7 +39,8 @@ const Login = () => {
       navigate("/dashboard");
       localStorage.setItem("valid", "false");
     }
-  }, [isLoggedI, profile, navigate, valid]);
+  }, [isLoggedI, profile, navigate, valid]);
+
   useEffect(() => {
     const savedIdentifier = localStorage.getItem("rememberedIdentifier");
     if (savedIdentifier) {
@@ -70,13 +71,12 @@ const Login = () => {
         password,
       });
 
-
       if (res.success) {
         const { user, accessToken, refreshToken } = res;
         if (accessToken) localStorage.setItem("accessToken", accessToken);
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
-        dispatch(setUserId(user._id));
+        dispatch(setUserId(user._id));
         try {
           const profileRes = await getProfileInfo();
           if (profileRes.status === 200 && profileRes.data.success) {
@@ -95,7 +95,7 @@ const Login = () => {
         }
 
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("isLogged", "true");
+        localStorage.setItem("isLogged", "true");
         connectSocket();
 
         if (isProfileNeeded) {
@@ -133,8 +133,9 @@ const Login = () => {
         <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 sm:px-20 relative">
 
           <button
-            className="absolute top-3 left-6 text-gray-900 text-3xl"
+            className="absolute top-3 left-6 text-gray-900 text-3xl cursor-pointer"
             onClick={() => navigate("/")}
+            aria-label="Back to home"
           >
             <img src={arrow} alt="Back" className="h-6 sm:h-8" />
           </button>
@@ -168,7 +169,7 @@ const Login = () => {
                   setIdentifier(e.target.value);
                   setIdentifierError("");
                 }}
-                className={`w-full border rounded-md px-3 py-2 pr-10 text-sm ${
+                className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                   identifierError
                     ? "border-red-500"
                     : "border-gray-300"
@@ -179,23 +180,37 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="mb-3 relative">
+            <div className="mb-3">
               <label className="block text-sm font-medium text-gray-900 mb-1">
                 Password:
               </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPasswordError("");
-                }}
-                className={`w-full border rounded-md px-3 py-2 pr-10 text-sm ${
-                  passwordError
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-              />
+              <div className="relative flex items-center">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError("");
+                  }}
+                  className={`w-full border rounded-md px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                    passwordError
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-3 flex items-center justify-center cursor-pointer text-gray-500 hover:text-gray-700 z-10 focus:outline-none"
+                >
+                  <img
+                    src={showPassword ? EyeOff : Eye}
+                    alt={showPassword ? "Hide password" : "Show password"}
+                    className="h-5 w-5 object-contain"
+                  />
+                </button>
+              </div>
               <p className="text-red-600 mt-1 text-sm">
                 {passwordError || " "}
               </p>
@@ -217,7 +232,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-purple-700 text-white rounded-md"
+              className="w-full py-3 bg-purple-700 hover:bg-purple-800 text-white rounded-md transition cursor-pointer font-medium"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
