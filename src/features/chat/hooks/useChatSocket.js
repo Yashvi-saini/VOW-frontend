@@ -10,6 +10,7 @@ export const useChatSocket = ({
   workspaceId,
   activeRoomId,
   userId,
+  isChatVisible = true,
   setMessages,
   setUnreadDMs,
 }) => {
@@ -53,7 +54,9 @@ export const useChatSocket = ({
         currentTargetDmId = activeRoomId.replace("dm-", "");
       }
 
-      const isCurrentDMChat = isDM && currentTargetDmId && (String(senderId) === String(currentTargetDmId) || String(receiverId) === String(currentTargetDmId));
+      const sentByMe = String(senderId) === String(effectiveUserId);
+      const partnerId = sentByMe ? receiverId : senderId;
+      const isCurrentDMChat = isDM && currentTargetDmId && String(partnerId) === String(currentTargetDmId);
 
       if (isCurrentDMChat) {
         setMessages((prev) => {
@@ -68,13 +71,13 @@ export const useChatSocket = ({
           }
           return [...prev, msg];
         });
-      } else {
-        if (senderId && String(senderId) !== String(effectiveUserId) && setUnreadDMs) {
-          setUnreadDMs((prev) => ({
-            ...prev,
-            [senderId]: (prev[senderId] || 0) + 1,
-          }));
-        }
+      }
+
+      if (!sentByMe && senderId && setUnreadDMs && (!isCurrentDMChat || !isChatVisible)) {
+        setUnreadDMs((prev) => ({
+          ...prev,
+          [senderId]: (prev[senderId] || 0) + 1,
+        }));
       }
     };
 
@@ -116,5 +119,5 @@ export const useChatSocket = ({
         socket.emit("leave_channel", activeRoomId);
       }
     };
-  }, [isDMMode, dmReceiverId, workspaceId, activeRoomId, userId, setMessages, setUnreadDMs]);
+  }, [isDMMode, dmReceiverId, workspaceId, activeRoomId, userId, isChatVisible, setMessages, setUnreadDMs]);
 };

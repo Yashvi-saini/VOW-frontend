@@ -94,15 +94,23 @@ const Chat = ({ username, roomId, remoteUserId }) => {
 
   const effectiveUserId = userId || profile?._id || profile?.id || localStorage.getItem("userId");
 
+  const isChatVisible = !showMap && !showMeeting && !showVideoConference && !showTeamBuilder;
+
   useChatSocket({
     isDMMode,
     dmReceiverId,
     workspaceId,
     activeRoomId,
     userId: effectiveUserId,
+    isChatVisible,
     setMessages,
     setUnreadDMs,
   });
+  useEffect(() => {
+    if (!isChatVisible || !isDMMode || !dmReceiverId) return;
+    setUnreadDMs((prev) => (prev[dmReceiverId] ? { ...prev, [dmReceiverId]: 0 } : prev));
+  }, [isChatVisible, isDMMode, dmReceiverId, messages.length]);
+
   useEffect(() => {
     const savedDMState = sessionStorage.getItem("currentDM");
     if (!savedDMState) return;
