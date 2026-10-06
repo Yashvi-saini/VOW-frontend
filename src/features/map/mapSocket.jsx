@@ -6,16 +6,25 @@ export const connectMapSocket = () => {
   connectSocket();
 };
 
-export const disconnectMapSocket = () => {
-};
-export const joinMapPresence = ({ workspaceId, name, x, y }) => {
+export const disconnectMapSocket = () => {
+
+};
+
+
+
+export const joinMapPresence = ({ workspaceId, name, x, y, avatar }) => {
   connectSocket();
   socket.emit("join", {
     workspaceId,
     displayName: name || "User",
+    avatar,
     x,
     y,
   });
+};
+
+export const requestMapSync = () => {
+  socket.emit("get_map_presence");
 };
 
 export const updateMapPosition = ({ workspaceId, x, y, displayName, avatar }) => {
@@ -24,7 +33,10 @@ export const updateMapPosition = ({ workspaceId, x, y, displayName, avatar }) =>
 
 export const leaveMapPresence = (workspaceId) => {
   socket.emit("leave", { workspaceId });
-};
+};
+
+
+
 export const setupMapListeners = (cb = {}) => {
   socket.off("user-joined");
   socket.off("user-moved");

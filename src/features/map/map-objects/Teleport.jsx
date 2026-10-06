@@ -1,9 +1,18 @@
 import React from "react"; 
 import Teleport from "../map assets/Teleport.svg";
-const TeleportButton = ({ x, y, width, height, title }) => {
+const TeleportButton = ({ x, y, width, height, title, onClick }) => {
   return (
     <div
-      className="absolute bg-[#FFF] flex items-center justify-center rounded-lg"
+      data-map-no-move
+      role="button"
+      tabIndex={0}
+      title="Teleport"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+      className="absolute bg-[#FFF] flex items-center justify-center rounded-lg cursor-pointer hover:shadow-lg hover:scale-105 transition"
       style={{
         left: `${x}px`,
         top: `${y}px`,

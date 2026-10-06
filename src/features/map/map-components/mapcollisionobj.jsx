@@ -7,8 +7,10 @@ import PrivateRoom from "../map-objects/PrivetRoom";
 import ManagerCabin from "../map-objects/Manager";
 import SupervisorCabin from "../map-objects/Supervisor";
 import BigTableStructure  from "../map-objects/bigtablestructure";
-import TableStructure from "../map-objects/TableStructure";
-const MapObjects = ({ containerRef, handleObstaclesFromChild }) => (
+import TableStructure from "../map-objects/TableStructure";
+
+
+const MapObjects = ({ containerRef, handleObstaclesFromChild, onTeleportClick }) => (
   <>
     <TableStructure roomId="room-tableA" id="tableA" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 12.5, y: 21.5 }} imageSize={450}   collisionWidthPx={300} collisionHeightPx={200} />
     <BigTableStructure roomId="room-bigtable" id="bigtable" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} position={{ x: 10.5, y: 76 }} imageSize={550} collisionWidthPx={160} collisionHeightPx={430} />
@@ -19,9 +21,9 @@ const MapObjects = ({ containerRef, handleObstaclesFromChild }) => (
     <Gaming roomId="room-gaming" id="gaming" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} x={2639} y={1890} width={323} height={240} />
     <PrivateRoom roomId="room-privateRoom" id="privateRoom" containerRef={containerRef} onObstaclesReady={handleObstaclesFromChild} x={920} y={1895} width={1040} height={240} />
     <WelcomeZone roomId="room-welcomeZone" x={920} y={1550} width={1040} height={240} />
-    <TeleportButton x={2300} y={290} width={70} />
-    <TeleportButton x={2100} y={1650} width={70} />
-    <TeleportButton x={350} y={1090} width={70} />
+    <TeleportButton x={2300} y={290} width={70} onClick={onTeleportClick} />
+    <TeleportButton x={2100} y={1650} width={70} onClick={onTeleportClick} />
+    <TeleportButton x={350} y={1090} width={70} onClick={onTeleportClick} />
   </>
 );
 

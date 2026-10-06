@@ -13,6 +13,8 @@ import { useCameraPanning } from "./map-components/usecamerapaning.jsx";
 import { updateCursorBlocked } from "./map-components/useCursorBlockDetection.js";
 import { usePlayerMovementCamera } from "./map-components/usePlayerMovementCamera.jsx";
 import { useClickToMove } from "./map-components/useClickToMove.js";
+import MiniMap from "./map-components/MiniMap.jsx";
+import TeleportPanel from "./map-components/TeleportPanel.jsx";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,12 +23,14 @@ import {
   upsertAvatar,
   updateAvatarPosition,
   removeAvatar,
+  clearAvatars,
 } from "./presenceSlice";
 
 import mapSocket, {
   connectMapSocket,
   joinMapPresence,
   leaveMapPresence,
+  requestMapSync,
   updateMapPosition,
   setupMapListeners,
   removeMapListeners,
@@ -47,10 +51,11 @@ const Map = ({ onAvatarCollision }) => {
     "User";
   const avatar = userState.avatar || userState.profile?.avatar;
   const { selfId } = useSelector((s) => s.presence || {});
-  const userPanningRef = useRef(false);
+  const userPanningRef = useRef(false);
   const [position, setPosition] = useState({ x: 60, y: 60 });
   const [clickMarker, setClickMarker] = useState(null);
-  const [cursorBlocked, setCursorBlocked] = useState(false);
+  const [cursorBlocked, setCursorBlocked] = useState(false);
+  const [showTeleport, setShowTeleport] = useState(false);
   const positionRef = useRef({ x: 60, y: 60 });
   const velocityRef = useRef({ vx: 0, vy: 0 });
   const obstaclesRef = useRef([]);
@@ -63,13 +68,13 @@ const Map = ({ onAvatarCollision }) => {
   const followCameraRef = useRef(true);
   const keysPressed = useRef({});
   const moveToTargetRef = useRef(null);
-  const avatarSize = 65;
+  const avatarSize = 65;
   const handleObstaclesFromChild = useCallback((id, newObs) => {
     obstaclesRef.current = Object.values({
       ...obstaclesRef.current,
       [id]: newObs,
     }).flat();
-  }, []);
+  }, []);
   const isColliding = createCollisionChecker({
     containerRef,
     obstaclesRef,
@@ -77,7 +82,7 @@ const Map = ({ onAvatarCollision }) => {
     COLLISION_EPS: 0,
   });
 
-  const findNearestFreePoint = findNearestFreePointFactory(isColliding);
+  const findNearestFreePoint = findNearestFreePointFactory(isColliding);
   useMovementKeys({ keysPressedRef: keysPressed, followCameraRef });
   useCameraPanning({
     viewportRef,
@@ -125,7 +130,7 @@ const Map = ({ onAvatarCollision }) => {
       containerRef,
       isColliding,
       setCursorBlocked,
-    });
+    });
   const currentUserId = userState.userId || userState.profile?._id || userState.profile?.id;
   const selfIdRef = useRef(currentUserId);
 
@@ -149,13 +154,15 @@ useEffect(() => {
     joinMapPresence({
       workspaceId,
       name: username || "Anonymous",
+      avatar,
       x: positionRef.current.x,
       y: positionRef.current.y,
     });
   };
 
   if (mapSocket.connected) onConnected();
-  else mapSocket.once("connect", onConnected);
+  // Also re-join after every reconnect, the server forgets us on disconnect
+  mapSocket.on("connect", onConnected);
 
   removeMapListeners();
 
@@ -168,8 +175,7 @@ useEffect(() => {
     },
 
     onState: (data) => {
-      if (!data?.avatars?.length) return;
-      dispatch(replaceAvatars(data.avatars));
+      dispatch(replaceAvatars(data?.avatars || []));
     },
 
     onJoined: (avatar) => {
@@ -193,8 +199,18 @@ useEffect(() => {
     cleanedUp = true;
     removeMapListeners();
     mapSocket.off("connect", onConnected);
+    if (mapSocket.connected) leaveMapPresence(workspaceId);
+    dispatch(clearAvatars());
   };
-}, [workspaceId, username]);
+}, [workspaceId, username, avatar]);
+  // Safety net: re-fetch who is on the map in case a realtime event was missed
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (mapSocket.connected) requestMapSync();
+    }, 20000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     const lastSent = { x: null, y: null };
 
@@ -214,8 +230,56 @@ useEffect(() => {
     }, 60);
 
     return () => clearInterval(interval);
-  }, [workspaceId]);
+  }, [workspaceId, username, avatar]);
   const { avatars } = useSelector((s) => s.presence || {});
+  const avatarsRef = useRef({});
+  avatarsRef.current = avatars || {};
+
+  // Instantly move to a point (percent of the world), landing on free ground
+  const teleportTo = useCallback(
+    ({ x, y, nearUser = false }) => {
+      // Land beside another person rather than on top of them
+      const tx = Math.max(0, Math.min(100, nearUser ? x + 3.5 : x));
+      const ty = Math.max(0, Math.min(100, y));
+      const free = findNearestFreePoint(tx, ty) || (nearUser ? findNearestFreePoint(x - 3.5, y) : null);
+      if (!free) return;
+      moveToTargetRef.current = null;
+      velocityRef.current = { vx: 0, vy: 0 };
+      positionRef.current = free;
+      setPosition(free);
+      setClickMarker(null);
+      followCameraRef.current = true;
+
+      // Jump the camera too instead of gliding across the whole office
+      const world = containerRef.current;
+      const vp = viewportRef.current;
+      if (world && vp) {
+        const left = Math.max(0, Math.min(world.clientWidth - vp.clientWidth, (free.x / 100) * world.clientWidth - vp.clientWidth / 2));
+        const top = Math.max(0, Math.min(world.clientHeight - vp.clientHeight, (free.y / 100) * world.clientHeight - vp.clientHeight / 2));
+        cameraPosRef.current = { left, top };
+        cameraTargetRef.current = { left, top };
+        vp.scrollTo({ left, top, behavior: "auto" });
+      }
+      // Tell everyone right away
+      if (mapSocket.connected) {
+        updateMapPosition({ workspaceId, x: free.x, y: free.y, displayName: username, avatar });
+      }
+      setShowTeleport(false);
+    },
+    [findNearestFreePoint, workspaceId, username, avatar]
+  );
+
+  // Walk to a point picked on the minimap
+  const walkTo = useCallback(
+    (x, y) => {
+      const target = findNearestFreePoint(x, y);
+      if (!target) return;
+      moveToTargetRef.current = target;
+      followCameraRef.current = true;
+    },
+    [findNearestFreePoint]
+  );
+
   const mountTimeRef = useRef(Date.now());
   const lastCollisionTimeRef = useRef(0);
 
@@ -226,8 +290,8 @@ useEffect(() => {
   useEffect(() => {
     if (!positionRef.current || !avatars) return;
 
-    const now = Date.now();
-    if (now - mountTimeRef.current < 3000) return;
+    const now = Date.now();
+    if (now - mountTimeRef.current < 3000) return;
     if (now - lastCollisionTimeRef.current < 5000) return;
 
     const px = positionRef.current.x;
@@ -247,8 +311,9 @@ useEffect(() => {
       console.log(`[Map] 🤝 Collision with ${collidedUser.displayName} (${collidedUser.userId})! Opening DM...`);
       onAvatarCollision?.(collidedUser.userId, collidedUser.displayName);
     }
-  }, [position, avatars, onAvatarCollision]);
+  }, [position, avatars, onAvatarCollision]);
   return (
+    <div className="relative w-full">
     <MapContainer
       viewportRef={viewportRef}
       containerRef={containerRef}
@@ -260,6 +325,7 @@ useEffect(() => {
       <MapObjects
         containerRef={containerRef}
         handleObstaclesFromChild={handleObstaclesFromChild}
+        onTeleportClick={() => setShowTeleport(true)}
       />
 
       <Avatar
@@ -279,6 +345,33 @@ useEffect(() => {
 
       <ClickMarker clickMarker={clickMarker} />
     </MapContainer>
+
+    <MiniMap
+      positionRef={positionRef}
+      avatarsRef={avatarsRef}
+      obstaclesRef={obstaclesRef}
+      viewportRef={viewportRef}
+      containerRef={containerRef}
+      onNavigate={walkTo}
+    />
+
+    {!showTeleport && (
+      <button
+        type="button"
+        onClick={() => setShowTeleport(true)}
+        className="absolute top-4 right-4 z-30 rounded-lg bg-[#5C0EA4] text-white text-sm px-3 py-1.5 shadow-lg hover:bg-[#450B7B] transition"
+      >
+        Teleport
+      </button>
+    )}
+    {showTeleport && (
+      <TeleportPanel
+        avatars={avatars}
+        onTeleport={teleportTo}
+        onClose={() => setShowTeleport(false)}
+      />
+    )}
+    </div>
   );
 };
 
