@@ -73,14 +73,14 @@ const Gaming = ({
       
       <div className="relative ">
         <img src={table} alt="base table"  />
-  <div className="absolute w-12 h-12 right-[115px] top-[15px] bottom-3.5">
+  <div className="absolute w-12 h-12 right-[7.1875rem] top-[0.9375rem] bottom-3.5">
           <img
             src={joystickleft}
             alt="Left Joystick"
             className="w-full h-full "
           />
         </div>
-  <div className="absolute w-12 h-12 left-[115px] top-[15px] bottom-3.5">
+  <div className="absolute w-12 h-12 left-[7.1875rem] top-[0.9375rem] bottom-3.5">
           <img
             src={joystickleft}
             alt="Right Joystick"

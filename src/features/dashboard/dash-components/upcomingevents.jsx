@@ -13,8 +13,8 @@ export default function UpcomingEvents() {
     <div
   className="
     w-full
-    min-w-[300px]
-    max-w-[400px] lg:max-w-[38vw]
+    min-w-[18.75rem]
+    max-w-[25rem] lg:max-w-[38vw]
     flex flex-col gap-6
     p-6 sm:p-8
     rounded-2xl gradient

@@ -26,7 +26,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
   const [calendarState, setCalendarState] = useState(null);
 
   const inputBase =
-    "w-full h-[51px] rounded-[10px] border border-[#BFA2E1] bg-[#EFE7F6] px-4 text-[#000] placeholder:text-[#707070] focus:outline-none focus:border-[#8231CC] focus:ring-1 focus:ring-[#8231CC]";
+    "w-full h-[3.1875rem] rounded-[0.625rem] border border-[#BFA2E1] bg-[#EFE7F6] px-4 text-[#000] placeholder:text-[#707070] focus:outline-none focus:border-[#8231CC] focus:ring-1 focus:ring-[#8231CC]";
 
   const onChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -176,7 +176,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
   return (
     <div className="w-full h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl lg:text-[36px] leading-tight font-bold text-black">
+        <h1 className="text-2xl sm:text-3xl lg:text-[2.25rem] leading-tight font-bold text-black">
           Schedule a Meeting
         </h1>
         {onClose && (
@@ -191,9 +191,9 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
         )}
       </div>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-6 sm:gap-8 lg:gap-10 max-w-full sm:max-w-[588px] pb-8">
+      <form onSubmit={onSubmit} className="flex flex-col gap-6 sm:gap-8 lg:gap-10 max-w-full sm:max-w-[36.75rem] pb-8">
         <div>
-          <label className="block font-semibold text-black mb-2 text-lg sm:text-xl lg:text-[24px]">
+          <label className="block font-semibold text-black mb-2 text-lg sm:text-xl lg:text-[1.5rem]">
             Meeting Title
           </label>
           <input
@@ -212,7 +212,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
         <div className="border border-[#BFA2E1] rounded-2xl bg-[#EFE7F6] p-3 sm:p-4 flex flex-col gap-3 sm:gap-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-base sm:text-lg font-semibold text-black">Teams</h2>
-            <div className="flex items-center gap-2 text-[11px]">
+            <div className="flex items-center gap-2 text-[0.6875rem]">
               <label className="inline-flex items-center gap-1 cursor-pointer">
                 <input
                   type="checkbox"
@@ -220,7 +220,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
                   onChange={(e) => setIsConference(e.target.checked)}
                   className="accent-[#5C0EA4]"
                 />
-                <span className="text-[#5C0EA4] font-medium text-[15px]">Conference (all workspace)</span>
+                <span className="text-[#5C0EA4] font-medium text-[0.9375rem]">Conference (all workspace)</span>
               </label>
             </div>
           </div>
@@ -237,7 +237,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
                 <button
                   type="button"
                   onClick={refreshTeams}
-                  className="text-[10px] px-2 py-1 rounded bg-white border border-[#D6C5E9] hover:bg-[#F3EEF9]"
+                  className="text-[0.625rem] px-2 py-1 rounded bg-white border border-[#D6C5E9] hover:bg-[#F3EEF9]"
                 >
                   Refresh
                 </button>
@@ -261,26 +261,26 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
                     title={t.name}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="truncate max-w-[200px]">{t.name}</span>
-                      {selectedTeamId === t._id && <span className="text-[10px] font-medium">Selected</span>}
+                      <span className="truncate max-w-[12.5rem]">{t.name}</span>
+                      {selectedTeamId === t._id && <span className="text-[0.625rem] font-medium">Selected</span>}
                     </div>
                   </div>
                 ))}
               </div>
               {selectedTeamId && (
-                <p className="text-[14px] text-[#5C0EA4]">
+                <p className="text-[0.875rem] text-[#5C0EA4]">
                   Selected team: {teams.find((x) => x._id === selectedTeamId)?.name}
                 </p>
               )}
             </div>
           )}
           {isConference && (
-            <p className="text-[14px] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>
+            <p className="text-[0.875rem] text-[#5C0EA4]">Conference mode: meeting for all workspace members.</p>
           )}
         </div>
 
         <div className="relative">
-          <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
+          <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[1.5rem] mb-2">
             Date & Time
           </label>
 
@@ -305,7 +305,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
         </div>
 
         <div>
-          <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[24px] mb-2">
+          <label className="block font-semibold text-black text-lg sm:text-xl lg:text-[1.5rem] mb-2">
             Agenda / Description
           </label>
           <textarea
@@ -343,7 +343,7 @@ const MeetingForm = ({ role, onSuccess, onClose }) => {
               "Save Meeting"
             )}
           </button>
-          {feedback && <span className="text-[16px] text-[#5C0EA4] font-medium">{feedback}</span>}
+          {feedback && <span className="text-[1rem] text-[#5C0EA4] font-medium">{feedback}</span>}
         </div>
       </form>
     </div>

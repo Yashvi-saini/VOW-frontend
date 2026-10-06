@@ -137,9 +137,9 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
                         {fileName.split('.').pop()?.slice(0,4)?.toUpperCase() || 'FILE'}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-semibold truncate" title={fileName}>{fileName}</p>
+                        <p className="text-[0.75rem] font-semibold truncate" title={fileName}>{fileName}</p>
                         {att.size && (
-                          <p className="text-[10px] text-[#707070]">{(att.size/1024).toFixed(1)} KB</p>
+                          <p className="text-[0.625rem] text-[#707070]">{(att.size/1024).toFixed(1)} KB</p>
                         )}
                       </div>
                     </div>
@@ -151,7 +151,7 @@ const MessageList = ({ messages, username, onDeleteMessage, currentUserId, hasMo
                         e.stopPropagation();
                         handleMediaClick(att.url, fileName);
                       }}
-                      className="mt-2 inline-block text-[11px] text-[#5C0EA4] font-semibold underline hover:opacity-80"
+                      className="mt-2 inline-block text-[0.6875rem] text-[#5C0EA4] font-semibold underline hover:opacity-80"
                     >
                       View Full Preview
                     </button>

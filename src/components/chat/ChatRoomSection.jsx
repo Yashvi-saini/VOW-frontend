@@ -49,7 +49,7 @@ const ChatRoomSection = ({
           onClick={handleToggleCollapse}
         >
           <img src={chaticon} alt="" className="w-5 h-5 mr-1" />
-          <h3 className="text-[16px]">{title}</h3>
+          <h3 className="text-[1rem]">{title}</h3>
           <img
             src={isCollapsed ? right : down}
             alt="toggle arrow"
@@ -76,13 +76,13 @@ const ChatRoomSection = ({
                 }}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <p className="text-[26px]">#</p>
+                  <p className="text-[1.625rem]">#</p>
                   <h3 className="text-xl truncate">
                     {channel.name}
                   </h3>
                 </div>
 
-                <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
+                <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[1rem]">
                   {channel.members ? channel.members.length : 0}
                 </div>
               </div>
@@ -140,7 +140,7 @@ const ChatRoomSection = ({
                 </div>
 
                 {unreadCount > 0 && (
-                  <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
+                  <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[1rem]">
                     {unreadCount}
                   </div>
                 )}

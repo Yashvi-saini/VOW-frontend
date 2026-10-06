@@ -13,7 +13,7 @@ const DashboardNewUser = ({ onCreate }) => {
   const dispatch = useDispatch();
 
   const card =
-    "rounded-[16px] border border-[#8F7AA9] bg-[#EFE7F6] p-6 flex flex-col items-center text-center gap-4 min-h-[200px]";
+    "rounded-[1rem] border border-[#8F7AA9] bg-[#EFE7F6] p-6 flex flex-col items-center text-center gap-4 min-h-[12.5rem]";
   const primaryBtn =
     "bg-[#5E9BFF] hover:bg-[#4A8CE0] text-white px-6 py-2.5 rounded-lg transition border border-[#1F2937] cursor-pointer";
   const secondaryBtn =
@@ -67,18 +67,18 @@ const DashboardNewUser = ({ onCreate }) => {
   return (
     <div className="relative">
       <div className="relative z-10">     
-        <div className="mx-[88px] max-w-[944px] flex flex-col gap-10">         
+        <div className="mx-[5.5rem] max-w-[59rem] flex flex-col gap-10">         
           <div className="grid grid-cols-2 gap-10">
             <div className={card}>
-              <h3 className="font-bold text-[24px] text-[#000]">Create Workspace</h3>
-              <p className="text-[16px] text-[#000] opacity-80">
+              <h3 className="font-bold text-[1.5rem] text-[#000]">Create Workspace</h3>
+              <p className="text-[1rem] text-[#000] opacity-80">
                 Perfect for new teams or fresh projects.
               </p>
               <button type="button" onClick={onCreate} className={primaryBtn}>Create</button>
             </div>
 
             <div className={card}>
-              <h3 className="font-bold text-[24px] text-[#000]">Join New Workspace</h3>
+              <h3 className="font-bold text-[1.5rem] text-[#000]">Join New Workspace</h3>
               <div className="relative w-full max-w-xs">
                 <input
                   type="text"
@@ -100,7 +100,7 @@ const DashboardNewUser = ({ onCreate }) => {
                 />
               </div>
               {error && (
-                <p className="text-[#CC0404] text-[13px] font-medium">{error}</p>
+                <p className="text-[#CC0404] text-[0.8125rem] font-medium">{error}</p>
               )}
               <button
                 type="button"
@@ -113,18 +113,18 @@ const DashboardNewUser = ({ onCreate }) => {
             </div>
           </div>
 
-          <div className="rounded-[16px] ">
-            <div className="w-full h-[280px] rounded-[12px] bg-[#9FA3A9] flex items-center justify-center text-[#000]">
+          <div className="rounded-[1rem] ">
+            <div className="w-full h-[17.5rem] rounded-[0.75rem] bg-[#9FA3A9] flex items-center justify-center text-[#000]">
              
             </div>
 
             <div className="mt-4 flex items-center justify-between gap-4">
-              <p className="text-[#000] text-[16px] leading-6">
+              <p className="text-[#000] text-[1rem] leading-6">
                 New to Vow? Watch a short video to learn how to create spaces, invite your team,
                 and get the most out of your workspace.
               </p>
               <div className="flex gap-4">
-                <button className={`${primaryBtn} leading-[18px]`}>
+                <button className={`${primaryBtn} leading-[1.125rem]`}>
                   Watch
                   <br />
                   Now

@@ -88,7 +88,7 @@ const MessageReactions = ({
                 title={hasReacted ? "Click to remove reaction" : "Click to react"}
               >
                 <span>{r.emoji}</span>
-                <span className="ml-1 text-[11px] font-medium">{count}</span>
+                <span className="ml-1 text-[0.6875rem] font-medium">{count}</span>
               </button>
             );
           })}

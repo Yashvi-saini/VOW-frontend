@@ -15,7 +15,7 @@ export default function SupervisorSelect({ members = [], selectedMemberIds = [],
           <option key={m._id} value={m._id}>{m.fullName || m.username || m._id}</option>
         ))}
       </select>
-      <p className="text-[11px] text-[#707070] mt-1">Supervisor must be among selected members.</p>
+      <p className="text-[0.6875rem] text-[#707070] mt-1">Supervisor must be among selected members.</p>
     </div>
   );
 }

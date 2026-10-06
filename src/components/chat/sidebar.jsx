@@ -64,7 +64,7 @@ const Sidebar = ({
   };
 
   return (
-    <aside className="max-w-[320px] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
+    <aside className="max-w-[20rem] h-screen bg-[#200539] border-r border-[#3D1B5F] overflow-hidden flex flex-col">
 
       <div className="px-6 py-4 border-b border-[#3D1B5F]">
         <button

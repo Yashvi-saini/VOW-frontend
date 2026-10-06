@@ -44,7 +44,7 @@ const NotificationSection = () => {
   return (
     <div className="relative z-10">
       <div className="w-full flex items-center justify-between gap-3 mb-6">
-        <div className="relative w-full max-w-[740px]">
+        <div className="relative w-full max-w-[46.25rem]">
           <input
             type="text"
             value={query}

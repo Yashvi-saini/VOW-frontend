@@ -186,7 +186,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   className="h-dvh flex items-center justify-center relative overflow-hidden"
     >
       
-  <div className={`bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[570px] text-center box-border overflow-hidden transform-gpu transition duration-700 ease-out ${enter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
+  <div className={`bg-white shadow-xl rounded-2xl pb-10 w-full m-3 max-w-[35.625rem] text-center box-border overflow-hidden transform-gpu transition duration-700 ease-out ${enter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
        
         <div className="flex justify-start">
           <button
@@ -200,7 +200,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
 
         <div className="px-6 sm:px-15">
           <div className="flex justify-center mb-4">
-            <img src={logo} alt="Logo" className="h-[30px] w-11" />
+            <img src={logo} alt="Logo" className="h-[1.875rem] w-11" />
           </div>
 
           <h2
@@ -224,7 +224,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
           >
             
             <div className="relative mb-0">
-              <label className="block text-[#1F2937] mb-1 font-bold h-[19px]">
+              <label className="block text-[#1F2937] mb-1 font-bold h-[1.1875rem]">
                 Username:
               </label>
               <div className="relative">
@@ -282,7 +282,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
             </div>
 
  <div className="relative mb-0">
-  <label className="block text-gray-700 mb-1 h-[19px] font-bold">
+  <label className="block text-gray-700 mb-1 h-[1.1875rem] font-bold">
     Email:
   </label>
   <div className="relative">
@@ -334,7 +334,7 @@ const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail);
   </div>
 
             <div className="relative mb-0">
-              <label className="block text-gray-700 mb-1 h-[19px] font-bold">
+              <label className="block text-gray-700 mb-1 h-[1.1875rem] font-bold">
                 Password:
               </label>
               <div className="relative">

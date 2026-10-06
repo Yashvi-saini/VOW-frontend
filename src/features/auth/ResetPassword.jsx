@@ -106,7 +106,7 @@ const ResetPassword = () => {
     <>
     <Background/>
     <div className="min-h-screen flex items-center justify-center ">
-      <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[570px] relative  mx-2 flex-col px-10 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
+      <div className="bg-[#FAFAFA] rounded-xl w-full max-w-[35.625rem] relative  mx-2 flex-col px-10 py-10 sm:px-20 sm:py-10 md:mx-10 lg:px-20 transition-all"
         style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.08)" }}
       >
         
@@ -121,17 +121,17 @@ const ResetPassword = () => {
           <img src={logo} alt="Logo" className="h-8" />
         </div>
 
-        <h2 className="text-center text-[32px] font-medium text-[#1F2937] mt-4">
+        <h2 className="text-center text-[2rem] font-medium text-[#1F2937] mt-4">
           Reset Password
         </h2>
-        <p className="text-center text-[#707070] text-[16px] mb-8 font-normal">
+        <p className="text-center text-[#707070] text-[1rem] mb-8 font-normal">
           Enter your new password below
         </p>
 
         <form onSubmit={handleReset} className="flex flex-col space-y-5">
 
 <div className="flex flex-col mb-0">
-  <label className="text-[14px] font-medium text-gray-700 mb-1 mt-0">New Password:</label>
+  <label className="text-[0.875rem] font-medium text-gray-700 mb-1 mt-0">New Password:</label>
   <div className="relative">
     <input
       type={showPassword ? "text" : "password"}
@@ -174,7 +174,7 @@ const ResetPassword = () => {
 </div>
 
 <div className="flex flex-col mb-0">
-  <label className="text-[14px] font-medium text-gray-700 mb-1">Confirm Password:</label>
+  <label className="text-[0.875rem] font-medium text-gray-700 mb-1">Confirm Password:</label>
   <div className="relative">
     <input
       type={showConfirm ? "text" : "password"}

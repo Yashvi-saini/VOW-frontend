@@ -187,7 +187,7 @@ const ProfileSettings = ({ onClose }) => {
             {uploading ? "Uploading..." : "Upload Photo"}
             <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploading} className="hidden" />
           </label>
-          {uploadError && <p className="text-[10px] text-red-500 max-w-[120px] text-center sm:text-left">{uploadError}</p>}
+          {uploadError && <p className="text-[0.625rem] text-red-500 max-w-[7.5rem] text-center sm:text-left">{uploadError}</p>}
         </div>
         
         <div className="flex-1 w-full space-y-3 sm:space-y-4 bg-white/60 p-4 sm:p-6 rounded-xl border">
@@ -223,7 +223,7 @@ const ProfileSettings = ({ onClose }) => {
               onChange={handleChange}
               className="w-full h-9 sm:h-10 border rounded-lg px-3 bg-white text-sm"
             />
-            <p className="text-[10px] text-[#707070] mt-1">Format: YYYY-MM-DD</p>
+            <p className="text-[0.625rem] text-[#707070] mt-1">Format: YYYY-MM-DD</p>
           </div>
           <div>
             <label className="block text-xs sm:text-sm text-[#2B2B2B] mb-1">Organization Name</label>

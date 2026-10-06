@@ -88,7 +88,7 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
     <>
       <div
         ref={modalRef}
-        className="relative bg-[#EFE7F6] gradient rounded-2xl mx-auto my-24 w-[90%] sm:w-[600px] lg:w-[772px] p-6 sm:p-8 transition-all duration-300 z-50"
+        className="relative bg-[#EFE7F6] gradient rounded-2xl mx-auto my-24 w-[90%] sm:w-[37.5rem] lg:w-[48.25rem] p-6 sm:p-8 transition-all duration-300 z-50"
       >
         
         <button
@@ -98,12 +98,12 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
           ×
         </button>
 
-        <h2 className="text-[28px] sm:text-[36px] font-bold text-center mb-8 text-[#000000]">
+        <h2 className="text-[1.75rem] sm:text-[2.25rem] font-bold text-center mb-8 text-[#000000]">
           Join a New Workspace
         </h2>
 
         <div className="mb-6">
-          <label className="block text-[20px] sm:text-[24px] font-semibold mb-3 text-[#000000]">
+          <label className="block text-[1.25rem] sm:text-[1.5rem] font-semibold mb-3 text-[#000000]">
             Workspace ID
           </label>
           <input
@@ -117,14 +117,14 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
               if (e.key === "Enter") handleJoin();
             }}
             placeholder="Enter the unique ID to join its workspace"
-            className={`border rounded-lg px-4 py-3 w-full text-[#585858] font-normal text-[16px] bg-[#EFE7F6] focus:outline-none transition ${
+            className={`border rounded-lg px-4 py-3 w-full text-[#585858] font-normal text-[1rem] bg-[#EFE7F6] focus:outline-none transition ${
               error
                 ? "border-[#CC0404] focus:border-[#CC0404] focus:ring-2 focus:ring-[#CC0404]"
                 : "border-[#BFA2E1] focus:border-[#5E9BFF] focus:ring-2 focus:ring-[#5E9BFF]/20"
             }`}
           />
           {error && (
-            <p className="text-[#CC0404] text-[14px] sm:text-[16px] mt-2 font-medium">
+            <p className="text-[#CC0404] text-[0.875rem] sm:text-[1rem] mt-2 font-medium">
               {error}
             </p>
           )}
@@ -134,7 +134,7 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#CCB4E3] text-[#450B7B] font-normal w-full sm:w-[220px] h-[44px] text-[18px] bg-white hover:bg-[#f8f8f8] transition cursor-pointer"
+            className="rounded-lg border border-[#CCB4E3] text-[#450B7B] font-normal w-full sm:w-[13.75rem] h-[2.75rem] text-[1.125rem] bg-white hover:bg-[#f8f8f8] transition cursor-pointer"
           >
             Cancel
           </button>
@@ -142,7 +142,7 @@ const JoinWorkspaceModal = ({ isOpen, onClose, onWorkspaceJoined }) => {
             type="button"
             onClick={handleJoin}
             disabled={loading}
-            className="rounded-lg bg-[#5E9BFF] text-white font-medium w-full sm:w-[220px] h-[44px] text-[18px] hover:bg-[#4A8CE0] disabled:opacity-50 transition cursor-pointer"
+            className="rounded-lg bg-[#5E9BFF] text-white font-medium w-full sm:w-[13.75rem] h-[2.75rem] text-[1.125rem] hover:bg-[#4A8CE0] disabled:opacity-50 transition cursor-pointer"
           >
             {loading ? "Joining..." : "Join"}
           </button>

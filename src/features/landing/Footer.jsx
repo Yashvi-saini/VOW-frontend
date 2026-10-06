@@ -79,7 +79,7 @@ const Footer = () => {
 
   return (
     <footer
-      className="relative text-[#EFEFEF] bg-gradient-to-b from-[#1B0837] to-[#240A44] px-4 sm:px-6 md:px-8 lg:px-[60px] py-8 sm:py-10 md:py-12 lg:py-[60px] overflow-hidden"
+      className="relative text-[#EFEFEF] bg-gradient-to-b from-[#1B0837] to-[#240A44] px-4 sm:px-6 md:px-8 lg:px-[3.75rem] py-8 sm:py-10 md:py-12 lg:py-[3.75rem] overflow-hidden"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -110,7 +110,7 @@ const Footer = () => {
             {gridCells.map((cell) => (
               <div
                 key={cell.id}
-                className="border-[0.5px] border-white/[0.06]"
+                className="border-[0.0312rem] border-white/[0.06]"
                 style={{
                   filter: 'blur(0.5px)',
                   transform: 'translate3d(0, 0, 0)',
@@ -121,39 +121,39 @@ const Footer = () => {
         </div>
       )}
 
-      <div className="max-w-[1160px] mx-auto flex flex-col items-center lg:flex-row lg:justify-center lg:items-start gap-8 sm:gap-10 md:gap-12 lg:gap-[164px] relative z-10">
+      <div className="max-w-[72.5rem] mx-auto flex flex-col items-center lg:flex-row lg:justify-center lg:items-start gap-8 sm:gap-10 md:gap-12 lg:gap-[10.25rem] relative z-10">
         
-        <section className="w-full max-w-[375px] space-y-4 text-center lg:text-left">
-          <div className="flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-2.5 lg:gap-3 mb-6 sm:mb-8 lg:mb-[59px]">
+        <section className="w-full max-w-[23.4375rem] space-y-4 text-center lg:text-left">
+          <div className="flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-2.5 lg:gap-3 mb-6 sm:mb-8 lg:mb-[3.6875rem]">
             <img
               src={logo}
               alt="VOW logo"
-              className="h-[40px] w-[49px] sm:h-[48px] sm:w-[59px] lg:h-[55.574px] lg:w-[68.122px] object-contain select-none"
+              className="h-[2.5rem] w-[3.0625rem] sm:h-[3rem] sm:w-[3.6875rem] lg:h-[3.4734rem] lg:w-[4.2576rem] object-contain select-none"
             />
             <div className="leading-none text-left">
-              <h3 className="text-[24px] sm:text-[28px] lg:text-[32px] font-bold text-[#FEFEFE] mb-0.5">
+              <h3 className="text-[1.5rem] sm:text-[1.75rem] lg:text-[2rem] font-bold text-[#FEFEFE] mb-0.5">
                 VOW
               </h3>
-              <p className="text-[16px] sm:text-[20px] lg:text-[24px] font-normal text-[#FEFEFE]">
+              <p className="text-[1rem] sm:text-[1.25rem] lg:text-[1.5rem] font-normal text-[#FEFEFE]">
                 Virtual Organised World
               </p>
             </div>
           </div>
 
-          <p className="text-[#969696] text-[14px] sm:text-[16px] leading-[20px] sm:leading-[24px] pb-6 sm:pb-8 lg:pb-[59px] px-4 lg:px-0">
+          <p className="text-[#969696] text-[0.875rem] sm:text-[1rem] leading-[1.25rem] sm:leading-[1.5rem] pb-6 sm:pb-8 lg:pb-[3.6875rem] px-4 lg:px-0">
             Experience the most natural way to collaborate remotely.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-[8px] items-center justify-center lg:justify-start px-4 lg:px-0">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-[0.5rem] items-center justify-center lg:justify-start px-4 lg:px-0">
             <Link
               to="/signup"
-              className="w-full sm:w-[160px] lg:w-[183px] h-[39px] flex items-center justify-center rounded-[8px] text-[14px] sm:text-[16px] font-normal bg-[#5E9BFF] text-[#FEFEFE] border border-[#EFEFEF] hover:brightness-105 transition"
+              className="w-full sm:w-[10rem] lg:w-[11.4375rem] h-[2.4375rem] flex items-center justify-center rounded-[0.5rem] text-[0.875rem] sm:text-[1rem] font-normal bg-[#5E9BFF] text-[#FEFEFE] border border-[#EFEFEF] hover:brightness-105 transition"
             >
               Get Started
             </Link>
             <button
               onClick={() => handleNavigation('demo-video')}
-              className="w-full sm:w-[160px] lg:w-[183px] h-[39px] flex items-center justify-center rounded-[8px] text-[14px] sm:text-[16px] font-normal border border-[#EFEFEF] text-[#EDEBFF] hover:bg-white/5 transition cursor-pointer"
+              className="w-full sm:w-[10rem] lg:w-[11.4375rem] h-[2.4375rem] flex items-center justify-center rounded-[0.5rem] text-[0.875rem] sm:text-[1rem] font-normal border border-[#EFEFEF] text-[#EDEBFF] hover:bg-white/5 transition cursor-pointer"
             >
               Watch Demo
             </button>
@@ -161,13 +161,13 @@ const Footer = () => {
         </section>
 
         <nav
-          className="w-full max-w-[300px] space-y-4 text-center"
+          className="w-full max-w-[18.75rem] space-y-4 text-center"
           aria-label="Quick Links"
         >
-          <h4 className="text-white font-semibold text-[20px] sm:text-[22px] lg:text-[24px] leading-[1.2] mb-6 sm:mb-8 lg:mb-[42px]">
+          <h4 className="text-white font-semibold text-[1.25rem] sm:text-[1.375rem] lg:text-[1.5rem] leading-[1.2] mb-6 sm:mb-8 lg:mb-[2.625rem]">
             Quick Links
           </h4>
-          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-[16px] list-none p-0 m-0">
+          <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-[1rem] list-none p-0 m-0">
             {[
               { name: "Home", target: "home" },
               { name: "Features", target: "features" },
@@ -178,7 +178,7 @@ const Footer = () => {
               <li key={idx}>
                 <button
                   onClick={() => handleNavigation(link.target)}
-                  className="text-white text-[16px] sm:text-[18px] lg:text-[20px] leading-[1.2] hover:text-[#5E9BFF] transition cursor-pointer bg-transparent border-none p-0"
+                  className="text-white text-[1rem] sm:text-[1.125rem] lg:text-[1.25rem] leading-[1.2] hover:text-[#5E9BFF] transition cursor-pointer bg-transparent border-none p-0"
                 >
                   {link.name}
                 </button>
@@ -187,26 +187,26 @@ const Footer = () => {
           </ul>
         </nav>
 
-        <section id="subscribe" className="w-full max-w-[375px] space-y-4 text-center lg:text-left px-4 lg:px-0">
-          <h4 className="text-white font-semibold text-[20px] sm:text-[22px] lg:text-[24px] leading-[1.2] mb-6 sm:mb-8 lg:mb-[42px]">
+        <section id="subscribe" className="w-full max-w-[23.4375rem] space-y-4 text-center lg:text-left px-4 lg:px-0">
+          <h4 className="text-white font-semibold text-[1.25rem] sm:text-[1.375rem] lg:text-[1.5rem] leading-[1.2] mb-6 sm:mb-8 lg:mb-[2.625rem]">
             Subscribe
           </h4>
-          <p className="text-[#969696] text-[14px] sm:text-[16px] mb-6 sm:mb-8 lg:mb-[42px]">
+          <p className="text-[#969696] text-[0.875rem] sm:text-[1rem] mb-6 sm:mb-8 lg:mb-[2.625rem]">
             If you would like to receive daily updates, please write your email.
           </p>
 
-          <form onSubmit={handleEmailSubmit} className="flex flex-col w-full gap-2 sm:gap-[8px]">
+          <form onSubmit={handleEmailSubmit} className="flex flex-col w-full gap-2 sm:gap-[0.5rem]">
             <input
               name="email"
               type="email"
               required
               placeholder="Enter your email"
               aria-label="Email address"
-              className="w-full text-center h-[39px] px-4 sm:px-6 lg:px-[36px] rounded-[8px] bg-transparent border border-[#EFEFEF] text-[14px] sm:text-[16px] text-[#EFEFEF] placeholder:text-[#EDEBFF]/70 outline-none focus:border-[#5E9BFF] transition"
+              className="w-full text-center h-[2.4375rem] px-4 sm:px-6 lg:px-[2.25rem] rounded-[0.5rem] bg-transparent border border-[#EFEFEF] text-[0.875rem] sm:text-[1rem] text-[#EFEFEF] placeholder:text-[#EDEBFF]/70 outline-none focus:border-[#5E9BFF] transition"
             />
             <button
               type="submit"
-              className="w-full px-4 sm:px-6 lg:px-[36px] py-[10px] h-[39px] rounded-[8px] text-[14px] sm:text-[16px] font-semibold bg-[#5E9BFF] text-[#0B0B15] border border-[#EFEFEF] hover:brightness-105 transition"
+              className="w-full px-4 sm:px-6 lg:px-[2.25rem] py-[0.625rem] h-[2.4375rem] rounded-[0.5rem] text-[0.875rem] sm:text-[1rem] font-semibold bg-[#5E9BFF] text-[#0B0B15] border border-[#EFEFEF] hover:brightness-105 transition"
             >
               Subscribe
             </button>
@@ -214,7 +214,7 @@ const Footer = () => {
         </section>
       </div>
 
-      <div className="max-w-[1160px] mx-auto mt-8 sm:mt-10 md:mt-12 lg:mt-[48px] pt-8 sm:pt-10 md:pt-12 lg:pt-[60px] text-center text-[#969696] text-[12px] sm:text-[14px] lg:text-[16px] leading-[1.2] relative z-10 px-4">
+      <div className="max-w-[72.5rem] mx-auto mt-8 sm:mt-10 md:mt-12 lg:mt-[3rem] pt-8 sm:pt-10 md:pt-12 lg:pt-[3.75rem] text-center text-[#969696] text-[0.75rem] sm:text-[0.875rem] lg:text-[1rem] leading-[1.2] relative z-10 px-4">
         <p>© 2025 VOW. All rights reserved.</p>
         <p className="mt-1">Virtual Organised World - Where Remote Teams Connect.</p>
       </div>

@@ -45,7 +45,7 @@ const MeetingCards = ({ selectedDate }) => {
     return <p className="p-4 text-gray-500">NO MEETINGS</p>;
 
   return (
-    <div className="max-h-[250px] w-full overflow-y-auto m-4 mx-0 mb-2 space-y-4 hide-scrollbar">
+    <div className="max-h-[15.625rem] w-full overflow-y-auto m-4 mx-0 mb-2 space-y-4 hide-scrollbar">
       {filteredMeetings.map((meeting, index) => {
         const bgColor =
           index % 2 === 0 ? "bg-[#5C0EA4] text-white" : "bg-[#E8E9EB] text-black";

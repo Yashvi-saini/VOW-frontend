@@ -41,12 +41,12 @@ const CreateWorkspace = ({ onCreated }) => {
   };
 
   return (
-    <div className="relative z-10 ml-[71px]">
+    <div className="relative z-10 ml-[4.4375rem]">
       <div className="max-w-lg space-y-6">
-  <h2 className="text-[36px] font-bold mb-6 text-black">Create a New Workspace</h2>
+  <h2 className="text-[2.25rem] font-bold mb-6 text-black">Create a New Workspace</h2>
 
         <div>
-  <label className="block text-[24px] font-semibold mb-2 text-black">
+  <label className="block text-[1.5rem] font-semibold mb-2 text-black">
     Workspace Name
   </label>
   <input
@@ -65,7 +65,7 @@ const CreateWorkspace = ({ onCreated }) => {
 </div>
 
         <div>
-          <label className="block font-semibold border-[#707070] text-[24px] mb-2 text-black">Choose Workspace Logo</label>
+          <label className="block font-semibold border-[#707070] text-[1.5rem] mb-2 text-black">Choose Workspace Logo</label>
           <div className="flex items-center gap-4">
             <button className="text-xl font-bold text-[#5E9BFF] hover:text-[#4A8CE0]">{"<"}</button>
             {Array(6)
@@ -78,7 +78,7 @@ const CreateWorkspace = ({ onCreated }) => {
         </div>
 
         <div>
-          <label className="block font-semibold mb-2 text-black text-[24px]">Total Members</label>
+          <label className="block font-semibold mb-2 text-black text-[1.5rem]">Total Members</label>
           <div className="flex gap-3 bg-[#EFE7F6] border-[#707070]">
             <button className="border border-gray-300 px-4 py-2 rounded-lg hover:bg-[#FFF] transition text-[#6B7280]">{"<20"}</button>
             <button className="border border-gray-300 px-4 py-2 rounded-lg hover:bg-[#FFF] transition text-[#6B7280]">21–40</button>
@@ -88,7 +88,7 @@ const CreateWorkspace = ({ onCreated }) => {
         </div>
 
         <div>
-          <label className="block text-[24px] font-semibold mb-2 text-black">Invite Members (comma-separated emails)</label>
+          <label className="block text-[1.5rem] font-semibold mb-2 text-black">Invite Members (comma-separated emails)</label>
           <input
             type="text"
             value={emails}

@@ -91,9 +91,9 @@ const Home = () => {
       <section id="home" className="relative bg-green-50 md:bg-white overflow-hidden px-4 sm:px-6 md:px-20 min-h-150 flex items-center">
         <div className="relative z-10 max-w-7xl my-55 w-full flex flex-col items-center gap-6">
           <div className='text-center font-medium mb-2'>
-            <h1 className='text-[40px] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
-            <CollaborateAnimation className='h-13 md:h-20 text-[40px] sm:text-5xl md:text-6xl lg:text-7xl' />
-            <h1 className='text-[40px] h-13 sm:text-5xl md:text-6xl lg:text-7xl'>Create</h1>
+            <h1 className='text-[2.5rem] h-13 md:h-20 sm:text-5xl md:text-6xl lg:text-7xl'>Meet</h1>
+            <CollaborateAnimation className='h-13 md:h-20 text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl' />
+            <h1 className='text-[2.5rem] h-13 sm:text-5xl md:text-6xl lg:text-7xl'>Create</h1>
           </div>
           <div className='flex flex-col sm:flex-row gap-3 sm:gap-4'>
             <button onClick={goToSignupWithOverlay} className="bg-[#5E9BFF] text-white px-6 sm:px-8 py-2 rounded-lg border border-[#1F2937]/20 text-base sm:text-lg font-normal cursor-pointer hover:brightness-105 transition">
@@ -129,18 +129,18 @@ const Home = () => {
       </section>
 
       <section id="features" className="bg-gray-50 py-12 sm:py-16 px-4 sm:px-6 md:px-20 text-center">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[48px] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[1160px] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[3rem] font-semibold mb-12 md:mb-16 lg:mb-24 max-w-[72.5rem] text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)] mx-auto leading-snug px-4">
           All Your Work — In One Virtual Space
         </h2>
         <FeatureCards />
       </section>
 
       <section id="user-roles" className="py-16 px-6 md:px-20 mb-24 ">
-        <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">Build For Every Team Member</h2>
+        <h2 className="text-[2rem] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">Build For Every Team Member</h2>
         <div className='flex justify-between mt-24 flex-col-reverse items-end sm:flex-row sm:justify-between'>
           <div className='w-full max-w-2xl'>
-          <h3 className='text-[24px] sm:text-[32px] font-medium mb-3'> Managers-Lead with visibility</h3>
-          <p className='text-[16px] sm:text-xl font-normal mb-6'>Create and manage digital offices, assign roles, and customize rooms to fit your organization’s structure.<br/>Monitor performance, schedule meetings, and track every project — all from one dashboard.</p>
+          <h3 className='text-[1.5rem] sm:text-[2rem] font-medium mb-3'> Managers-Lead with visibility</h3>
+          <p className='text-[1rem] sm:text-xl font-normal mb-6'>Create and manage digital offices, assign roles, and customize rooms to fit your organization’s structure.<br/>Monitor performance, schedule meetings, and track every project — all from one dashboard.</p>
            
            </div>
            <div className='flex flex-col justify-center h-full sm:h-60'>
@@ -154,8 +154,8 @@ const Home = () => {
 
         <div className='flex justify-between  mt-16 flex-col-reverse items-end sm:flex-row sm:justify-between'>
           <div className='w-full max-w-2xl'>
-          <h3 className='text-[24px] sm:text-[32px] font-medium mb-3'> Supervisor — Guide with Insight</h3>
-          <p className='text-[16px] sm:text-xl font-normal mb-6'>Stay on top of your team’s activity and progress with real-time insights.<br/>Assign individual tasks, monitor workspace attendance, and give feedback instantly — all while keeping communication open.</p>
+          <h3 className='text-[1.5rem] sm:text-[2rem] font-medium mb-3'> Supervisor — Guide with Insight</h3>
+          <p className='text-[1rem] sm:text-xl font-normal mb-6'>Stay on top of your team’s activity and progress with real-time insights.<br/>Assign individual tasks, monitor workspace attendance, and give feedback instantly — all while keeping communication open.</p>
            
            </div>
            <div className='flex flex-col justify-center h-full sm:h-50'>
@@ -168,8 +168,8 @@ const Home = () => {
         <hr className=" border-[#EBE2F6] border-b-4 border-t-0 mt-16" />
          <div className='flex justify-between  mt-16 flex-col-reverse items-end sm:flex-row sm:justify-between'>
           <div className='w-full max-w-2xl'>
-          <h3 className='text-[24px] sm:text-[32px] font-medium mb-3'> Team Member — Collaborate with Freedom</h3>
-          <p className='text-[16px] sm:text-xl font-normal mb-6'>Join your virtual office from anywhere and connect with your team through real-time chat, video calls, or collaborative rooms.<br/>Share ideas, track progress, and contribute without missing the energy of a real workspace.</p>
+          <h3 className='text-[1.5rem] sm:text-[2rem] font-medium mb-3'> Team Member — Collaborate with Freedom</h3>
+          <p className='text-[1rem] sm:text-xl font-normal mb-6'>Join your virtual office from anywhere and connect with your team through real-time chat, video calls, or collaborative rooms.<br/>Share ideas, track progress, and contribute without missing the energy of a real workspace.</p>
            
            </div>
            <div className='flex flex-col justify-center h-full sm:h-57'>
@@ -187,7 +187,7 @@ const Home = () => {
 
       <section id="demo-video" className="px-6 md:px-20 mb-40">
         <div className="relative max-w-4xl mx-auto">
-          <h2 className="text-[32px] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">
+          <h2 className="text-[2rem] sm:text-5xl font-semibold text-center text-[#0B0E13] [text-shadow:0_4px_4px_rgba(0,0,0,0.25)]">
             See How VOW Transforms Your Workday
           </h2>
 

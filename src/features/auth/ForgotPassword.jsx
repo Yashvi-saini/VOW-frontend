@@ -61,7 +61,7 @@ const ForgotPassword = () => {
       className="min-h-screen flex items-center justify-center px-4 font-poppins"
       
     >
-      <div className="bg-white pt-5 px-3 rounded-2xl shadow-xl w-full max-w-[570px] relative pb-10 sm:px-10 text-center box-border">
+      <div className="bg-white pt-5 px-3 rounded-2xl shadow-xl w-full max-w-[35.625rem] relative pb-10 sm:px-10 text-center box-border">
         
         <div className="flex justify-start mt-5">
           <button
@@ -76,14 +76,14 @@ const ForgotPassword = () => {
         <div className="px-6 sm:px-10 pb-10">
           
           <div className="flex justify-center mt-1">
-            <img src={logo} alt="Logo" className="h-[35px] w-[51px]" />
+            <img src={logo} alt="Logo" className="h-[2.1875rem] w-[3.1875rem]" />
           </div>
 
-          <h2 className="text-center text-[32px] font-medium text-gray-900 mb-1">
+          <h2 className="text-center text-[2rem] font-medium text-gray-900 mb-1">
             Forgot Password
           </h2>
 
-          <p className="text-center text-[17px] mb-8 text-gray-600">
+          <p className="text-center text-[1.0625rem] mb-8 text-gray-600">
             Please enter your registered email to receive a verification code.
           </p>
 
@@ -103,7 +103,7 @@ const ForgotPassword = () => {
                   onClick={()=>(setEmailFocused(true))}
                   onBlur={() => setTouched(true)}
                   placeholder="Enter your email"
-                  className={`w-full border rounded-lg px-2 py-2 text-[17px]  border-gray-400 focus:ring-[#5C0EA4] focus:outline-none focus:ring-2 transition ${
+                  className={`w-full border rounded-lg px-2 py-2 text-[1.0625rem]  border-gray-400 focus:ring-[#5C0EA4] focus:outline-none focus:ring-2 transition ${
                       email && emailFocused 
                       ? "bg-[#F5F1FB] border-[#8F7AA9] focus:ring-[#558CE6]"
                       : emailFocused || email 
@@ -125,14 +125,14 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={!email || !isEmailValid || loading}
-              className={`w-full py-2 rounded-lg bg-[#450B7B] hover:bg-[#5d11a3] text-white font-normal text-[20px] mt-4 transition 
+              className={`w-full py-2 rounded-lg bg-[#450B7B] hover:bg-[#5d11a3] text-white font-normal text-[1.25rem] mt-4 transition 
               `}
             >
               {loading ? "Sending..." : "Send"}
             </button>
           </form>
 
-          <p className="text-center text-[17px] text-[#707070] mt-1">
+          <p className="text-center text-[1.0625rem] text-[#707070] mt-1">
             <a href="/login" className="font-normal underline">
               Back to Login
             </a>

@@ -38,7 +38,7 @@ const FeatureCards = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex-none w-[472px] h-[434px] bg-[#EBE2F6] p-2 pb-3 mr-[65px] rounded-xl"
+              className="flex-none w-[29.5rem] h-[27.125rem] bg-[#EBE2F6] p-2 pb-3 mr-[4.0625rem] rounded-xl"
             >
               <div className="w-full h-72 mb-4 rounded-md overflow-hidden flex items-center justify-center">
                 {index === 0 ? (
@@ -69,10 +69,10 @@ const FeatureCards = () => {
                   <div className="w-full h-full bg-[#D9D9D9]" />
                 )}
               </div>
-              <h3 className="text-[32px] font-medium mb-4 text-black text-left w-[456px] h-[38px]">
+              <h3 className="text-[2rem] font-medium mb-4 text-black text-left w-[28.5rem] h-[2.375rem]">
                 {feature.title}
               </h3>
-              <div className="w-[456px] h-12 text-[20px] text-black text-left font-normal ">
+              <div className="w-[28.5rem] h-12 text-[1.25rem] text-black text-left font-normal ">
                 {feature.description}
               </div>
             </div>

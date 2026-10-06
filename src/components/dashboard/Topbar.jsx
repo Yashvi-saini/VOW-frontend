@@ -21,10 +21,10 @@ const TopBar = ({ title = "Dashboard", onMenuClick }) => {
         </button>
 
         <div className="flex-1 lg:flex-none min-w-0 overflow-hidden">
-          <span className="text-lg sm:text-xl lg:text-[26px] font-medium">
+          <span className="text-lg sm:text-xl lg:text-[1.625rem] font-medium">
             Welcome back,
           </span>
-          <span className="text-lg sm:text-xl lg:text-[26px] text-[#BFA2E1] font-medium truncate">
+          <span className="text-lg sm:text-xl lg:text-[1.625rem] text-[#BFA2E1] font-medium truncate">
             {" "}
             {fullName || username || "Guest"}
           </span>

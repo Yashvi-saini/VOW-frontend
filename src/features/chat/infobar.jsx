@@ -38,7 +38,7 @@ const InfoBar = ({ channelName = 'Team 1', memberCount = 0, onlineCount = 0, onS
             placeholder="Search in messages..."
             className="w-full rounded-md border border-[#BFA2E1] bg-white px-3 py-2 text-sm focus:outline-none focus:border-[#5C0EA4]"
           />
-          <p className="text-[10px] text-[#707070] mt-1">Searching content & sender username (case-insensitive). Empty to reset.</p>
+          <p className="text-[0.625rem] text-[#707070] mt-1">Searching content & sender username (case-insensitive). Empty to reset.</p>
         </div>
       )}
     </div>

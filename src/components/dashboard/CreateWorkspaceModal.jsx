@@ -87,7 +87,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
         
         <div
           ref={modalRef}
-          className="relative w-full max-w-[772px] sm:w-[90%] md:w-[80%] lg:w-[772px] mx-auto my-8 rounded-2xl overflow-hidden"
+          className="relative w-full max-w-[48.25rem] sm:w-[90%] md:w-[80%] lg:w-[48.25rem] mx-auto my-8 rounded-2xl overflow-hidden"
           style={{
             background: "#EFE7F6",
             boxShadow:
@@ -104,12 +104,12 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
           </button>
 
           <div className="p-6 sm:p-8">
-            <h2 className="text-[24px] sm:text-[30px] md:text-[36px] font-bold text-center mb-6 sm:mb-8 text-black">
+            <h2 className="text-[1.5rem] sm:text-[1.875rem] md:text-[2.25rem] font-bold text-center mb-6 sm:mb-8 text-black">
               Create a New Workspace
             </h2>
 
             <div className="mb-6">
-              <label className="block text-[18px] sm:text-[22px] font-medium mb-2 text-black">
+              <label className="block text-[1.125rem] sm:text-[1.375rem] font-medium mb-2 text-black">
                 Workspace Name
               </label>
               <input
@@ -126,7 +126,7 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
             </div>
 
             <div className="mb-6">
-              <label className="block text-[18px] sm:text-[22px] font-medium mb-2 text-black">
+              <label className="block text-[1.125rem] sm:text-[1.375rem] font-medium mb-2 text-black">
                 Invite Members (optional)
               </label>
               <textarea
@@ -151,14 +151,14 @@ const CreateWorkspaceModal = ({ isOpen, onClose, onWorkspaceCreated }) => {
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-8">
               <button
                 onClick={handleClose}
-                className="rounded-lg border border-[#CCB4E3] text-[#450B7B] font-medium w-full sm:w-[200px] h-11 bg-white text-[18px] hover:bg-[#f6f1fa] transition"
+                className="rounded-lg border border-[#CCB4E3] text-[#450B7B] font-medium w-full sm:w-[12.5rem] h-11 bg-white text-[1.125rem] hover:bg-[#f6f1fa] transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateWorkspace}
                 disabled={loading}
-                className="rounded-lg bg-[#5E9BFF] text-white font-medium text-[18px] w-full sm:w-[200px] h-11 disabled:opacity-70 hover:bg-[#4c85e5] transition"
+                className="rounded-lg bg-[#5E9BFF] text-white font-medium text-[1.125rem] w-full sm:w-[12.5rem] h-11 disabled:opacity-70 hover:bg-[#4c85e5] transition"
               >
                 {loading ? "Creating..." : "Create"}
               </button>

@@ -65,7 +65,7 @@ const EnterWorkspaceSection = ({ onClose }) => {
   return (
     <>
       <div className="absolute inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-        <div className="w-full max-w-[772px] rounded-2xl bg-[#EFE7F6] shadow-xl px-8 py-6 relative flex flex-col items-center gap-10">
+        <div className="w-full max-w-[48.25rem] rounded-2xl bg-[#EFE7F6] shadow-xl px-8 py-6 relative flex flex-col items-center gap-10">
           
           <button
             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl font-bold cursor-pointer"
@@ -75,12 +75,12 @@ const EnterWorkspaceSection = ({ onClose }) => {
             ×
           </button>
 
-          <h2 className="text-[36px] sm:text-[26px] md:text-[28px] font-bold text-black text-center">
+          <h2 className="text-[2.25rem] sm:text-[1.625rem] md:text-[1.75rem] font-bold text-black text-center">
             Join a New Workspace
           </h2>
 
           <div className="w-full flex flex-col gap-4">
-            <label className="block text-[24px] font-semibold text-black">Workspace ID</label>
+            <label className="block text-[1.5rem] font-semibold text-black">Workspace ID</label>
             <input
               type="text"
               value={workspaceId}
@@ -92,10 +92,10 @@ const EnterWorkspaceSection = ({ onClose }) => {
                 if (e.key === "Enter") handleJoin();
               }}
               placeholder="Enter the unique ID to join its workspace"
-              className="border border-[#BFA2E1] rounded-lg px-4 py-3 w-full focus:outline-none focus:border-[#5E9BFF] focus:ring-2 focus:ring-[#5E9BFF]/20 text-[#374151] bg-[#EFE7F6] font-normal text-[16px]"
+              className="border border-[#BFA2E1] rounded-lg px-4 py-3 w-full focus:outline-none focus:border-[#5E9BFF] focus:ring-2 focus:ring-[#5E9BFF]/20 text-[#374151] bg-[#EFE7F6] font-normal text-[1rem]"
             />
             {error && (
-              <p className="text-[#CC0404] text-[14px] font-medium">{error}</p>
+              <p className="text-[#CC0404] text-[0.875rem] font-medium">{error}</p>
             )}
           </div>
 
@@ -103,7 +103,7 @@ const EnterWorkspaceSection = ({ onClose }) => {
             <button
               type="button"
               onClick={closeModal}
-              className="w-[220px] h-[44px] bg-[#FFF] text-[#450B7B] px-6 py-3 rounded-lg font-normal text-[20px] justify-center flex items-center cursor-pointer border border-[#CCB4E3]"
+              className="w-[13.75rem] h-[2.75rem] bg-[#FFF] text-[#450B7B] px-6 py-3 rounded-lg font-normal text-[1.25rem] justify-center flex items-center cursor-pointer border border-[#CCB4E3]"
             >
               Cancel
             </button>
@@ -111,7 +111,7 @@ const EnterWorkspaceSection = ({ onClose }) => {
               type="button"
               onClick={handleJoin}
               disabled={loading}
-              className="w-[220px] h-[44px] bg-[#5E9BFF] text-white px-6 py-3 rounded-lg font-normal text-[20px] justify-center flex items-center disabled:opacity-50 cursor-pointer"
+              className="w-[13.75rem] h-[2.75rem] bg-[#5E9BFF] text-white px-6 py-3 rounded-lg font-normal text-[1.25rem] justify-center flex items-center disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Joining..." : "Join"}
             </button>

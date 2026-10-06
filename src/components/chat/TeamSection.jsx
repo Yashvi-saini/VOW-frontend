@@ -182,7 +182,7 @@ useEffect(() => {
           }
         }}
       >
-        <p className="text-[26px] text-[#BCBCBC]">#</p>
+        <p className="text-[1.625rem] text-[#BCBCBC]">#</p>
         {renamingId === team._id ? (
           <div className="flex items-center gap-2">
             <input
@@ -221,7 +221,7 @@ useEffect(() => {
               <path d="M17.443 7.557L6.5 18.5 5 19l.5-1.5 10.943-10.943 1.157 1.157z" />
             </svg>
           </button>
-          <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[16px]">
+          <div className="bg-[#BFA2E1] text-[#0E1219] px-2 rounded-md font-medium text-[1rem]">
             {team.members ? team.members.length : 0}
           </div>
         </div>

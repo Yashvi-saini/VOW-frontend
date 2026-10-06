@@ -152,7 +152,7 @@ export default function GeminiChat({ onClose }) {
       <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl">✕</button>
       <h2 className="text-2xl font-bold mb-4 text-purple-700">AI Support</h2>
 
-      <div className="space-y-4 max-h-[400px] overflow-y-auto mb-4 pr-1">
+      <div className="space-y-4 max-h-[25rem] overflow-y-auto mb-4 pr-1">
        {messages.map((msg, i) => (
   <div
     key={i}

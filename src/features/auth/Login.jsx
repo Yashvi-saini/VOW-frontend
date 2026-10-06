@@ -130,7 +130,7 @@ const Login = () => {
     <>
       <Background />
       <div className="min-h-screen flex items-center justify-center px-4 font-poppins">
-        <div className="bg-white w-full max-w-[570px] rounded-2xl shadow-xl p-10 sm:px-20 relative">
+        <div className="bg-white w-full max-w-[35.625rem] rounded-2xl shadow-xl p-10 sm:px-20 relative">
 
           <button
             className="absolute top-3 left-6 text-gray-900 text-3xl cursor-pointer"
@@ -144,11 +144,11 @@ const Login = () => {
             <img src={logo} alt="Logo" className="h-8" />
           </div>
 
-          <h2 className="text-center text-[28px] font-medium text-gray-900 mb-1">
+          <h2 className="text-center text-[1.75rem] font-medium text-gray-900 mb-1">
             Welcome back
           </h2>
 
-          <p className="text-center text-[16px] text-gray-600 mb-8">
+          <p className="text-center text-[1rem] text-gray-600 mb-8">
             Do not have an account?{" "}
             <Link to="/signup" className="text-purple-700 hover:underline">
               Sign up

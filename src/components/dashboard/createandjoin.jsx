@@ -73,7 +73,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
           gradient rounded-xl p-4 sm:p-6 
           border-none flex flex-col 
           items-center justify-center text-center gap-4 
-          min-h-[160px] sm:min-h-[185px] 
+          min-h-[10rem] sm:min-h-[11.5625rem] 
           shadow-sm
         "
       >
@@ -81,7 +81,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
           <h3
             className="
               font-bold mb-2 
-              text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] 
+              text-[1.125rem] sm:text-[1.25rem] md:text-[1.375rem] lg:text-[1.5rem] 
               text-black
             "
           >
@@ -98,7 +98,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
             hover:bg-[#4A8CE0] 
             transition 
             font-medium sm:font-normal 
-            text-[16px] sm:text-[18px] md:text-[20px] 
+            text-[1rem] sm:text-[1.125rem] md:text-[1.25rem] 
             border border-[#1F2937] 
             w-24 sm:w-28 h-10 sm:h-11 cursor-pointer
           "
@@ -112,7 +112,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
           gradient rounded-xl p-4 sm:p-6 
           border-none flex flex-col 
           items-center justify-center text-center gap-4 
-          min-h-[160px] sm:min-h-[185px] 
+          min-h-[10rem] sm:min-h-[11.5625rem] 
           shadow-sm
         "
       >
@@ -120,7 +120,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
           <h3
             className="
               font-bold mb-3 
-              text-[18px] sm:text-[20px] md:text-[22px] lg:text-[24px] 
+              text-[1.125rem] sm:text-[1.25rem] md:text-[1.375rem] lg:text-[1.5rem] 
               text-black text-center
             "
           >
@@ -143,7 +143,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
                 rounded-lg 
                 pl-3 pr-10 py-2 
                 w-full 
-                text-[13px] sm:text-sm md:text-[15px] 
+                text-[0.8125rem] sm:text-sm md:text-[0.9375rem] 
                 focus:outline-none focus:border-[#5E9BFF] 
                 text-[#0E1219] placeholder:text-[#707070]
               "
@@ -155,7 +155,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
             />
           </div>
           {error && (
-            <p className="text-[#CC0404] text-[12px] sm:text-[13px] mt-1 text-center font-medium">
+            <p className="text-[#CC0404] text-[0.75rem] sm:text-[0.8125rem] mt-1 text-center font-medium">
               {error}
             </p>
           )}
@@ -172,7 +172,7 @@ const CreateAndJoin = ({ onCreate, onWorkspaceJoined }) => {
             disabled:opacity-50
             transition 
             font-medium sm:font-normal 
-            text-[16px] sm:text-[18px] md:text-[20px] 
+            text-[1rem] sm:text-[1.125rem] md:text-[1.25rem] 
             border border-[#1F2937] 
             w-24 sm:w-28 h-10 sm:h-11 cursor-pointer
           "

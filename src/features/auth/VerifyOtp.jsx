@@ -165,7 +165,7 @@ const handlePaste = (e) => {
     <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
      
     >
-      <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
+      <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[35.625rem] relative mx-3">
         
         <button className="absolute top-6 left-5 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
           <img src={arrow} alt="Back" className="h-6 sm:h-8" />
@@ -175,10 +175,10 @@ const handlePaste = (e) => {
           <img src={logo} alt="Logo" className="h-8 sm:h-10" />
         </div>
 
-        <h2 className="text-center text-[24px] sm:text-[32px] font-semibold text-gray-900 mt-4">
+        <h2 className="text-center text-[1.5rem] sm:text-[2rem] font-semibold text-gray-900 mt-4">
           {mode === "signup" ? "Verify With OTP" : "Verify Your Email"}
         </h2>
-        <p className="text-center text-[14px] sm:text-[16px] text-[#707070] mb-8 sm:mb-10">
+        <p className="text-center text-[0.875rem] sm:text-[1rem] text-[#707070] mb-8 sm:mb-10">
           {mode === "signup"
             ? "Please enter the code sent to your email to verify your account."
             : "Enter the OTP sent to your email to reset your password."}
@@ -222,7 +222,7 @@ const handlePaste = (e) => {
             { otpError?message:" "}
           </p>
 
-          <button type="submit" disabled={loading} className="w-full text-[18px] sm:text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition">
+          <button type="submit" disabled={loading} className="w-full text-[1.125rem] sm:text-[1.25rem] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition">
             {loading ? "Verifying..." : "Verify OTP"}
           </button>
 

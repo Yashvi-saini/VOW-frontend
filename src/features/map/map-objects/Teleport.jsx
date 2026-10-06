@@ -13,7 +13,7 @@ const TeleportButton = ({ x, y, width, height, title }) => {
     >
       <div className="relative flex items-center justify-center">
         <img src={Teleport} alt="desk" />
-        <div className="absolute text-center text-[#5C0EA4] font-inter text-xs font-normal leading-[14.4px]">
+        <div className="absolute text-center text-[#5C0EA4] font-inter text-xs font-normal leading-[0.9rem]">
           Click or hover to teleport
         </div>
       </div>

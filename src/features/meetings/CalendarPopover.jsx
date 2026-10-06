@@ -125,7 +125,7 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/20" onClick={onClose} />
 
-  <div className="relative w-full max-w-[360px] max-h-[90vh] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white shadow-[0_0_20px_0_rgba(0,0,0,0.08)]">
+  <div className="relative w-full max-w-[22.5rem] max-h-[90vh] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white shadow-[0_0_20px_0_rgba(0,0,0,0.08)]">
         <div className="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white z-10">
           <div className="text-sm text-[#111827] font-medium">Select date:</div>
           <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 px-4 text-center text-[11px] text-[#6B7280]">
+        <div className="grid grid-cols-7 gap-1 px-4 text-center text-[0.6875rem] text-[#6B7280]">
           {week.map((w) => (
             <div key={w} className="py-1">{w}</div>
           ))}

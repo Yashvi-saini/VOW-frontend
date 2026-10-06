@@ -21,12 +21,12 @@ const ResetSuccess = () => {
           <img
             src={checkIcon}
             alt="Success"
-            className="w-[120px] h-[120px] object-contain"
+            className="w-[7.5rem] h-[7.5rem] object-contain"
           />
         </div>
 
         <div className="text-center mt-6">
-          <h2 className="text-[24px] font-semibold text-black mb-2"
+          <h2 className="text-[1.5rem] font-semibold text-black mb-2"
           style={{color: '#1F2937',
           textAlign: 'center',
           fontFamily: 'Poppins',
@@ -36,7 +36,7 @@ const ResetSuccess = () => {
           lineHeight: 'normal'}}>
             Password Changed
           </h2>
-          <p className="text-[#707070] text-[16px]"
+          <p className="text-[#707070] text-[1rem]"
           style={{fontFamily: 'poppins'}}>
             You have successfully changed your password
           </p>
@@ -44,7 +44,7 @@ const ResetSuccess = () => {
 
        <Link
           to="/login"
-        className="w-full mt-8 bg-[#450B7B] text-white text-[16px] py-2.5 rounded-md font-medium  transition text-center"
+        className="w-full mt-8 bg-[#450B7B] text-white text-[1rem] py-2.5 rounded-md font-medium  transition text-center"
         >
         Back to login
        </Link>

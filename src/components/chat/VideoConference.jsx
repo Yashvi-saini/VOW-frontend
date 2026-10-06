@@ -95,7 +95,7 @@ const RemoteVideoItem = ({ peerId, name, stream, className }) => {
 
   return (
     <div
-      className={`relative bg-[#180A2E] rounded-xl sm:rounded-2xl overflow-hidden border border-[#3D1B5F] shadow-xl flex items-center justify-center transition-all duration-200 min-h-[100px] sm:min-h-[130px] ${className}`}
+      className={`relative bg-[#180A2E] rounded-xl sm:rounded-2xl overflow-hidden border border-[#3D1B5F] shadow-xl flex items-center justify-center transition-all duration-200 min-h-[6.25rem] sm:min-h-[8.125rem] ${className}`}
     >
       <video
         ref={videoRef}
@@ -118,7 +118,7 @@ const RemoteVideoItem = ({ peerId, name, stream, className }) => {
       )}
 
       {/* Participant name badge */}
-      <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/65 backdrop-blur-md text-white text-[11px] sm:text-xs md:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 shadow-lg z-10 max-w-[85%]">
+      <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/65 backdrop-blur-md text-white text-[0.6875rem] sm:text-xs md:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 shadow-lg z-10 max-w-[85%]">
         <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
         <span className="truncate">{displayName}</span>
       </div>
@@ -326,22 +326,22 @@ const VideoConference = () => {
           <div className="shrink-0 px-3 sm:px-4 py-2.5 flex items-center justify-between border-b border-[#28114A] bg-[#120722]/90 backdrop-blur-sm z-20">
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 animate-pulse"></div>
-              <span className="text-white text-xs sm:text-sm font-semibold tracking-wide truncate max-w-[120px] sm:max-w-[200px] md:max-w-xs">
+              <span className="text-white text-xs sm:text-sm font-semibold tracking-wide truncate max-w-[7.5rem] sm:max-w-[12.5rem] md:max-w-xs">
                 {callTitle || "Group Video Call"}
               </span>
-              <span className="text-[11px] sm:text-xs text-purple-300/80 bg-[#250F3E] px-2 py-0.5 rounded-full shrink-0 font-medium border border-[#431B7B]/40">
+              <span className="text-[0.6875rem] sm:text-xs text-purple-300/80 bg-[#250F3E] px-2 py-0.5 rounded-full shrink-0 font-medium border border-[#431B7B]/40">
                 {totalParticipants} {totalParticipants === 1 ? "participant" : "participants"}
               </span>
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs shrink-0">
               <span className="hidden md:inline text-white/50 text-xs">Meeting ID:</span>
-              <span className="font-mono bg-[#28114A] text-purple-200 px-2 py-1 rounded-md border border-[#431B7B] text-[11px] sm:text-xs select-all max-w-[110px] sm:max-w-none truncate">
+              <span className="font-mono bg-[#28114A] text-purple-200 px-2 py-1 rounded-md border border-[#431B7B] text-[0.6875rem] sm:text-xs select-all max-w-[6.875rem] sm:max-w-none truncate">
                 {roomId || generatedRoomId}
               </span>
               <button
                 onClick={copyMeetingId}
-                className="bg-[#5C0EA4] hover:bg-[#6f14c2] text-white text-[11px] sm:text-xs px-2.5 py-1 rounded-md cursor-pointer transition font-medium active:scale-95 shadow-sm"
+                className="bg-[#5C0EA4] hover:bg-[#6f14c2] text-white text-[0.6875rem] sm:text-xs px-2.5 py-1 rounded-md cursor-pointer transition font-medium active:scale-95 shadow-sm"
               >
                 {copied ? "Copied!" : "Copy"}
               </button>
@@ -350,10 +350,10 @@ const VideoConference = () => {
 
           {/* Main Video Scrollable Viewport */}
           <div className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden p-2 sm:p-3 md:p-4 flex flex-col">
-            <div className="m-auto w-full max-w-[1600px] flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3">
+            <div className="m-auto w-full max-w-[100rem] flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3">
               {/* Local User Card */}
               <div
-                className={`relative bg-[#180A2E] rounded-xl sm:rounded-2xl overflow-hidden border border-[#3D1B5F] shadow-xl flex items-center justify-center transition-all duration-200 min-h-[100px] sm:min-h-[130px] ${itemClass}`}
+                className={`relative bg-[#180A2E] rounded-xl sm:rounded-2xl overflow-hidden border border-[#3D1B5F] shadow-xl flex items-center justify-center transition-all duration-200 min-h-[6.25rem] sm:min-h-[8.125rem] ${itemClass}`}
               >
                 <video
                   ref={(el) => {
@@ -381,11 +381,11 @@ const VideoConference = () => {
                 )}
 
                 {/* Local user badge */}
-                <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/65 backdrop-blur-md text-white text-[11px] sm:text-xs md:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 shadow-lg z-10 max-w-[85%]">
+                <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/65 backdrop-blur-md text-white text-[0.6875rem] sm:text-xs md:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 shadow-lg z-10 max-w-[85%]">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
                   <span className="truncate">{myDisplayName} (You)</span>
                   {isMuted && (
-                    <span className="text-red-400 text-[10px] ml-1 bg-red-500/20 px-1.5 py-0.5 rounded font-normal">
+                    <span className="text-red-400 text-[0.625rem] ml-1 bg-red-500/20 px-1.5 py-0.5 rounded font-normal">
                       Muted
                     </span>
                   )}
@@ -406,7 +406,7 @@ const VideoConference = () => {
               {/* Waiting placeholder when alone */}
               {remoteStreams.size === 0 && (
                 <div
-                  className={`relative bg-[#180A2E]/60 rounded-xl sm:rounded-2xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-[#3D1B5F] p-4 sm:p-6 text-center transition-all duration-200 min-h-[100px] sm:min-h-[130px] ${itemClass}`}
+                  className={`relative bg-[#180A2E]/60 rounded-xl sm:rounded-2xl overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-[#3D1B5F] p-4 sm:p-6 text-center transition-all duration-200 min-h-[6.25rem] sm:min-h-[8.125rem] ${itemClass}`}
                 >
                   <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[#5C0EA4]/20 flex items-center justify-center mb-2 sm:mb-3">
                     <img src={Link} className="w-5 h-5 sm:w-6 sm:h-6 opacity-80" alt="Link" />
@@ -414,7 +414,7 @@ const VideoConference = () => {
                   <h4 className="text-sm sm:text-base md:text-lg font-semibold text-white mb-1">
                     Waiting for others to join...
                   </h4>
-                  <p className="text-[11px] sm:text-xs md:text-sm text-[#AC92CB] max-w-xs mb-3 sm:mb-4 px-2">
+                  <p className="text-[0.6875rem] sm:text-xs md:text-sm text-[#AC92CB] max-w-xs mb-3 sm:mb-4 px-2">
                     Share the Meeting ID with teammates to start group call.
                   </p>
                   <button

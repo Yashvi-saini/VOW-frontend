@@ -185,7 +185,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
           {workspaces.map((ws) => (
             <div
               key={ws._id}
-              className="relative min-w-[324px] min-h-[204px] gradient border-none rounded-2xl p-10 overflow-visible shadow-sm flex flex-col items-center justify-between cursor-pointer"
+              className="relative min-w-[20.25rem] min-h-[12.75rem] gradient border-none rounded-2xl p-10 overflow-visible shadow-sm flex flex-col items-center justify-between cursor-pointer"
             >
               <h3 className="relative group text-2xl font-bold text-[#0E1219] mb-3 text-center max-w-full overflow-visible">
                 <span className="truncate block max-w-full ">
@@ -202,7 +202,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
               </h3>
 
               <div className="flex items-center gap-2 mb-6">
-                <span className="text-[16px] text-[#000 ]">Invite code:</span>
+                <span className="text-[1rem] text-[#000 ]">Invite code:</span>
                 <code className="text-sm font-semibold tracking-wider text-[#0E1219] bg-[#dcd3e4] px-2 py-1 rounded">
                   {ws.inviteCode ||
                     (ws._id === localStorage.getItem("workspaceId")
@@ -247,7 +247,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
                   handleRejoin(ws);
                 }}
                 disabled={rejoiningId === ws._id}
-                className={`min-w-[140px] bg-[#5E9BFF] text-white text-xl px-6 py-2.5  rounded-lg transition ${rejoiningId === ws._id ? "opacity-70 " : "hover:bg-[#4A8CE0]"
+                className={`min-w-[8.75rem] bg-[#5E9BFF] text-white text-xl px-6 py-2.5  rounded-lg transition ${rejoiningId === ws._id ? "opacity-70 " : "hover:bg-[#4A8CE0]"
                   }`}
               >
                 {rejoiningId === ws._id ? "Entering..." : "Enter Office"}
@@ -271,7 +271,7 @@ const RejoinAndFetch = ({ refreshTrigger }) => {
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div
             ref={popupRef}
-            className="bg-white rounded-xl p-6 w-[320px] shadow-xl animate-fadeIn"
+            className="bg-white rounded-xl p-6 w-[20rem] shadow-xl animate-fadeIn"
           >
             <h3 className="text-lg font-bold text-[#0E1219] mb-2">
               Delete Workspace?

@@ -40,7 +40,7 @@ const FilesTable = ({
         <div className="col-span-1 text-center font-medium">Actions</div>
       </div>
 
-      <div className="bg-white rounded-lg mt-2 overflow-y-auto max-h-[500px] hide-scrollbar">
+      <div className="bg-white rounded-lg mt-2 overflow-y-auto max-h-[31.25rem] hide-scrollbar">
         {files.map((file, index) => {
           const fileId = getFileId(file);
           const isOpen = openFileId === fileId;
@@ -71,7 +71,7 @@ const FilesTable = ({
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                     />
                   </svg>
-                  <span className="font-medium text-[16px] truncate">
+                  <span className="font-medium text-[1rem] truncate">
                     {getDisplayName(file)}
                   </span>
                 </div>
@@ -127,7 +127,7 @@ const FilesTable = ({
                     />
                   </svg>
                   <div className="min-w-0 flex-1">
-                    <div className="font-medium text-[16px] truncate">
+                    <div className="font-medium text-[1rem] truncate">
                       {getDisplayName(file)}
                     </div>
                     <div className="text-sm text-gray-500 truncate">

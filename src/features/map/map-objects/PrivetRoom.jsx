@@ -61,7 +61,7 @@ const PrivateRoom = ({ x, y, width, height, title, id = "privateRoom", onObstacl
         height: `${height}px`,
       }}
     >
-      <div className="flex gap-[100px]">
+      <div className="flex gap-[6.25rem]">
         <img ref={(el) => (imgRefs.current[0] = el)} src={privateroomdesk} alt="desk" />
         <img ref={(el) => (imgRefs.current[1] = el)} src={privateroomdesk} alt="desk" />
         <img ref={(el) => (imgRefs.current[2] = el)} src={privateroomdesk} alt="desk" />

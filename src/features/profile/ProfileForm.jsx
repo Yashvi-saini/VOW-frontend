@@ -110,7 +110,7 @@ const [preview,setPreview]= useState(null);
 
   return (
     <div
-      className="w-full max-w-[570px] mx-auto bg-[#FAFAFA] px-4 sm:px-8 md:px-10 py-6 sm:py-8 rounded-2xl shadow-lg flex flex-col justify-center min-h-[500px]"
+      className="w-full max-w-[35.625rem] mx-auto bg-[#FAFAFA] px-4 sm:px-8 md:px-10 py-6 sm:py-8 rounded-2xl shadow-lg flex flex-col justify-center min-h-[31.25rem]"
     >
       <div
         className="absolute top-3 left-3 sm:top-5 sm:left-5 cursor-pointer"
@@ -123,7 +123,7 @@ const [preview,setPreview]= useState(null);
         />
        </div>
         
-        <div className="text-[#0E1219] text-xl sm:text-2xl md:text-[32px] font-semibold leading-tight text-center mb-2 px-2">
+        <div className="text-[#0E1219] text-xl sm:text-2xl md:text-[2rem] font-semibold leading-tight text-center mb-2 px-2">
           Create Your VOW Profile
         </div>
         <div className="text-[#707070] text-sm sm:text-base font-normal leading-relaxed text-center mb-4 sm:mb-6 px-2">
@@ -174,7 +174,7 @@ const [preview,setPreview]= useState(null);
               </label>
             ))}
           </div>
-          <p className="text-xs text-red-500 min-h-[16px] mt-1">
+          <p className="text-xs text-red-500 min-h-[1rem] mt-1">
             {errors.gender || ""}
           </p>
         </div>
@@ -191,7 +191,7 @@ const [preview,setPreview]= useState(null);
             placeholder="Enter your organisation name"
             className="w-full border border-[#707070] rounded-lg p-2 sm:p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           />
-          <p className="text-xs text-red-500 min-h-[16px] mt-1">
+          <p className="text-xs text-red-500 min-h-[1rem] mt-1">
             {errors.organisation || ""}
           </p>
         </div>
@@ -208,7 +208,7 @@ const [preview,setPreview]= useState(null);
             max={new Date().toISOString().split("T")[0]}
             className="w-full border border-[#707070] rounded-lg p-2 sm:p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
           />
-          <p className="text-xs text-red-500 min-h-[16px] mt-1">
+          <p className="text-xs text-red-500 min-h-[1rem] mt-1">
             {errors.dob || ""}
           </p>
         </div>
@@ -225,7 +225,7 @@ const [preview,setPreview]= useState(null);
           {loading ? "Saving..." : "Save Profile"}
         </button>
 
-        <p className="text-center text-sm text-red-500 min-h-[10px] mt-2">
+        <p className="text-center text-sm text-red-500 min-h-[0.625rem] mt-2">
           {apiError || ""}
         </p>
       </form>

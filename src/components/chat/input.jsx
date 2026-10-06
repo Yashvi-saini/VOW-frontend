@@ -228,7 +228,7 @@ const InputBox = ({
               {attachments.map((att) => (
                 <div
                   key={att.fileId}
-                  className="group flex items-center gap-2 bg-[#EFE7F6] border border-[#BFA2E1] rounded-md px-2 py-1 max-w-[180px]"
+                  className="group flex items-center gap-2 bg-[#EFE7F6] border border-[#BFA2E1] rounded-md px-2 py-1 max-w-[11.25rem]"
                 >
                   {att.mimeType && att.mimeType.startsWith("image/") ? (
                     <img
@@ -242,17 +242,17 @@ const InputBox = ({
                     </span>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-medium truncate" title={att.name}>
+                    <p className="text-[0.6875rem] font-medium truncate" title={att.name}>
                       {att.name}
                     </p>
-                    <p className="text-[10px] text-[#707070]">
+                    <p className="text-[0.625rem] text-[#707070]">
                       {(att.size / 1024).toFixed(1)} KB
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeAttachment(att.fileId)}
-                    className="text-[10px] text-[#CC0404] opacity-70 hover:opacity-100"
+                    className="text-[0.625rem] text-[#CC0404] opacity-70 hover:opacity-100"
                   >
                     ✕
                   </button>

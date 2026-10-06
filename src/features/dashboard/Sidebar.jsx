@@ -75,7 +75,7 @@ const Sidebar = ({
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           lg:min-h-[110vh]
-          w-[340px]  bg-[#240A44] text-white flex flex-col p-5.5 pt-4.5
+          w-[21.25rem]  bg-[#240A44] text-white flex flex-col p-5.5 pt-4.5
           transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
@@ -114,10 +114,10 @@ const Sidebar = ({
                 }}
               />
               <div>
-                <p className="text-white text-[16px] font-semibold leading-6">
+                <p className="text-white text-[1rem] font-semibold leading-6">
                   {fullName || "Guest"}
                 </p>
-                <p className="text-[12px] text-[#B9B0C8]">{email || "No Email"}</p>
+                <p className="text-[0.75rem] text-[#B9B0C8]">{email || "No Email"}</p>
               </div>
             </div>
           </div>
@@ -132,7 +132,7 @@ const Sidebar = ({
                 alt="Create"
                 className="w-6 h-6 shrink-0 filter brightness-0 invert"
               />
-              <span className="text-[16px] leading-6">Create Workspace</span>
+              <span className="text-[1rem] leading-6">Create Workspace</span>
             </button>
 
             <button
@@ -144,7 +144,7 @@ const Sidebar = ({
                 alt="Join"
                 className="w-5 h-5 shrink-0 filter brightness-0 invert"
               />
-              <span className="text-[16px] leading-6">Join Workspace</span>
+              <span className="text-[1rem] leading-6">Join Workspace</span>
             </button>
           </div>
 
@@ -164,7 +164,7 @@ const Sidebar = ({
                   alt={item.label}
                   className="w-6 h-6 filter brightness-0 invert"
                 />
-                <span className="text-[20px] font-normal">{item.label}</span>
+                <span className="text-[1.25rem] font-normal">{item.label}</span>
               </button>
             ))}
           </nav>
@@ -180,7 +180,7 @@ const Sidebar = ({
               alt="Help"
               className="w-6 h-6 filter brightness-0 invert"
             />
-            <span className="text-[20px] font-normal">Need Help</span>
+            <span className="text-[1.25rem] font-normal">Need Help</span>
           </button>
           <button 
             onClick={() => setShowContactModal(true)}
@@ -191,7 +191,7 @@ const Sidebar = ({
               alt="Contact"
               className="w-6 h-6 filter brightness-0 invert"
             />
-            <span className="text-[20px] font-normal">Contact Us</span>
+            <span className="text-[1.25rem] font-normal">Contact Us</span>
           </button>
         </div>
       </aside>

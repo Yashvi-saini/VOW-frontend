@@ -139,7 +139,7 @@ return; }
         <div className="max-h-64 overflow-y-auto scrollbar-hide">
           <style>{`.scrollbar-hide{ -ms-overflow-style:none; scrollbar-width:none; }.scrollbar-hide::-webkit-scrollbar{display:none;}`}</style>
           {!selfUserId && (
-            <p className="text-[11px] text-yellow-300 bg-[#3A0E70] px-4 py-1">Loading your identity… please wait a moment before starting a call.</p>
+            <p className="text-[0.6875rem] text-yellow-300 bg-[#3A0E70] px-4 py-1">Loading your identity… please wait a moment before starting a call.</p>
           )}
           {loading && (
             <p className="text-[#BCBCBC] text-sm px-4 py-2">Loading members…</p>
@@ -163,7 +163,7 @@ return; }
                     <span className="inline-block w-3 h-3 rounded-full bg-[#2DB3FF]"></span>
                     <h4 className="text-[#BCBCBC] text-base">{m.fullName || m.username}{isSelf ? ' (You)' : ''}</h4>
                     {unreadCount > 0 && (
-                      <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+                      <span className="inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] bg-red-500 text-white text-[0.625rem] font-bold rounded-full px-1">
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
                     )}
@@ -175,7 +175,7 @@ return; }
                           e.stopPropagation();
                           onStartDM?.(m._id, m.username || m.fullName);
                         }}
-                        className="text-[10px] bg-[#5E9BFF] hover:bg-[#4A8AEE] px-2 py-0.5 rounded font-medium"
+                        className="text-[0.625rem] bg-[#5E9BFF] hover:bg-[#4A8AEE] px-2 py-0.5 rounded font-medium"
                       >
                         DM
                       </button>
@@ -183,10 +183,10 @@ return; }
                     {isActive && (
                       <button
                         onClick={(e) => { e.stopPropagation(); endActiveCall(); }}
-                        className="text-[10px] bg-red-600 hover:bg-red-700 px-2 py-0.5 rounded"
+                        className="text-[0.625rem] bg-red-600 hover:bg-red-700 px-2 py-0.5 rounded"
                       >End</button>
                     )}
-                    <span className="text-[12px] text-[#BCBCBC] bg-[#2F0A5C] px-2 py-0.5 rounded-md">{m.role || ""}</span>
+                    <span className="text-[0.75rem] text-[#BCBCBC] bg-[#2F0A5C] px-2 py-0.5 rounded-md">{m.role || ""}</span>
                   </div>
                 </div>
               );
@@ -195,7 +195,7 @@ return; }
               <p className="text-[#BCBCBC] text-sm px-4 py-2">No members yet</p>
             )}
             {activePeer && (
-              <div className="px-4 py-2 text-[11px] text-[#BCBCBC] italic">
+              <div className="px-4 py-2 text-[0.6875rem] text-[#BCBCBC] italic">
                 Status: {callStatus}{callStatus === 'ringing' && ' (incoming...)'}
               </div>
             )}
