@@ -79,8 +79,17 @@ export const useChatMessages = ({
 
 
           if (isSubscribed) {
-            dmCacheRef.current[targetDmId] = raw;
-            setMessages(raw);
+            const seen = new Set();
+            const clean = raw.filter((m) => {
+              const id = m?._id || m?.id;
+              if (!id) return true;
+              const str = String(id);
+              if (seen.has(str)) return false;
+              seen.add(str);
+              return true;
+            });
+            dmCacheRef.current[targetDmId] = clean;
+            setMessages(clean);
           }
         } else {
           const response = await fetchChannelMessages(activeRoomId);
@@ -90,7 +99,16 @@ export const useChatMessages = ({
             : response?.data?.messages || [];
 
           if (isSubscribed) {
-            setMessages(raw);
+            const seen = new Set();
+            const clean = raw.filter((m) => {
+              const id = m?._id || m?.id;
+              if (!id) return true;
+              const str = String(id);
+              if (seen.has(str)) return false;
+              seen.add(str);
+              return true;
+            });
+            setMessages(clean);
           }
         }
       } catch (err) {

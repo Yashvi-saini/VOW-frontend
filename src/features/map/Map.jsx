@@ -149,6 +149,7 @@ useEffect(() => {
     joinMapPresence({
       workspaceId,
       name: username || "Anonymous",
+      avatar,
       x: positionRef.current.x,
       y: positionRef.current.y,
     });
@@ -191,10 +192,11 @@ useEffect(() => {
 
   return () => {
     cleanedUp = true;
+    leaveMapPresence(workspaceId);
     removeMapListeners();
     mapSocket.off("connect", onConnected);
   };
-}, [workspaceId, username]);
+}, [workspaceId, username, avatar]);
   useEffect(() => {
     const lastSent = { x: null, y: null };
 
@@ -263,9 +265,9 @@ useEffect(() => {
       />
 
       <Avatar
-        image={avatar || playerImg}
+        image={avatar}
         size={avatarSize}
-        name="You"
+        name={username || "You"}
         style={{
           position: "absolute",
           top: `${position.y}%`,
