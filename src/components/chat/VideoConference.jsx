@@ -119,7 +119,6 @@ const RemoteVideoItem = ({ peerId, name, stream, className }) => {
 
       {/* Participant name badge */}
       <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/65 backdrop-blur-md text-white text-[0.6875rem] sm:text-xs md:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 shadow-lg z-10 max-w-[85%]">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
         <span className="truncate">{displayName}</span>
       </div>
     </div>
@@ -325,7 +324,6 @@ const VideoConference = () => {
           {/* Call Header Top Bar */}
           <div className="shrink-0 px-3 sm:px-4 py-2.5 flex items-center justify-between border-b border-[#28114A] bg-[#120722]/90 backdrop-blur-sm z-20">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 animate-pulse"></div>
               <span className="text-white text-xs sm:text-sm font-semibold tracking-wide truncate max-w-[7.5rem] sm:max-w-[12.5rem] md:max-w-xs">
                 {callTitle || "Group Video Call"}
               </span>
@@ -382,7 +380,6 @@ const VideoConference = () => {
 
                 {/* Local user badge */}
                 <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-black/65 backdrop-blur-md text-white text-[0.6875rem] sm:text-xs md:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl font-medium flex items-center gap-1.5 sm:gap-2 border border-white/10 shadow-lg z-10 max-w-[85%]">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
                   <span className="truncate">{myDisplayName} (You)</span>
                   {isMuted && (
                     <span className="text-red-400 text-[0.625rem] ml-1 bg-red-500/20 px-1.5 py-0.5 rounded font-normal">
