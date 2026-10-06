@@ -54,13 +54,11 @@ export default class SfuSignalingClient {
     return new Promise((resolve, reject) => {
       try {
         const url = this._buildWsUrl();
-        console.log("[SFU] Connecting to signaling server at:", url);
 
         this.ws = new WebSocket(url);
 
         this.ws.onopen = () => {
           this.connected = true;
-          console.log("[SFU] WebSocket connected to signaling server");
           resolve();
         };
 
@@ -86,17 +84,14 @@ export default class SfuSignalingClient {
           reject(e);
         };
 
-        this.ws.onclose = (event) => {
+        this.ws.onclose = () => {
           this.connected = false;
-          console.log("[SFU] WebSocket closed, code:", event.code, "reason:", event.reason);
 
           if (!this.intentionalDisconnect && this.roomId) {
-            console.log("[SFU] Reconnecting in 1.5s...");
             setTimeout(() => {
               if (!this.intentionalDisconnect && this.roomId) {
                 this.connect()
                   .then(() => {
-                    console.log("[SFU] Reconnected. Rejoining room:", this.roomId);
                     this.join(this.roomId, this.participantName || "User");
                   })
                   .catch((e) => console.warn("[SFU] Reconnect failed:", e));

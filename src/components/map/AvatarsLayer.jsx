@@ -14,8 +14,7 @@ const AvatarsLayer = () => {
   const rafRef = useRef();
 
   useEffect(() => {
-    const ids = Object.keys(avatars || {});
-    console.log('[avatars] remote list update (excluding self)', ids, 'selfId=', selfId);
+
     Object.keys(interpRef.current).forEach(id => {
       if (!avatars[id]) delete interpRef.current[id];
     });

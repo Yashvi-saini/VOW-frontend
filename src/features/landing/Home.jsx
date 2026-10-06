@@ -29,15 +29,12 @@ const CollaborateAnimation = ({ className = "" }) => {
     const fetchCurrentUser = async () => {
       try {
         const getCurrentUser = await api.get(`me/info`);
-        console.log('Fetch Current User Response:', getCurrentUser);
         if(getCurrentUser.data && getCurrentUser.data.success)
         {   
-          console.log("I am redirecting")
             dispatch(setUserProfile(getCurrentUser.data.data));
             navigate('/dashboard');
         }
         
-        console.log('Current User:', getCurrentUser.data);
       } catch (error) {
         console.error('Error fetching current user:', error);
       }

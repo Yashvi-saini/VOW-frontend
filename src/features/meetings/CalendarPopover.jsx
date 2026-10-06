@@ -254,7 +254,6 @@ export default function CalendarPopover({ open, onClose, onDone, initial }) {
       range,
       label: label(),
     };
-    console.log("[CalendarPopover] Selected date/time:", payload);
     onDone(payload);
   }}
   className="rounded-xl bg-[#6D28D9] text-white px-5 py-2 hover:bg-[#5B21B6]"

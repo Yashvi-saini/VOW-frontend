@@ -86,7 +86,6 @@ const JoinedWorkspaces = () => {
                 >
                   <div
                   onClick={() => {
-  console.log("Clicked workspace:", ws);
   handleRejoin(ws._id);
 }}
 

@@ -11,12 +11,10 @@ export const useVoiceCall = () => {
     connectSocket();
 
     const handleOffer = async ({ from, offer }) => {
-      console.log("[VoiceCall] Received offer from:", from);
       await handleReceiveOffer(from, offer);
     };
 
-    const handleAnswer = async ({ from, answer }) => {
-      console.log("[VoiceCall] Received answer from:", from);
+    const handleAnswer = async ({ answer }) => {
       await peerConnectionRef.current?.setRemoteDescription(answer);
     };
 
@@ -51,7 +49,6 @@ export const useVoiceCall = () => {
     };
 
     pc.ontrack = (event) => {
-      console.log("[VoiceCall] Remote track received");
       if (!remoteAudioRef.current) {
         const audio = document.createElement("audio");
         audio.autoplay = true;
@@ -66,7 +63,6 @@ export const useVoiceCall = () => {
   };
 
   const startCall = async (remoteUserId) => {
-    console.log("[VoiceCall] Starting call to:", remoteUserId);
 
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -111,7 +107,6 @@ export const useVoiceCall = () => {
       remoteAudioRef.current.remove();
       remoteAudioRef.current = null;
     }
-    console.log("[VoiceCall] Call ended");
   };
 
   return { startCall, endCall };

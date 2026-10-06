@@ -39,11 +39,9 @@ const FileTransfer = () => {
   const fetchFiles = async () => {
     try {
       setLoading(true);
-      console.log('Fetching files...');
       const filesData = await getAllFiles();
-      console.log('Files response:', filesData);
+
       const filesList = filesData.files || filesData.data || filesData || [];
-      console.log('Parsed files list:', filesList);
 
       setFiles(Array.isArray(filesList) ? filesList : []);
     } catch (error) {

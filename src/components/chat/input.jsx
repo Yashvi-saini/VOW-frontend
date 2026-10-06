@@ -51,7 +51,6 @@ const InputBox = ({
     
     for (const f of files) {
       try {
-        console.log(`[Chat] Uploading file "${f.name}" to workspace: ${workspaceId}`);
         
         const uploaded = await uploadFileToWorkspace(f, workspaceId);
         
@@ -64,7 +63,6 @@ const InputBox = ({
         };
         
         uploadedMeta.push(meta);
-        console.log(`[Chat] File uploaded successfully: ${meta.name}`);
       } catch (err) {
         console.error("Upload failed for", f.name, err);
         const errorMsg = err.message || `Failed to upload ${f.name}`;
@@ -74,11 +72,6 @@ const InputBox = ({
     
     if (uploadedMeta.length) {
       setAttachments((prev) => [...prev, ...uploadedMeta]);
-      if (uploadedMeta.length === files.length) {
-        console.log(`[Chat] All ${uploadedMeta.length} files uploaded successfully`);
-      } else {
-        console.log(`[Chat] ${uploadedMeta.length} of ${files.length} files uploaded successfully`);
-      }
     }
    
     setUploading(false);

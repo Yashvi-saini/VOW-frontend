@@ -142,7 +142,6 @@ const Map = ({ onAvatarCollision }) => {
   }, [currentUserId, workspaceId, dispatch]);
 
 useEffect(() => {
-  console.log("🌍 MAP MOUNT — Initializing socket & presence");
 
   let cleanedUp = false;
 
@@ -301,7 +300,6 @@ useEffect(() => {
 
     if (collidedUser) {
       lastCollisionTimeRef.current = now;
-      console.log(`[Map] 🤝 Collision with ${collidedUser.displayName} (${collidedUser.userId})! Opening DM...`);
       onAvatarCollision?.(collidedUser.userId, collidedUser.displayName);
     }
   }, [position, avatars, onAvatarCollision]);
