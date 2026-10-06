@@ -28,12 +28,10 @@ export const useChatSocket = ({
       const msgChannelId = typeof msg.channelId === "object" ? (msg.channelId._id || msg.channelId.id) : msg.channelId;
       if (activeRoomId && String(msgChannelId) === String(activeRoomId)) {
         setMessages((prev) => {
-          if (msg._id && prev.some((m) => String(m._id) === String(msg._id))) {
+          if (msg._id && prev.some((m) => m._id === msg._id)) {
             return prev;
           }
-          const optIdx = prev.findIndex(
-            (m) => m.isOptimistic && (m._id === msg.tempId || m.content === msg.content)
-          );
+          const optIdx = prev.findIndex((m) => m.isOptimistic && m.content === msg.content);
           if (optIdx !== -1) {
             const next = [...prev];
             next[optIdx] = msg;
@@ -59,12 +57,10 @@ export const useChatSocket = ({
 
       if (isCurrentDMChat) {
         setMessages((prev) => {
-          if (msg._id && prev.some((m) => String(m._id) === String(msg._id))) {
+          if (msg._id && prev.some((m) => m._id === msg._id)) {
             return prev;
           }
-          const optIdx = prev.findIndex(
-            (m) => m.isOptimistic && (m._id === msg.tempId || m.content === msg.content)
-          );
+          const optIdx = prev.findIndex((m) => m.isOptimistic && m.content === msg.content);
           if (optIdx !== -1) {
             const next = [...prev];
             next[optIdx] = msg;

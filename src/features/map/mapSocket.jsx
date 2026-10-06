@@ -8,12 +8,11 @@ export const connectMapSocket = () => {
 
 export const disconnectMapSocket = () => {
 };
-export const joinMapPresence = ({ workspaceId, name, x, y, avatar }) => {
+export const joinMapPresence = ({ workspaceId, name, x, y }) => {
   connectSocket();
   socket.emit("join", {
     workspaceId,
     displayName: name || "User",
-    avatar,
     x,
     y,
   });

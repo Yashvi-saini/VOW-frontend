@@ -34,10 +34,7 @@ const App = () => {
     !!localStorage.getItem("forgotRequested") ||
     pendingMode === "forgot";
   const verifyCondition =
-    !!signupPending ||
-    isForgot ||
-    !!localStorage.getItem("forgotOtpVerified") ||
-    !!sessionStorage.getItem("pendingEmail");
+    !!signupPending || isForgot || !!localStorage.getItem("forgotOtpVerified");
   const verifyRedirectTo = isForgot ? "/forgot-password" : "/signup";
 
   return (

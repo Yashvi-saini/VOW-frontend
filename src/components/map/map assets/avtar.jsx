@@ -1,25 +1,48 @@
 import React, { useState, useEffect } from "react";
 import fallbackAvatar from "../map assets/avatar1.jpg";
 
-const getDicebearAvatar = (seed) => {
-  const cleanSeed = encodeURIComponent((seed || "User").trim());
-  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${cleanSeed}`;
+const isCustomUploadedImage = (url) => {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim().toLowerCase();
+  if (
+    trimmed === "" ||
+    trimmed.includes("avatar1") ||
+    trimmed.includes("/avatars/") ||
+    trimmed.includes("/assets/") ||
+    trimmed.includes("default")
+  ) {
+    return false;
+  }
+  return (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:")
+  );
 };
 
-const Avatar = React.memo(({ image, size = 48, name, style }) => {
-  const seed = name || "User";
-  const isValidCustomImage =
-    typeof image === "string" &&
-    image.trim() !== "" &&
-    !image.includes("avatar1.jpg");
+const getDicebearAvatar = (seed) => {
+  const cleanSeed = encodeURIComponent((seed || "Player").trim());
+  return `https://api.dicebear.com/9.x/adventurer/svg?seed=${cleanSeed}`;
+};
 
-  const avatarUrl = isValidCustomImage ? image : getDicebearAvatar(seed);
+const Avatar = React.memo(({ image, size = 48, name, userId, style }) => {
+  let seed = userId;
+  if (!seed && name && name.toLowerCase() !== "you" && name.toLowerCase() !== "user") {
+    seed = name;
+  }
+  if (!seed) {
+    seed = name || "Player";
+  }
+
+  const hasCustomUpload = isCustomUploadedImage(image);
+  const avatarUrl = hasCustomUpload ? image : getDicebearAvatar(seed);
   const [src, setSrc] = useState(avatarUrl);
 
   useEffect(() => {
-    const nextUrl = isValidCustomImage ? image : getDicebearAvatar(seed);
+    const nextUrl = isCustomUploadedImage(image) ? image : getDicebearAvatar(seed);
     setSrc(nextUrl);
-  }, [image, seed, isValidCustomImage]);
+  }, [image, seed]);
 
   return (
     <div

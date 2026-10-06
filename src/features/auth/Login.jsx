@@ -179,37 +179,23 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="mb-3">
+            <div className="mb-3 relative">
               <label className="block text-sm font-medium text-gray-900 mb-1">
                 Password:
               </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setPasswordError("");
-                  }}
-                  className={`w-full border rounded-md px-3 py-2 pr-10 text-sm ${
-                    passwordError
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute inset-y-0 right-2.5 flex items-center cursor-pointer text-gray-500 hover:text-gray-700"
-                >
-                  <img
-                    src={showPassword ? EyeOff : Eye}
-                    alt={showPassword ? "Hide password" : "Show password"}
-                    className="h-5 w-5 object-contain"
-                  />
-                </button>
-              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                className={`w-full border rounded-md px-3 py-2 pr-10 text-sm ${
+                  passwordError
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
               <p className="text-red-600 mt-1 text-sm">
                 {passwordError || " "}
               </p>

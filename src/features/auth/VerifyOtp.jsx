@@ -6,7 +6,6 @@ import arrow from "@/assets/arrow.svg";
 import { verifyEmail, resendOtp, forgotPassword, verifyResetOtp } from '@/api/authApi';
 import Background from "@/features/landing/Background";
 import { clearSignupFlow, setProfileNeeded, clearForgotFlow, setSignupDone } from "./userSlice";
-
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -17,34 +16,28 @@ const VerifyOtp = () => {
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const [anyInputFocused, setAnyInputFocused] = useState(false);
+const [anyInputFocused, setAnyInputFocused] = useState(false);
   const dispatch = useDispatch();
   const { signupPending, forgotRequested: rdxForgot, pendingEmail: rdxEmail, pendingMode: rdxMode } = useSelector((s) => s.user || {});
   const fallbackEmail = sessionStorage.getItem("pendingEmail");
   const fallbackMode = sessionStorage.getItem("pendingMode");
   const email = location.state?.email || rdxEmail || fallbackEmail;
-  const mode = location.state?.mode || rdxMode || fallbackMode || "signup";
-
-  const verifiedRef = useRef(false);
-
+  const mode = location.state?.mode || rdxMode || fallbackMode || "signup";
   useEffect(() => {
-    if (verifiedRef.current) return;
     const hasFlowFlag =
       mode === "signup"
-        ? !!signupPending || !!sessionStorage.getItem("pendingEmail")
-        : !!rdxForgot || !!localStorage.getItem("forgotRequested") || !!localStorage.getItem("forgotOtpVerified");
+        ? !!signupPending
+        : !!rdxForgot || !!localStorage.getItem("forgotRequested") || !!localStorage.getItem("forgotOtpVerified");
     if (!email || !hasFlowFlag) {
       navigate(mode === "signup" ? "/signup" : "/forgot-password", { replace: true });
     }
-  }, [email, mode, signupPending, rdxForgot, navigate]);
-
+  }, [email, mode, signupPending, rdxForgot, navigate]);
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => setTimer(t => t - 1), 1000);
       return () => clearInterval(countdown);
     }
-  }, [timer]);
-
+  }, [timer]);
   const handleChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
     const newOtp = [...otp];
@@ -59,21 +52,21 @@ const VerifyOtp = () => {
     }
   };
 
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      return;
-    }
+const handleKeyDown = (e, index) => {
+  if (e.key === "Tab") {
+    e.preventDefault();
+    return;
+  }
 
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
+  if (e.key === "Backspace" && !otp[index] && index > 0) {
+    inputRefs.current[index - 1]?.focus();
+  }
+};
   const handleVerify = async (e) => {
     e.preventDefault();
     const code = otp.join("");
     if (code.length !== 6) {
+      
       setOtpError(true);
       setMessage("Please enter the 6-digit OTP.");
       return;
@@ -103,17 +96,15 @@ const VerifyOtp = () => {
         setOtpError(false);
         setMessage("");
         if (mode === "signup") {
-          verifiedRef.current = true;
           localStorage.setItem("otpVerified", "true");
-          localStorage.setItem("valid", "true");
-          sessionStorage.removeItem("pendingEmail");
-          sessionStorage.removeItem("pendingMode");
-          dispatch(setProfileNeeded(true));
+          localStorage.setItem("valid", "true");
           dispatch(setSignupDone(false));
           dispatch(clearSignupFlow());
-          navigate("/login", { replace: true });
+          sessionStorage.removeItem("pendingEmail");
+          sessionStorage.removeItem("pendingMode");
+          dispatch(setProfileNeeded(true)); 
+          navigate("/login");
         } else {
-          verifiedRef.current = true;
           localStorage.setItem("forgotOtpVerified", "true");
           navigate("/reset-password", { state: { email } });
           localStorage.removeItem("forgotRequested");
@@ -129,11 +120,10 @@ const VerifyOtp = () => {
       setMessage(err.response?.data?.msg || "Network or server error.");
     } finally {
       setTimeout(() => {
-        setLoading(false);
+         setLoading(false);
       }, 2000);
     }
-  };
-
+  };
   const handleResend = async () => {
     if (!email || timer > 0) return;
     setTimer(30);
@@ -144,6 +134,7 @@ const VerifyOtp = () => {
       let res, data;
       if (mode === "signup") {
         res = await resendOtp({ email });
+        
       } else if (mode === "forgot") {
         res = await forgotPassword({ email });
       }
@@ -155,102 +146,102 @@ const VerifyOtp = () => {
     } finally {
       setResendLoading(false);
     }
-  };
-
-  const handlePaste = (e) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData("text").trim();
-    if (/^\d{6}$/.test(pasteData)) {
-      const newOtp = pasteData.split("");
-      setOtp(newOtp);
-      setOtpError(false);
-      setMessage("");
-      inputRefs.current[5]?.focus();
-    }
-  };
+  };
+const handlePaste = (e) => {
+  e.preventDefault();
+  const pasteData = e.clipboardData.getData("text").trim();
+  if (/^\d{6}$/.test(pasteData)) {
+    const newOtp = pasteData.split("");
+    setOtp(newOtp);
+    setOtpError(false);
+    setMessage("");
+    inputRefs.current[5]?.focus();
+  }
+};
 
   return (
     <>
-      <Background/>
-      <div className="min-h-screen flex items-center justify-center px-4 font-poppins">
-        <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
-          <button className="absolute top-6 left-5 text-gray-900 text-3xl cursor-pointer" onClick={() => navigate(-1)}>
-            <img src={arrow} alt="Back" className="h-6 sm:h-8" />
-          </button>
+    <Background/>
+    <div className="min-h-screen flex items-center justify-center px-4 font-poppins"
+     
+    >
+      <div className="bg-white p-6 pb-20 sm:px-20 rounded-xl shadow-xl w-full max-w-[570px] relative mx-3">
+        
+        <button className="absolute top-6 left-5 text-gray-900 text-3xl" onClick={() => navigate(-1)}>
+          <img src={arrow} alt="Back" className="h-6 sm:h-8" />
+        </button>
 
-          <div className="flex justify-center pt-4">
-            <img src={logo} alt="Logo" className="h-8 sm:h-10" />
+        <div className="flex justify-center pt-4">
+          <img src={logo} alt="Logo" className="h-8 sm:h-10" />
+        </div>
+
+        <h2 className="text-center text-[24px] sm:text-[32px] font-semibold text-gray-900 mt-4">
+          {mode === "signup" ? "Verify With OTP" : "Verify Your Email"}
+        </h2>
+        <p className="text-center text-[14px] sm:text-[16px] text-[#707070] mb-8 sm:mb-10">
+          {mode === "signup"
+            ? "Please enter the code sent to your email to verify your account."
+            : "Enter the OTP sent to your email to reset your password."}
+        </p>
+
+        <form onSubmit={handleVerify} className="w-full">
+          <div className="flex justify-between mb-0">
+            {otp.map((digit, index) => (
+  <input
+    key={index}
+    type="text"
+    inputMode="numeric"
+    maxLength="1"
+    value={digit}
+    onChange={(e) => handleChange(index, e.target.value)}
+    onKeyDown={(e) => handleKeyDown(e, index)}
+    onPaste={handlePaste}
+    ref={(el) => (inputRefs.current[index] = el)}
+    onFocus={() => setAnyInputFocused(true)}
+    onBlur={() => setAnyInputFocused(false)}
+    className={`text-center border rounded-sm transition-all duration-200 outline-none
+      ${
+        otpError
+          ? "border-[#E63946] bg-[#FDEDEC]"
+          : anyInputFocused
+          ? "border-purple-700 bg-[#E7DBF1]"
+          : "border-[#D9D9D9] bg-[#F9F6FC]"
+      }
+    `}
+    style={{
+      width: "clamp(35px, 9vw, 56px)",
+      height: "clamp(35px, 9vw, 56px)",
+      fontSize: "clamp(14px, 4vw, 20px)",
+    }}
+  />
+))}
+
           </div>
 
-          <h2 className="text-center text-[24px] sm:text-[32px] font-semibold text-gray-900 mt-4">
-            {mode === "signup" ? "Verify With OTP" : "Verify Your Email"}
-          </h2>
-          <p className="text-center text-[14px] sm:text-[16px] text-[#707070] mb-8 sm:mb-10">
-            {mode === "signup"
-              ? "Please enter the code sent to your email to verify your account."
-              : "Enter the OTP sent to your email to reset your password."}
+          <p className={` mb-8 ${otpError ? "text-[#E63946]" : "text-green-600"}`} style={{ minHeight: "1em" }}>
+            { otpError?message:" "}
           </p>
 
-          <form onSubmit={handleVerify} className="w-full">
-            <div className="flex justify-between mb-0">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  onPaste={handlePaste}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  onFocus={() => setAnyInputFocused(true)}
-                  onBlur={() => setAnyInputFocused(false)}
-                  className={`text-center border rounded-sm transition-all duration-200 outline-none
-                    ${
-                      otpError
-                        ? "border-[#E63946] bg-[#FDEDEC]"
-                        : anyInputFocused
-                        ? "border-purple-700 bg-[#E7DBF1]"
-                        : "border-[#D9D9D9] bg-[#F9F6FC]"
-                    }
-                  `}
-                  style={{
-                    width: "clamp(35px, 9vw, 56px)",
-                    height: "clamp(35px, 9vw, 56px)",
-                    fontSize: "clamp(14px, 4vw, 20px)",
-                  }}
-                />
-              ))}
-            </div>
+          <button type="submit" disabled={loading} className="w-full text-[18px] sm:text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition">
+            {loading ? "Verifying..." : "Verify OTP"}
+          </button>
 
-            <p className={` mb-8 ${otpError ? "text-[#E63946]" : "text-green-600"}`} style={{ minHeight: "1em" }}>
-              {otpError ? message : " "}
-            </p>
-
-            <button type="submit" disabled={loading} className="w-full text-[18px] sm:text-[20px] bg-[#450B7B] text-white py-2.5 rounded-md font-normal hover:bg-[#3a0863] transition cursor-pointer">
-              {loading ? "Verifying..." : "Verify OTP"}
+          <div className=" mt-4 text-[#450B7B]">
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resendLoading || timer > 0}
+              className={`px-5 py-2 w-full sm:text-lg rounded-md font-medium border border-purple-700 text-[#450B7B] transition-all duration-200 ${timer > 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP"}
             </button>
 
-            <div className=" mt-4 text-[#450B7B]">
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={resendLoading || timer > 0}
-                className={`px-5 py-2 w-full sm:text-lg rounded-md font-medium border border-purple-700 text-[#450B7B] transition-all duration-200 ${timer > 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-              >
-                {timer > 0 ? `Resend OTP in ${timer}s` : "Resend OTP"}
-              </button>
-
-              <a href={mode === "signup" ? "/signup" : "/login"} className="flex justify-center underline mt-1 text-[#707070]">
-                {mode === "signup" ? "Back to signup" : "Back to login"}
-              </a>
-            </div>
-          </form>
-        </div>
+            <a href ={mode === "signup" ? "/signup" : "/login"} className="flex justify-center underline mt-1 text-[#707070]">{mode === "signup" ? "Back to signup" : "Back to login"}</a>
+          </div>
+        </form>
       </div>
-    </>
-  );
+    </div>
+  </>);
 };
 
 export default VerifyOtp;
