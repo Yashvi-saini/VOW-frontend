@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { ZONES, zoneAt } from "../mapLayout";
 
-// Lists places and people in the office; picking one teleports you there.
 const TeleportPanel = ({ avatars, onTeleport, onClose }) => {
   const [tab, setTab] = useState("people");
 

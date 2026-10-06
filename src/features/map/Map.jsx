@@ -161,7 +161,6 @@ useEffect(() => {
   };
 
   if (mapSocket.connected) onConnected();
-  // Also re-join after every reconnect, the server forgets us on disconnect
   mapSocket.on("connect", onConnected);
 
   removeMapListeners();
@@ -203,7 +202,6 @@ useEffect(() => {
     dispatch(clearAvatars());
   };
 }, [workspaceId, username, avatar]);
-  // Safety net: re-fetch who is on the map in case a realtime event was missed
   useEffect(() => {
     const id = setInterval(() => {
       if (mapSocket.connected) requestMapSync();
@@ -235,10 +233,8 @@ useEffect(() => {
   const avatarsRef = useRef({});
   avatarsRef.current = avatars || {};
 
-  // Instantly move to a point (percent of the world), landing on free ground
   const teleportTo = useCallback(
     ({ x, y, nearUser = false }) => {
-      // Land beside another person rather than on top of them
       const tx = Math.max(0, Math.min(100, nearUser ? x + 3.5 : x));
       const ty = Math.max(0, Math.min(100, y));
       const free = findNearestFreePoint(tx, ty) || (nearUser ? findNearestFreePoint(x - 3.5, y) : null);
@@ -250,7 +246,6 @@ useEffect(() => {
       setClickMarker(null);
       followCameraRef.current = true;
 
-      // Jump the camera too instead of gliding across the whole office
       const world = containerRef.current;
       const vp = viewportRef.current;
       if (world && vp) {
@@ -260,7 +255,6 @@ useEffect(() => {
         cameraTargetRef.current = { left, top };
         vp.scrollTo({ left, top, behavior: "auto" });
       }
-      // Tell everyone right away
       if (mapSocket.connected) {
         updateMapPosition({ workspaceId, x: free.x, y: free.y, displayName: username, avatar });
       }
@@ -269,7 +263,6 @@ useEffect(() => {
     [findNearestFreePoint, workspaceId, username, avatar]
   );
 
-  // Walk to a point picked on the minimap
   const walkTo = useCallback(
     (x, y) => {
       const target = findNearestFreePoint(x, y);

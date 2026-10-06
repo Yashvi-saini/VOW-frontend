@@ -104,7 +104,6 @@ const AvatarsLayer = () => {
             
             <div className="relative group cursor-pointer pointer-events-auto flex flex-col items-center">
               <Avatar size={60} userId={a.userId} image={a.avatar} name={username} />
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-[#200539] rounded-full shadow-md z-10" />
             </div>
 
             <div className="mt-1 px-3 py-0.5 bg-[#200539] text-white font-bold text-xs rounded-full border border-[#AC92CB] shadow-xl whitespace-nowrap pointer-events-auto">

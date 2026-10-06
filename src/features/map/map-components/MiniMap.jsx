@@ -1,11 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { WORLD_W, WORLD_H, ZONES } from "../mapLayout";
 
 const MM_W = 220;
 const MM_H = Math.round((MM_W * WORLD_H) / WORLD_W);
 
-// Small overview of the whole office: zones, obstacles, other people, you and
-// the area currently visible on screen. Click it to walk somewhere.
 const MiniMap = ({
   positionRef,
   avatarsRef,
@@ -16,6 +14,34 @@ const MiniMap = ({
 }) => {
   const canvasRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [pos, setPos] = useState(null);
+  const panelRef = useRef(null);
+
+  const startDrag = useCallback((e) => {
+    if (e.target.closest("button")) return;
+    const panel = panelRef.current;
+    const parent = panel?.offsetParent;
+    if (!panel || !parent) return;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const originLeft = panel.offsetLeft;
+    const originTop = panel.offsetTop;
+
+    const onMove = (ev) => {
+      const left = originLeft + ev.clientX - startX;
+      const top = originTop + ev.clientY - startY;
+      setPos({
+        left: Math.max(0, Math.min(parent.clientWidth - panel.offsetWidth, left)),
+        top: Math.max(0, Math.min(parent.clientHeight - panel.offsetHeight, top)),
+      });
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }, []);
 
   useEffect(() => {
     if (collapsed) return;
@@ -48,8 +74,6 @@ const MiniMap = ({
         if (![o.x, o.y, o.width, o.height].every(Number.isFinite)) return;
         ctx.fillRect(px(o.x - o.width / 2), py(o.y - o.height / 2), px(o.width), py(o.height));
       });
-
-      // Area currently on screen
       const vp = viewportRef.current;
       const world = containerRef.current;
       if (vp && world && world.clientWidth) {
@@ -59,8 +83,6 @@ const MiniMap = ({
         ctx.lineWidth = 1.5;
         ctx.strokeRect(vp.scrollLeft * sx, vp.scrollTop * sy, vp.clientWidth * sx, vp.clientHeight * sy);
       }
-
-      // Other people
       Object.values(avatarsRef.current || {}).forEach((a) => {
         const x = a.targetX ?? a.x;
         const y = a.targetY ?? a.y;
@@ -73,8 +95,6 @@ const MiniMap = ({
         ctx.lineWidth = 1;
         ctx.stroke();
       });
-
-      // You
       const me = positionRef.current;
       if (me) {
         ctx.beginPath();
@@ -101,10 +121,15 @@ const MiniMap = ({
 
   return (
     <div
-      className="absolute bottom-4 left-4 z-40 rounded-xl bg-white/95 shadow-lg border border-[#CCB4E3] p-2 select-none"
+      ref={panelRef}
+      className="absolute z-40 rounded-xl bg-white/95 shadow-lg border border-[#CCB4E3] p-2 select-none"
+      style={pos ? { left: pos.left, top: pos.top } : { left: 16, bottom: 16 }}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center justify-between mb-1 px-1">
+      <div
+        className="flex items-center justify-between mb-1 px-1 cursor-move touch-none"
+        onPointerDown={startDrag}
+      >
         <span className="text-xs font-semibold text-[#450B7B]">Office map</span>
         <button
           type="button"
@@ -122,16 +147,10 @@ const MiniMap = ({
             style={{ width: MM_W, height: MM_H, cursor: "pointer" }}
             className="rounded border border-[#E5DCF0]"
           />
-          <div className="flex gap-3 mt-1 px-1 text-[10px] text-gray-600">
-            <span className="flex items-center gap-1">
-              <i className="inline-block w-2 h-2 rounded-full bg-[#5E9BFF]" /> You
-            </span>
-            <span className="flex items-center gap-1">
-              <i className="inline-block w-2 h-2 rounded-full bg-[#22C55E]" /> Others
-            </span>
-            <span className="flex items-center gap-1">
-              <i className="inline-block w-2.5 h-2 border border-[#5C0EA4]" /> View
-            </span>
+          <div className="flex gap-3 mt-1 px-1 text-[10px] font-medium">
+            <span className="text-[#2563EB]">You</span>
+            <span className="text-[#16A34A]">Others</span>
+            <span className="text-[#5C0EA4]">View</span>
           </div>
         </>
       )}
